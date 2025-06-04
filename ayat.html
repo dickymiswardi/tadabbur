@@ -2,218 +2,157 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Ayat Al-Qur'an</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Al-Qur'an Digital</title>
   <style>
+    @font-face {
+      font-family: 'Madina';
+      src: url('madina.woff2') format('woff2');
+      font-display: swap;
+    }
+
     body {
       font-family: sans-serif;
       max-width: 700px;
       margin: auto;
       padding: 1.5em;
-      line-height: 1.7;
+      line-height: 1.6;
+      background-color: #fff;
+      color: #111;
     }
 
     h1 {
+      font-size: 1.4em;
       text-align: center;
-      font-size: 1.6em;
       margin-bottom: 1em;
     }
 
     .arabic {
-      font-size: 1.8em;
+      font-family: 'Madina', serif;
+      font-size: 2.2em;
       text-align: right;
       direction: rtl;
-      margin: 1em 0;
-      line-height: 2;
+      margin-top: 1.5em;
     }
 
-    .terjemahan {
-      font-size: 1.1em;
-      font-weight: 600;
-      margin-bottom: 1em;
+    .translation {
+      font-size: 0.95em;
+      margin-top: 1.5em;
       text-align: justify;
     }
 
-    .footnote {
+    .sumber {
       font-size: 0.9em;
       color: #555;
+      margin-top: 3em;
+      border-top: 1px solid #ccc;
+      padding-top: 1em;
       text-align: center;
-      margin-top: 2em;
     }
 
-    @media (max-width: 600px) {
+    @media (max-width: 480px) {
       body {
         padding: 1em;
       }
 
       .arabic {
-        font-size: 1.5em;
+        font-size: 1.8em;
       }
 
-      .terjemahan {
+      .translation {
         font-size: 1em;
+      }
+
+      h1 {
+        font-size: 1.2em;
       }
     }
   </style>
 </head>
 <body>
   <h1 id="judul">Surah</h1>
+  <div id="result">Memuat...</div>
 
-  <div class="arabic" id="arabic">Loading...</div>
-  <div class="terjemahan" id="translation">Memuat terjemahan...</div>
-
-  <div class="footnote">
-    <div id="footnote"></div>
-    <p>Sumber: Quran.com API + King Fahad Quran Complex</p>
+  <div class="sumber">
+    Sumber: Quran.com API + King Fahad Quran Complex
   </div>
 
   <script>
-    const params = new URLSearchParams(window.location.search);
-    const surah = parseInt(params.get("surah"));
-    const ayat = parseInt(params.get("ayat"));
+    const surah = new URLSearchParams(window.location.search).get("surah");
+    const ayat = new URLSearchParams(window.location.search).get("ayat");
 
-    const surahList = [
-      { number: 1, name: "Al-Fatihah", totalAyah: 7 },
-      { number: 2, name: "Al-Baqarah", totalAyah: 286 },
-      { number: 3, name: "Ali 'Imran", totalAyah: 200 },
-      { number: 4, name: "An-Nisa'", totalAyah: 176 },
-      { number: 5, name: "Al-Ma'idah", totalAyah: 120 },
-      { number: 6, name: "Al-An'am", totalAyah: 165 },
-      { number: 7, name: "Al-A'raf", totalAyah: 206 },
-      { number: 8, name: "Al-Anfal", totalAyah: 75 },
-      { number: 9, name: "At-Tawbah", totalAyah: 129 },
-      { number: 10, name: "Yunus", totalAyah: 109 },
-      { number: 11, name: "Hud", totalAyah: 123 },
-      { number: 12, name: "Yusuf", totalAyah: 111 },
-      { number: 13, name: "Ar-Ra'd", totalAyah: 43 },
-      { number: 14, name: "Ibrahim", totalAyah: 52 },
-      { number: 15, name: "Al-Hijr", totalAyah: 99 },
-      { number: 16, name: "An-Nahl", totalAyah: 128 },
-      { number: 17, name: "Al-Isra'", totalAyah: 111 },
-      { number: 18, name: "Al-Kahfi", totalAyah: 110 },
-      { number: 19, name: "Maryam", totalAyah: 98 },
-      { number: 20, name: "Ta-Ha", totalAyah: 135 },
-      { number: 21, name: "Al-Anbiya'", totalAyah: 112 },
-      { number: 22, name: "Al-Hajj", totalAyah: 78 },
-      { number: 23, name: "Al-Mu'minun", totalAyah: 118 },
-      { number: 24, name: "An-Nur", totalAyah: 64 },
-      { number: 25, name: "Al-Furqan", totalAyah: 77 },
-      { number: 26, name: "Ash-Shu'ara'", totalAyah: 227 },
-      { number: 27, name: "An-Naml", totalAyah: 93 },
-      { number: 28, name: "Al-Qasas", totalAyah: 88 },
-      { number: 29, name: "Al-'Ankabut", totalAyah: 69 },
-      { number: 30, name: "Ar-Rum", totalAyah: 60 },
-      { number: 31, name: "Luqman", totalAyah: 34 },
-      { number: 32, name: "As-Sajdah", totalAyah: 30 },
-      { number: 33, name: "Al-Ahzab", totalAyah: 73 },
-      { number: 34, name: "Saba'", totalAyah: 54 },
-      { number: 35, name: "Fatir", totalAyah: 45 },
-      { number: 36, name: "Yasin", totalAyah: 83 },
-      { number: 37, name: "As-Saffat", totalAyah: 182 },
-      { number: 38, name: "Sad", totalAyah: 88 },
-      { number: 39, name: "Az-Zumar", totalAyah: 75 },
-      { number: 40, name: "Ghafir", totalAyah: 85 },
-      { number: 41, name: "Fussilat", totalAyah: 54 },
-      { number: 42, name: "Ash-Shura", totalAyah: 53 },
-      { number: 43, name: "Az-Zukhruf", totalAyah: 89 },
-      { number: 44, name: "Ad-Dukhan", totalAyah: 59 },
-      { number: 45, name: "Al-Jathiyah", totalAyah: 37 },
-      { number: 46, name: "Al-Ahqaf", totalAyah: 35 },
-      { number: 47, name: "Muhammad", totalAyah: 38 },
-      { number: 48, name: "Al-Fath", totalAyah: 29 },
-      { number: 49, name: "Al-Hujurat", totalAyah: 18 },
-      { number: 50, name: "Qaf", totalAyah: 45 },
-      { number: 51, name: "Adz-Dzariyat", totalAyah: 60 },
-      { number: 52, name: "At-Tur", totalAyah: 49 },
-      { number: 53, name: "An-Najm", totalAyah: 62 },
-      { number: 54, name: "Al-Qamar", totalAyah: 55 },
-      { number: 55, name: "Ar-Rahman", totalAyah: 78 },
-      { number: 56, name: "Al-Waqi'ah", totalAyah: 96 },
-      { number: 57, name: "Al-Hadid", totalAyah: 29 },
-      { number: 58, name: "Al-Mujadilah", totalAyah: 22 },
-      { number: 59, name: "Al-Hasyr", totalAyah: 24 },
-      { number: 60, name: "Al-Mumtahanah", totalAyah: 13 },
-      { number: 61, name: "As-Saff", totalAyah: 14 },
-      { number: 62, name: "Al-Jumu'ah", totalAyah: 11 },
-      { number: 63, name: "Al-Munafiqun", totalAyah: 11 },
-      { number: 64, name: "At-Taghabun", totalAyah: 18 },
-      { number: 65, name: "At-Talaq", totalAyah: 12 },
-      { number: 66, name: "At-Tahrim", totalAyah: 12 },
-      { number: 67, name: "Al-Mulk", totalAyah: 30 },
-      { number: 68, name: "Al-Qalam", totalAyah: 52 },
-      { number: 69, name: "Al-Haqqah", totalAyah: 52 },
-      { number: 70, name: "Al-Ma'arij", totalAyah: 44 },
-      { number: 71, name: "Nuh", totalAyah: 28 },
-      { number: 72, name: "Al-Jinn", totalAyah: 28 },
-      { number: 73, name: "Al-Muzzammil", totalAyah: 20 },
-      { number: 74, name: "Al-Muddathir", totalAyah: 56 },
-      { number: 75, name: "Al-Qiyamah", totalAyah: 40 },
-      { number: 76, name: "Al-Insan", totalAyah: 31 },
-      { number: 77, name: "Al-Mursalat", totalAyah: 50 },
-      { number: 78, name: "An-Naba'", totalAyah: 40 },
-      { number: 79, name: "An-Nazi'at", totalAyah: 46 },
-      { number: 80, name: "'Abasa", totalAyah: 42 },
-      { number: 81, name: "At-Takwir", totalAyah: 29 },
-      { number: 82, name: "Al-Infitar", totalAyah: 19 },
-      { number: 83, name: "Al-Mutaffifin", totalAyah: 36 },
-      { number: 84, name: "Al-Insyiqaq", totalAyah: 25 },
-      { number: 85, name: "Al-Buruj", totalAyah: 22 },
-      { number: 86, name: "At-Tariq", totalAyah: 17 },
-      { number: 87, name: "Al-A'la", totalAyah: 19 },
-      { number: 88, name: "Al-Ghasyiyah", totalAyah: 26 },
-      { number: 89, name: "Al-Fajr", totalAyah: 30 },
-      { number: 90, name: "Al-Balad", totalAyah: 20 },
-      { number: 91, name: "Asy-Syams", totalAyah: 15 },
-      { number: 92, name: "Al-Lail", totalAyah: 21 },
-      { number: 93, name: "Ad-Duhaa", totalAyah: 11 },
-      { number: 94, name: "Asy-Syarh", totalAyah: 8 },
-      { number: 95, name: "At-Tin", totalAyah: 8 },
-      { number: 96, name: "Al-‘Alaq", totalAyah: 19 },
-      { number: 97, name: "Al-Qadr", totalAyah: 5 },
-      { number: 98, name: "Al-Bayyinah", totalAyah: 8 },
-      { number: 99, name: "Az-Zalzalah", totalAyah: 8 },
-      { number: 100, name: "Al-‘Adiyat", totalAyah: 11 },
-      { number: 101, name: "Al-Qari‘ah", totalAyah: 11 },
-      { number: 102, name: "At-Takatsur", totalAyah: 8 },
-      { number: 103, name: "Al-‘Ashr", totalAyah: 3 },
-      { number: 104, name: "Al-Humazah", totalAyah: 9 },
-      { number: 105, name: "Al-Fil", totalAyah: 5 },
-      { number: 106, name: "Quraisy", totalAyah: 4 },
-      { number: 107, name: "Al-Ma‘un", totalAyah: 7 },
-      { number: 108, name: "Al-Kautsar", totalAyah: 3 },
-      { number: 109, name: "Al-Kafirun", totalAyah: 6 },
-      { number: 110, name: "An-Nashr", totalAyah: 3 },
-      { number: 111, name: "Al-Lahab", totalAyah: 5 },
-      { number: 112, name: "Al-Ikhlas", totalAyah: 4 },
-      { number: 113, name: "Al-Falaq", totalAyah: 5 },
-      { number: 114, name: "An-Nas", totalAyah: 6 }
-    ];
+    const surahNames = {
+      1:"Al-Fatihah",2:"Al-Baqarah",3:"Ali 'Imran",4:"An-Nisa'",5:"Al-Ma'idah",
+      6:"Al-An'am",7:"Al-A'raf",8:"Al-Anfal",9:"At-Tawbah",10:"Yunus",
+      11:"Hud",12:"Yusuf",13:"Ar-Ra'd",14:"Ibrahim",15:"Al-Hijr",
+      16:"An-Nahl",17:"Al-Isra'",18:"Al-Kahf",19:"Maryam",20:"Ta-Ha",
+      21:"Al-Anbiya'",22:"Al-Hajj",23:"Al-Mu'minun",24:"An-Nur",25:"Al-Furqan",
+      26:"Ash-Shu'ara'",27:"An-Naml",28:"Al-Qasas",29:"Al-'Ankabut",30:"Ar-Rum",
+      31:"Luqman",32:"As-Sajdah",33:"Al-Ahzab",34:"Saba'",35:"Fatir",
+      36:"Ya-Sin",37:"As-Saffat",38:"Sad",39:"Az-Zumar",40:"Ghafir",
+      41:"Fussilat",42:"Ash-Shura",43:"Az-Zukhruf",44:"Ad-Dukhan",45:"Al-Jathiyah",
+      46:"Al-Ahqaf",47:"Muhammad",48:"Al-Fath",49:"Al-Hujurat",50:"Qaf",
+      51:"Adh-Dhariyat",52:"At-Tur",53:"An-Najm",54:"Al-Qamar",55:"Ar-Rahman",
+      56:"Al-Waqi'ah",57:"Al-Hadid",58:"Al-Mujadila",59:"Al-Hashr",60:"Al-Mumtahanah",
+      61:"As-Saff",62:"Al-Jumu'ah",63:"Al-Munafiqun",64:"At-Taghabun",65:"At-Talaq",
+      66:"At-Tahrim",67:"Al-Mulk",68:"Al-Qalam",69:"Al-Haqqah",70:"Al-Ma'arij",
+      71:"Nuh",72:"Al-Jinn",73:"Al-Muzzammil",74:"Al-Muddaththir",75:"Al-Qiyamah",
+      76:"Al-Insan",77:"Al-Mursalat",78:"An-Naba'",79:"An-Nazi'at",80:"'Abasa",
+      81:"At-Takwir",82:"Al-Infitar",83:"Al-Mutaffifin",84:"Al-Inshiqaq",85:"Al-Buruj",
+      86:"At-Tariq",87:"Al-A'la",88:"Al-Ghashiyah",89:"Al-Fajr",90:"Al-Balad",
+      91:"Ash-Shams",92:"Al-Lail",93:"Adh-Dhuha",94:"Ash-Sharh",95:"At-Tin",
+      96:"Al-'Alaq",97:"Al-Qadr",98:"Al-Bayyinah",99:"Az-Zalzalah",100:"Al-'Adiyat",
+      101:"Al-Qari'ah",102:"At-Takathur",103:"Al-'Asr",104:"Al-Humazah",105:"Al-Fil",
+      106:"Quraysh",107:"Al-Ma'un",108:"Al-Kawthar",109:"Al-Kafirun",110:"An-Nasr",
+      111:"Al-Masad",112:"Al-Ikhlas",113:"Al-Falaq",114:"An-Nas"
+    };
 
-    const titleEl = document.getElementById("judul");
-    const arabicEl = document.getElementById("arabic");
-    const translationEl = document.getElementById("translation");
-    const footnoteEl = document.getElementById("footnote");
+    const surahName = surahNames[surah] || "Surah Tidak Dikenal";
+    document.getElementById("judul").textContent = `${surahName} Surah ${surah} Ayat ${ayat}`;
 
-    const surahData = surahList.find(s => s.number === surah);
-    if (!surahData || ayat < 1 || ayat > surahData.totalAyah) {
-      titleEl.textContent = `Surah Tidak Dikenal Surah ${surah} Ayat ${ayat}`;
-      arabicEl.textContent = "";
-      translationEl.textContent = "";
-      footnoteEl.textContent = "Ayat tidak ditemukan.";
-    } else {
-      titleEl.textContent = `${surahData.name} (${surahData.number}) Ayat ${ayat}`;
-      fetch(`https://api.quran.com/v4/quran/verses/uthmani?verse_key=${surah}:${ayat}`)
-        .then(res => res.json())
-        .then(data => {
-          arabicEl.textContent = data.verses?.[0]?.text_uthmani || "Teks tidak ditemukan";
-        });
+    const apiURL = `https://api.quran.com/api/v4/quran/verses/uthmani?verse_key=${surah}:${ayat}`;
 
-      fetch(`https://api.quran.com/v4/quran/translations/33?verse_key=${surah}:${ayat}`)
-        .then(res => res.json())
-        .then(data => {
-          translationEl.textContent = data.translations?.[0]?.text || "Terjemahan tidak ditemukan";
-        });
-    }
+    Promise.all([
+      fetch(apiURL).then(res => res.json()),
+      fetch("indonesian_complex_v1.0.0-xml.1.xml").then(res => res.text())
+    ])
+    .then(([arabData, xmlText]) => {
+      const verse = arabData.verses?.[0];
+      const arabicText = verse?.text_uthmani || "(Teks Arab tidak ditemukan)";
+
+      const arabDiv = document.createElement('div');
+      arabDiv.className = 'arabic';
+      arabDiv.textContent = arabicText;
+      document.getElementById("result").innerHTML = '';
+      document.getElementById("result").appendChild(arabDiv);
+
+      const parser = new DOMParser();
+      const xmlDoc = parser.parseFromString(xmlText, "text/xml");
+
+      const translationAyah = xmlDoc.querySelector(`sura[number="${surah}"] > aya[number="${ayat}"]`);
+      let translation = translationAyah?.querySelector("translation")?.textContent || "(Terjemahan tidak ditemukan)";
+      const footnotes = translationAyah?.querySelector("footnotes")?.textContent || "";
+
+      if (footnotes) {
+        translation = translation.replace(/(\d+)/g, '<sup>($1)</sup>');
+      }
+
+      const translationDiv = document.createElement("div");
+      translationDiv.className = "translation";
+      translationDiv.innerHTML = translation;
+      document.getElementById("result").appendChild(translationDiv);
+
+      if (footnotes) {
+        const foot = document.createElement("div");
+        foot.className = "translation";
+        foot.innerHTML = `<em>Catatan: ${footnotes}</em>`;
+        document.getElementById("result").appendChild(foot);
+      }
+    })
+    .catch(err => {
+      console.error(err);
+      document.getElementById("result").textContent = "Gagal memuat data.";
+    });
   </script>
 </body>
 </html>
