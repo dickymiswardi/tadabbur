@@ -36,17 +36,11 @@
     }
 
     .translation {
-      font-size: 1.1em;
-      font-weight: 600;
-      margin-bottom: 1em;
+      font-size: 0.95em;
+      margin-top: 1.5em;
       text-align: justify;
     }
-.footnote {
-      font-size: 0.9em;
-      color: #555;
-      text-align: center;
-      margin-top: 2em;
-    }
+
     .sumber {
       font-size: 0.9em;
       color: #555;
@@ -118,6 +112,11 @@
 
     const apiURL = `https://api.quran.com/api/v4/quran/verses/uthmani?verse_key=${surah}:${ayat}`;
 
+    function toArabicNumeral(num) {
+      const arabicDigits = ['٠','١','٢','٣','٤','٥','٦','٧','٨','٩'];
+      return num.toString().split('').map(d => arabicDigits[parseInt(d)]).join('');
+    }
+
     Promise.all([
       fetch(apiURL).then(res => res.json()),
       fetch("indonesian_complex_v1.0.0-xml.1.xml").then(res => res.text())
@@ -125,10 +124,14 @@
     .then(([arabData, xmlText]) => {
       const verse = arabData.verses?.[0];
       const arabicText = verse?.text_uthmani || "(Teks Arab tidak ditemukan)";
+      const ayahNumber = verse?.verse_key?.split(":")[1] || "";
+      const ayahNumberArabic = toArabicNumeral(ayahNumber);
+      const ayahDecoration = ` \u06dd${ayahNumberArabic}\u06dd`; // e.g. ۝٣۝
+      const decoratedText = arabicText + ayahDecoration;
 
       const arabDiv = document.createElement('div');
       arabDiv.className = 'arabic';
-      arabDiv.textContent = arabicText;
+      arabDiv.textContent = decoratedText;
       document.getElementById("result").innerHTML = '';
       document.getElementById("result").appendChild(arabDiv);
 
