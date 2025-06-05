@@ -35,6 +35,13 @@
       margin-top: 1.5em;
     }
 
+    .rasm-symbol {
+      font-size: 0.5em;
+      vertical-align: super;
+      color: #666;
+      margin: 0 0.1em;
+    }
+
     .translation {
       font-size: 0.95em;
       margin-top: 1.5em;
@@ -112,10 +119,14 @@
 
     const apiURL = `https://api.quran.com/api/v4/quran/verses/uthmani?verse_key=${surah}:${ayat}`;
 
-    // Fungsi untuk menghapus simbol rasm seperti ۛ ۖ ۚ dll
-    function removeRasmSymbols(text) {
-      const unwantedSymbols = /[\u06D6-\u06ED]/g;
-      return text.replace(unwantedSymbols, '');
+    // Fungsi untuk membungkus simbol rasm dengan <sup>
+    function wrapRasmSymbols(text) {
+      return text.replace(/([\u06D6-\u06ED])/g, ' <sup class="rasm-symbol">$1</sup> ');
+    }
+
+    const arabicNumberMap = ["", "١", "٢", "٣", "٤", "٥", "٦", "٧", "٨", "٩"];
+    function toArabicNumber(n) {
+      return String(n).split('').map(d => arabicNumberMap[parseInt(d)]).join('');
     }
 
     Promise.all([
@@ -125,19 +136,13 @@
     .then(([arabData, xmlText]) => {
       const verse = arabData.verses?.[0];
       let arabicText = verse?.text_uthmani || "(Teks Arab tidak ditemukan)";
-
-      arabicText = removeRasmSymbols(arabicText); // Hapus simbol
-
-      const arabicNumberMap = ["", "١", "٢", "٣", "٤", "٥", "٦", "٧", "٨", "٩"];
-      function toArabicNumber(n) {
-        return String(n).split('').map(d => arabicNumberMap[parseInt(d)]).join('');
-      }
-      const ayahNumberArabic = toArabicNumber(ayat);
-      arabicText += ` \u06dd${ayahNumberArabic}`; // Tambahkan ۝
+      
+      arabicText = wrapRasmSymbols(arabicText);
+      arabicText += ` \u06dd${toArabicNumber(ayat)}`;
 
       const arabDiv = document.createElement('div');
       arabDiv.className = 'arabic';
-      arabDiv.textContent = arabicText;
+      arabDiv.innerHTML = arabicText;
       document.getElementById("result").innerHTML = '';
       document.getElementById("result").appendChild(arabDiv);
 
