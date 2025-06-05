@@ -177,7 +177,7 @@
     };
 
     function toArabicNumber(n) {
-      const map = ["", "١", "٢", "٣", "٤", "٥", "٦", "٧", "٨", "٩"];
+      const map = ["٠", "١", "٢", "٣", "٤", "٥", "٦", "٧", "٨", "٩"];
       return String(n).split('').map(d => map[parseInt(d)]).join('');
     }
 
