@@ -70,22 +70,6 @@
       text-align: justify;
     }
 
-    #navigation {
-      margin-top: 2em;
-      display: flex;
-      justify-content: space-between;
-    }
-
-    #navigation a {
-      padding: 0.5em 1em;
-      background-color: #eee;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      text-decoration: none;
-      font-size: 0.9em;
-      color: #333;
-    }
-
     .sumber {
       font-size: 0.9em;
       color: #555;
@@ -93,6 +77,27 @@
       border-top: 1px solid #ccc;
       padding-top: 1em;
       text-align: center;
+    }
+
+    .nav-buttons {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 2em;
+    }
+
+    .nav-buttons button {
+      padding: 0.6em 1.2em;
+      border: none;
+      background-color: #007b8a;
+      color: white;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.95em;
+      transition: background-color 0.2s ease;
+    }
+
+    .nav-buttons button:hover {
+      background-color: #005f6b;
     }
 
     @media (max-width: 480px) {
@@ -111,10 +116,6 @@
       .judul-container h1 {
         font-size: 1.2em;
       }
-
-      #navigation a {
-        font-size: 0.85em;
-      }
     }
   </style>
 </head>
@@ -123,15 +124,14 @@
     <h1 id="judul">Surah</h1>
   </div>
   <div id="result">Memuat...</div>
-  <div id="navigation"></div>
 
   <div class="sumber">
     Sumber: Quran.com API + King Fahad Quran Complex
   </div>
 
   <script>
-    const surah = new URLSearchParams(window.location.search).get("surah");
-    const ayat = new URLSearchParams(window.location.search).get("ayat");
+    const surah = parseInt(new URLSearchParams(window.location.search).get("surah") || "1");
+    const ayat = parseInt(new URLSearchParams(window.location.search).get("ayat") || "1");
 
     const surahNames = {
       1:"Al-Fatihah",2:"Al-Baqarah",3:"Ali 'Imran",4:"An-Nisa'",5:"Al-Ma'idah",
@@ -159,7 +159,7 @@
       111:"Al-Masad",112:"Al-Ikhlas",113:"Al-Falaq",114:"An-Nas"
     };
 
-    const ayatCounts = {
+    const surahAyahCount = {
       1:7, 2:286, 3:200, 4:176, 5:120, 6:165, 7:206, 8:75, 9:129, 10:109,
       11:123, 12:111, 13:43, 14:52, 15:99, 16:128, 17:111, 18:110, 19:98, 20:135,
       21:112, 22:78, 23:118, 24:64, 25:77, 26:227, 27:93, 28:88, 29:69, 30:60,
@@ -180,12 +180,25 @@
     const apiURL = `https://api.quran.com/api/v4/quran/verses/uthmani?verse_key=${surah}:${ayat}`;
 
     function toArabicNumber(n) {
-      const arabicNumberMap = ["", "١", "٢", "٣", "٤", "٥", "٦", "٧", "٨", "٩"];
-      return String(n).split('').map(d => arabicNumberMap[parseInt(d)]).join('');
+      const map = ["", "١", "٢", "٣", "٤", "٥", "٦", "٧", "٨", "٩"];
+      return String(n).split('').map(d => map[parseInt(d)]).join('');
     }
 
     function wrapRasmSymbols(text) {
       return text.replace(/([ۛۖۚۗۙۘۜ])/g, ' <sup class="rasm-symbol">$1</sup> ');
+    }
+
+    function getNextAyah(surah, ayah) {
+      if (surah === 114 && ayah === 6) return { surah: 1, ayah: 1 };
+      const lastAyah = surahAyahCount[surah];
+      if (ayah < lastAyah) return { surah, ayah: ayah + 1 };
+      return { surah: surah + 1, ayah: 1 };
+    }
+
+    function getPrevAyah(surah, ayah) {
+      if (surah === 1 && ayah === 1) return null;
+      if (ayah > 1) return { surah, ayah: ayah - 1 };
+      return { surah: surah - 1, ayah: surahAyahCount[surah - 1] };
     }
 
     Promise.all([
@@ -195,13 +208,12 @@
     .then(([arabData, xmlText]) => {
       const verse = arabData.verses?.[0];
       let arabicText = verse?.text_uthmani || "(Teks Arab tidak ditemukan)";
-      const ayahNumberArabic = toArabicNumber(ayat);
-      arabicText += ` \u06dd${ayahNumberArabic}`;
-      const processedArabic = wrapRasmSymbols(arabicText);
+      arabicText += ` \u06dd${toArabicNumber(ayat)}`;
+      arabicText = wrapRasmSymbols(arabicText);
 
       const arabDiv = document.createElement('div');
       arabDiv.className = 'arabic';
-      arabDiv.innerHTML = processedArabic;
+      arabDiv.innerHTML = arabicText;
       document.getElementById("result").innerHTML = '';
       document.getElementById("result").appendChild(arabDiv);
 
@@ -228,48 +240,29 @@
         document.getElementById("result").appendChild(foot);
       }
 
-      // Navigasi
-      const s = parseInt(surah);
-      const a = parseInt(ayat);
-      const navDiv = document.getElementById("navigation");
-      const totalSurah = 114;
+      const navDiv = document.createElement("div");
+      navDiv.className = "nav-buttons";
 
-      function createNavButton(text, href) {
-        const btn = document.createElement('a');
-        btn.textContent = text;
-        btn.href = href;
-        return btn;
+      const prev = getPrevAyah(surah, ayat);
+      const next = getNextAyah(surah, ayat);
+
+      if (prev) {
+        const prevBtn = document.createElement("button");
+        prevBtn.textContent = "← Sebelumnya";
+        prevBtn.onclick = () => {
+          window.location.search = `?surah=${prev.surah}&ayat=${prev.ayah}`;
+        };
+        navDiv.appendChild(prevBtn);
       }
 
-      // Tombol Sebelumnya
-      if (!(s === 1 && a === 1)) {
-        let prevSurah = s;
-        let prevAyat = a - 1;
+      const nextBtn = document.createElement("button");
+      nextBtn.textContent = "Selanjutnya →";
+      nextBtn.onclick = () => {
+        window.location.search = `?surah=${next.surah}&ayat=${next.ayah}`;
+      };
+      navDiv.appendChild(nextBtn);
 
-        if (prevAyat < 1) {
-          prevSurah = s - 1;
-          while (!ayatCounts[prevSurah] && prevSurah > 0) prevSurah--;
-          prevAyat = ayatCounts[prevSurah];
-        }
-
-        const prevLink = `?surah=${prevSurah}&ayat=${prevAyat}`;
-        navDiv.appendChild(createNavButton("Sebelumnya", prevLink));
-      } else {
-        navDiv.appendChild(document.createElement("div"));
-      }
-
-      // Tombol Selanjutnya
-      let nextSurah = s;
-      let nextAyat = a + 1;
-
-      if (nextAyat > ayatCounts[s]) {
-        nextSurah = s + 1;
-        if (nextSurah > totalSurah) nextSurah = 1;
-        nextAyat = 1;
-      }
-
-      const nextLink = `?surah=${nextSurah}&ayat=${nextAyat}`;
-      navDiv.appendChild(createNavButton("Selanjutnya", nextLink));
+      document.getElementById("result").appendChild(navDiv);
     })
     .catch(err => {
       console.error(err);
