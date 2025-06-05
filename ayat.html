@@ -35,13 +35,6 @@
       margin-top: 1.5em;
     }
 
-    .ayah-mark {
-      display: inline-block;
-      font-size: 0.6em;
-      vertical-align: super;
-      margin-left: 0.15em;
-    }
-
     .translation {
       font-size: 0.95em;
       margin-top: 1.5em;
@@ -126,22 +119,24 @@
     .then(([arabData, xmlText]) => {
       const verse = arabData.verses?.[0];
       let arabicText = verse?.text_uthmani || "(Teks Arab tidak ditemukan)";
-
-      // Pisahkan dan naikkan simbol waqaf/tajwid
-      const symbols = ["\u06DB", "\u06D6", "\u06D7", "\u06D8", "\u06D9", "\u06DA", "\u06DC"];
-      symbols.forEach(symbol => {
-        const regex = new RegExp(symbol, 'g');
-        arabicText = arabicText.replace(regex, ` <span class="ayah-mark">${symbol}</span>`);
-      });
+      
+      // Tambahkan nomor ayat dengan simbol ۝ sebelum nomor
+      const arabicNumberMap = ["", "١", "٢", "٣", "٤", "٥", "٦", "٧", "٨", "٩"];
+      function toArabicNumber(n) {
+        return String(n).split('').map(d => arabicNumberMap[parseInt(d)]).join('');
+      }
+      const ayahNumberArabic = toArabicNumber(ayat);
+      arabicText += ` \u06dd${ayahNumberArabic}`; // ۝6
 
       const arabDiv = document.createElement('div');
       arabDiv.className = 'arabic';
-      arabDiv.innerHTML = arabicText;
+      arabDiv.textContent = arabicText;
       document.getElementById("result").innerHTML = '';
       document.getElementById("result").appendChild(arabDiv);
 
       const parser = new DOMParser();
       const xmlDoc = parser.parseFromString(xmlText, "text/xml");
+
       const translationAyah = xmlDoc.querySelector(`sura[number="${surah}"] > aya[number="${ayat}"]`);
       let translation = translationAyah?.querySelector("translation")?.textContent || "(Terjemahan tidak ditemukan)";
       const footnotes = translationAyah?.querySelector("footnotes")?.textContent || "";
