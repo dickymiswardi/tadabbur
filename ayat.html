@@ -50,6 +50,19 @@
       text-align: center;
     }
 
+    .mark-above {
+      position: relative;
+      display: inline-block;
+    }
+
+    .mark-above::after {
+      content: attr(data-mark);
+      position: absolute;
+      top: -0.8em;
+      right: -0.1em;
+      font-size: 0.5em;
+    }
+
     @media (max-width: 480px) {
       body {
         padding: 1em;
@@ -80,7 +93,6 @@
   <script>
     const surah = new URLSearchParams(window.location.search).get("surah");
     const ayat = new URLSearchParams(window.location.search).get("ayat");
-    const surahNumber = Number(surah);
 
     const surahNames = {
       1:"Al-Fatihah",2:"Al-Baqarah",3:"Ali 'Imran",4:"An-Nisa'",5:"Al-Ma'idah",
@@ -108,8 +120,8 @@
       111:"Al-Masad",112:"Al-Ikhlas",113:"Al-Falaq",114:"An-Nas"
     };
 
-    const surahName = surahNames[surahNumber] || "Surah Tidak Dikenal";
-    document.getElementById("judul").textContent = `${surahName} Surah ${surahNumber} Ayat ${ayat}`;
+    const surahName = surahNames[surah] || "Surah Tidak Dikenal";
+    document.getElementById("judul").textContent = `${surahName} Surah ${surah} Ayat ${ayat}`;
 
     const apiURL = `https://api.quran.com/api/v4/quran/verses/uthmani?verse_key=${surah}:${ayat}`;
 
@@ -126,11 +138,30 @@
         return String(n).split('').map(d => arabicNumberMap[parseInt(d)]).join('');
       }
       const ayahNumberArabic = toArabicNumber(ayat);
-      arabicText += ` \u06dd${ayahNumberArabic}`;
+      arabicText += ` ۝${ayahNumberArabic}`; // ۝6
+
+      // Proses simbol visual
+      const symbolsToFloat = ['ۛ', 'ۖ', 'ۗ', 'ۘ', 'ۙ', 'ۚ', '۟', '۠'];
+      function processArabicVisuals(text) {
+        let result = '';
+        for (let i = 0; i < text.length; i++) {
+          const char = text[i];
+          if (symbolsToFloat.includes(char) && i > 0) {
+            const prevChar = result.slice(-1);
+            result = result.slice(0, -1);
+            result += `<span class="mark-above" data-mark="${char}">${prevChar}</span>`;
+          } else {
+            result += char;
+          }
+        }
+        return result;
+      }
+
+      arabicText = processArabicVisuals(arabicText);
 
       const arabDiv = document.createElement('div');
       arabDiv.className = 'arabic';
-      arabDiv.textContent = arabicText;
+      arabDiv.innerHTML = arabicText;
       document.getElementById("result").innerHTML = '';
       document.getElementById("result").appendChild(arabDiv);
 
