@@ -119,9 +119,9 @@
 
     const apiURL = `https://api.quran.com/api/v4/quran/verses/uthmani?verse_key=${surah}:${ayat}`;
 
-    // Fungsi untuk membungkus simbol rasm dengan <sup>
+    // Hanya bungkus 7 simbol yang ditentukan
     function wrapRasmSymbols(text) {
-      return text.replace(/([\u06D6-\u06ED])/g, ' <sup class="rasm-symbol">$1</sup> ');
+      return text.replace(/([ۛۖۚۗۙۘۜ])/g, ' <sup class="rasm-symbol">$1</sup> ');
     }
 
     const arabicNumberMap = ["", "١", "٢", "٣", "٤", "٥", "٦", "٧", "٨", "٩"];
