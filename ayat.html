@@ -102,6 +102,19 @@
       background-color: #005f6b;
     }
 
+    .loader {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 2em 0;
+    }
+
+    .loading-icon {
+      width: 60px;
+      height: auto;
+      opacity: 0.85;
+    }
+
     @media (max-width: 480px) {
       body {
         padding: 1em;
@@ -125,7 +138,13 @@
   <div class="judul-container">
     <h1 id="judul">Surah</h1>
   </div>
-  <div id="result">Memuat...</div>
+
+  <!-- Ganti 'Memuat...' dengan animasi -->
+  <div id="result">
+    <div class="loader">
+      <img src="https://raw.githubusercontent.com/dickymiswardi/tadabbur/11fcfc85d3860d183b9aebe6544673fb643d6e77/AnimatedBook.gif" alt="Memuat..." class="loading-icon" />
+    </div>
+  </div>
 
   <div class="sumber">
     Sumber: Quran.com + King Fahad Quran Complex
@@ -184,6 +203,7 @@
     function wrapRasmSymbols(text) {
       return text.replace(/([ۛۢۖۚۗۙۘۜ])/g, ' <sup class="rasm-symbol">$1</sup> ');
     }
+
     function getNextAyah(surah, ayah) {
       if (surah === 114 && ayah === 6) return { surah: 1, ayah: 1 };
       const lastAyah = surahAyahCount[surah];
