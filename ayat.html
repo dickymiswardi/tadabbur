@@ -172,8 +172,15 @@
     document.getElementById("judul").textContent = `${surahName} Surah ${surah} Ayat ${ayat}`;
 
     const apiURL = `https://api.quran.com/api/v4/quran/verses/uthmani?verse_key=${surah}:${ayat}`;
-    const toArabicNumber = n => String(n).split('').map(d => ["", "١", "٢", "٣", "٤", "٥", "٦", "٧", "٨", "٩"][parseInt(d)]).join('');
-    const wrapRasmSymbols = t => t.replace(/([ۛۖۚۗۙۘۜ])/g, ' <sup class="rasm-symbol">$1</sup> ');
+
+    function toArabicNumber(n) {
+      const arabicNumberMap = ["", "١", "٢", "٣", "٤", "٥", "٦", "٧", "٨", "٩"];
+      return String(n).split('').map(d => arabicNumberMap[parseInt(d)]).join('');
+    }
+
+    function wrapRasmSymbols(text) {
+      return text.replace(/([ۛۖۚۗۙۘۜ])/g, ' <sup class="rasm-symbol">$1</sup> ');
+    }
 
     Promise.all([
       fetch(apiURL).then(res => res.json()),
@@ -214,24 +221,19 @@
         document.getElementById("result").appendChild(foot);
       }
 
-      // Navigasi
+      // Navigasi tombol
       const navDiv = document.getElementById("nav");
-      if (ayat > 1) {
-        const prev = document.createElement("a");
-        prev.href = `?surah=${surah}&ayat=${ayat + 1}`;
-        prev.textContent = "← Selanjutnya";
-        navDiv.appendChild(prev);
-      }
-      if (verse?.verse_number && verse.verse_number < verse.words?.slice(-1)[0]?.verse_key?.split(':')[1]) {
-        const next = document.createElement("a");
-        next.href = `?surah=${surah}&ayat=${ayat - 1}`;
-        next.textContent = "Sebelumnya →";
-        navDiv.appendChild(next);
-      } else {
+      if (ayat < 286) {
         const next = document.createElement("a");
         next.href = `?surah=${surah}&ayat=${ayat + 1}`;
         next.textContent = "← Selanjutnya";
         navDiv.appendChild(next);
+      }
+      if (ayat > 1) {
+        const prev = document.createElement("a");
+        prev.href = `?surah=${surah}&ayat=${ayat - 1}`;
+        prev.textContent = "Sebelumnya →";
+        navDiv.appendChild(prev);
       }
     })
     .catch(err => {
