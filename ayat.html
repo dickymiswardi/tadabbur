@@ -83,6 +83,7 @@
       display: flex;
       justify-content: space-between;
       flex-direction: row-reverse;
+      gap: 0.5em;
       margin-top: 2em;
     }
 
@@ -255,6 +256,13 @@
         };
         navDiv.appendChild(prevBtn);
       }
+
+      const searchBtn = document.createElement("button");
+      searchBtn.textContent = "Pencarian Ayat";
+      searchBtn.onclick = () => {
+        window.location.href = "index.html";
+      };
+      navDiv.appendChild(searchBtn);
 
       if (next) {
         const nextBtn = document.createElement("button");
