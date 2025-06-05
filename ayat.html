@@ -35,13 +35,6 @@
       margin-top: 1.5em;
     }
 
-    .rasm-symbol {
-      font-size: 0.5em;
-      vertical-align: super;
-      color: #666;
-      margin: 0 0.1em;
-    }
-
     .translation {
       font-size: 0.95em;
       margin-top: 1.5em;
@@ -55,6 +48,11 @@
       border-top: 1px solid #ccc;
       padding-top: 1em;
       text-align: center;
+    }
+
+    .rasm-symbol {
+      font-size: 0.6em;
+      vertical-align: super;
     }
 
     @media (max-width: 480px) {
@@ -119,14 +117,14 @@
 
     const apiURL = `https://api.quran.com/api/v4/quran/verses/uthmani?verse_key=${surah}:${ayat}`;
 
-    // Hanya bungkus 7 simbol yang ditentukan
-    function wrapRasmSymbols(text) {
-      return text.replace(/([ۛۖۚۗۙۘۜ])/g, ' <sup class="rasm-symbol">$1</sup> ');
+    function toArabicNumber(n) {
+      const arabicNumberMap = ["", "١", "٢", "٣", "٤", "٥", "٦", "٧", "٨", "٩"];
+      return String(n).split('').map(d => arabicNumberMap[parseInt(d)]).join('');
     }
 
-    const arabicNumberMap = ["", "١", "٢", "٣", "٤", "٥", "٦", "٧", "٨", "٩"];
-    function toArabicNumber(n) {
-      return String(n).split('').map(d => arabicNumberMap[parseInt(d)]).join('');
+    function wrapRasmSymbols(text) {
+      return text.replace(/([ۛۖۚۗۙۘۜ])/g, ' <sup class="rasm-symbol">$1</sup> ');
+      // ۟ tidak termasuk, tidak diproses
     }
 
     Promise.all([
@@ -136,13 +134,14 @@
     .then(([arabData, xmlText]) => {
       const verse = arabData.verses?.[0];
       let arabicText = verse?.text_uthmani || "(Teks Arab tidak ditemukan)";
-      
-      arabicText = wrapRasmSymbols(arabicText);
-      arabicText += ` \u06dd${toArabicNumber(ayat)}`;
+      const ayahNumberArabic = toArabicNumber(ayat);
+      arabicText += ` \u06dd${ayahNumberArabic}`;
+
+      const processedArabic = wrapRasmSymbols(arabicText);
 
       const arabDiv = document.createElement('div');
       arabDiv.className = 'arabic';
-      arabDiv.innerHTML = arabicText;
+      arabDiv.innerHTML = processedArabic;
       document.getElementById("result").innerHTML = '';
       document.getElementById("result").appendChild(arabDiv);
 
