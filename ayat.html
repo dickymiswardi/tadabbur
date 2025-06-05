@@ -182,9 +182,8 @@
     }
 
     function wrapRasmSymbols(text) {
-      return text.replace(/([ۛۖۚۗۙۘۜ])/g, ' <sup class="rasm-symbol">$1</sup> ');
+      return text.replace(/([ۛۢۖۚۗۙۘۜ])/g, ' <sup class="rasm-symbol">$1</sup> ');
     }
-
     function getNextAyah(surah, ayah) {
       if (surah === 114 && ayah === 6) return { surah: 1, ayah: 1 };
       const lastAyah = surahAyahCount[surah];
