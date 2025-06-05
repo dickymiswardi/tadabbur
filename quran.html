@@ -224,7 +224,7 @@
 
     Promise.all([
       fetch(apiURL).then(res => res.json()),
-      fetch("indonesian_complex_v1.0.0-xml.1.xml").then(res => res.text())
+      fetch("indonesian_complex_v1.0.xml").then(res => res.text())
     ])
     .then(([arabData, xmlText]) => {
       const verse = arabData.verses?.[0];
