@@ -82,6 +82,7 @@
     .nav-buttons {
       display: flex;
       justify-content: space-between;
+      flex-direction: row-reverse; /* Membalik posisi tombol secara visual */
       margin-top: 2em;
     }
 
@@ -252,7 +253,7 @@
         prevBtn.onclick = () => {
           window.location.search = `?surah=${prev.surah}&ayat=${prev.ayah}`;
         };
-        navDiv.appendChild(prevBtn); // tombol kiri
+        navDiv.appendChild(prevBtn);
       }
 
       if (next) {
@@ -261,7 +262,7 @@
         nextBtn.onclick = () => {
           window.location.search = `?surah=${next.surah}&ayat=${next.ayah}`;
         };
-        navDiv.appendChild(nextBtn); // tombol kanan
+        navDiv.appendChild(nextBtn);
       }
 
       document.getElementById("result").appendChild(navDiv);
