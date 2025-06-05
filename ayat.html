@@ -79,6 +79,28 @@
       text-align: center;
     }
 
+    .nav-buttons {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 2em;
+    }
+
+    .nav-buttons a {
+      text-decoration: none;
+      background-color: #f0f0f0;
+      color: #333;
+      padding: 0.5em 1em;
+      border-radius: 8px;
+      font-size: 0.95em;
+      border: 1px solid #ccc;
+      transition: all 0.3s ease;
+    }
+
+    .nav-buttons a:hover {
+      background-color: #e0e0e0;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    }
+
     @media (max-width: 480px) {
       body {
         padding: 1em;
@@ -95,6 +117,12 @@
       .judul-container h1 {
         font-size: 1.2em;
       }
+
+      .nav-buttons a {
+        flex: 1;
+        margin: 0 0.3em;
+        text-align: center;
+      }
     }
   </style>
 </head>
@@ -104,13 +132,15 @@
   </div>
   <div id="result">Memuat...</div>
 
+  <div class="nav-buttons" id="nav"></div>
+
   <div class="sumber">
     Sumber: Quran.com API + King Fahad Quran Complex
   </div>
 
   <script>
-    const surah = new URLSearchParams(window.location.search).get("surah");
-    const ayat = new URLSearchParams(window.location.search).get("ayat");
+    const surah = parseInt(new URLSearchParams(window.location.search).get("surah"));
+    const ayat = parseInt(new URLSearchParams(window.location.search).get("ayat"));
 
     const surahNames = {
       1:"Al-Fatihah",2:"Al-Baqarah",3:"Ali 'Imran",4:"An-Nisa'",5:"Al-Ma'idah",
@@ -142,15 +172,8 @@
     document.getElementById("judul").textContent = `${surahName} Surah ${surah} Ayat ${ayat}`;
 
     const apiURL = `https://api.quran.com/api/v4/quran/verses/uthmani?verse_key=${surah}:${ayat}`;
-
-    function toArabicNumber(n) {
-      const arabicNumberMap = ["", "١", "٢", "٣", "٤", "٥", "٦", "٧", "٨", "٩"];
-      return String(n).split('').map(d => arabicNumberMap[parseInt(d)]).join('');
-    }
-
-    function wrapRasmSymbols(text) {
-      return text.replace(/([ۛۖۚۗۙۘۜ])/g, ' <sup class="rasm-symbol">$1</sup> ');
-    }
+    const toArabicNumber = n => String(n).split('').map(d => ["", "١", "٢", "٣", "٤", "٥", "٦", "٧", "٨", "٩"][parseInt(d)]).join('');
+    const wrapRasmSymbols = t => t.replace(/([ۛۖۚۗۙۘۜ])/g, ' <sup class="rasm-symbol">$1</sup> ');
 
     Promise.all([
       fetch(apiURL).then(res => res.json()),
@@ -159,8 +182,7 @@
     .then(([arabData, xmlText]) => {
       const verse = arabData.verses?.[0];
       let arabicText = verse?.text_uthmani || "(Teks Arab tidak ditemukan)";
-      const ayahNumberArabic = toArabicNumber(ayat);
-      arabicText += ` \u06dd${ayahNumberArabic}`;
+      arabicText += ` \u06dd${toArabicNumber(ayat)}`;
       const processedArabic = wrapRasmSymbols(arabicText);
 
       const arabDiv = document.createElement('div');
@@ -190,6 +212,26 @@
         foot.className = "footnote";
         foot.innerHTML = `<strong>Catatan:</strong> ${footnotes}`;
         document.getElementById("result").appendChild(foot);
+      }
+
+      // Navigasi
+      const navDiv = document.getElementById("nav");
+      if (ayat > 1) {
+        const prev = document.createElement("a");
+        prev.href = `?surah=${surah}&ayat=${ayat - 1}`;
+        prev.textContent = "← Sebelumnya";
+        navDiv.appendChild(prev);
+      }
+      if (verse?.verse_number && verse.verse_number < verse.words?.slice(-1)[0]?.verse_key?.split(':')[1]) {
+        const next = document.createElement("a");
+        next.href = `?surah=${surah}&ayat=${ayat + 1}`;
+        next.textContent = "Selanjutnya →";
+        navDiv.appendChild(next);
+      } else {
+        const next = document.createElement("a");
+        next.href = `?surah=${surah}&ayat=${ayat + 1}`;
+        next.textContent = "Selanjutnya →";
+        navDiv.appendChild(next);
       }
     })
     .catch(err => {
