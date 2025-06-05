@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pilih Ayat Al-Qur'an</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+      background-color: #f3f4f6;
+      margin: 0;
+      padding: 2rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .card {
+      background: #ffffff;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.05);
+      width: 100%;
+      max-width: 420px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #1f2937;
+      margin-bottom: 1.5rem;
+    }
+
+    label {
+      display: block;
+      margin-top: 1rem;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+      color: #374151;
+    }
+
+    select, button {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      font-size: 1rem;
+      background-color: #f9fafb;
+      box-sizing: border-box;
+    }
+
+    button {
+      background-color: #2563eb;
+      color: white;
+      font-weight: 600;
+      margin-top: 1.5rem;
+      cursor: pointer;
+      border: none;
+      transition: background-color 0.2s;
+    }
+
+    button:hover {
+      background-color: #1d4ed8;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Cari Ayat Al-Qur'an</h1>
+    <form id="quranForm">
+      <label for="surah">Pilih Surah</label>
+      <select id="surah" required>
+        <option value="" disabled selected>-- Pilih Surah --</option>
+      </select>
+
+      <label for="ayat">Pilih Ayat</label>
+      <select id="ayat" required>
+        <option value="" disabled selected>-- Pilih Ayat --</option>
+      </select>
+
+      <button type="submit">Lihat Ayat</button>
+    </form>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const surahList = [
+        { number: 1, name: "Al-Fatihah", totalAyah: 7 },
+        { number: 2, name: "Al-Baqarah", totalAyah: 286 },
+        { number: 3, name: "Ali 'Imran", totalAyah: 200 },
+        { number: 4, name: "An-Nisa'", totalAyah: 176 },
+        { number: 5, name: "Al-Ma'idah", totalAyah: 120 },
+        { number: 6, name: "Al-An'am", totalAyah: 165 },
+        { number: 7, name: "Al-A'raf", totalAyah: 206 },
+        { number: 8, name: "Al-Anfal", totalAyah: 75 },
+        { number: 9, name: "At-Tawbah", totalAyah: 129 },
+        { number: 10, name: "Yunus", totalAyah: 109 },
+        { number: 11, name: "Hud", totalAyah: 123 },
+        { number: 12, name: "Yusuf", totalAyah: 111 },
+        { number: 13, name: "Ar-Ra'd", totalAyah: 43 },
+        { number: 14, name: "Ibrahim", totalAyah: 52 },
+        { number: 15, name: "Al-Hijr", totalAyah: 99 },
+        { number: 16, name: "An-Nahl", totalAyah: 128 },
+        { number: 17, name: "Al-Isra", totalAyah: 111 },
+        { number: 18, name: "Al-Kahf", totalAyah: 110 },
+        { number: 19, name: "Maryam", totalAyah: 98 },
+        { number: 20, name: "Ta-Ha", totalAyah: 135 },
+        { number: 21, name: "Al-Anbiya", totalAyah: 112 },
+        { number: 22, name: "Al-Hajj", totalAyah: 78 },
+        { number: 23, name: "Al-Mu'minun", totalAyah: 118 },
+        { number: 24, name: "An-Nur", totalAyah: 64 },
+        { number: 25, name: "Al-Furqan", totalAyah: 77 },
+        { number: 26, name: "Asy-Syu'ara", totalAyah: 227 },
+        { number: 27, name: "An-Naml", totalAyah: 93 },
+        { number: 28, name: "Al-Qasas", totalAyah: 88 },
+        { number: 29, name: "Al-Ankabut", totalAyah: 69 },
+        { number: 30, name: "Ar-Rum", totalAyah: 60 }
+      ];
+
+      const surahSelect = document.getElementById("surah");
+      const ayatSelect = document.getElementById("ayat");
+      const form = document.getElementById("quranForm");
+
+      // Isi dropdown Surah
+      surahList.forEach(surah => {
+        const option = document.createElement("option");
+        option.value = surah.number;
+        option.textContent = `${surah.number}. ${surah.name}`;
+        surahSelect.appendChild(option);
+      });
+
+      // Update Ayat sesuai Surah
+      surahSelect.addEventListener("change", () => {
+        const selectedSurah = parseInt(surahSelect.value);
+        const surah = surahList.find(s => s.number === selectedSurah);
+
+        ayatSelect.innerHTML = '<option value="" disabled selected>-- Pilih Ayat --</option>';
+        if (surah) {
+          for (let i = 1; i <= surah.totalAyah; i++) {
+            const ayatOption = document.createElement("option");
+            ayatOption.value = i;
+            ayatOption.textContent = `Ayat ${i}`;
+            ayatSelect.appendChild(ayatOption);
+          }
+        }
+      });
+
+      // Saat Submit
+      form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const surah = surahSelect.value;
+        const ayat = ayatSelect.value;
+
+        if (!surah || !ayat) {
+          alert("Silakan pilih Surah dan Ayat.");
+          return;
+        }
+
+        window.location.href = `ayat.html?surah=${surah}&ayat=${ayat}`;
+      });
+    });
+  </script>
+</body>
+</html>
