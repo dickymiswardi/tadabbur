@@ -70,6 +70,22 @@
       text-align: justify;
     }
 
+    #navigation {
+      margin-top: 2em;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    #navigation a {
+      padding: 0.5em 1em;
+      background-color: #eee;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      text-decoration: none;
+      font-size: 0.9em;
+      color: #333;
+    }
+
     .sumber {
       font-size: 0.9em;
       color: #555;
@@ -77,40 +93,6 @@
       border-top: 1px solid #ccc;
       padding-top: 1em;
       text-align: center;
-    }
-
-    .nav-buttons {
-      position: fixed;
-      bottom: 20px;
-      width: 100%;
-      max-width: 700px;
-      left: 50%;
-      transform: translateX(-50%);
-      display: flex;
-      justify-content: space-between;
-      padding: 0 1em;
-      box-sizing: border-box;
-    }
-
-    .nav-buttons button {
-      padding: 0.5em 1.2em;
-      border: none;
-      background-color: #007bff;
-      color: white;
-      border-radius: 6px;
-      font-size: 1em;
-      cursor: pointer;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-      transition: background-color 0.3s;
-    }
-
-    .nav-buttons button:hover {
-      background-color: #0056b3;
-    }
-
-    .nav-buttons button:disabled {
-      background-color: #ccc;
-      cursor: not-allowed;
     }
 
     @media (max-width: 480px) {
@@ -129,6 +111,10 @@
       .judul-container h1 {
         font-size: 1.2em;
       }
+
+      #navigation a {
+        font-size: 0.85em;
+      }
     }
   </style>
 </head>
@@ -137,19 +123,43 @@
     <h1 id="judul">Surah</h1>
   </div>
   <div id="result">Memuat...</div>
-
-  <div class="nav-buttons">
-    <button id="prevBtn">⬅️ Sebelumnya</button>
-    <button id="nextBtn">Selanjutnya ➡️</button>
-  </div>
+  <div id="navigation"></div>
 
   <div class="sumber">
     Sumber: Quran.com API + King Fahad Quran Complex
   </div>
 
   <script>
-    const MAX_SURAH = 114;
-    const AYAT_COUNT = {
+    const surah = new URLSearchParams(window.location.search).get("surah");
+    const ayat = new URLSearchParams(window.location.search).get("ayat");
+
+    const surahNames = {
+      1:"Al-Fatihah",2:"Al-Baqarah",3:"Ali 'Imran",4:"An-Nisa'",5:"Al-Ma'idah",
+      6:"Al-An'am",7:"Al-A'raf",8:"Al-Anfal",9:"At-Tawbah",10:"Yunus",
+      11:"Hud",12:"Yusuf",13:"Ar-Ra'd",14:"Ibrahim",15:"Al-Hijr",
+      16:"An-Nahl",17:"Al-Isra'",18:"Al-Kahf",19:"Maryam",20:"Ta-Ha",
+      21:"Al-Anbiya'",22:"Al-Hajj",23:"Al-Mu'minun",24:"An-Nur",25:"Al-Furqan",
+      26:"Ash-Shu'ara'",27:"An-Naml",28:"Al-Qasas",29:"Al-'Ankabut",30:"Ar-Rum",
+      31:"Luqman",32:"As-Sajdah",33:"Al-Ahzab",34:"Saba'",35:"Fatir",
+      36:"Ya-Sin",37:"As-Saffat",38:"Sad",39:"Az-Zumar",40:"Ghafir",
+      41:"Fussilat",42:"Ash-Shura",43:"Az-Zukhruf",44:"Ad-Dukhan",45:"Al-Jathiyah",
+      46:"Al-Ahqaf",47:"Muhammad",48:"Al-Fath",49:"Al-Hujurat",50:"Qaf",
+      51:"Adh-Dhariyat",52:"At-Tur",53:"An-Najm",54:"Al-Qamar",55:"Ar-Rahman",
+      56:"Al-Waqi'ah",57:"Al-Hadid",58:"Al-Mujadila",59:"Al-Hashr",60:"Al-Mumtahanah",
+      61:"As-Saff",62:"Al-Jumu'ah",63:"Al-Munafiqun",64:"At-Taghabun",65:"At-Talaq",
+      66:"At-Tahrim",67:"Al-Mulk",68:"Al-Qalam",69:"Al-Haqqah",70:"Al-Ma'arij",
+      71:"Nuh",72:"Al-Jinn",73:"Al-Muzzammil",74:"Al-Muddaththir",75:"Al-Qiyamah",
+      76:"Al-Insan",77:"Al-Mursalat",78:"An-Naba'",79:"An-Nazi'at",80:"'Abasa",
+      81:"At-Takwir",82:"Al-Infitar",83:"Al-Mutaffifin",84:"Al-Inshiqaq",85:"Al-Buruj",
+      86:"At-Tariq",87:"Al-A'la",88:"Al-Ghashiyah",89:"Al-Fajr",90:"Al-Balad",
+      91:"Ash-Shams",92:"Al-Lail",93:"Adh-Dhuha",94:"Ash-Sharh",95:"At-Tin",
+      96:"Al-'Alaq",97:"Al-Qadr",98:"Al-Bayyinah",99:"Az-Zalzalah",100:"Al-'Adiyat",
+      101:"Al-Qari'ah",102:"At-Takathur",103:"Al-'Asr",104:"Al-Humazah",105:"Al-Fil",
+      106:"Quraysh",107:"Al-Ma'un",108:"Al-Kawthar",109:"Al-Kafirun",110:"An-Nasr",
+      111:"Al-Masad",112:"Al-Ikhlas",113:"Al-Falaq",114:"An-Nas"
+    };
+
+    const ayatCounts = {
       1:7, 2:286, 3:200, 4:176, 5:120, 6:165, 7:206, 8:75, 9:129, 10:109,
       11:123, 12:111, 13:43, 14:52, 15:99, 16:128, 17:111, 18:110, 19:98, 20:135,
       21:112, 22:78, 23:118, 24:64, 25:77, 26:227, 27:93, 28:88, 29:69, 30:60,
@@ -164,10 +174,6 @@
       111:5, 112:4, 113:5, 114:6
     };
 
-    const surah = parseInt(new URLSearchParams(window.location.search).get("surah"));
-    const ayat = parseInt(new URLSearchParams(window.location.search).get("ayat"));
-
-    const surahNames = {/* ... nama surah seperti sebelumnya, tidak diulang di sini ... */};
     const surahName = surahNames[surah] || "Surah Tidak Dikenal";
     document.getElementById("judul").textContent = `${surahName} Surah ${surah} Ayat ${ayat}`;
 
@@ -182,68 +188,93 @@
       return text.replace(/([ۛۖۚۗۙۘۜ])/g, ' <sup class="rasm-symbol">$1</sup> ');
     }
 
-    fetch(apiURL).then(res => res.json())
-      .then(data => {
-        const verse = data.verses?.[0];
-        let arabicText = verse?.text_uthmani || "(Teks Arab tidak ditemukan)";
-        arabicText = wrapRasmSymbols(arabicText);
-        arabicText += ` \u06dd${toArabicNumber(ayat)}`;
+    Promise.all([
+      fetch(apiURL).then(res => res.json()),
+      fetch("indonesian_complex_v1.0.0-xml.1.xml").then(res => res.text())
+    ])
+    .then(([arabData, xmlText]) => {
+      const verse = arabData.verses?.[0];
+      let arabicText = verse?.text_uthmani || "(Teks Arab tidak ditemukan)";
+      const ayahNumberArabic = toArabicNumber(ayat);
+      arabicText += ` \u06dd${ayahNumberArabic}`;
+      const processedArabic = wrapRasmSymbols(arabicText);
 
-        const arabDiv = document.createElement("div");
-        arabDiv.className = "arabic";
-        arabDiv.innerHTML = arabicText;
-        document.getElementById("result").innerHTML = '';
-        document.getElementById("result").appendChild(arabDiv);
-      });
+      const arabDiv = document.createElement('div');
+      arabDiv.className = 'arabic';
+      arabDiv.innerHTML = processedArabic;
+      document.getElementById("result").innerHTML = '';
+      document.getElementById("result").appendChild(arabDiv);
 
-    fetch("indonesian_complex_v1.0.0-xml.1.xml").then(res => res.text())
-      .then(xmlText => {
-        const parser = new DOMParser();
-        const xmlDoc = parser.parseFromString(xmlText, "text/xml");
-        const translationAyah = xmlDoc.querySelector(`sura[number="${surah}"] > aya[number="${ayat}"]`);
-        let translation = translationAyah?.querySelector("translation")?.textContent || "(Terjemahan tidak ditemukan)";
-        const footnotes = translationAyah?.querySelector("footnotes")?.textContent || "";
+      const parser = new DOMParser();
+      const xmlDoc = parser.parseFromString(xmlText, "text/xml");
 
-        if (footnotes) {
-          translation = translation.replace(/(\d+)/g, '<sup>($1)</sup>');
-        }
+      const translationAyah = xmlDoc.querySelector(`sura[number="${surah}"] > aya[number="${ayat}"]`);
+      let translation = translationAyah?.querySelector("translation")?.textContent || "(Terjemahan tidak ditemukan)";
+      const footnotes = translationAyah?.querySelector("footnotes")?.textContent || "";
 
-        const translationDiv = document.createElement("div");
-        translationDiv.className = "translation";
-        translationDiv.innerHTML = translation;
-        document.getElementById("result").appendChild(translationDiv);
-
-        if (footnotes) {
-          const foot = document.createElement("div");
-          foot.className = "footnote";
-          foot.innerHTML = `<strong>Catatan:</strong> ${footnotes}`;
-          document.getElementById("result").appendChild(foot);
-        }
-      });
-
-    function navigate(offset) {
-      let newSurah = surah;
-      let newAyat = ayat + offset;
-
-      if (newAyat > AYAT_COUNT[newSurah]) {
-        newSurah = newSurah === MAX_SURAH ? 1 : newSurah + 1;
-        newAyat = 1;
-      } else if (newAyat < 1) {
-        if (newSurah === 1) return; // Stop if at very beginning
-        newSurah--;
-        newAyat = AYAT_COUNT[newSurah];
+      if (footnotes) {
+        translation = translation.replace(/(\d+)/g, '<sup>($1)</sup>');
       }
 
-      window.location.href = `?surah=${newSurah}&ayat=${newAyat}`;
-    }
+      const translationDiv = document.createElement("div");
+      translationDiv.className = "translation";
+      translationDiv.innerHTML = translation;
+      document.getElementById("result").appendChild(translationDiv);
 
-    document.getElementById("nextBtn").addEventListener("click", () => navigate(1));
-    document.getElementById("prevBtn").addEventListener("click", () => navigate(-1));
+      if (footnotes) {
+        const foot = document.createElement("div");
+        foot.className = "footnote";
+        foot.innerHTML = `<strong>Catatan:</strong> ${footnotes}`;
+        document.getElementById("result").appendChild(foot);
+      }
 
-    // Hide previous button if at first verse
-    if (surah === 1 && ayat === 1) {
-      document.getElementById("prevBtn").style.display = "none";
-    }
+      // Navigasi
+      const s = parseInt(surah);
+      const a = parseInt(ayat);
+      const navDiv = document.getElementById("navigation");
+      const totalSurah = 114;
+
+      function createNavButton(text, href) {
+        const btn = document.createElement('a');
+        btn.textContent = text;
+        btn.href = href;
+        return btn;
+      }
+
+      // Tombol Sebelumnya
+      if (!(s === 1 && a === 1)) {
+        let prevSurah = s;
+        let prevAyat = a - 1;
+
+        if (prevAyat < 1) {
+          prevSurah = s - 1;
+          while (!ayatCounts[prevSurah] && prevSurah > 0) prevSurah--;
+          prevAyat = ayatCounts[prevSurah];
+        }
+
+        const prevLink = `?surah=${prevSurah}&ayat=${prevAyat}`;
+        navDiv.appendChild(createNavButton("Sebelumnya", prevLink));
+      } else {
+        navDiv.appendChild(document.createElement("div"));
+      }
+
+      // Tombol Selanjutnya
+      let nextSurah = s;
+      let nextAyat = a + 1;
+
+      if (nextAyat > ayatCounts[s]) {
+        nextSurah = s + 1;
+        if (nextSurah > totalSurah) nextSurah = 1;
+        nextAyat = 1;
+      }
+
+      const nextLink = `?surah=${nextSurah}&ayat=${nextAyat}`;
+      navDiv.appendChild(createNavButton("Selanjutnya", nextLink));
+    })
+    .catch(err => {
+      console.error(err);
+      document.getElementById("result").textContent = "Gagal memuat data.";
+    });
   </script>
 </body>
 </html>
