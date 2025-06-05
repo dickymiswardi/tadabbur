@@ -229,8 +229,8 @@
         navDiv.appendChild(next);
       } else {
         const next = document.createElement("a");
-        next.href = `?surah=${surah}&ayat=${ayat + 1}`;
-        next.textContent = "Selanjutnya →";
+        next.href = `?surah=${surah}&ayat=${ayat - 1}`;
+        next.textContent = "Sebelumnya →";
         navDiv.appendChild(next);
       }
     })
