@@ -249,7 +249,7 @@
 
       if (prev) {
         const prevBtn = document.createElement("button");
-        prevBtn.textContent = "Sebelumnya →";
+        prevBtn.textContent = "Sebelumnya";
         prevBtn.onclick = () => {
           window.location.search = `?surah=${prev.surah}&ayat=${prev.ayah}`;
         };
@@ -258,7 +258,7 @@
 
       if (next) {
         const nextBtn = document.createElement("button");
-        nextBtn.textContent = "← Selanjutnya";
+        nextBtn.textContent = "Selanjutnya";
         nextBtn.onclick = () => {
           window.location.search = `?surah=${next.surah}&ayat=${next.ayah}`;
         };
