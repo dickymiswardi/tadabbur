@@ -218,14 +218,14 @@
       const navDiv = document.getElementById("nav");
       if (ayat > 1) {
         const prev = document.createElement("a");
-        prev.href = `?surah=${surah}&ayat=${ayat - 1}`;
-        prev.textContent = "← Sebelumnya";
+        prev.href = `?surah=${surah}&ayat=${ayat + 1}`;
+        prev.textContent = "← Selanjutnya";
         navDiv.appendChild(prev);
       }
       if (verse?.verse_number && verse.verse_number < verse.words?.slice(-1)[0]?.verse_key?.split(':')[1]) {
         const next = document.createElement("a");
-        next.href = `?surah=${surah}&ayat=${ayat + 1}`;
-        next.textContent = "Selanjutnya →";
+        next.href = `?surah=${surah}&ayat=${ayat - 1}`;
+        next.textContent = "Sebelumnya →";
         navDiv.appendChild(next);
       } else {
         const next = document.createElement("a");
