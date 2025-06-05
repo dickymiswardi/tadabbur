@@ -119,9 +119,14 @@
     .then(([arabData, xmlText]) => {
       const verse = arabData.verses?.[0];
       let arabicText = verse?.text_uthmani || "(Teks Arab tidak ditemukan)";
-
-      // Sisipkan spasi sebelum simbol waqaf
-      arabicText = arabicText.replace(/([^\s])([ۛۖۚۗۙۘۜ۝۞])/g, '$1 $2');
+      
+      // Tambahkan nomor ayat dengan simbol ۝ sebelum nomor
+      const arabicNumberMap = ["", "١", "٢", "٣", "٤", "٥", "٦", "٧", "٨", "٩"];
+      function toArabicNumber(n) {
+        return String(n).split('').map(d => arabicNumberMap[parseInt(d)]).join('');
+      }
+      const ayahNumberArabic = toArabicNumber(ayat);
+      arabicText += ` \u06dd${ayahNumberArabic}`; // ۝6
 
       const arabDiv = document.createElement('div');
       arabDiv.className = 'arabic';
