@@ -79,33 +79,34 @@
       text-align: center;
     }
 
-    .nav-buttons {
-      display: flex;
-      justify-content: space-between;
-      margin-top: 2em;
-    }
-
-    .nav-buttons a {
-      text-decoration: none;
-      background-color: #f0f0f0;
-      color: #333;
-      padding: 0.5em 1em;
-      border-radius: 8px;
-      font-size: 0.95em;
+    .nav-button {
+      position: fixed;
+      top: 50%;
+      transform: translateY(-50%);
+      padding: 0.7em 1em;
+      background-color: #eee;
       border: 1px solid #ccc;
-      transition: all 0.3s ease;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.9em;
+      font-weight: bold;
+      color: #333;
+      z-index: 1000;
     }
 
-    .nav-buttons a:hover {
-      background-color: #e0e0e0;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    .nav-button:hover {
+      background-color: #ddd;
+    }
+
+    .next-btn {
+      left: 1em;
+    }
+
+    .prev-btn {
+      right: 1em;
     }
 
     @media (max-width: 480px) {
-      body {
-        padding: 1em;
-      }
-
       .arabic {
         font-size: 1.8em;
       }
@@ -118,10 +119,9 @@
         font-size: 1.2em;
       }
 
-      .nav-buttons a {
-        flex: 1;
-        margin: 0 0.3em;
-        text-align: center;
+      .nav-button {
+        padding: 0.5em 0.8em;
+        font-size: 0.8em;
       }
     }
   </style>
@@ -132,11 +132,12 @@
   </div>
   <div id="result">Memuat...</div>
 
-  <div class="nav-buttons" id="nav"></div>
-
   <div class="sumber">
     Sumber: Quran.com API + King Fahad Quran Complex
   </div>
+
+  <button class="nav-button next-btn" onclick="navigateNext()">Selanjutnya</button>
+  <button class="nav-button prev-btn" onclick="navigatePrev()">Sebelumnya</button>
 
   <script>
     const surah = parseInt(new URLSearchParams(window.location.search).get("surah"));
@@ -168,13 +169,12 @@
       111:"Al-Masad",112:"Al-Ikhlas",113:"Al-Falaq",114:"An-Nas"
     };
 
+    const totalSurahs = 114;
     const surahName = surahNames[surah] || "Surah Tidak Dikenal";
     document.getElementById("judul").textContent = `${surahName} Surah ${surah} Ayat ${ayat}`;
 
-    const apiURL = `https://api.quran.com/api/v4/quran/verses/uthmani?verse_key=${surah}:${ayat}`;
-
     function toArabicNumber(n) {
-      const arabicNumberMap = ["", "١", "٢", "٣", "٤", "٥", "٦", "٧", "٨", "٩"];
+      const arabicNumberMap = ["٠", "١", "٢", "٣", "٤", "٥", "٦", "٧", "٨", "٩"];
       return String(n).split('').map(d => arabicNumberMap[parseInt(d)]).join('');
     }
 
@@ -182,14 +182,45 @@
       return text.replace(/([ۛۖۚۗۙۘۜ])/g, ' <sup class="rasm-symbol">$1</sup> ');
     }
 
+    function navigateNext() {
+      fetch(`https://api.quran.com/api/v4/quran/verses/uthmani?verse_key=${surah}:${ayat}`)
+        .then(res => res.json())
+        .then(data => {
+          const maxAyat = data.meta.surah.verses_count;
+          let nextSurah = surah;
+          let nextAyat = ayat + 1;
+          if (nextAyat > maxAyat) {
+            nextSurah = (surah % totalSurahs) + 1;
+            nextAyat = 1;
+          }
+          window.location.href = `?surah=${nextSurah}&ayat=${nextAyat}`;
+        });
+    }
+
+    function navigatePrev() {
+      if (surah === 1 && ayat === 1) return;
+      if (ayat > 1) {
+        window.location.href = `?surah=${surah}&ayat=${ayat - 1}`;
+      } else {
+        const prevSurah = surah - 1;
+        fetch(`https://api.quran.com/api/v4/chapters/${prevSurah}`)
+          .then(res => res.json())
+          .then(data => {
+            const lastAyat = data.chapter.verses_count;
+            window.location.href = `?surah=${prevSurah}&ayat=${lastAyat}`;
+          });
+      }
+    }
+
     Promise.all([
-      fetch(apiURL).then(res => res.json()),
+      fetch(`https://api.quran.com/api/v4/quran/verses/uthmani?verse_key=${surah}:${ayat}`).then(res => res.json()),
       fetch("indonesian_complex_v1.0.0-xml.1.xml").then(res => res.text())
     ])
     .then(([arabData, xmlText]) => {
       const verse = arabData.verses?.[0];
       let arabicText = verse?.text_uthmani || "(Teks Arab tidak ditemukan)";
-      arabicText += ` \u06dd${toArabicNumber(ayat)}`;
+      const ayahNumberArabic = toArabicNumber(ayat);
+      arabicText += ` \u06dd${ayahNumberArabic}`;
       const processedArabic = wrapRasmSymbols(arabicText);
 
       const arabDiv = document.createElement('div');
@@ -219,21 +250,6 @@
         foot.className = "footnote";
         foot.innerHTML = `<strong>Catatan:</strong> ${footnotes}`;
         document.getElementById("result").appendChild(foot);
-      }
-
-      // Navigasi tombol
-      const navDiv = document.getElementById("nav");
-      if (ayat < 286) {
-        const next = document.createElement("a");
-        next.href = `?surah=${surah}&ayat=${ayat + 1}`;
-        next.textContent = "← Selanjutnya";
-        navDiv.appendChild(next);
-      }
-      if (ayat > 1) {
-        const prev = document.createElement("a");
-        prev.href = `?surah=${surah}&ayat=${ayat - 1}`;
-        prev.textContent = "Sebelumnya →";
-        navDiv.appendChild(prev);
       }
     })
     .catch(err => {
