@@ -139,7 +139,6 @@
     <h1 id="judul">Surah</h1>
   </div>
 
-  <!-- Ganti 'Memuat...' dengan animasi -->
   <div id="result">
     <div class="loader">
       <img src="https://raw.githubusercontent.com/dickymiswardi/tadabbur/aa160525691e67e5d0b7aab1e7e9f37657d0ed45/AnimatedBook.gif" alt="Memuat..." class="loading-icon" />
@@ -201,6 +200,10 @@
     }
 
     function wrapRasmSymbols(text) {
+      // Tambahkan 3 spasi setelah ا jika diikuti oleh ۖ
+      text = text.replace(/اۖ/g, 'ا   <sup class="rasm-symbol">ۖ</sup>');
+
+      // Bungkus simbol rasm lainnya
       return text.replace(/([ۛۢۖۚۗۙۘۜ])/g, ' <sup class="rasm-symbol">$1</sup> ');
     }
 
