@@ -200,11 +200,11 @@
     }
 
     function wrapRasmSymbols(text) {
-      // Tangani kasus khusus: huruf 'ا' diikuti ۖ
-      text = text.replace(/اۖ/g, 'ا   <sup class="rasm-symbol">ۖ</sup>');
+      // Hapus ۖ jika setelah alif, dan tambahkan 3 spasi
+      text = text.replace(/اۖ/g, 'ا&nbsp;&nbsp;&nbsp;');
 
-      // Tangani simbol rasm lainnya kecuali yang sudah ditangani
-      return text.replace(/([^ا])([ۛۢۖۚۗۙۘۜ])/g, '$1 <sup class="rasm-symbol">$2</sup>');
+      // Sisanya dibungkus <sup>
+      return text.replace(/([ۛۢۚۗۙۘۜ])/g, ' <sup class="rasm-symbol">$1</sup> ');
     }
 
     function getNextAyah(surah, ayah) {
