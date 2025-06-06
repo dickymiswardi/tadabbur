@@ -241,6 +241,26 @@
       const parser = new DOMParser();
       const xmlDoc = parser.parseFromString(xmlText, "text/xml");
 
+      // Buat peta footnoteNumber ke posisi Surah & Ayat
+const footnoteMap = {};
+const ayatNodes = xmlDoc.querySelectorAll("aya");
+ayatNodes.forEach(aya => {
+  const footnotes = aya.querySelector("footnotes");
+  if (footnotes && footnotes.textContent.trim()) {
+    const matches = footnotes.textContent.match(/\d+/g);
+    if (matches) {
+      matches.forEach(num => {
+        // Simpan hanya jika belum ada
+        if (!footnoteMap[num]) {
+          const surahNum = aya.parentElement.getAttribute("number");
+          const ayahNum = aya.getAttribute("number");
+          footnoteMap[num] = `Surat ${surahNum} Ayat ${ayahNum}`;
+        }
+      });
+    }
+  }
+});
+
       const translationAyah = xmlDoc.querySelector(`sura[number="${surah}"] > aya[number="${ayat}"]`);
       let translation = translationAyah?.querySelector("translation")?.textContent || "(Terjemahan tidak ditemukan)";
       const footnotes = translationAyah?.querySelector("footnotes")?.textContent || "";
@@ -255,11 +275,18 @@
       document.getElementById("result").appendChild(translationDiv);
 
       if (footnotes) {
-        const foot = document.createElement("div");
-        foot.className = "footnote";
-        foot.innerHTML = `<strong>Catatan:</strong> ${footnotes}`;
-        document.getElementById("result").appendChild(foot);
-      }
+  const foot = document.createElement("div");
+  foot.className = "footnote";
+
+  // Tambahkan keterangan referensi footnote jika ada
+  let modifiedFootnote = footnotes.replace(/(\d+)/g, (match) => {
+    const ref = footnoteMap[match];
+    return ref ? `${match} (${ref})` : match;
+  });
+
+  foot.innerHTML = `<strong>Catatan:</strong> ${modifiedFootnote}`;
+  document.getElementById("result").appendChild(foot);
+}
 
       const navDiv = document.createElement("div");
       navDiv.className = "nav-buttons";
