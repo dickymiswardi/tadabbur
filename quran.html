@@ -240,18 +240,6 @@
 
       const parser = new DOMParser();
       const xmlDoc = parser.parseFromString(xmlText, "text/xml");
-      // Buat peta footnoteNumber -> posisi Surah & Ayat
-const footnoteMap = {};
-xmlDoc.querySelectorAll("aya").forEach(aya => {
-  const footnotes = aya.querySelector("footnotes");
-  if (footnotes && footnotes.textContent.trim()) {
-    footnotes.textContent.match(/\d+/g)?.forEach(num => {
-      if (!footnoteMap[num]) {
-        footnoteMap[num] = `Surat ${aya.parentElement.getAttribute("number")} Ayat ${aya.getAttribute("number")}`;
-      }
-    });
-  }
-});
 
       // Buat peta footnoteNumber ke posisi Surah & Ayat
 const footnoteMap = {};
@@ -290,16 +278,11 @@ ayatNodes.forEach(aya => {
   const foot = document.createElement("div");
   foot.className = "footnote";
 
-  // Tambahkan link ke nomor catatan kaki
+  // Tambahkan keterangan referensi footnote jika ada
   let modifiedFootnote = footnotes.replace(/Lihat catatan kaki nomor (\d+)/g, (fullMatch, num) => {
-    const ref = footnoteMap[num];
-    return ref ? `Lihat catatan kaki nomor ${num} (<a href="?surah=${ref.split(' ')[1]}&ayat=${ref.split(' ')[3]}">${ref}</a>)` : fullMatch;
-  });
-
-  // Tambahkan link ke korelasi antar ayat
-  modifiedFootnote = modifiedFootnote.replace(/Menuju ke ([^']+)'? Surah (\d+) Ayat (\d+)/g, (fullMatch, surahName, surahNum, ayatNum) => {
-    return `Menuju ke ${surahName}' Surah ${surahNum} Ayat ${ayatNum} <a href="?surah=${surahNum}&ayat=${ayatNum}">(Lihat Ayat)</a>`;
-  });
+  const ref = footnoteMap[num];
+  return ref ? `Lihat catatan kaki nomor ${num} (${ref})` : fullMatch;
+});
 
   foot.innerHTML = `<strong>Catatan:</strong> ${modifiedFootnote}`;
   document.getElementById("result").appendChild(foot);
