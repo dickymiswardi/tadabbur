@@ -181,6 +181,7 @@
   </div>
 
   <script>
+    let footnoteMap = {};
     function showPopup(num) {
   const ref = footnoteMap[num];
   if (ref) {
@@ -274,6 +275,20 @@ function closePopup() {
       let arabicText = verse?.text_uthmani || "(Teks Arab tidak ditemukan)";
       arabicText += ` \u06dd${toArabicNumber(ayat)}`;
       arabicText = wrapRasmSymbols(arabicText);
+
+      function showPopup(num) {
+  const ref = footnoteMap[num];
+  if (ref) {
+    const popup = document.getElementById("popup");
+    popup.innerHTML = `<div><strong>Catatan ${num}:</strong><br>${ref.isi}</div>
+      <div class="popup-close"><button onclick="closePopup()">Tutup</button></div>`;
+    popup.classList.add("show");
+  }
+}
+
+function closePopup() {
+  document.getElementById("popup").classList.remove("show");
+}
 
       const arabDiv = document.createElement('div');
       arabDiv.className = 'arabic';
