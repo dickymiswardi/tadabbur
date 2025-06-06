@@ -21,6 +21,36 @@
       color: #111;
     }
 
+    .popup {
+  display: none;
+  position: fixed;
+  max-width: 400px;
+  padding: 1em;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  top: 20%;
+  left: 50%;
+  transform: translate(-50%, 0);
+  z-index: 9999;
+}
+.popup.show {
+  display: block;
+}
+.popup-close {
+  margin-top: 1em;
+  text-align: right;
+}
+.popup-close button {
+  padding: 0.4em 0.8em;
+  border: none;
+  background: #007b8a;
+  color: #fff;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
     .judul-container {
       border: 2px solid #ddd;
       padding: 1em;
@@ -151,6 +181,19 @@
   </div>
 
   <script>
+    function showPopup(num) {
+  const ref = footnoteMap[num];
+  if (ref) {
+    const popup = document.getElementById("popup");
+    popup.innerHTML = `<div><strong>Catatan ${num}:</strong><br>${ref.isi}</div>
+      <div class="popup-close"><button onclick="closePopup()">Tutup</button></div>`;
+    popup.classList.add("show");
+  }
+}
+
+function closePopup() {
+  document.getElementById("popup").classList.remove("show");
+}
     const surah = parseInt(new URLSearchParams(window.location.search).get("surah") || "1");
     const ayat = parseInt(new URLSearchParams(window.location.search).get("ayat") || "1");
 
@@ -252,10 +295,14 @@ ayatNodes.forEach(aya => {
       matches.forEach(num => {
         // Simpan hanya jika belum ada
         if (!footnoteMap[num]) {
-          const surahNum = aya.parentElement.getAttribute("number");
-          const ayahNum = aya.getAttribute("number");
-          footnoteMap[num] = `Surat ${surahNum} Ayat ${ayahNum}`;
-        }
+  const surahNum = aya.parentElement.getAttribute("number");
+  const ayahNum = aya.getAttribute("number");
+  const isiFootnote = footnotes.textContent;
+  footnoteMap[num] = {
+    lokasi: `Surat ${surahNum} Ayat ${ayahNum}`,
+    isi: isiFootnote
+  };
+}
       });
     }
   }
@@ -281,7 +328,11 @@ ayatNodes.forEach(aya => {
   // Tambahkan keterangan referensi footnote jika ada
   let modifiedFootnote = footnotes.replace(/Lihat catatan kaki nomor (\d+)/g, (fullMatch, num) => {
   const ref = footnoteMap[num];
-  return ref ? `Lihat catatan kaki nomor ${num} (${ref})` : fullMatch;
+  if (ref) {
+    return `Lihat catatan kaki nomor ${num} <a href="#" onclick="showPopup('${num}'); return false;">(${ref.lokasi})</a>`;
+  } else {
+    return fullMatch;
+  }
 });
 
   foot.innerHTML = `<strong>Catatan:</strong> ${modifiedFootnote}`;
@@ -326,5 +377,6 @@ ayatNodes.forEach(aya => {
       document.getElementById("result").textContent = "Gagal memuat data.";
     });
   </script>
+  <div id="popup" class="popup"></div>
 </body>
 </html>
