@@ -295,6 +295,21 @@ ayatNodes.forEach(aya => {
   }
 });
 
+      const footnoteContentMap = {};
+ayatNodes.forEach(aya => {
+  const footnotes = aya.querySelector("footnotes");
+  if (footnotes && footnotes.textContent.trim()) {
+    const matches = footnotes.textContent.match(/\d+/g);
+    if (matches) {
+      matches.forEach(num => {
+        if (!footnoteContentMap[num]) {
+          footnoteContentMap[num] = footnotes.textContent;
+        }
+      });
+    }
+  }
+});
+
       const translationAyah = xmlDoc.querySelector(`sura[number="${surah}"] > aya[number="${ayat}"]`);
       let translation = translationAyah?.querySelector("translation")?.textContent || "(Terjemahan tidak ditemukan)";
       const footnotes = translationAyah?.querySelector("footnotes")?.textContent || "";
@@ -317,7 +332,8 @@ ayatNodes.forEach(aya => {
   const ref = footnoteMap[num];
   if (ref) {
     // buat link pop-up
-    return `Lihat catatan kaki nomor ${num} (<a href="#" onclick="event.preventDefault(); openModal('Isi catatan ${num}: ${footnotes}')">${ref}</a>)`;
+    const content = footnoteContentMap[num] || '(Catatan tidak ditemukan)';
+return `Lihat catatan kaki nomor ${num} (<a href="#" onclick="event.preventDefault(); openModal('Catatan ${num}: ${content}')">${ref}</a>)`;
   }
   return fullMatch;
 });
