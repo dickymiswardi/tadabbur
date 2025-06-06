@@ -133,6 +133,10 @@
       }
     }
   </style>
+   <!-- Tambah Colorbox CSS & jQuery -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery.colorbox/1.6.4/example1/colorbox.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.colorbox/1.6.4/jquery.colorbox-min.js"></script>
 </head>
 <body>
   <div class="judul-container">
@@ -149,13 +153,6 @@
   <div class="sumber">
     Sumber: Quran.com + King Fahad Quran Complex
   </div>
-  
-  <div id="footnoteModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; justify-content:center; align-items:center;">
-  <div style="background:#fff; padding:1em 1.5em; border-radius:8px; max-width:400px; text-align:left; box-shadow:0 4px 8px rgba(0,0,0,0.2); position:relative;">
-    <button onclick="closeFootnote()" style="position:absolute; top:5px; right:10px; background:none; border:none; font-size:1.2em; cursor:pointer;">×</button>
-    <div id="footnoteContent"></div>
-  </div>
-</div>
 
   <script>
     const surah = parseInt(new URLSearchParams(window.location.search).get("surah") || "1");
@@ -264,9 +261,22 @@
       if (footnotes) {
         const foot = document.createElement("div");
         foot.className = "footnote";
-        foot.innerHTML = `<strong>Catatan:</strong> ${footnotes}`foot.innerHTML = `<strong>Catatan:</strong> ${footnotes}`.replace(/nomor (\d+)/g, (match, num) => {
-  return `<a href="#!" onclick="showFootnote(${num})">nomor ${num}</a>`;
-});
+        let footnoteHTML = `<strong>Catatan:</strong> ${footnotes}`;
+
+        // Ubah 'nomor xx' jadi link Colorbox
+        footnoteHTML = footnoteHTML.replace(/nomor (\d+)/g, (match, num) => {
+          // Buat div popup tersembunyi dulu
+          const popup = document.createElement("div");
+          popup.id = `catatan-${num}`;
+          popup.style.display = "none";
+          popup.innerHTML = `<p>Isi catatan kaki nomor ${num} di sini.</p>`;
+          document.body.appendChild(popup);
+
+          // Return link Colorbox
+          return `<a href="#catatan-${num}" class="popup-footnote">nomor ${num}</a>`;
+        });
+
+        foot.innerHTML = footnoteHTML;
         document.getElementById("result").appendChild(foot);
       }
 
@@ -303,24 +313,10 @@
 
       document.getElementById("result").appendChild(navDiv);
     })
+      // Aktifkan Colorbox setelah semua link popup-footnote dibuat
+      $(".popup-footnote").colorbox({inline:true, width:"80%"});
 
-      function showFootnote(num) {
-  fetch("indonesian_complex_v1.0.xml")
-    .then(res => res.text())
-    .then(xmlText => {
-      const parser = new DOMParser();
-      const xmlDoc = parser.parseFromString(xmlText, "text/xml");
-      const footnoteNode = xmlDoc.querySelector(`footnote[number="${num}"]`);
-      const content = footnoteNode ? footnoteNode.textContent : "Catatan kaki tidak ditemukan.";
-      document.getElementById("footnoteContent").innerHTML = `<strong>Catatan ${num}:</strong><br>${content}`;
-      document.getElementById("footnoteModal").style.display = "flex";
-    });
-}
-
-function closeFootnote() {
-  document.getElementById("footnoteModal").style.display = "none";
-}
-      
+    })
     .catch(err => {
       console.error(err);
       document.getElementById("result").textContent = "Gagal memuat data.";
