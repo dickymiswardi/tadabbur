@@ -295,7 +295,8 @@ ayatNodes.forEach(aya => {
   }
 });
 
-      const footnoteContentMap = {};
+      // Buat peta isi catatan kaki tiap nomor
+const footnoteContentMap = {};
 ayatNodes.forEach(aya => {
   const footnotes = aya.querySelector("footnotes");
   if (footnotes && footnotes.textContent.trim()) {
@@ -303,6 +304,7 @@ ayatNodes.forEach(aya => {
     if (matches) {
       matches.forEach(num => {
         if (!footnoteContentMap[num]) {
+          // Simpan isi footnotes ayat ini ke map nomor footnote
           footnoteContentMap[num] = footnotes.textContent;
         }
       });
@@ -333,7 +335,7 @@ ayatNodes.forEach(aya => {
   if (ref) {
     // buat link pop-up
     const content = footnoteContentMap[num] || '(Catatan tidak ditemukan)';
-return `Lihat catatan kaki nomor ${num} (<a href="#" onclick="event.preventDefault(); openModal('Catatan ${num}: ${content}')">${ref}</a>)`;
+return `Lihat catatan kaki nomor ${num} (<a href="javascript:void(0)" onclick="openModal('Catatan ${num}: ${content.replace(/'/g, "\\'")}')">${ref}</a>)`;
   }
   return fullMatch;
 });
