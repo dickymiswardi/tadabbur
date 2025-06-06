@@ -254,7 +254,7 @@ ayatNodes.forEach(aya => {
         if (!footnoteMap[num]) {
           const surahNum = aya.parentElement.getAttribute("number");
           const ayahNum = aya.getAttribute("number");
-          footnoteMap[num] = `${surahName} Surah ${surahNum} Ayat ${ayahNum}`;
+          footnoteMap[num] = `Surah ${surahNum} Ayat ${ayahNum}`;
         }
       });
     }
