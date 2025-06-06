@@ -139,7 +139,6 @@
     <h1 id="judul">Surah</h1>
   </div>
 
-  <!-- Ganti 'Memuat...' dengan animasi -->
   <div id="result">
     <div class="loader">
       <img src="https://raw.githubusercontent.com/dickymiswardi/tadabbur/aa160525691e67e5d0b7aab1e7e9f37657d0ed45/AnimatedBook.gif" alt="Memuat..." class="loading-icon" />
@@ -201,7 +200,11 @@
     }
 
     function wrapRasmSymbols(text) {
-      return text.replace(/([ۛۢۖۚۗۙۘۜ])/g, ' <sup class="rasm-symbol">$1</sup> ');
+      // Tangani kasus khusus: huruf 'ا' diikuti ۖ
+      text = text.replace(/اۖ/g, 'ا   <sup class="rasm-symbol">ۖ</sup>');
+
+      // Tangani simbol rasm lainnya kecuali yang sudah ditangani
+      return text.replace(/([^ا])([ۛۢۖۚۗۙۘۜ])/g, '$1 <sup class="rasm-symbol">$2</sup>');
     }
 
     function getNextAyah(surah, ayah) {
