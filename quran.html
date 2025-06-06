@@ -332,10 +332,9 @@ ayatNodes.forEach(aya => {
   // Tambahkan keterangan referensi footnote jika ada
   let modifiedFootnote = footnotes.replace(/Lihat catatan kaki nomor (\d+)/g, (fullMatch, num) => {
   const ref = footnoteMap[num];
+  const content = footnoteContentMap[num] || '(Catatan tidak ditemukan)';
   if (ref) {
-    // buat link pop-up
-    const content = footnoteContentMap[num] || '(Catatan tidak ditemukan)';
-return `Lihat catatan kaki nomor ${num} (<a href="javascript:void(0)" onclick="openModal('Catatan ${num}: ${content.replace(/'/g, "\\'")}')">${ref}</a>)`;
+    return `Lihat catatan kaki nomor ${num} (<a href="javascript:void(0)" onclick="openModal('Catatan ${num}: ${content.replace(/'/g, "\\'")}')">${ref}</a>)`;
   }
   return fullMatch;
 });
