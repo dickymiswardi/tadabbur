@@ -4,51 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Al-Qur'an Digital</title>
-  <!-- Tambahkan di <head> setelah <title> -->
-<link rel="stylesheet" href="https://rawcdn.githack.com/dickymiswardi/colorbox/main/example4/colorbox.css">
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://rawcdn.githack.com/dickymiswardi/colorbox/main/jquery.colorbox.js"></script>
-
-<!-- Di dalam <script> paling bawah, setelah Promise.all...then -->
-if (footnotes) {
-  translation = translation.replace(/(\d+)/g, (match, num) => {
-    return `<a href="#footnote-${num}" class="footnote-link" data-footnote="${num}"><sup>(${num})</sup></a>`;
-  });
-}
-
-// Setelah document.getElementById("result").appendChild(navDiv);
-
-// Aktifkan Colorbox untuk link footnote
-$(document).ready(function(){
-  $(document).on('click', '.footnote-link', function(e){
-    e.preventDefault();
-    const num = $(this).data("footnote");
-    const notes = xmlDoc.querySelectorAll("footnotes");
-    let content = "Catatan tidak ditemukan.";
-    notes.forEach(note => {
-      if(note.textContent.includes(`${num}.`)){
-        const regex = new RegExp(`${num}\.\s*(.*?)\s*(\d+\.|$)`, "s");
-        const match = note.textContent.match(regex);
-        if(match){
-          content = match[1];
-        }
-      }
-    });
-    $.colorbox({
-      html: `<div style='padding:10px; max-height:300px; overflow-y:auto;'>Catatan (${num}):<br><br>${content}</div>`
-    });
-  });
-});
-
-/* CSS opsional di <style> */
-.footnote-link {
-  color: #007b8a;
-  text-decoration: none;
-  cursor: pointer;
-}
-.footnote-link:hover {
-  text-decoration: underline;
-}
   <style>
     @font-face {
       font-family: 'Madina';
