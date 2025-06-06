@@ -279,13 +279,25 @@ ayatNodes.forEach(aya => {
   foot.className = "footnote";
 
   // Tambahkan keterangan referensi footnote jika ada
-  let modifiedFootnote = footnotes.replace(/Lihat catatan kaki nomor (\d+)/g, (fullMatch, num) => {
-  const ref = footnoteMap[num];
-  return ref ? `Lihat catatan kaki nomor ${num} (${ref})` : fullMatch;
-});
+  if (ref) {
+  const [surat, ayat] = ref.match(/\d+/g);
+  const currentSurah = surah;
+  const currentAyat = ayat;
+  return `Lihat catatan kaki nomor <a href="?surah=${surat}&ayat=${ayat}&from_surah=${currentSurah}&from_ayat=${currentAyat}">${num}</a> (${ref})`;
+}
 
   foot.innerHTML = `<strong>Catatan:</strong> ${modifiedFootnote}`;
   document.getElementById("result").appendChild(foot);
+}
+      const urlParams = new URLSearchParams(window.location.search);
+const fromSurah = urlParams.get("from_surah");
+const fromAyat = urlParams.get("from_ayat");
+
+if (fromSurah && fromAyat) {
+  const backLink = document.createElement("div");
+  backLink.className = "footnote";
+  backLink.innerHTML = `<a href="?surah=${fromSurah}&ayat=${fromAyat}">🔙 Kembali ke ayat ${fromSurah}:${fromAyat}</a>`;
+  document.getElementById("result").appendChild(backLink);
 }
 
       const navDiv = document.createElement("div");
