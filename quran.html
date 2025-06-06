@@ -317,7 +317,7 @@ ayatNodes.forEach(aya => {
   const ref = footnoteMap[num];
   if (ref) {
     // buat link pop-up
-    return `Lihat catatan kaki nomor ${num} (<a href="#" onclick="openModal('Isi catatan ${num}: ${footnotes}')">${ref}</a>)`;
+    return `Lihat catatan kaki nomor ${num} (<a href="#" onclick="event.preventDefault(); openModal('Isi catatan ${num}: ${footnotes}')">${ref}</a>)`;
   }
   return fullMatch;
 });
