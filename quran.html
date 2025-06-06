@@ -28,12 +28,12 @@
       border-radius: 12px;
       text-align: center;
       margin-bottom: 1.5em;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
       transition: box-shadow 0.3s ease;
     }
 
     .judul-container:hover {
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     }
 
     .judul-container h1 {
@@ -68,6 +68,15 @@
       font-style: italic;
       margin-top: 1em;
       text-align: justify;
+    }
+
+    .footnote a {
+      color: #007b8a;
+      text-decoration: none;
+    }
+
+    .footnote a:hover {
+      text-decoration: underline;
     }
 
     .sumber {
@@ -116,34 +125,18 @@
     }
 
     @media (max-width: 480px) {
-      body {
-        padding: 1em;
-      }
-
-      .arabic {
-        font-size: 1.8em;
-      }
-
-      .translation {
-        font-size: 1em;
-      }
-
-      .judul-container h1 {
-        font-size: 1.2em;
-      }
+      body { padding: 1em; }
+      .arabic { font-size: 1.8em; }
+      .translation { font-size: 1em; }
+      .judul-container h1 { font-size: 1.2em; }
     }
   </style>
-   <!-- Tambah Colorbox CSS & jQuery -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery.colorbox/1.6.4/example1/colorbox.min.css" />
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.colorbox/1.6.4/jquery.colorbox-min.js"></script>
 </head>
 <body>
   <div class="judul-container">
     <h1 id="judul">Surah</h1>
   </div>
 
-  <!-- Ganti 'Memuat...' dengan animasi -->
   <div id="result">
     <div class="loader">
       <img src="https://raw.githubusercontent.com/dickymiswardi/tadabbur/aa160525691e67e5d0b7aab1e7e9f37657d0ed45/AnimatedBook.gif" alt="Memuat..." class="loading-icon" />
@@ -155,9 +148,6 @@
   </div>
 
   <script>
-    const surah = parseInt(new URLSearchParams(window.location.search).get("surah") || "1");
-    const ayat = parseInt(new URLSearchParams(window.location.search).get("ayat") || "1");
-
     const surahNames = {
       1:"Al-Fatihah",2:"Al-Baqarah",3:"Ali 'Imran",4:"An-Nisa'",5:"Al-Ma'idah",
       6:"Al-An'am",7:"Al-A'raf",8:"Al-Anfal",9:"At-Tawbah",10:"Yunus",
@@ -200,8 +190,8 @@
     };
 
     function toArabicNumber(n) {
-      const map = ["٠", "١", "٢", "٣", "٤", "٥", "٦", "٧", "٨", "٩"];
-      return String(n).split('').map(d => map[parseInt(d)]).join('');
+      const map = ["٠","١","٢","٣","٤","٥","٦","٧","٨","٩"];
+      return String(n).split('').map(d=>map[+d]).join('');
     }
 
     function wrapRasmSymbols(text) {
@@ -209,17 +199,18 @@
     }
 
     function getNextAyah(surah, ayah) {
-      if (surah === 114 && ayah === 6) return { surah: 1, ayah: 1 };
-      const lastAyah = surahAyahCount[surah];
-      if (ayah < lastAyah) return { surah, ayah: ayah + 1 };
-      return { surah: surah + 1, ayah: 1 };
+      if (surah===114 && ayah===6) return {surah:1, ayah:1};
+      const last = surahAyahCount[surah];
+      return ayah < last ? {surah, ayah:ayat+1} : {surah:surah+1, ayah:1};
     }
 
     function getPrevAyah(surah, ayah) {
-      if (surah === 1 && ayah === 1) return null;
-      if (ayah > 1) return { surah, ayah: ayah - 1 };
-      return { surah: surah - 1, ayah: surahAyahCount[surah - 1] };
+      if (surah===1 && ayah===1) return null;
+      return ayah > 1 ? {surah, ayah:ayat-1} : {surah:surah-1, ayah:surahAyahCount[surah-1]};
     }
+
+    const surahNames = { /* nama surah sesuai data kamu */ };
+    const surahAyahCount = { /* jumlah ayat per surah sesuai data kamu */ };
 
     const surahName = surahNames[surah] || "Surah Tidak Dikenal";
     document.getElementById("judul").textContent = `${surahName} Surah ${surah} Ayat ${ayat}`;
@@ -232,19 +223,16 @@
     ])
     .then(([arabData, xmlText]) => {
       const verse = arabData.verses?.[0];
-      let arabicText = verse?.text_uthmani || "(Teks Arab tidak ditemukan)";
-      arabicText += ` \u06dd${toArabicNumber(ayat)}`;
-      arabicText = wrapRasmSymbols(arabicText);
+      let arabic = verse?.text_uthmani || "(Teks Arab tidak ditemukan)";
+      arabic += ` \u06dd${toArabicNumber(ayat)}`;
+      arabic = wrapRasmSymbols(arabic);
 
       const arabDiv = document.createElement('div');
       arabDiv.className = 'arabic';
-      arabDiv.innerHTML = arabicText;
-      document.getElementById("result").innerHTML = '';
-      document.getElementById("result").appendChild(arabDiv);
+      arabDiv.innerHTML = arabic;
 
       const parser = new DOMParser();
-      const xmlDoc = parser.parseFromString(xmlText, "text/xml");
-
+      const xmlDoc = parser.parseFromString(xmlText,"text/xml");
       const translationAyah = xmlDoc.querySelector(`sura[number="${surah}"] > aya[number="${ayat}"]`);
       let translation = translationAyah?.querySelector("translation")?.textContent || "(Terjemahan tidak ditemukan)";
       const footnotes = translationAyah?.querySelector("footnotes")?.textContent || "";
@@ -256,28 +244,22 @@
       const translationDiv = document.createElement("div");
       translationDiv.className = "translation";
       translationDiv.innerHTML = translation;
-      document.getElementById("result").appendChild(translationDiv);
+
+      const result = document.getElementById("result");
+      result.innerHTML = '';
+      result.appendChild(arabDiv);
+      result.appendChild(translationDiv);
 
       if (footnotes) {
         const foot = document.createElement("div");
         foot.className = "footnote";
-        let footnoteHTML = `<strong>Catatan:</strong> ${footnotes}`;
+        foot.innerHTML = `<strong>Catatan:</strong> ${footnotes}`;
+        result.appendChild(foot);
 
-        // Ubah 'nomor xx' jadi link Colorbox
-        footnoteHTML = footnoteHTML.replace(/nomor (\d+)/g, (match, num) => {
-          // Buat div popup tersembunyi dulu
-          const popup = document.createElement("div");
-          popup.id = `catatan-${num}`;
-          popup.style.display = "none";
-          popup.innerHTML = `<p>Isi catatan kaki nomor ${num} di sini.</p>`;
-          document.body.appendChild(popup);
-
-          // Return link Colorbox
-          return `<a href="#catatan-${num}" class="popup-footnote">nomor ${num}</a>`;
+        // Ganti "nomor XX" jadi link lompat
+        foot.innerHTML = foot.innerHTML.replace(/nomor (\d+)/g, (match, num) => {
+          return `<a href="?surah=${surah}&ayat=${ayat}&catatan=${num}">nomor ${num}</a>`;
         });
-
-        foot.innerHTML = footnoteHTML;
-        document.getElementById("result").appendChild(foot);
       }
 
       const navDiv = document.createElement("div");
@@ -289,37 +271,27 @@
       if (prev) {
         const prevBtn = document.createElement("button");
         prevBtn.textContent = "Sebelumnya";
-        prevBtn.onclick = () => {
-          window.location.search = `?surah=${prev.surah}&ayat=${prev.ayah}`;
-        };
+        prevBtn.onclick = () => { window.location.search=`?surah=${prev.surah}&ayat=${prev.ayah}`; };
         navDiv.appendChild(prevBtn);
       }
 
       const searchBtn = document.createElement("button");
       searchBtn.textContent = "Pencarian Ayat";
-      searchBtn.onclick = () => {
-        window.location.href = "index.html";
-      };
+      searchBtn.onclick = () => { window.location.href="index.html"; };
       navDiv.appendChild(searchBtn);
 
       if (next) {
         const nextBtn = document.createElement("button");
         nextBtn.textContent = "Selanjutnya";
-        nextBtn.onclick = () => {
-          window.location.search = `?surah=${next.surah}&ayat=${next.ayah}`;
-        };
+        nextBtn.onclick = () => { window.location.search=`?surah=${next.surah}&ayat=${next.ayah}`; };
         navDiv.appendChild(nextBtn);
       }
 
-      document.getElementById("result").appendChild(navDiv);
-    })
-      // Aktifkan Colorbox setelah semua link popup-footnote dibuat
-      $(".popup-footnote").colorbox({inline:true, width:"80%"});
-
+      result.appendChild(navDiv);
     })
     .catch(err => {
       console.error(err);
-      document.getElementById("result").textContent = "Gagal memuat data.";
+      document.getElementById("result").textContent="Gagal memuat data.";
     });
   </script>
 </body>
