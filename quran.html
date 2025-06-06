@@ -21,6 +21,30 @@
       color: #111;
     }
 
+    .modal {
+  display: none;
+  position: fixed;
+  z-index: 99;
+  padding: 1em;
+  background: #fff;
+  border: 1px solid #aaa;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  max-width: 300px;
+  left: 50%;
+  top: 30%;
+  transform: translate(-50%, -30%);
+}
+.modal.show { display: block; }
+.modal-close {
+  margin-top: 1em;
+  display: block;
+  text-align: center;
+  font-size: 0.9em;
+  color: #007b8a;
+  cursor: pointer;
+}
+
     .judul-container {
       border: 2px solid #ddd;
       padding: 1em;
@@ -149,11 +173,6 @@
   <div class="sumber">
     Sumber: Quran.com + King Fahad Quran Complex
   </div>
-  <div id="popup" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);
-background:#fff; border:1px solid #ccc; padding:1em; border-radius:8px; max-width:400px; box-shadow:0 4px 12px rgba(0,0,0,0.2); z-index:9999;">
-  <div id="popup-content"></div>
-  <button onclick="document.getElementById('popup').style.display='none'" style="margin-top:1em;">Tutup</button>
-</div>
 
   <script>
     const surah = parseInt(new URLSearchParams(window.location.search).get("surah") || "1");
@@ -200,31 +219,6 @@ background:#fff; border:1px solid #ccc; padding:1em; border-radius:8px; max-widt
       111:5, 112:4, 113:5, 114:6
     };
 
-    const footnoteIsiMap = {};
-ayatNodes.forEach(aya => {
-  const footnotes = aya.querySelector("footnotes");
-  if (footnotes && footnotes.textContent.trim()) {
-    const matches = footnotes.textContent.match(/\d+/g);
-    if (matches) {
-      matches.forEach(num => {
-        if (!footnoteMap[num]) {
-          const surahNum = aya.parentElement.getAttribute("number");
-          const ayahNum = aya.getAttribute("number");
-          footnoteMap[num] = `Surat ${surahNum} Ayat ${ayahNum}`;
-        }
-        // Simpan isi footnote-nya
-        footnoteIsiMap[num] = footnotes.textContent;
-      });
-    }
-  }
-});
-
-    function showPopup(num) {
-  const isi = footnoteIsiMap[num] || "Isi catatan tidak ditemukan.";
-  document.getElementById("popup-content").innerHTML = `<strong>Catatan kaki nomor ${num}</strong>:<br>${isi}`;
-  document.getElementById("popup").style.display = "block";
-}
-
     function toArabicNumber(n) {
       const map = ["٠", "١", "٢", "٣", "٤", "٥", "٦", "٧", "٨", "٩"];
       return String(n).split('').map(d => map[parseInt(d)]).join('');
@@ -246,6 +240,16 @@ ayatNodes.forEach(aya => {
       if (ayah > 1) return { surah, ayah: ayah - 1 };
       return { surah: surah - 1, ayah: surahAyahCount[surah - 1] };
     }
+
+    function showPopup(content) {
+  const popup = document.getElementById("popup");
+  popup.innerHTML = `<div>${content}</div><div class="modal-close" onclick="closePopup()">Tutup</div>`;
+  popup.classList.add("show");
+}
+
+function closePopup() {
+  document.getElementById("popup").classList.remove("show");
+}
 
     const surahName = surahNames[surah] || "Surah Tidak Dikenal";
     document.getElementById("judul").textContent = `${surahName} Surah ${surah} Ayat ${ayat}`;
@@ -273,18 +277,19 @@ ayatNodes.forEach(aya => {
 
       // Buat peta footnoteNumber ke posisi Surah & Ayat
 const footnoteMap = {};
-const ayatNodes = xmlDoc.querySelectorAll("aya");
-ayatNodes.forEach(aya => {
+xmlDoc.querySelectorAll("aya").forEach(aya => {
   const footnotes = aya.querySelector("footnotes");
   if (footnotes && footnotes.textContent.trim()) {
     const matches = footnotes.textContent.match(/\d+/g);
     if (matches) {
       matches.forEach(num => {
-        // Simpan hanya jika belum ada
         if (!footnoteMap[num]) {
           const surahNum = aya.parentElement.getAttribute("number");
           const ayahNum = aya.getAttribute("number");
-          footnoteMap[num] = `Surat ${surahNum} Ayat ${ayahNum}`;
+          footnoteMap[num] = {
+            posisi: `Surat ${surahNum} Ayat ${ayahNum}`,
+            isi: footnotes.textContent
+          };
         }
       });
     }
@@ -308,14 +313,14 @@ ayatNodes.forEach(aya => {
   const foot = document.createElement("div");
   foot.className = "footnote";
 
+  // Tambahkan keterangan referensi footnote jika ada
   let modifiedFootnote = footnotes.replace(/Lihat catatan kaki nomor (\d+)/g, (fullMatch, num) => {
-    const ref = footnoteMap[num];
-    if (ref) {
-      return `Lihat catatan kaki nomor ${num} <a href="#" onclick="showPopup('${num}'); return false;">(${ref})</a>`;
-    } else {
-      return fullMatch;
-    }
-  });
+  const ref = footnoteMap[num];
+  if (ref) {
+    return `Lihat catatan kaki nomor ${num} <span style="color:#007b8a; cursor:pointer; text-decoration:underline;" onclick="showPopup('${ref.isi.replace(/'/g, "\\'")}')">(${ref.posisi})</span>`;
+  }
+  return fullMatch;
+});
 
   foot.innerHTML = `<strong>Catatan:</strong> ${modifiedFootnote}`;
   document.getElementById("result").appendChild(foot);
@@ -359,5 +364,6 @@ ayatNodes.forEach(aya => {
       document.getElementById("result").textContent = "Gagal memuat data.";
     });
   </script>
+  <div id="popup" class="modal"></div>
 </body>
 </html>
