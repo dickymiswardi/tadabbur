@@ -251,6 +251,15 @@ function closePopup() {
   document.getElementById("popup").classList.remove("show");
 }
 
+    function escapeHtml(text) {
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
     const surahName = surahNames[surah] || "Surah Tidak Dikenal";
     document.getElementById("judul").textContent = `${surahName} Surah ${surah} Ayat ${ayat}`;
 
@@ -317,7 +326,8 @@ xmlDoc.querySelectorAll("aya").forEach(aya => {
   let modifiedFootnote = footnotes.replace(/Lihat catatan kaki nomor (\d+)/g, (fullMatch, num) => {
   const ref = footnoteMap[num];
   if (ref) {
-    return `Lihat catatan kaki nomor ${num} <span style="color:#007b8a; cursor:pointer; text-decoration:underline;" onclick="showPopup('${ref.isi.replace(/'/g, "\\'")}')">(${ref.posisi})</span>`;
+    return `Lihat catatan kaki nomor ${num} <span style="color:#007b8a; cursor:pointer; text-decoration:underline;" onclick="showPopup('${escapeHtml(ref.isi)}')"
+">(${ref.posisi})</span>`;
   }
   return fullMatch;
 });
