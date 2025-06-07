@@ -221,18 +221,41 @@
       }
     }
 
-    function goToAyat(e) {
-      e.preventDefault();
-      const surah = surahSelect.value;
-      const ayat = document.getElementById("ayat").value;
-      if (!surah || !ayat) {
-        alert("Silakan pilih Surah dan Ayat terlebih dahulu!");
-        return;
-      }
-      window.location.href = `quran.html?surah=${surah}&ayat=${ayat}`;
-    }
+    // Saat halaman dibuka, load nilai dari localStorage kalau ada
+function loadLastSelection() {
+  const lastSurah = localStorage.getItem("lastSurah");
+  const lastAyat = localStorage.getItem("lastAyat");
 
+  if (lastSurah) {
+    surahSelect.value = lastSurah;
     updateAyatDropdown();
+    if (lastAyat) {
+      document.getElementById("ayat").value = lastAyat;
+    }
+  }
+}
+
+// Simpan pilihan ke localStorage saat submit form
+function goToAyat(e) {
+  e.preventDefault();
+  const surah = surahSelect.value;
+  const ayat = document.getElementById("ayat").value;
+
+  if (!surah || !ayat) {
+    alert("Silakan pilih Surah dan Ayat terlebih dahulu.");
+    return;
+  }
+
+  // Simpan ke localStorage
+  localStorage.setItem("lastSurah", surah);
+  localStorage.setItem("lastAyat", ayat);
+
+  window.location.href = `quran.html?surah=${surah}&ayat=${ayat}`;
+}
+
+updateAyatDropdown();
+loadLastSelection(); // Panggil saat pertama halaman load
+    
   </script>
 </body>
 </html>
