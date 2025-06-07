@@ -29,6 +29,16 @@
   color: #555; /* optional styling */
 }
 
+    .rasm-symbol {
+  vertical-align: super;
+  margin-left: 0.2em;
+}
+
+.rasm-symbol-special {
+  margin-left: 0.1;
+  margin-right: 0.2em;
+}
+
     .judul-container {
       border: 2px solid #ddd;
       padding: 1em;
@@ -204,8 +214,14 @@
     }
 
     function wrapRasmSymbols(text) {
-      return text.replace(/([ۛۢۖۚۗۙۘۜ])/g, ' <sup class="rasm-symbol">$1</sup> ');
+  return text.replace(/([ۛۢۖۚۗۙۘۜ])/g, function(match) {
+    if (match === 'ۢ') {
+      return ' <sup class="rasm-symbol rasm-symbol-special">' + match + '</sup> ';
+    } else {
+      return ' <sup class="rasm-symbol">' + match + '</sup> ';
     }
+  });
+}
 
     function getNextAyah(surah, ayah) {
       if (surah === 114 && ayah === 6) return { surah: 1, ayah: 1 };
