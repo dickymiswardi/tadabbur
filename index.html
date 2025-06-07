@@ -19,6 +19,22 @@
       text-align: center;
     }
 
+    button[type="button"] {
+  font-size: 1em;
+  padding: 0.8em;
+  margin: 0.8em 0;
+  width: 100%;
+  box-sizing: border-box;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  background-color: #f0f0f0;
+  cursor: pointer;
+}
+
+button[type="button"]:hover {
+  background-color: #e0e0e0;
+}
+
     .card {
       border: 2px solid #ddd;
       padding: 1em;
@@ -78,6 +94,7 @@
 
       <button type="submit">Lihat Terjemahan</button>
     </form>
+    <button type="button" onclick="goToLastRead()">Surah Terakhir Dibaca</button>
   </div>
 
   <script>
@@ -245,6 +262,16 @@ function goToAyat(e) {
     alert("Silakan pilih Surah dan Ayat terlebih dahulu.");
     return;
   }
+
+  function goToLastRead() {
+  const lastSurah = localStorage.getItem("lastSurah");
+  const lastAyat = localStorage.getItem("lastAyat");
+  if (lastSurah && lastAyat) {
+    window.location.href = `quran.html?surah=${lastSurah}&ayat=${lastAyat}`;
+  } else {
+    alert("Belum ada ayat yang terakhir dibaca.");
+  }
+}
 
   // Simpan ke localStorage
   localStorage.setItem("lastSurah", surah);
