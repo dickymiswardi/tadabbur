@@ -35,15 +35,21 @@
     }
 
     select,
-    button {
-      font-size: 1em;
-      padding: 0.8em;
-      margin: 0.8em 0;
-      width: 100%;
-      box-sizing: border-box;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-    }
+button {
+  font-size: 1em;
+  padding: 0.8em;
+  margin: 0.8em 0;
+  width: 100%;
+  box-sizing: border-box;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  cursor: pointer; /* <- Tambahan biar ada tangan saat hover */
+}
+
+    button:hover {
+  background-color: #007b8a;
+  color: white;
+}
 
     label {
       display: block;
