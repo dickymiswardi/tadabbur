@@ -77,8 +77,19 @@
       <select id="ayat" required></select>
 
       <button type="submit">Lihat Terjemahan</button>
+      <a href="#" id="continueLink">Lanjutkan Tadabbur Terakhir</a>
     </form>
   </div>
+
+  <script>
+  // Cek apakah ada data URL terakhir
+  var lastPage = localStorage.getItem("lastQuranPage");
+  if (lastPage) {
+    document.getElementById("continueLink").href = lastPage;
+  } else {
+    // Kalau belum ada, sembunyikan link atau disable
+    document.getElementById("continueLink").style.display = "none";
+  }
 
   <script>
     const surahList = [
