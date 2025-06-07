@@ -115,10 +115,6 @@
       opacity: 0.85;
     }
 
-    .hide-symbol {
-  display: none;
-}
-
     @media (max-width: 480px) {
       body {
         padding: 1em;
@@ -205,10 +201,8 @@
     }
 
     function wrapRasmSymbols(text) {
-  return text
-    .replace(/ۢ/g, '<span class="hide-symbol">ۢ</span>')
-    .replace(/([ۛۖۚۗۙۘۜ])/g, ' <sup class="rasm-symbol">$1</sup> ');
-}
+      return text.replace(/([ۛۢۖۚۗۙۘۜ])/g, ' <sup class="rasm-symbol">$1</sup> ');
+    }
 
     function getNextAyah(surah, ayah) {
       if (surah === 114 && ayah === 6) return { surah: 1, ayah: 1 };
