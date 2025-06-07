@@ -216,17 +216,6 @@
       if (ayah > 1) return { surah, ayah: ayah - 1 };
       return { surah: surah - 1, ayah: surahAyahCount[surah - 1] };
     }
-    
-window.onload = function() {
-  const urlParams = new URLSearchParams(window.location.search);
-  const surah = urlParams.get('surah');
-  const ayat = urlParams.get('ayat');
-
-  if (surah && ayat) {
-    localStorage.setItem('lastReadSurah', surah);
-    localStorage.setItem('lastReadAyat', ayat);
-  }
-}
 
     const surahName = surahNames[surah] || "Surah Tidak Dikenal";
     document.getElementById("judul").textContent = `${surahName} Surah ${surah} Ayat ${ayat}`;
