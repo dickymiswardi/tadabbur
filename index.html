@@ -78,6 +78,7 @@
 
       <button type="submit">Lihat Terjemahan</button>
     </form>
+    <button onclick="goToLastRead()">Ayat Terakhir Dibaca</button>
   </div>
 
   <script>
@@ -245,6 +246,16 @@ function goToAyat(e) {
     alert("Silakan pilih Surah dan Ayat terlebih dahulu.");
     return;
   }
+  
+function goToLastRead() {
+  let lastSurah = localStorage.getItem('lastReadSurah');
+  let lastAyat = localStorage.getItem('lastReadAyat');
+  if (lastSurah && lastAyat) {
+    window.location.href = 'quran.html?surah=' + lastSurah + '&ayat=' + lastAyat;
+  } else {
+    alert('Belum ada ayat terakhir dibaca');
+  }
+}
 
   // Simpan ke localStorage
   localStorage.setItem("lastSurah", surah);
