@@ -298,6 +298,8 @@ ayatNodes.forEach(aya => {
         const prevBtn = document.createElement("button");
         prevBtn.textContent = "Sebelumnya";
         prevBtn.onclick = () => {
+          localStorage.setItem("lastSurah", prev.surah);
+  localStorage.setItem("lastAyat", prev.ayah);
           window.location.search = `?surah=${prev.surah}&ayat=${prev.ayah}`;
         };
         navDiv.appendChild(prevBtn);
@@ -314,6 +316,8 @@ ayatNodes.forEach(aya => {
         const nextBtn = document.createElement("button");
         nextBtn.textContent = "Selanjutnya";
         nextBtn.onclick = () => {
+localStorage.setItem("lastSurah", next.surah);
+  localStorage.setItem("lastAyat", next.ayah);
           window.location.search = `?surah=${next.surah}&ayat=${next.ayah}`;
         };
         navDiv.appendChild(nextBtn);
