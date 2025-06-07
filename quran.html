@@ -214,8 +214,8 @@
     }
 
     function wrapRasmSymbols(text) {
-  return text.replace(/([ۛۢۖۚۗۙۘۜ])/g, function(match) {
-    if (match === 'ۢ') {
+  return text.replace(/([ۭۛۢۖۚۗۙۘۜ])/g, function(match) {
+    if (match === 'ۢ' || match === 'ۭ') {
       return ' <sup class="rasm-symbol rasm-symbol-special">' + match + '</sup> ';
     } else {
       return ' <sup class="rasm-symbol">' + match + '</sup> ';
