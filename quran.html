@@ -201,9 +201,7 @@
     }
 
     function wrapRasmSymbols(text) {
-  // Hapus simbol ۢ
-  text = text.replace(/ۢ/g, '');
-  // Bungkus simbol-simbol lain
+  text = text.replace(/\u06a2/g, '');
   return text.replace(/([ۛۖۚۗۙۘۜ])/g, ' <sup class="rasm-symbol">$1</sup> ');
 }
 
