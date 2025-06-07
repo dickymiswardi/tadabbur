@@ -326,5 +326,9 @@ ayatNodes.forEach(aya => {
       document.getElementById("result").textContent = "Gagal memuat data.";
     });
   </script>
+  <script>
+  // Simpan URL terakhir ke localStorage saat halaman ini dibuka
+  localStorage.setItem("lastQuranPage", window.location.href);
+</script>
 </body>
 </html>
