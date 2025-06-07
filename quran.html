@@ -217,17 +217,21 @@
       return { surah: surah - 1, ayah: surahAyahCount[surah - 1] };
     }
     
-function saveLastRead() {
+function saveLastRead(surah, ayat) {
+  localStorage.setItem('lastReadSurah', surah);
+  localStorage.setItem('lastReadAyat', ayat);
+}
+
+    window.onload = function() {
   const urlParams = new URLSearchParams(window.location.search);
   const surah = urlParams.get('surah');
   const ayat = urlParams.get('ayat');
+
   if (surah && ayat) {
     localStorage.setItem('lastReadSurah', surah);
     localStorage.setItem('lastReadAyat', ayat);
   }
 }
-
-window.onload = saveLastRead;
 
     const surahName = surahNames[surah] || "Surah Tidak Dikenal";
     document.getElementById("judul").textContent = `${surahName} Surah ${surah} Ayat ${ayat}`;
