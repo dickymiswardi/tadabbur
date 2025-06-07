@@ -82,16 +82,6 @@
   </div>
 
   <script>
-  // Cek apakah ada data URL terakhir
-  var lastPage = localStorage.getItem("lastQuranPage");
-  if (lastPage) {
-    document.getElementById("continueLink").href = lastPage;
-  } else {
-    // Kalau belum ada, sembunyikan link atau disable
-    document.getElementById("continueLink").style.display = "none";
-  }
-
-  <script>
     const surahList = [
       { number: 1, name: "Al-Fatihah", totalAyah: 7 },
       { number: 2, name: "Al-Baqarah", totalAyah: 286 },
@@ -266,6 +256,15 @@ function goToAyat(e) {
 
 updateAyatDropdown();
 loadLastSelection(); // Panggil saat pertama halaman load
+
+    // Cek apakah ada data URL terakhir
+  var lastPage = localStorage.getItem("lastQuranPage");
+  if (lastPage) {
+    document.getElementById("continueLink").href = lastPage;
+  } else {
+    // Kalau belum ada, sembunyikan link atau disable
+    document.getElementById("continueLink").style.display = "none";
+  }
     
   </script>
 </body>
