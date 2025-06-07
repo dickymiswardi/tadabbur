@@ -34,16 +34,29 @@
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
 
-    select,
     button {
-      font-size: 1em;
-      padding: 0.8em;
-      margin: 0.8em 0;
-      width: 100%;
-      box-sizing: border-box;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-    }
+  display: inline-block;
+  padding: 10px 20px;
+  background-color: #007b8a;
+  color: white;
+  text-decoration: none;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  transition: background-color 0.3s ease;
+  cursor: pointer;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0.8em 0;
+}
+
+button:hover {
+  background-color: #005f6b;
+}
+
+button:active {
+  background-color: #004e58;
+}
 
     label {
       display: block;
