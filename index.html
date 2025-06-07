@@ -248,12 +248,13 @@ function goToAyat(e) {
   }
   
 function goToLastRead() {
-  let lastSurah = localStorage.getItem('lastReadSurah');
-  let lastAyat = localStorage.getItem('lastReadAyat');
-  if (lastSurah && lastAyat) {
-    window.location.href = 'quran.html?surah=' + lastSurah + '&ayat=' + lastAyat;
+  const surah = localStorage.getItem('lastReadSurah');
+  const ayat = localStorage.getItem('lastReadAyat');
+
+  if (surah && ayat) {
+    window.location.href = `quran.html?surah=${surah}&ayat=${ayat}`;
   } else {
-    alert('Belum ada ayat terakhir dibaca');
+    alert("Belum ada ayat yang dibaca.");
   }
 }
 
