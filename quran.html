@@ -35,6 +35,12 @@
   margin-right: 0.0em; /* symbol yang dikecualikan ukurannya */
 }
 
+    .rasm-symbol-special2 {
+  font-size: 0.0em;
+  margin-left: 0.0;
+  margin-right: 0.0em; /* symbol yang dikecualikan ukurannya */
+}
+
     .judul-container {
       border: 2px solid #ddd;
       padding: 1em;
@@ -213,6 +219,11 @@
   return text.replace(/([ۭۛۢۖۚۗۙۘۜ])/g, function(match) {
     if (match === 'ۢ' || match === '') {
       return ' <sup class="rasm-symbol rasm-symbol-special">' + match + '</sup> ';
+    } else {
+      return ' <sup class="rasm-symbol">' + match + '</sup> ';
+    }
+    if (match === 'ۖ' || match === '') {
+      return ' <sup class="rasm-symbol rasm-symbol-special2">' + match + '</sup> ';
     } else {
       return ' <sup class="rasm-symbol">' + match + '</sup> ';
     }
