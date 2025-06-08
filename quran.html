@@ -208,15 +208,23 @@
       return String(n).split('').map(d => map[parseInt(d)]).join('');
     }
 
-    function wrapRasmSymbols(text) {
-  return text.replace(/([ۭۛۢۖۚۗۙۘۜ])/g, function(match) {
-    if (match === 'ۢ' || match === 'ۭ') {
-      return ' <sup class="rasm-symbol rasm-symbol-special">' + match + '</sup> ';
-    } else {
-      return ' <sup class="rasm-symbol">' + match + '</sup> ';
+    function processText(text) {
+  // Hapus 'ً ۢ ا'
+  let cleanText = text.replace(/ً ۢ ا/g, '');
+
+  // Bungkus simbol-simbol Rasm
+  return cleanText.replace(/([ۭۛۢۖۚۗۙۘۜ])/g, function(match) {
+    switch (match) {
+      case 'ۢ':
+        return ' <sup class="rasm-symbol rasm-symbol-special">' + match + '</sup> ';
+      case 'ۖ':
+        return ' <sup class="rasm-symbol rasm-symbol-special2">' + match + '</sup> ';
+      default:
+        return ' <sup class="rasm-symbol">' + match + '</sup> ';
     }
   });
 }
+    
 
     function getNextAyah(surah, ayah) {
       if (surah === 114 && ayah === 6) return { surah: 1, ayah: 1 };
