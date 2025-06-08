@@ -210,11 +210,10 @@
 
     function wrapRasmSymbols(text, surah, ayah) {
   return text.replace(/([ۭۛۢۖۚۗۙۘۜ])/g, function(match) {
-    // Jika surah 110 ayat 3 dan match 'ۢ', hapus saja
     if (surah === 110 && ayah === 3 && match === 'ۢ') {
-      return ''; // dihapus
+      return ''; // skip symbol
     }
-    // Atur tampilan normal dan special
+
     if (match === 'ۢ' || match === 'ۭ') {
       return ' <sup class="rasm-symbol rasm-symbol-special">' + match + '</sup> ';
     } else {
@@ -251,7 +250,23 @@ document.getElementById("hasilAyat").innerHTML = hasilRender;
     const surahName = surahNames[surah] || "Surah Tidak Dikenal";
     document.getElementById("judul").textContent = `${surahName} Surah ${surah} Ayat ${ayat}`;
 
-    const apiURL = `https://api.quran.com/api/v4/quran/verses/uthmani?verse_key=${surah}:${ayat}`;
+    function loadAyah(surah, ayah) {
+  const apiURL = `https://api.quran.com/api/v4/quran/verses/uthmani?verse_key=${surah}:${ayah}`;
+
+  fetch(apiURL)
+    .then(response => response.json())
+    .then(data => {
+      const text = data.data.verses[0].text_uthmani;
+      const processedText = wrapRasmSymbols(text, surah, ayah);
+      document.getElementById("teks-ayat").innerHTML = processedText;
+
+      const surahName = surahNames[surah] || "Surah Tidak Dikenal";
+      document.getElementById("judul").textContent = `${surahName} Surah ${surah} Ayat ${ayah}`;
+    })
+    .catch(error => {
+      console.error("Gagal mengambil ayat:", error);
+    });
+}
 
     Promise.all([
       fetch(apiURL).then(res => res.json()),
@@ -349,7 +364,7 @@ ayatNodes.forEach(aya => {
         };
         navDiv.appendChild(nextBtn);
       }
-
+loadAyah(110, 3);
       document.getElementById("result").appendChild(navDiv);
     })
     .catch(err => {
