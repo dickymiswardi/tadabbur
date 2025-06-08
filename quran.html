@@ -36,7 +36,7 @@
 }
 
     .rasm-symbol-special2 {
-  font-size: 0.9em;
+  font-size: 0.0em;
   margin-left: 0.0;
   margin-right: 0.0em; /* symbol yang dikecualikan ukurannya */
 }
@@ -216,13 +216,14 @@
     }
 
     function wrapRasmSymbols(text) {
-  return text.replace(/([ۭۛۢۖۚۗۙۘۜبًا])/g, function(match) {
-    if (['ۢ', 'بً', 'ا'].includes(match)) {
-      return ' <sup class="rasm-symbol rasm-symbol-special">' + match + '</sup> ';
-    } else if (match === 'ۖ') {
-      return ' <sup class="rasm-symbol rasm-symbol-special2">' + match + '</sup> ';
-    } else {
-      return ' <sup class="rasm-symbol">' + match + '</sup> ';
+  return text.replace(/([ۭۛۢۖۚۗۙۘۜ])/g, function(match) {
+    switch (match) {
+      case 'ۢ':
+        return ' <sup class="rasm-symbol rasm-symbol-special"> ۢ بًا</sup> ';
+      case 'ۖ':
+        return ' <sup class="rasm-symbol rasm-symbol-special2">' + match + '</sup> ';
+      default:
+        return ' <sup class="rasm-symbol">' + match + '</sup> ';
     }
   });
 }
