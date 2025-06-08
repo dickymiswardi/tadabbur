@@ -31,7 +31,7 @@
 
 .rasm-symbol-special {
   margin-left: 0.0;
-  margin-right: 0.0em; /* symbol yang dikecualikan ukurannya */
+  margin-right: 0.2em; /* symbol yang dikecualikan ukurannya */
 }
 
     .judul-container {
@@ -207,6 +207,16 @@
       const map = ["٠", "١", "٢", "٣", "٤", "٥", "٦", "٧", "٨", "٩"];
       return String(n).split('').map(d => map[parseInt(d)]).join('');
     }
+
+    function wrapRasmSymbols(text) {
+  return text.replace(/([ۭۛۢۖۚۗۙۘۜ])/g, function(match) {
+    if (match === 'ۢ' || match === 'ۭ') {
+      return ' <sup class="rasm-symbol rasm-symbol-special">' + match + '</sup> ';
+    } else {
+      return ' <sup class="rasm-symbol">' + match + '</sup> ';
+    }
+  });
+}
 
     function formatRasmSymbols(text) {
   const specialSymbols = ['ۢ', 'ۭ'];
