@@ -210,10 +210,18 @@
 
     function wrapRasmSymbols(text, surah, ayah) {
   return text.replace(/([ۭۛۢۖۚۗۙۘۜ])/g, function(match) {
-    // Khusus hapus ۢ di Surah 110 Ayat 3
-    if (match === 'ۢ' && surah === 110 && ayah === 3) {
-      return '';
+    // Jika surah 110 ayat 3 dan match 'ۢ', hapus saja
+    if (surah === 110 && ayah === 3 && match === 'ۢ') {
+      return ''; // dihapus
     }
+    // Atur tampilan normal dan special
+    if (match === 'ۢ' || match === 'ۭ') {
+      return ' <sup class="rasm-symbol rasm-symbol-special">' + match + '</sup> ';
+    } else {
+      return ' <sup class="rasm-symbol">' + match + '</sup> ';
+    }
+  });
+}
 
     // Kalau special symbol
     if (match === 'ۢ' || match === 'ۭ') {
@@ -237,12 +245,13 @@
       return { surah: surah - 1, ayah: surahAyahCount[surah - 1] };
     }
 
+    const hasilRender = wrapRasmSymbols(teksAyat, surah, ayat);
+document.getElementById("hasilAyat").innerHTML = hasilRender;
+    
     const surahName = surahNames[surah] || "Surah Tidak Dikenal";
     document.getElementById("judul").textContent = `${surahName} Surah ${surah} Ayat ${ayat}`;
 
     const apiURL = `https://api.quran.com/api/v4/quran/verses/uthmani?verse_key=${surah}:${ayat}`;
-
-    const hasil = wrapRasmSymbols(teksAyat, surah, ayah);
 
     Promise.all([
       fetch(apiURL).then(res => res.json()),
