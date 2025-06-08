@@ -31,7 +31,7 @@
 
 .rasm-symbol-special {
   margin-left: 0.0;
-  margin-right: 0.2em; /* symbol yang dikecualikan ukurannya */
+  margin-right: 0.0em; /* symbol yang dikecualikan ukurannya */
 }
 
     .judul-container {
@@ -208,14 +208,23 @@
       return String(n).split('').map(d => map[parseInt(d)]).join('');
     }
 
-    function wrapRasmSymbols(text) {
-  return text.replace(/([ۭۛۢۖۚۗۙۘۜ])/g, function(match) {
-    if (match === 'ۢ' || match === 'ۭ') {
-      return ' <sup class="rasm-symbol rasm-symbol-special">' + match + '</sup> ';
-    } else {
-      return ' <sup class="rasm-symbol">' + match + '</sup> ';
-    }
+    function formatRasmSymbols(text) {
+  const specialSymbols = ['ۢ', 'ۭ'];
+
+  // Step 1: Tukar posisi 'اۢ' jadi 'ۢا'
+  text = text.replace(/ا(ۢ)/g, function(match, p1) {
+    return p1 + 'ا';
   });
+
+  // Step 2: Wrap semua simbol
+  text = text.replace(/([ۭۛۢۖۚۗۙۘۜ])/g, function(match) {
+    const className = specialSymbols.includes(match)
+      ? 'rasm-symbol rasm-symbol-special'
+      : 'rasm-symbol';
+    return ' <sup class="' + className + '">' + match + '</sup> ';
+  });
+
+  return text;
 }
 
     function getNextAyah(surah, ayah) {
