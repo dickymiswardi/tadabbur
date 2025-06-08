@@ -217,15 +217,13 @@
 
     function wrapRasmSymbols(text) {
   return text.replace(/([ۭۛۢۖۚۗۙۘۜ])/g, function(match) {
-    if (match === 'ۢ' || match === '') {
-      return ' <sup class="rasm-symbol rasm-symbol-special">' + match + '</sup> ';
-    } else {
-      return ' <sup class="rasm-symbol">' + match + '</sup> ';
-    }
-    if (match === 'ۖ' || match === '') {
-      return ' <sup class="rasm-symbol rasm-symbol-special2">' + match + '</sup> ';
-    } else {
-      return ' <sup class="rasm-symbol">' + match + '</sup> ';
+    switch (match) {
+      case 'ۢ':
+        return ' <sup class="rasm-symbol rasm-symbol-special">' + match + '</sup> ';
+      case 'ۖ':
+        return ' <sup class="rasm-symbol rasm-symbol-special2">' + match + '</sup> ';
+      default:
+        return ' <sup class="rasm-symbol">' + match + '</sup> ';
     }
   });
 }
