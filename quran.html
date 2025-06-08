@@ -30,13 +30,13 @@
 }
 
 .rasm-symbol-special {
-  font-size: 0.9em;
+  font-size: 0.0em;
   margin-left: 0.0;
   margin-right: 0.0em; /* symbol yang dikecualikan ukurannya */
 }
 
     .rasm-symbol-special2 {
-  font-size: 0.0em;
+  font-size: 1.1em;
   margin-left: 0.0;
   margin-right: 0.0em; /* symbol yang dikecualikan ukurannya */
 }
@@ -219,7 +219,7 @@
   return text.replace(/([ۭۛۢۖۚۗۙۘۜ])/g, function(match) {
     switch (match) {
       case ' ۢ ا':
-        return ' <sup class="rasm-symbol rasm-symbol-special">ۢ   ا</sup> ';
+        return ' <sup class="rasm-symbol rasm-symbol-special">  اۢ </sup> ';
       case 'ۖ':
         return ' <sup class="rasm-symbol rasm-symbol-special2">' + match + '</sup> ';
       default:
