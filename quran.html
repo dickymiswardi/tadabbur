@@ -209,6 +209,10 @@
     }
 
     function wrapRasmSymbols(text) {
+  // Tahap 1: pindahkan posisi ۢ ke kanan huruf ا jika ada
+  text = text.replace(/اۢ/g, 'ۢا');
+
+  // Tahap 2: wrap semua simbol rasm
   return text.replace(/([ۭۛۢۖۚۗۙۘۜ])/g, function(match) {
     if (match === 'ۢ' || match === 'ۭ') {
       return ' <sup class="rasm-symbol rasm-symbol-special">' + match + '</sup> ';
