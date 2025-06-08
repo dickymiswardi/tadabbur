@@ -210,17 +210,17 @@
 
     function wrapRasmSymbols(text) {
   return text.replace(/([ۭۛۢۖۚۗۙۘۜ])/g, function(match, p1, offset, string) {
-    // Cek apakah simbol ini 'ۢ' dan setelahnya ada 'ا'
-    if (match === 'ۢ' && string[offset + 1] === 'ا') {
-      // swap posisi, tempatkan ۢ sebelum ا
-      return ' <sup class="rasm-symbol rasm-symbol-special">' + match + '</sup>ا';
-    } 
-    // Untuk 'ۢ' dan 'ۭ' biasa
-    else if (match === 'ۢ' || match === 'ۭ') {
+    const prevChar = string[offset - 1];
+    
+    if (match === 'ۢ') {
+      if (prevChar === 'ا') {
+        return ''; // Hapus jika di kiri ada ا
+      } else {
+        return ' <sup class="rasm-symbol rasm-symbol-special">' + match + '</sup> ';
+      }
+    } else if (match === 'ۭ') {
       return ' <sup class="rasm-symbol rasm-symbol-special">' + match + '</sup> ';
-    } 
-    // Untuk simbol lainnya
-    else {
+    } else {
       return ' <sup class="rasm-symbol">' + match + '</sup> ';
     }
   });
