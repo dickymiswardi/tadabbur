@@ -30,13 +30,13 @@
 }
 
 .rasm-symbol-special {
-  font-size: 0.0em;
+  font-size: 0.9em;
   margin-left: 0.0;
   margin-right: 0.0em; /* symbol yang dikecualikan ukurannya */
 }
 
     .rasm-symbol-special2 {
-  font-size: 0.0em;
+  font-size: 0.9em;
   margin-left: 0.0;
   margin-right: 0.0em; /* symbol yang dikecualikan ukurannya */
 }
@@ -216,17 +216,17 @@
     }
 
     function wrapRasmSymbols(text) {
-  return text.replace(/([ۭۛۢۖۚۗۙۘۜ])/g, function(match) {
-    switch (match) {
-      case 'ۢ':
-        return ' <sup class="rasm-symbol rasm-symbol-special">' + match + '</sup> ';
-      case 'ۖ':
-        return ' <sup class="rasm-symbol rasm-symbol-special2">' + match + '</sup> ';
-      default:
-        return ' <sup class="rasm-symbol">' + match + '</sup> ';
+  return text.replace(/([ۭۛۢۖۚۗۙۘۜبًا])/g, function(match) {
+    if (['ۢ', 'بً', 'ا'].includes(match)) {
+      return ' <sup class="rasm-symbol rasm-symbol-special">' + match + '</sup> ';
+    } else if (match === 'ۖ') {
+      return ' <sup class="rasm-symbol rasm-symbol-special2">' + match + '</sup> ';
+    } else {
+      return ' <sup class="rasm-symbol">' + match + '</sup> ';
     }
   });
 }
+
 
     function getNextAyah(surah, ayah) {
       if (surah === 114 && ayah === 6) return { surah: 1, ayah: 1 };
