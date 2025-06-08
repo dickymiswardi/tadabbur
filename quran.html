@@ -34,16 +34,6 @@
   margin-right: 0.2em; /* symbol yang dikecualikan ukurannya */
 }
 
-    .rasm-symbol {
-  vertical-align: super;
-  margin-left: 0.2em;
-}
-
-.rasm-symbol-special {
-  margin-left: 0;
-  margin-right: 0.2em;
-}
-
     .judul-container {
       border: 2px solid #ddd;
       padding: 1em;
@@ -219,10 +209,6 @@
     }
 
     function wrapRasmSymbols(text) {
-  // Tahap 1: pindahkan posisi ۢ ke kanan huruf ا jika ada
-  text = text.replace(/اۢ/g, 'ۢا');
-
-  // Tahap 2: wrap semua simbol rasm
   return text.replace(/([ۭۛۢۖۚۗۙۘۜ])/g, function(match) {
     if (match === 'ۢ' || match === 'ۭ') {
       return ' <sup class="rasm-symbol rasm-symbol-special">' + match + '</sup> ';
