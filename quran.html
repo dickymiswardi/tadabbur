@@ -30,8 +30,15 @@
 }
 
 .rasm-symbol-special {
+  font-size: 0.9em;
   margin-left: 0.0;
-  margin-right: 0.2em; /* symbol yang dikecualikan ukurannya */
+  margin-right: 0.0em; /* symbol yang dikecualikan ukurannya */
+}
+
+    .rasm-symbol-special2 {
+  font-size: 0.0em;
+  margin-left: 0.0;
+  margin-right: 0.0em; /* symbol yang dikecualikan ukurannya */
 }
 
     .judul-container {
@@ -210,13 +217,17 @@
 
     function wrapRasmSymbols(text) {
   return text.replace(/([ۭۛۢۖۚۗۙۘۜ])/g, function(match) {
-    if (match === 'ۢ' || match === 'ۭ') {
-      return ' <sup class="rasm-symbol rasm-symbol-special">' + match + '</sup> ';
-    } else {
-      return ' <sup class="rasm-symbol">' + match + '</sup> ';
+    switch (match) {
+      case ' ۢ ا':
+        return ' <sup class="rasm-symbol rasm-symbol-special">  ا</sup> ';
+      case 'ۖ':
+        return ' <sup class="rasm-symbol rasm-symbol-special2">' + match + '</sup> ';
+      default:
+        return ' <sup class="rasm-symbol">' + match + '</sup> ';
     }
   });
 }
+
 
     function getNextAyah(surah, ayah) {
       if (surah === 114 && ayah === 6) return { surah: 1, ayah: 1 };
