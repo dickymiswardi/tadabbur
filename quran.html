@@ -216,15 +216,14 @@
     }
 
     function wrapRasmSymbols(text) {
+  const symbolMap = {
+    'ۢ': 'بً ۢ ا',
+    'ۖ': '<span class="rasm-symbol-special2">ۖ</span>'
+  };
+
   return text.replace(/([ۭۛۢۖۚۗۙۘۜ])/g, function(match) {
-    switch (match) {
-      case ' ۢ ا':
-        return ' <sup class="rasm-symbol rasm-symbol-special">AAA</sup> ';
-      case 'ۖ':
-        return ' <sup class="rasm-symbol rasm-symbol-special2">' + match + '</sup> ';
-      default:
-        return ' <sup class="rasm-symbol">' + match + '</sup> ';
-    }
+    let content = symbolMap[match] || match;
+    return ' <sup class="rasm-symbol">' + content + '</sup> ';
   });
 }
 
