@@ -34,6 +34,24 @@
   margin-right: 0.2em; /* symbol yang dikecualikan ukurannya */
 }
 
+/* Default style untuk semua simbol Rasm */
+.rasm-symbol {
+  font-size: 0.7em;
+  vertical-align: super;
+  color: #555;
+  margin: 0 1px;
+}
+
+/* Khusus simbol ۢ */
+.rasm-symbol-special {
+  color: red;
+}
+
+/* Khusus simbol ۖ */
+.rasm-symbol-special2 {
+  color: blue;
+}
+
     .judul-container {
       border: 2px solid #ddd;
       padding: 1em;
@@ -157,6 +175,7 @@
   <div class="sumber">
     Sumber: Quran.com + King Fahad Quran Complex
   </div>
+  <div id="ayat-container"></div>
 
   <script>
     const surah = parseInt(new URLSearchParams(window.location.search).get("surah") || "1");
@@ -212,17 +231,39 @@
   // Hapus 'ً ۢ ا'
   let cleanText = text.replace(/ً ۢ ا/g, '');
 
+  const surah = 1;
+const ayat = 1;
+
+fetch(`https://api.quran.com/api/v4/quran/verses/uthmani?verse_key=${surah}:${ayat}`)
+  .then(response => response.json())
+  .then(data => {
+    const text = data.data.verses[0].text_uthmani;
+
+    // Proses teks sebelum ditampilkan
+    const processedText = processText(text);
+
+    // Tampilkan ke HTML
+    document.getElementById("ayat-container").innerHTML = processedText;
+  })
+  .catch(error => console.error('Gagal ambil data:', error));
+
+// Function processText kamu
+function processText(text) {
+  // Hapus semua 'ً ۢ ا'
+  let cleanText = text.replace(/ً ۢ ا/g, '');
+
   // Bungkus simbol-simbol Rasm
-  return cleanText.replace(/([ۭۛۢۖۚۗۙۘۜ])/g, function(match) {
-    switch (match) {
-      case 'ۢ':
-        return ' <sup class="rasm-symbol rasm-symbol-special">' + match + '</sup> ';
-      case 'ۖ':
-        return ' <sup class="rasm-symbol rasm-symbol-special2">' + match + '</sup> ';
-      default:
-        return ' <sup class="rasm-symbol">' + match + '</sup> ';
+  cleanText = cleanText.replace(/([ۭۛۢۖۚۗۙۘۜ])/g, function(match) {
+    if (match === 'ۢ') {
+      return ' <sup class="rasm-symbol rasm-symbol-special">' + match + '</sup> ';
+    } else if (match === 'ۖ') {
+      return ' <sup class="rasm-symbol rasm-symbol-special2">' + match + '</sup> ';
+    } else {
+      return ' <sup class="rasm-symbol">' + match + '</sup> ';
     }
   });
+
+  return cleanText;
 }
     
 
