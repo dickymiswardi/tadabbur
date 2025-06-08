@@ -208,8 +208,14 @@
       return String(n).split('').map(d => map[parseInt(d)]).join('');
     }
 
-    function wrapRasmSymbols(text) {
+    function wrapRasmSymbols(text, surah, ayah) {
   return text.replace(/([ۭۛۢۖۚۗۙۘۜ])/g, function(match) {
+    // Khusus hapus ۢ di Surah 110 Ayat 3
+    if (match === 'ۢ' && surah === 110 && ayah === 3) {
+      return '';
+    }
+
+    // Kalau special symbol
     if (match === 'ۢ' || match === 'ۭ') {
       return ' <sup class="rasm-symbol rasm-symbol-special">' + match + '</sup> ';
     } else {
@@ -235,6 +241,8 @@
     document.getElementById("judul").textContent = `${surahName} Surah ${surah} Ayat ${ayat}`;
 
     const apiURL = `https://api.quran.com/api/v4/quran/verses/uthmani?verse_key=${surah}:${ayat}`;
+
+    const hasil = wrapRasmSymbols(teksAyat, surah, ayah);
 
     Promise.all([
       fetch(apiURL).then(res => res.json()),
