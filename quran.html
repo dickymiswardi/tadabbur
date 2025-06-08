@@ -209,16 +209,8 @@
     }
 
     function wrapRasmSymbols(text) {
-  return text.replace(/([ۭۛۢۖۚۗۙۘۜ])/g, function(match, p1, offset, string) {
-    const prevChar = string[offset - 1];
-    
-    if (match === 'ۢ') {
-      if (prevChar === 'ا') {
-        return ''; // Hapus jika di kiri ada ا
-      } else {
-        return ' <sup class="rasm-symbol rasm-symbol-special">' + match + '</sup> ';
-      }
-    } else if (match === 'ۭ') {
+  return text.replace(/([ۭۛۢۖۚۗۙۘۜ])/g, function(match) {
+    if (match === 'ۢ' || match === 'ۭ') {
       return ' <sup class="rasm-symbol rasm-symbol-special">' + match + '</sup> ';
     } else {
       return ' <sup class="rasm-symbol">' + match + '</sup> ';
