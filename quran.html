@@ -208,26 +208,13 @@
       return String(n).split('').map(d => map[parseInt(d)]).join('');
     }
 
-    const pengecualian = [
-  {surah: 4, ayat: 12},
-  {surah: 110, ayat: 3}
-  // Tambah di sini kalau ada lagi
-];
-
-function wrapRasmSymbols(text, surah, ayat) {
+    function wrapRasmSymbols(text) {
   return text.replace(/([ۭۛۢۖۚۗۙۘۜ])/g, function(match) {
-    if (match === 'ۢ') {
-      let perluHapus = pengecualian.some(e => e.surah === surah && e.ayat === ayat);
-      if (perluHapus) {
-        return ''; // Hapus
-      } else {
-        return ' <sup class="rasm-symbol rasm-symbol-special">' + match + '</sup> ';
-      }
-    }
-    if (match === 'ۭ') {
+    if (match === 'ۢ' || match === 'ۭ') {
       return ' <sup class="rasm-symbol rasm-symbol-special">' + match + '</sup> ';
+    } else {
+      return ' <sup class="rasm-symbol">' + match + '</sup> ';
     }
-    return ' <sup class="rasm-symbol">' + match + '</sup> ';
   });
 }
 
