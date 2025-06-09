@@ -41,14 +41,18 @@
   display: inline-block;
 }
 
-.rasm-above::after {
-  content: attr(data-symbol);
-  font-size: 0.7em;
+.rasm-overlay {
   position: absolute;
-  top: -0.6em;
-  right: 0;
+  font-size: 0.6em;
+  margin-top: -1.4em;
+  margin-left: -0.2em;
   pointer-events: none;
-  line-height: 1;
+}
+.ayah {
+  position: relative;
+  display: inline-block;
+  font-family: 'KFGQPC Uthmanic Script HAFS', 'Scheherazade', serif;
+  line-height: 2.2; /* Sesuaikan dengan font Qur’an */
 }
     
     .judul-container {
@@ -241,16 +245,15 @@
   });
 }
     
-function wrapRasmSymbolAbove(text) {
-  // Cari ۢ yang berada setelah huruf (contohnya ن)
-  return text.replace(/([\u0621-\u064A])ۢ/g, function(_, huruf) {
-    return huruf + '<span class="rasm-above" data-symbol="ۢ"></span>';
+function addRasmSymbolAbove(text) {
+  // ZWJ = Zero Width Joiner untuk jaga ligatur
+  return text.replace(/([\u0621-\u064A])ۢ/g, (_, huruf) => {
+    return huruf + '\u200D' + '<span class="rasm-overlay">ۢ</span>';
   });
 }
 
-// Jalankan pada ayat yang mengandung ۢ
 document.querySelectorAll('.ayah').forEach(el => {
-  el.innerHTML = wrapRasmSymbolAbove(el.textContent);
+  el.innerHTML = addRasmSymbolAbove(el.textContent);
 });
     
     function getNextAyah(surah, ayah) {
