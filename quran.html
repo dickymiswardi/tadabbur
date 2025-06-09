@@ -217,25 +217,6 @@
     }
   });
 }
-
-    function displayAyat(xml, surah, ayat) {
-  const x = xml.getElementsByTagName("quran")[0];
-  const surahData = Array.from(x.getElementsByTagName("sura")).find(s => s.getAttribute("index") === surah);
-  const ayat = Array.from(surahData.getElementsByTagName("aya")).find(a => a.getAttribute("index") === ayat);
-
-  let arabic = ayat.getElementsByTagName("arabic")[0].textContent;
-
-  // Koreksi spesifik untuk case 'ً ۢ ا' jadi 'ًاۢ'
-  arabic = arabic.replace(/ً ۢ ا/g, 'ًاۢ');
-
-  const translation = ayat.getElementsByTagName("translation")[0].textContent;
-  const footnotes = ayat.getElementsByTagName("footnotes")[0].textContent;
-
-  document.getElementById("arabic").innerHTML = arabic;
-  document.getElementById("translation").innerHTML = translation;
-  document.getElementById("footnotes").innerHTML = footnotes;
-}
-
     function getNextAyah(surah, ayah) {
       if (surah === 114 && ayah === 6) return { surah: 1, ayah: 1 };
       const lastAyah = surahAyahCount[surah];
