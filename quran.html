@@ -319,7 +319,7 @@ ayatNodes.forEach(aya => {
 
       if (prev) {
         const prevBtn = document.createElement("button");
-        prevBtn.textContent = "▶";
+        prevBtn.textContent = "➡";
         prevBtn.onclick = () => {
           window.location.search = `?surah=${prev.surah}&ayat=${prev.ayah}`;
         };
@@ -327,7 +327,7 @@ ayatNodes.forEach(aya => {
       }
 
       const searchBtn = document.createElement("button");
-      searchBtn.textContent = "🏠︎";
+      searchBtn.textContent = "⃣";
       searchBtn.onclick = () => {
         window.location.href = "index.html";
       };
@@ -335,7 +335,7 @@ ayatNodes.forEach(aya => {
 
       if (next) {
         const nextBtn = document.createElement("button");
-        nextBtn.textContent = "◀";
+        nextBtn.textContent = "⬅";
         nextBtn.onclick = () => {
           window.location.search = `?surah=${next.surah}&ayat=${next.ayah}`;
         };
