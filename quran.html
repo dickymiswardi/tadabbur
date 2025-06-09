@@ -219,12 +219,12 @@
   // Hapus ۢ jika setelah ن
   text = text.replace(/(?<=ن)ۢ/g, '');
 
-  // Langkah 2: Tangani simbol rasm umum
-  return text.replace(/([ۭۛۢۖۚۗۙۘۜ])/g, function (match) {
-    if (match === 'ۢ' || match === 'ۭ') {
-      return '<sup class="rasm-symbol rasm-symbol-special">' + match + '</sup>';
+  // Bungkus sisa simbol rasm
+  return text.replace(/([ۭۛۖۚۗۙۘۜۢ])/g, function(match) {
+    if (match === 'ۭ') {
+      return ' <sup class="rasm-symbol rasm-symbol-special">' + match + '</sup> ';
     } else {
-      return '<sup class="rasm-symbol">' + match + '</sup>';
+      return ' <sup class="rasm-symbol">' + match + '</sup> ';
     }
   });
 }
