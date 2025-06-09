@@ -215,14 +215,12 @@
     return 'ًا<sup class="rasm-symbol rasm-symbol-special">ۢ</sup>';
   });
 
-  function wrapRasmSymbols(text) {
-  return text.replace(/([ۭۛۢۖۚۗۙۘۜ])/g, function(match) {
-    if (match === 'ۢ') {
-      return ''; // Hapus simbol ۢ sepenuhnya
-    } else if (match === 'ۭ') {
-      return ' <sup class="rasm-symbol rasm-symbol-special">' + match + '</sup> ';
+  // Langkah 2: Tangani simbol rasm umum
+  return text.replace(/([ۭۛۢۖۚۗۙۘۜ])/g, function (match) {
+    if (match === 'ۢ' || match === 'ۭ') {
+      return '<sup class="rasm-symbol rasm-symbol-special">' + match + '</sup>';
     } else {
-      return ' <sup class="rasm-symbol">' + match + '</sup> ';
+      return '<sup class="rasm-symbol">' + match + '</sup>';
     }
   });
 }
