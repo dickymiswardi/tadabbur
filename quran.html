@@ -210,21 +210,15 @@
     }
 
     function wrapRasmSymbols(text) {
-  // Langkah 1: Tangani kasus khusus dulu
+  // Tangani kasus khusus "ً ۢ ا" → "ًا<sup>ۢ</sup>"
   text = text.replace(/ً\s*ۢ\s*ا/g, function () {
     return 'ًا<sup class="rasm-symbol rasm-symbol-special">ۢ</sup>';
   });
 
-  function wrapRasmSymbols(text) {
-  // Langkah 1: Tangani kasus khusus "ً ۢ ا" → "ًا<sup>ۢ</sup>"
-  text = text.replace(/ً\s*ۢ\s*ا/g, function () {
-    return 'ًا<sup class="rasm-symbol rasm-symbol-special">ۢ</sup>';
-  });
-
-  // Langkah 2: Hapus simbol ۢ jika berada tepat setelah huruf ن
+  // Hapus ۢ jika muncul tepat setelah ن (huruf nun)
   text = text.replace(/ن\s*ۢ/g, 'ن');
 
-  // Langkah 3: Bungkus simbol-simbol rasm lainnya
+  // Bungkus simbol-simbol rasm dengan <sup>
   return text.replace(/([ۭۛۖۚۗۙۘۜۢ])/g, function (match) {
     if (match === 'ۢ' || match === 'ۭ') {
       return ' <sup class="rasm-symbol rasm-symbol-special">' + match + '</sup> ';
