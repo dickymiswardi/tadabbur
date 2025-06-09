@@ -218,6 +218,14 @@
   });
 }
 
+    let ayat = document.getElementById("ayat").innerHTML;
+
+// Hilangkan spasi yang tidak perlu sebelum/antara karakter Arab dan harakat
+ayat = ayat.replace(/ً\s+ۢ\s+ا/g, "ًاۢ");
+
+// Update kembali ke halaman
+document.getElementById("ayat").innerHTML = ayat;
+
     function getNextAyah(surah, ayah) {
       if (surah === 114 && ayah === 6) return { surah: 1, ayah: 1 };
       const lastAyah = surahAyahCount[surah];
