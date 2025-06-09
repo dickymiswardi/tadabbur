@@ -210,6 +210,12 @@
     }
 
     function wrapRasmSymbols(text) {
+  // Langkah 1: Tangani kasus khusus dulu
+  text = text.replace(/ً\s*ۢ\s*ا/g, function () {
+    return 'ًا<sup class="rasm-symbol rasm-symbol-special">ۢ</sup>';
+  });
+
+  function wrapRasmSymbols(text) {
   // Jika text tidak ada atau bukan string, langsung kembalikan apa adanya
   if (!text || typeof text !== 'string') return text;
 
