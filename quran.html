@@ -1,57 +1,62 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar">
 <head>
   <meta charset="UTF-8" />
-  <title>Al-Qur'an Viewer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mushaf Viewer</title>
   <style>
     body {
-      font-family: 'QCF';
+      font-family: 'Amiri', serif;
+      background: #fefefe;
       text-align: center;
-      font-size: 48px;
-      direction: rtl;
       padding: 2rem;
-      background-color: #f9f9f9;
+      direction: rtl;
     }
 
-    #ayat {
-      font-family: inherit;
-      white-space: pre-wrap;
+    h1 {
+      font-size: 3rem;
+    }
+
+    .verse {
+      font-size: 3rem;
+      line-height: 1.8;
+    }
+
+    /* Load QCF font page 602 (contoh) */
+    @font-face {
+      font-family: 'QCF_P602';
+      src: url('fonts/QCF_P602.TTF') format('truetype');
+    }
+
+    .qcf-font {
+      font-family: 'QCF_P602';
     }
   </style>
 </head>
 <body>
-
-  <h1>🔖 Mushaf Viewer</h1>
-  <div id="ayat">Memuat...</div>
+  <h1>Mushaf Viewer <span>📌</span></h1>
+  <div id="output" class="verse qcf-font">...Memuat</div>
 
   <script>
-    async function tampilkanAyat(surah, ayat) {
-      const url = `https://api.quran.com/v4/quran/verses/uthmani?verse_key=${surah}:${ayat}`;
-      const response = await fetch(url);
-      const data = await response.json();
+    const surah = 110;
+    const ayat = 3;
 
-      const ayah = data.verses[0];
-      const page = ayah.page_number;
-      const ayatText = ayah.text_uthmani;
+    async function loadVerse() {
+      const url = `https://api.quran.com/api/v4/quran/verses/uthmani?verse_key=${surah}:${ayat}`;
 
-      // Inject dynamic font
-      const fontLink = document.createElement('style');
-      fontLink.innerHTML = `
-        @font-face {
-          font-family: 'QCF';
-          src: url('./fonts/QCF_P${page}.TTF') format('truetype');
-        }
-      `;
-      document.head.appendChild(fontLink);
+      try {
+        const response = await fetch(url);
+        const data = await response.json();
 
-      // Tampilkan ayat
-      const ayatDiv = document.getElementById('ayat');
-      ayatDiv.textContent = ayatText;
+        const verseText = data.verses[0].text_uthmani;
+        document.getElementById('output').innerText = verseText;
+      } catch (e) {
+        document.getElementById('output').innerText = 'Gagal memuat ayat.';
+        console.error(e);
+      }
     }
 
-    // Ganti dengan ayat mana pun
-    tampilkanAyat(110, 3);
+    loadVerse();
   </script>
-
 </body>
 </html>
