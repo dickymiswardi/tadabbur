@@ -210,6 +210,10 @@
     }
 
     function wrapRasmSymbols(text) {
+  // Hapus ۢ jika setelah huruf ن (nun)
+  text = text.replace(/نۢ/g, 'ن');
+
+    function wrapRasmSymbols(text) {
   // Langkah 1: Tangani kasus khusus dulu
   text = text.replace(/ً\s*ۢ\s*ا/g, function () {
     return 'ًا<sup class="rasm-symbol rasm-symbol-special">ۢ</sup>';
