@@ -34,6 +34,15 @@
   margin-right: 0.2em; /* symbol yang dikecualikan ukurannya */
 }
 
+    .rasm-symbol {
+  font-size: 0.75em;
+  vertical-align: super;
+  color: #777;
+}
+.rasm-symbol-special {
+  color: #b30000;
+}
+
     .judul-container {
       border: 2px solid #ddd;
       padding: 1em;
@@ -209,11 +218,17 @@
     }
 
     function wrapRasmSymbols(text) {
-  return text.replace(/([ۭۛۢۖۚۗۙۘۜ])/g, function(match) {
+  // Langkah 1: Tangani kasus khusus dulu
+  text = text.replace(/ً\s*ۢ\s*ا/g, function () {
+    return 'ًا<sup class="rasm-symbol rasm-symbol-special">ۢ</sup>';
+  });
+
+  // Langkah 2: Tangani simbol rasm umum
+  return text.replace(/([ۭۛۢۖۚۗۙۘۜ])/g, function (match) {
     if (match === 'ۢ' || match === 'ۭ') {
-      return ' <sup class="rasm-symbol rasm-symbol-special">' + match + '</sup> ';
+      return '<sup class="rasm-symbol rasm-symbol-special">' + match + '</sup>';
     } else {
-      return ' <sup class="rasm-symbol">' + match + '</sup> ';
+      return '<sup class="rasm-symbol">' + match + '</sup>';
     }
   });
 }
