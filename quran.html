@@ -1,76 +1,76 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>Mushaf Viewer Dinamis 📌</title>
-  <style id="dynamic-font"></style>
   <style>
     body {
       font-family: 'Times New Roman', serif;
-      background-color: #f9f9f9;
-      padding: 2em;
       text-align: center;
-      color: #111;
+      padding: 40px;
+      background-color: #fdfdfd;
     }
+
     h1 {
-      font-size: 2rem;
-      margin-bottom: 1rem;
+      font-size: 2em;
+      font-weight: bold;
     }
-    #ayah {
-      font-size: 2.5rem;
-      margin-top: 1.5rem;
-      line-height: 2.8rem;
+
+    #quran-text {
+      font-size: 2.5em;
+      margin: 20px 0;
+      direction: rtl;
     }
-    #pageInfo {
-      margin-top: 1rem;
-      font-size: 1rem;
-      color: #555;
+
+    #page-info {
+      margin-top: 10px;
+      font-style: italic;
+      color: #444;
     }
   </style>
 </head>
 <body>
-  <h1>📌 <b>Mushaf Viewer Dinamis</b></h1>
-  <div id="ayah">Memuat ayat...</div>
-  <div id="pageInfo"></div>
+  <h1>📌 Mushaf Viewer Dinamis</h1>
+  <div id="quran-text">Memuat ayat...</div>
+  <div id="page-info"></div>
 
   <script>
+    // Ganti dengan ayat manapun yang kamu mau (format: surah:ayat)
     const surah = 110;
     const ayat = 3;
+    const apiUrl = `https://api.quran.com/api/v4/quran/verses/uthmani?verse_key=${surah}:${ayat}`;
+    const quranTextEl = document.getElementById("quran-text");
+    const pageInfoEl = document.getElementById("page-info");
 
-    async function loadAyahToolkit(surah, ayat) {
-      try {
-        const apiUrl = `https://api.quran.com/api/v4/quran/verses/uthmani?verse_key=${surah}:${ayat}`;
-        const res = await fetch(apiUrl);
-        const data = await res.json();
-
-        const verse = data.verses && data.verses[0];
+    fetch(apiUrl)
+      .then(res => res.json())
+      .then(data => {
+        const verse = data.verses?.[0];
         if (!verse) throw new Error("Ayat tidak ditemukan");
 
         const text = verse.text_uthmani;
         const page = verse.page_number;
+
+        if (!page) throw new Error("Nomor halaman tidak ditemukan");
+
         const fontUrl = `fonts/QCF_P${String(page).padStart(603, '0')}.TTF`;
 
-        document.getElementById('dynamic-font').textContent = `
-          @font-face {
-            font-family: 'QCF';
-            src: url('${fontUrl}') format('truetype');
-            font-display: swap;
-          }
-          #ayah {
-            font-family: 'QCF', serif;
-          }
-        `;
-
-        document.getElementById('ayah').textContent = text;
-        document.getElementById('pageInfo').textContent = 'Halaman Mushaf: ' + page;
-
-      } catch (err) {
-        document.getElementById('ayah').textContent = 'Gagal memuat: ' + err.message;
-        console.error(err);
-      }
-    }
-
-    loadAyahToolkit(surah, ayat);
+        // Tambahkan font secara dinamis
+        const fontFace = new FontFace("QCF", `url(${fontUrl})`);
+        fontFace.load().then(loadedFont => {
+          document.fonts.add(loadedFont);
+          quranTextEl.style.fontFamily = "QCF";
+          quranTextEl.textContent = text;
+          pageInfoEl.textContent = `Halaman Mushaf: ${page}`;
+        }).catch(err => {
+          quranTextEl.textContent = text;
+          pageInfoEl.textContent = `Font gagal dimuat untuk halaman ${page}`;
+        });
+      })
+      .catch(err => {
+        quranTextEl.textContent = "Gagal memuat: " + err.message;
+        pageInfoEl.textContent = "";
+      });
   </script>
 </body>
 </html>
