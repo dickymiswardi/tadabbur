@@ -216,14 +216,16 @@
   });
 
   function wrapRasmSymbols(text) {
-  // Jika text tidak ada atau bukan string, langsung kembalikan apa adanya
-  if (!text || typeof text !== 'string') return text;
+  // Langkah 1: Tangani kasus khusus "ً ۢ ا" → "ًا<sup>ۢ</sup>"
+  text = text.replace(/ً\s*ۢ\s*ا/g, function () {
+    return 'ًا<sup class="rasm-symbol rasm-symbol-special">ۢ</sup>';
+  });
 
-  // Hapus simbol ۢ jika berada setelah huruf ن
-  text = text.replace(/نۢ/g, 'ن');
+  // Langkah 2: Hapus simbol ۢ jika berada tepat setelah huruf ن
+  text = text.replace(/ن\s*ۢ/g, 'ن');
 
-  // Bungkus semua simbol rasm lainnya
-  return text.replace(/([ۭۛۖۚۗۙۘۜۢ])/g, function(match) {
+  // Langkah 3: Bungkus simbol-simbol rasm lainnya
+  return text.replace(/([ۭۛۖۚۗۙۘۜۢ])/g, function (match) {
     if (match === 'ۢ' || match === 'ۭ') {
       return ' <sup class="rasm-symbol rasm-symbol-special">' + match + '</sup> ';
     } else {
