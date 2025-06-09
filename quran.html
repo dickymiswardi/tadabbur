@@ -36,54 +36,27 @@
 }
 
     .judul-container {
-  position: relative;
-  border: 2px solid #ddd;
-  padding: 1em;
-  background-color: #f9f9f9;
-  border-radius: 12px;
-  text-align: center;
-  margin-bottom: 1.5em;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-  transition: box-shadow 0.3s ease;
-}
+      border: 2px solid #ddd;
+      padding: 1em;
+      background-color: #f9f9f9;
+      border-radius: 12px;
+      text-align: center;
+      margin-bottom: 1.5em;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+      transition: box-shadow 0.3s ease;
+    }
 
-.judul-container:hover {
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-}
+    .judul-container:hover {
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
 
-.judul-container h1 {
-  margin: 0;
-  font-size: 1.4em;
-  color: #222;
-  font-weight: bold;
-  position: relative;
-  display: inline-block;
-  padding: 0 2em; /* untuk beri ruang kiri kanan */
-}
+    .judul-container h1 {
+      margin: 0;
+      font-size: 1.4em;
+      color: #222;
+      font-weight: bold;
+    }
 
-.judul-container h1::before {
-  content: "";
-  display: inline-block;
-  width: 24px;
-  height: 24px;
-  background-image: url('https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/leftframe.png'); /* ganti dengan path gambar kiri */
-  background-size: contain;
-  background-repeat: no-repeat;
-  margin-right: 0.5em;
-  vertical-align: middle;
-}
-
-.judul-container h1::after {
-  content: "";
-  display: inline-block;
-  width: 24px;
-  height: 24px;
-  background-image: url('https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/rightframe.png'); /* ganti dengan path gambar kanan */
-  background-size: contain;
-  background-repeat: no-repeat;
-  margin-left: 0.5em;
-  vertical-align: middle;
-}
     .arabic {
       font-family: 'Madina', serif;
       font-size: 2.2em;
@@ -346,7 +319,7 @@ ayatNodes.forEach(aya => {
 
       if (prev) {
         const prevBtn = document.createElement("button");
-        prevBtn.textContent = "PREV";
+        prevBtn.textContent = "Sebelumnya";
         prevBtn.onclick = () => {
           window.location.search = `?surah=${prev.surah}&ayat=${prev.ayah}`;
         };
@@ -354,7 +327,7 @@ ayatNodes.forEach(aya => {
       }
 
       const searchBtn = document.createElement("button");
-      searchBtn.textContent = "HOME";
+      searchBtn.textContent = "Beranda";
       searchBtn.onclick = () => {
         window.location.href = "index.html";
       };
@@ -362,7 +335,7 @@ ayatNodes.forEach(aya => {
 
       if (next) {
         const nextBtn = document.createElement("button");
-        nextBtn.textContent = "NEXT";
+        nextBtn.textContent = "Selanjutnya";
         nextBtn.onclick = () => {
           window.location.search = `?surah=${next.surah}&ayat=${next.ayah}`;
         };
