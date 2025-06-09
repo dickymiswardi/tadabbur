@@ -342,6 +342,26 @@ ayatNodes.forEach(aya => {
         navDiv.appendChild(nextBtn);
       }
 
+  document.addEventListener('keydown', function (event) {
+    if (event.key === 'ArrowRight') {
+      // Panah kanan = klik tombol "Sebelumnya"
+      const buttons = document.querySelectorAll("button");
+      buttons.forEach((btn) => {
+        if (btn.textContent.trim() === "Sebelumnya") {
+          btn.click();
+        }
+      });
+    } else if (event.key === 'ArrowLeft') {
+      // Panah kiri = klik tombol "Selanjutnya"
+      const buttons = document.querySelectorAll("button");
+      buttons.forEach((btn) => {
+        if (btn.textContent.trim() === "Selanjutnya") {
+          btn.click();
+        }
+      });
+    }
+  });
+
       document.getElementById("result").appendChild(navDiv);
     })
     .catch(err => {
