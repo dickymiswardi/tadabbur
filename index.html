@@ -227,12 +227,11 @@ button {
     const surahSelect = document.getElementById("surah");
 
     surahList.forEach(surah => {
-      const option = document.createElement("option");
-      option.value = surah.number;
-      option.text = `${surah.name} (${surah.number})`;
-      surahSelect.appendChild(option);
-    });
-
+  const option = document.createElement("option");
+  option.value = surah.number;
+  option.text = `${surah.number}. ${surah.name}`;
+  surahSelect.appendChild(option);
+});
     function updateAyatDropdown() {
       const ayatSelect = document.getElementById("ayat");
       ayatSelect.innerHTML = "";
