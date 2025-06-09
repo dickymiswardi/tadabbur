@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Al-Qur'an Digital</title>
+  <style>
+    @font-face {
+      font-family: 'Madina';
+      src: url('madina.woff2') format('woff2');
+      font-display: swap;
+    }
+
+    body {
+      font-family: sans-serif;
+      max-width: 700px;
+      margin: auto;
+      padding: 1.5em;
+      line-height: 1.6;
+      background-color: #fff;
+      color: #111;
+    }
+    
+    .rasm-symbol {
+  font-size: 0.9em;
+  vertical-align: super;
+  margin-right: 0.4em;
+  margin-left: 0.1em; /* jarak ke huruf sebelumnya */
+  color: #777;
+}
+    
+.rasm-symbol-special {
+  margin-left: 0.0;
+  margin-right: 0.2em; /* symbol yang dikecualikan ukurannya */
+  color: #777;
+}
+
+    .judul-container {
+      border: 2px solid #ddd;
+      padding: 1em;
+      background-color: #f9f9f9;
+      border-radius: 12px;
+      text-align: center;
+      margin-bottom: 1.5em;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+      transition: box-shadow 0.3s ease;
+    }
+
+    .judul-container:hover {
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .judul-container h1 {
+      margin: 0;
+      font-size: 1.4em;
+      color: #222;
+      font-weight: bold;
+    }
+
+    .arabic {
+      font-family: 'Madina', serif;
+      font-size: 2.2em;
+      text-align: right;
+      direction: rtl;
+      margin-top: 1.5em;
+    }
+
+    .translation {
+      font-size: 0.95em;
+      margin-top: 1.5em;
+      text-align: justify;
+    }
+
+    .footnote {
+      font-size: 0.85em;
+      color: #777;
+      font-style: italic;
+      margin-top: 1em;
+      text-align: justify;
+    }
+
+    .sumber {
+      font-size: 0.9em;
+      color: #555;
+      margin-top: 3em;
+      border-top: 1px solid #ccc;
+      padding-top: 1em;
+      text-align: center;
+    }
+
+    .nav-buttons {
+      display: flex;
+      justify-content: space-between;
+      flex-direction: row-reverse;
+      gap: 0.5em;
+      margin-top: 2em;
+    }
+
+    .nav-buttons button {
+      padding: 0.6em 1.2em;
+      border: none;
+      background-color: #007b8a;
+      color: white;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.95em;
+      transition: background-color 0.2s ease;
+    }
+
+    .nav-buttons button:hover {
+      background-color: #005f6b;
+    }
+
+    .loader {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 2em 0;
+    }
+
+    .loading-icon {
+      width: 60px;
+      height: auto;
+      opacity: 0.85;
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding: 1em;
+      }
+
+      .arabic {
+        font-size: 1.8em;
+      }
+
+      .translation {
+        font-size: 1em;
+      }
+
+      .judul-container h1 {
+        font-size: 1.2em;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="judul-container">
+    <h1 id="judul">Surah</h1>
+  </div>
+
+  <!-- Ganti 'Memuat...' dengan animasi -->
+  <div id="result">
+    <div class="loader">
+      <img src="https://raw.githubusercontent.com/dickymiswardi/tadabbur/aa160525691e67e5d0b7aab1e7e9f37657d0ed45/AnimatedBook.gif" alt="Memuat..." class="loading-icon" />
+    </div>
+  </div>
+
+  <div class="sumber">
+    Sumber: Quran.com + King Fahad Quran Complex
+  </div>
+
+  <script>
+    const surah = parseInt(new URLSearchParams(window.location.search).get("surah") || "1");
+    const ayat = parseInt(new URLSearchParams(window.location.search).get("ayat") || "1");
+
+    const surahNames = {
+      1:"Al-Fatihah",2:"Al-Baqarah",3:"Ali 'Imran",4:"An-Nisa'",5:"Al-Ma'idah",
+      6:"Al-An'am",7:"Al-A'raf",8:"Al-Anfal",9:"At-Tawbah",10:"Yunus",
+      11:"Hud",12:"Yusuf",13:"Ar-Ra'd",14:"Ibrahim",15:"Al-Hijr",
+      16:"An-Nahl",17:"Al-Isra'",18:"Al-Kahf",19:"Maryam",20:"Ta-Ha",
+      21:"Al-Anbiya'",22:"Al-Hajj",23:"Al-Mu'minun",24:"An-Nur",25:"Al-Furqan",
+      26:"Ash-Shu'ara'",27:"An-Naml",28:"Al-Qasas",29:"Al-'Ankabut",30:"Ar-Rum",
+      31:"Luqman",32:"As-Sajdah",33:"Al-Ahzab",34:"Saba'",35:"Fatir",
+      36:"Ya-Sin",37:"As-Saffat",38:"Sad",39:"Az-Zumar",40:"Ghafir",
+      41:"Fussilat",42:"Ash-Shura",43:"Az-Zukhruf",44:"Ad-Dukhan",45:"Al-Jathiyah",
+      46:"Al-Ahqaf",47:"Muhammad",48:"Al-Fath",49:"Al-Hujurat",50:"Qaf",
+      51:"Adh-Dhariyat",52:"At-Tur",53:"An-Najm",54:"Al-Qamar",55:"Ar-Rahman",
+      56:"Al-Waqi'ah",57:"Al-Hadid",58:"Al-Mujadila",59:"Al-Hashr",60:"Al-Mumtahanah",
+      61:"As-Saff",62:"Al-Jumu'ah",63:"Al-Munafiqun",64:"At-Taghabun",65:"At-Talaq",
+      66:"At-Tahrim",67:"Al-Mulk",68:"Al-Qalam",69:"Al-Haqqah",70:"Al-Ma'arij",
+      71:"Nuh",72:"Al-Jinn",73:"Al-Muzzammil",74:"Al-Muddaththir",75:"Al-Qiyamah",
+      76:"Al-Insan",77:"Al-Mursalat",78:"An-Naba'",79:"An-Nazi'at",80:"'Abasa",
+      81:"At-Takwir",82:"Al-Infitar",83:"Al-Mutaffifin",84:"Al-Inshiqaq",85:"Al-Buruj",
+      86:"At-Tariq",87:"Al-A'la",88:"Al-Ghashiyah",89:"Al-Fajr",90:"Al-Balad",
+      91:"Ash-Shams",92:"Al-Lail",93:"Adh-Dhuha",94:"Ash-Sharh",95:"At-Tin",
+      96:"Al-'Alaq",97:"Al-Qadr",98:"Al-Bayyinah",99:"Az-Zalzalah",100:"Al-'Adiyat",
+      101:"Al-Qari'ah",102:"At-Takathur",103:"Al-'Asr",104:"Al-Humazah",105:"Al-Fil",
+      106:"Quraysh",107:"Al-Ma'un",108:"Al-Kawthar",109:"Al-Kafirun",110:"An-Nasr",
+      111:"Al-Masad",112:"Al-Ikhlas",113:"Al-Falaq",114:"An-Nas"
+    };
+
+    const surahAyahCount = {
+      1:7, 2:286, 3:200, 4:176, 5:120, 6:165, 7:206, 8:75, 9:129, 10:109,
+      11:123, 12:111, 13:43, 14:52, 15:99, 16:128, 17:111, 18:110, 19:98, 20:135,
+      21:112, 22:78, 23:118, 24:64, 25:77, 26:227, 27:93, 28:88, 29:69, 30:60,
+      31:34, 32:30, 33:73, 34:54, 35:45, 36:83, 37:182, 38:88, 39:75, 40:85,
+      41:54, 42:53, 43:89, 44:59, 45:37, 46:35, 47:38, 48:29, 49:18, 50:45,
+      51:60, 52:49, 53:62, 54:55, 55:78, 56:96, 57:29, 58:22, 59:24, 60:13,
+      61:14, 62:11, 63:11, 64:18, 65:12, 66:12, 67:30, 68:52, 69:52, 70:44,
+      71:28, 72:28, 73:20, 74:56, 75:40, 76:31, 77:50, 78:40, 79:46, 80:42,
+      81:29, 82:19, 83:36, 84:25, 85:22, 86:17, 87:19, 88:26, 89:30, 90:20,
+      91:15, 92:21, 93:11, 94:8, 95:8, 96:19, 97:5, 98:8, 99:8, 100:11,
+      101:11, 102:8, 103:3, 104:9, 105:5, 106:4, 107:7, 108:3, 109:6, 110:3,
+      111:5, 112:4, 113:5, 114:6
+    };
+
+    function toArabicNumber(n) {
+      const map = ["٠", "١", "٢", "٣", "٤", "٥", "٦", "٧", "٨", "٩"];
+      return String(n).split('').map(d => map[parseInt(d)]).join('');
+    }
+
+    function wrapRasmSymbols(text) {
+  // Tangani kasus khusus "ً ۢ ا" → "ًا<sup>ۢ</sup>"
+  text = text.replace(/ً\s*ۢ\s*ا/g, function () {
+    return 'ًا<sup class="rasm-symbol rasm-symbol-special">ۢ</sup>';
+  });
+
+  // Hapus ۢ jika muncul tepat setelah ن (huruf nun)
+  text = text.replace(/ن\s*ۢ/g, 'ن');
+
+  // Bungkus simbol-simbol rasm dengan <sup>
+  return text.replace(/([ۭۛۖۚۗۙۘۜۢ])/g, function (match) {
+    if (match === 'ۢ' || match === 'ۭ') {
+      return ' <sup class="rasm-symbol rasm-symbol-special">' + match + '</sup> ';
+    } else {
+      return ' <sup class="rasm-symbol">' + match + '</sup> ';
+    }
+  });
+}
+    function getNextAyah(surah, ayah) {
+      if (surah === 114 && ayah === 6) return { surah: 1, ayah: 1 };
+      const lastAyah = surahAyahCount[surah];
+      if (ayah < lastAyah) return { surah, ayah: ayah + 1 };
+      return { surah: surah + 1, ayah: 1 };
+    }
+
+    function getPrevAyah(surah, ayah) {
+      if (surah === 1 && ayah === 1) return null;
+      if (ayah > 1) return { surah, ayah: ayah - 1 };
+      return { surah: surah - 1, ayah: surahAyahCount[surah - 1] };
+    }
+
+    const surahName = surahNames[surah] || "Surah Tidak Dikenal";
+    document.getElementById("judul").textContent = `${surahName} Surah ${surah} Ayat ${ayat}`;
+
+    const apiURL = `https://api.quran.com/api/v4/quran/verses/uthmani?verse_key=${surah}:${ayat}`;
+
+    Promise.all([
+      fetch(apiURL).then(res => res.json()),
+      fetch("indonesian_complex_v1.0.xml").then(res => res.text())
+    ])
+    .then(([arabData, xmlText]) => {
+      const verse = arabData.verses?.[0];
+      let arabicText = verse?.text_uthmani || "(Teks Arab tidak ditemukan)";
+      arabicText += ` \u06dd${toArabicNumber(ayat)}`;
+      arabicText = wrapRasmSymbols(arabicText);
+
+      const arabDiv = document.createElement('div');
+      arabDiv.className = 'arabic';
+      arabDiv.innerHTML = arabicText;
+      document.getElementById("result").innerHTML = '';
+      document.getElementById("result").appendChild(arabDiv);
+
+      const parser = new DOMParser();
+      const xmlDoc = parser.parseFromString(xmlText, "text/xml");
+
+      // Buat peta footnoteNumber ke posisi Surah & Ayat
+const footnoteMap = {};
+const ayatNodes = xmlDoc.querySelectorAll("aya");
+ayatNodes.forEach(aya => {
+  const footnotes = aya.querySelector("footnotes");
+  if (footnotes && footnotes.textContent.trim()) {
+    const matches = footnotes.textContent.match(/\d+/g);
+    if (matches) {
+      matches.forEach(num => {
+        // Simpan hanya jika belum ada
+        if (!footnoteMap[num]) {
+          const surahNum = aya.parentElement.getAttribute("number");
+          const ayahNum = aya.getAttribute("number");
+          footnoteMap[num] = `Surah ${surahNum} Ayat ${ayahNum}`;
+        }
+      });
+    }
+  }
+});
+
+      const translationAyah = xmlDoc.querySelector(`sura[number="${surah}"] > aya[number="${ayat}"]`);
+      let translation = translationAyah?.querySelector("translation")?.textContent || "(Terjemahan tidak ditemukan)";
+      const footnotes = translationAyah?.querySelector("footnotes")?.textContent || "";
+
+      if (footnotes) {
+        translation = translation.replace(/(\d+)/g, '<sup>($1)</sup>');
+      }
+
+      const translationDiv = document.createElement("div");
+      translationDiv.className = "translation";
+      translationDiv.innerHTML = translation;
+      document.getElementById("result").appendChild(translationDiv);
+
+      if (footnotes) {
+  const foot = document.createElement("div");
+  foot.className = "footnote";
+
+  // Tambahkan keterangan referensi footnote jika ada
+  let modifiedFootnote = footnotes.replace(/Lihat catatan kaki nomor (\d+)/g, (fullMatch, num) => {
+  const ref = footnoteMap[num];
+  return ref ? `Lihat catatan kaki nomor ${num} (${ref})` : fullMatch;
+});
+
+  foot.innerHTML = `<strong>Catatan:</strong> ${modifiedFootnote}`;
+  document.getElementById("result").appendChild(foot);
+}
+
+      const navDiv = document.createElement("div");
+      navDiv.className = "nav-buttons";
+
+      const prev = getPrevAyah(surah, ayat);
+      const next = getNextAyah(surah, ayat);
+
+      if (prev) {
+        const prevBtn = document.createElement("button");
+        prevBtn.textContent = "Sebelumnya";
+        prevBtn.onclick = () => {
+          window.location.search = `?surah=${prev.surah}&ayat=${prev.ayah}`;
+        };
+        navDiv.appendChild(prevBtn);
+      }
+
+      const searchBtn = document.createElement("button");
+      searchBtn.textContent = "Beranda";
+      searchBtn.onclick = () => {
+        window.location.href = "index.html";
+      };
+      navDiv.appendChild(searchBtn);
+
+      if (next) {
+        const nextBtn = document.createElement("button");
+        nextBtn.textContent = "Selanjutnya";
+        nextBtn.onclick = () => {
+          window.location.search = `?surah=${next.surah}&ayat=${next.ayah}`;
+        };
+        navDiv.appendChild(nextBtn);
+      }
+
+      document.getElementById("result").appendChild(navDiv);
+    })
+    .catch(err => {
+      console.error(err);
+      document.getElementById("result").textContent = "Gagal memuat data.";
+    });
+  </script>
+  <script>
+  // Simpan URL terakhir ke localStorage saat halaman ini dibuka
+  localStorage.setItem("lastQuranPage", window.location.href);
+</script>
+</body>
+</html>
