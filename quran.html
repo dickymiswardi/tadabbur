@@ -35,6 +35,22 @@
   color: #777;
 }
 
+
+.rasm-above {
+  position: relative;
+  display: inline-block;
+}
+
+.rasm-above::after {
+  content: attr(data-symbol);
+  font-size: 0.7em;
+  position: absolute;
+  top: -0.6em;
+  right: 0;
+  pointer-events: none;
+  line-height: 1;
+}
+    
     .judul-container {
       border: 2px solid #ddd;
       padding: 1em;
@@ -224,6 +240,19 @@
     }
   });
 }
+    
+function wrapRasmSymbolAbove(text) {
+  // Cari ۢ yang berada setelah huruf (contohnya ن)
+  return text.replace(/([\u0621-\u064A])ۢ/g, function(_, huruf) {
+    return huruf + '<span class="rasm-above" data-symbol="ۢ"></span>';
+  });
+}
+
+// Jalankan pada ayat yang mengandung ۢ
+document.querySelectorAll('.ayah').forEach(el => {
+  el.innerHTML = wrapRasmSymbolAbove(el.textContent);
+});
+    
     function getNextAyah(surah, ayah) {
       if (surah === 114 && ayah === 6) return { surah: 1, ayah: 1 };
       const lastAyah = surahAyahCount[surah];
