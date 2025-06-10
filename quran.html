@@ -345,7 +345,7 @@ fetch('id.jalalayn.xml')
 
     const tafsirContent = document.createElement("div");
     tafsirContent.className = "tafsir-text";
-    tafsirContent.innerHTML = `<strong>Tafsir Jalalayn:</strong><br>${tafsirText}`;
+    tafsirContent.innerHTML = `<strong>Tafsir Jalalain:</strong><br>${tafsirText}`;
     tafsirContent.style.display = "none";
 
     tafsirBtn.onclick = () => {
@@ -361,9 +361,7 @@ fetch('id.jalalayn.xml')
     errorDiv.className = "tafsir-text";
     errorDiv.textContent = "Gagal memuat tafsir. Silakan coba lagi.";
     document.getElementById("result").appendChild(errorDiv);
-  });
-
-      
+  }); 
       if (footnotes) {
   const foot = document.createElement("div");
   foot.className = "footnote";
