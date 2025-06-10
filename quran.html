@@ -388,6 +388,10 @@ document.addEventListener("click", function (e) {
   localStorage.setItem("lastQuranPage", window.location.href);
 </script>
   <div id="footnote-popup" style="display:none; position:fixed; top:20%; left:20%; background:white; border:1px solid #ccc; padding:1em; max-width:60%; z-index:1000; box-shadow: 0 2px 10px rgba(0,0,0,0.3);">
+  <span id="footnote-content"></span>
+  <div style="text-align:right;">
+    <button onclick="document.getElementById('footnote-popup').style.display='none'">Tutup</button>
   </div>
+</div>
 </body>
 </html>
