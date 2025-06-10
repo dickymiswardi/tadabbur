@@ -576,10 +576,32 @@ translationDiv.appendChild(tafsirDropdown);
       console.error(err);
       document.getElementById("result").textContent = "Gagal memuat data.";
     });
+
+    // font arab dari kanan
+    function isArabic(text) {
+  return /[\u0600-\u06FF]/.test(text);
+}
+
+function showTafsir(tafsir) {
+  // Ambil elemen pertama dengan class "tafsir-text"
+  const el = document.querySelector(".tafsir-text");
+
+  // Set teks
+  el.textContent = tafsir;
+
+  // Reset class RTL jika ada
+  el.classList.remove("rtl");
+
+  // Jika teks Arab, tambahkan class rtl
+  if (isArabic(tafsir)) {
+    el.classList.add("rtl");
+  }
+}
   </script>
   <script>
   // Simpan URL terakhir ke localStorage saat halaman ini dibuka
   localStorage.setItem("lastQuranPage", window.location.href);
 </script>
+  <div class="tafsir-text"></div>
 </body>
 </html>
