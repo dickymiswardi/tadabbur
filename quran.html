@@ -379,12 +379,15 @@ const tafsirSources = {
   path: "ar.muyassar.txt",
   query: (s, a) => `${s}|${a}|` // mencari baris yang diawali dengan "s|a|"
 },
-  As_Sadi: {
-  name: "As Sa'di Arabic",
-  path: "https://cdn.jsdelivr.net/gh/dickymiswardi/tadabbur@main/tafsir-as-saadi.json",
-  query: (s, a) => `${s}|${a}`  // kunci yang akan digunakan
-}
+  const tafsirSources = {
+  saadi: {
+    name: "Tafsir As-Saadi",
+    path: "https://raw.githubusercontent.com/dickymiswardi/tadabbur/main/tafsir-as-saadi.json",
+    query: (s, a) => `${s}|${a}`
+  }
 };
+
+loadTafsir("saadi", 2, 255).then(console.log);
 
  // LOAD TAFSIR
 // Fungsi memuat tafsir
