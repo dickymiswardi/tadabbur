@@ -265,23 +265,19 @@
       const xmlDoc = parser.parseFromString(xmlText, "text/xml");
 
       // Buat peta footnoteNumber ke posisi Surah & Ayat
+// Buat peta global semua footnote dari seluruh XML
 const footnoteMap = {};
 const ayatNodes = xmlDoc.querySelectorAll("aya");
-ayatNodes.forEach(aya => {
-  const footnotes = aya.querySelector("footnotes");
-  if (footnotes && footnotes.textContent.trim()) {
-    const lines = footnotes.textContent.trim().split('\n');
-    let currentNum = null;
 
-    lines.forEach(line => {
-      const match = line.match(/^(\d+)\.\s*(.*)/);
-      if (match) {
-        currentNum = match[1];
-        footnoteMap[currentNum] = match[2].trim();
-      } else if (currentNum) {
-        footnoteMap[currentNum] += ' ' + line.trim();
-      }
-    });
+ayatNodes.forEach(aya => {
+  const footnotesText = aya.querySelector("footnotes")?.textContent?.trim();
+  if (footnotesText) {
+    const matches = [...footnotesText.matchAll(/(\d+)\.\s*(.*?)(?=\n\d+\.|\n*$)/gs)];
+    for (const match of matches) {
+      const num = match[1];
+      const isi = match[2].replace(/\n/g, ' ').trim();
+      footnoteMap[num] = isi;
+    }
   }
 });
 
