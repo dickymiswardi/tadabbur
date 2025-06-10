@@ -306,9 +306,13 @@ ayaNodes.forEach(aya => {
   foot.className = "footnote";
 
   // Tambahkan keterangan referensi footnote jika ada
-  translation = translation.replace(/Lihat catatan kaki nomor (\d+)/g, (match, num) => {
-  return `Lihat catatan kaki nomor <a href="#" class="footnote-link" data-ref="${footnoteMap[num] || ''}">${num}</a>`;
+  let modifiedFootnote = footnotes.replace(/Lihat catatan kaki nomor (\d+)/g, (fullMatch, num) => {
+  const refText = footnoteMap[num];
+  return refText
+    ? `Lihat catatan kaki nomor <a href="#" class="footnote-link" data-ref="${refText}">${num}</a>`
+    : fullMatch;
 });
+
   foot.innerHTML = `<strong>Catatan:</strong> ${modifiedFootnote}`;
   document.getElementById("result").appendChild(foot);
 }
