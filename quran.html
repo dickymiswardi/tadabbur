@@ -255,45 +255,41 @@
       arabicText += ` \u06dd${toArabicNumber(ayat)}`;
       arabicText = wrapRasmSymbols(arabicText);
 
-      const arabDiv = document.createElement('div');
-      arabDiv.className = 'arabic';
+      const arabDiv = document.createElement("div");
+      arabDiv.className = "arabic";
       arabDiv.innerHTML = arabicText;
-      document.getElementById("result").innerHTML = '';
+      document.getElementById("result").innerHTML = "";
       document.getElementById("result").appendChild(arabDiv);
 
       const parser = new DOMParser();
       const xmlDoc = parser.parseFromString(xmlText, "text/xml");
 
-      // Buat peta footnoteNumber ke posisi Surah & Ayat
-// ✅ Buat peta untuk menyimpan semua catatan kaki berdasarkan nomor
-// Ganti seluruh kode footnoteMap dengan ini:
-const footnoteMap = {};
-const ayaNodes = xmlDoc.querySelectorAll("aya");
-
-ayaNodes.forEach(aya => {
-  const footnoteText = aya.querySelector("footnotes")?.textContent || "";
-  const matches = footnoteText.match(/\d+[\.\)\-]?\s*[^]+?(?=\n\d+[\.\)\-]?|\s*$)/g); // Ambil blok per catatan
-
-  if (matches) {
-    matches.forEach(entry => {
-      const parts = entry.trim().match(/^(\d+)[\.\)\-]?\s*(.*)/s);
-      if (parts) {
-        const number = parts[1];
-        const content = parts[2].trim();
-        if (!footnoteMap[number]) {
-          footnoteMap[number] = content;
+      const footnoteMap = {};
+      const ayaNodes = xmlDoc.querySelectorAll("aya");
+      ayaNodes.forEach(aya => {
+        const footnoteText = aya.querySelector("footnotes")?.textContent || "";
+        const matches = footnoteText.match(/\d+[\.\)\-]?\s*[^]+?(?=
+\d+[\.\)\-]?|\s*$)/g);
+        if (matches) {
+          matches.forEach(entry => {
+            const parts = entry.trim().match(/^(\d+)[\.\)\-]?\s*(.*)/s);
+            if (parts) {
+              const number = parts[1];
+              const content = parts[2].trim();
+              if (!footnoteMap[number]) footnoteMap[number] = content;
+            }
+          });
         }
-      }
-    });
-  }
-});
+      });
 
       const translationAyah = xmlDoc.querySelector(`sura[number="${surah}"] > aya[number="${ayat}"]`);
       let translation = translationAyah?.querySelector("translation")?.textContent || "(Terjemahan tidak ditemukan)";
       const footnotes = translationAyah?.querySelector("footnotes")?.textContent || "";
 
       if (footnotes) {
-        translation = translation.replace(/(\d+)/g, '<sup>($1)</sup>');
+        translation = translation.replace(/Lihat catatan kaki nomor (\d+)/g, (match, num) => {
+          return `Lihat catatan kaki nomor <a href="#" class="footnote-link" data-ref="${footnoteMap[num] || ''}">${num}</a>`;
+        });
       }
 
       const translationDiv = document.createElement("div");
@@ -302,20 +298,21 @@ ayaNodes.forEach(aya => {
       document.getElementById("result").appendChild(translationDiv);
 
       if (footnotes) {
-  const foot = document.createElement("div");
-  foot.className = "footnote";
+        const foot = document.createElement("div");
+        foot.className = "footnote";
+        foot.innerHTML = `<strong>Catatan:</strong> ${footnotes}`;
+        document.getElementById("result").appendChild(foot);
+      }
 
-  // Tambahkan keterangan referensi footnote jika ada
-  let modifiedFootnote = footnotes.replace(/Lihat catatan kaki nomor (\d+)/g, (fullMatch, num) => {
-  const refText = footnoteMap[num];
-  return refText
-    ? `Lihat catatan kaki nomor <a href="#" class="footnote-link" data-ref="${refText}">${num}</a>`
-    : fullMatch;
-});
-
-  foot.innerHTML = `<strong>Catatan:</strong> ${modifiedFootnote}`;
-  document.getElementById("result").appendChild(foot);
-}
+      document.addEventListener("click", function (e) {
+        if (e.target.classList.contains("footnote-link")) {
+          e.preventDefault();
+          const content = e.target.getAttribute("data-ref");
+          document.getElementById("footnote-content").textContent = content || "Catatan tidak ditemukan.";
+          document.getElementById("footnote-popup").style.display = "block";
+        }
+      });
+    });
 
       const navDiv = document.createElement("div");
       navDiv.className = "nav-buttons";
