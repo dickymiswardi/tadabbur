@@ -21,7 +21,7 @@
       color: #111;
     }
 
-   .tafsir-dropdown {
+.tafsir-dropdown {
   position: relative;
   display: inline-block;
   margin-left: 0.5em;
@@ -43,21 +43,23 @@
 
 .tafsir-dropdown-content {
   display: none;
-  position: absolute;
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
   background-color: #f9f9f9;
-  min-width: 200px;
-  max-height: 200px; /* <-- batas tinggi dropdown */
-  overflow-y: auto;   /* <-- scroll jika kontennya panjang */
+  min-width: 80%;
+  max-width: 320px;
+  max-height: 300px;
+  overflow-y: auto;
   box-shadow: 0px 8px 16px rgba(0,0,0,0.1);
-  border-radius: 4px;
-  z-index: 1;
-  right: 0;
-  top: 100%; /* default: dropdown ke bawah */
+  border-radius: 8px;
+  z-index: 1000;
+  top: 50%; /* default muncul di tengah */
 }
 
 .tafsir-dropdown-content.upward {
-  bottom: 100%;
   top: auto;
+  bottom: 20px; /* jika tombol di bawah */
 }
 
 .tafsir-dropdown-content a {
@@ -65,7 +67,7 @@
   padding: 0.6em 1em;
   text-decoration: none;
   display: block;
-  font-size: 0.85em;
+  font-size: 0.95em;
   border-bottom: 1px solid #eee;
 }
 
@@ -85,7 +87,6 @@
   border-left: 3px solid #007b8a;
   border-radius: 0 4px 4px 0;
 }
-
     
 .rasm-symbol {
   font-size: 0.9em;
@@ -435,32 +436,21 @@ function createTafsirDropdown(surah, ayah) {
   dropbtn.onclick = (e) => {
   e.stopPropagation();
 
-  // Tutup semua dropdown lain
   document.querySelectorAll(".tafsir-dropdown-content").forEach(d => {
     if (d !== dropdownContent) d.classList.remove("show", "upward");
   });
 
-  // Toggle dropdown saat ini
   dropdownContent.classList.toggle("show");
 
-  // Hitung apakah harus ke atas
   const rect = dropbtn.getBoundingClientRect();
   const spaceBelow = window.innerHeight - rect.bottom;
-  const dropdownHeight = dropdownContent.scrollHeight;
 
-  if (spaceBelow < dropdownHeight + 20) {
+  if (spaceBelow < 250) {
     dropdownContent.classList.add("upward");
   } else {
     dropdownContent.classList.remove("upward");
   }
 };
-  
-  // Tutup dropdown saat klik di luar
-  window.addEventListener("click", () => {
-  document.querySelectorAll(".tafsir-dropdown-content").forEach(d => {
-    d.classList.remove("show", "upward");
-  });
-});
   
   dropdownContainer.appendChild(dropbtn);
   dropdownContainer.appendChild(dropdownContent);
