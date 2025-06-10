@@ -267,6 +267,7 @@
       // Buat peta footnoteNumber ke posisi Surah & Ayat
 const footnoteMap = {};
 const ayatNodes = xmlDoc.querySelectorAll("aya");
+
 ayatNodes.forEach(aya => {
   const footnotes = aya.querySelector("footnotes");
   if (footnotes && footnotes.textContent.trim()) {
@@ -274,11 +275,13 @@ ayatNodes.forEach(aya => {
     let currentNum = null;
 
     lines.forEach(line => {
-      const match = line.match(/^(\d+)\.\s*(.*)/);
+      // Tangkap format: 34. Teks atau 34) Teks atau 34 - Teks
+      const match = line.match(/^(\d+)[\.\)\-]?\s*(.*)/);
       if (match) {
         currentNum = match[1];
         footnoteMap[currentNum] = match[2].trim();
       } else if (currentNum) {
+        // Jika baris lanjutan, gabung ke catatan sebelumnya
         footnoteMap[currentNum] += ' ' + line.trim();
       }
     });
