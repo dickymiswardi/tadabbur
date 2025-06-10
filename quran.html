@@ -162,6 +162,7 @@
   <script>
     const surah = parseInt(new URLSearchParams(window.location.search).get("surah") || "1");
     const ayat = parseInt(new URLSearchParams(window.location.search).get("ayat") || "1");
+    let xmlDocGlobal = null;
 
     const surahNames = {
       1:"Al-Fatihah",2:"Al-Baqarah",3:"Ali 'Imran",4:"An-Nisa'",5:"Al-Ma'idah",
@@ -263,6 +264,7 @@
 
       const parser = new DOMParser();
       const xmlDoc = parser.parseFromString(xmlText, "text/xml");
+xmlDocGlobal = xmlDoc;
 
       // Buat peta footnoteNumber ke posisi Surah & Ayat
 // Buat peta global semua footnote dari seluruh XML
@@ -308,10 +310,7 @@ ayatNodes.forEach(aya => {
 
   // Tambahkan keterangan referensi footnote jika ada
   let modifiedFootnote = footnotes.replace(/Lihat catatan kaki nomor (\d+)/g, (fullMatch, num) => {
-  const refText = footnoteMap[num];
-  return refText
-    ? `Lihat catatan kaki nomor <a href="#" class="footnote-link" data-ref="${refText}">${num}</a>`
-    : `Lihat catatan kaki nomor ${num} (tidak tersedia)`;
+  return `Lihat catatan kaki nomor <a href="#" class="footnote-link" data-num="${num}">${num}</a>`;
 });
 
   foot.innerHTML = `<strong>Catatan:</strong> ${modifiedFootnote}`;
@@ -382,6 +381,33 @@ document.addEventListener("click", function (e) {
     e.preventDefault();
     const content = e.target.getAttribute("data-ref");
     document.getElementById("footnote-content").textContent = content;
+    document.getElementById("footnote-popup").style.display = "block";
+  }
+});
+
+    document.addEventListener("click", function (e) {
+  if (e.target.classList.contains("footnote-link")) {
+    e.preventDefault();
+    const nomor = e.target.getAttribute("data-num");
+
+    if (!xmlDocGlobal) {
+      alert("XML belum dimuat.");
+      return;
+    }
+
+    // Cari semua <footnotes> yang mengandung teks seperti "80."
+    const semuaFootnote = xmlDocGlobal.querySelectorAll("footnotes");
+    let isi = "";
+    semuaFootnote.forEach(f => {
+      const txt = f.textContent;
+      const regex = new RegExp(`\\b${nomor}\\.[ \\t]*(.*)`, "i");
+      const match = txt.match(regex);
+      if (match) {
+        isi = match[1].trim();
+      }
+    });
+
+    document.getElementById("footnote-content").textContent = isi || "(Catatan kaki tidak ditemukan)";
     document.getElementById("footnote-popup").style.display = "block";
   }
 });
