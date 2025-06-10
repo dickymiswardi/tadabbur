@@ -321,29 +321,49 @@ ayatNodes.forEach(aya => {
       document.getElementById("result").appendChild(translationDiv);
 
       // Cari tafsir Jalalayn untuk ayat ini
-async function loadTafsir() {
-  try {
-    const response = await fetch('https://raw.githubusercontent.com/dickymiswardi/tadabbur/main/id.jalalayn.xml');
-    const xmlText = await response.text();
+// GANTI bagian kode tafsir yang lama DENGAN ini:
+
+// 1. Pertama-tama, load file XML
+fetch('id.jalalayn.xml')
+  .then(response => {
+    if (!response.ok) throw new Error('File tafsir tidak ditemukan');
+    return response.text();
+  })
+  .then(xmlText => {
+    // 2. Parsing XML setelah berhasil dimuat
     const parser = new DOMParser();
     const tafsirDoc = parser.parseFromString(xmlText, "text/xml");
     
+    // 3. Cari tafsir sesuai surah dan ayat
     const tafsirAyah = tafsirDoc.querySelector(`sura[index="${surah}"] aya[index="${ayat}"]`);
-    return tafsirAyah?.getAttribute("text") || "Tafsir tidak ditemukan.";
-  } catch (error) {
-    console.error("Gagal memuat tafsir:", error);
-    return "Gagal memuat tafsir";
-  }
-}
+    const tafsirText = tafsirAyah?.getAttribute("text") || "Tafsir tidak ditemukan.";
 
-// Cara penggunaan:
-loadTafsir().then(tafsirText => {
-  const tafsirContent = document.createElement("div");
-  tafsirContent.className = "tafsir-text";
-  tafsirContent.innerHTML = `<strong>Tafsir Jalalayn:</strong><br>${tafsirText}`;
-  document.getElementById("result").appendChild(tafsirContent);
-});
+    // 4. Buat tombol dan tampilkan tafsir
+    const tafsirBtn = document.createElement("button");
+    tafsirBtn.className = "tafsir-button";
+    tafsirBtn.textContent = "Tafsir";
 
+    const tafsirContent = document.createElement("div");
+    tafsirContent.className = "tafsir-text";
+    tafsirContent.innerHTML = `<strong>Tafsir Jalalayn:</strong><br>${tafsirText}`;
+    tafsirContent.style.display = "none";
+
+    tafsirBtn.onclick = () => {
+      tafsirContent.style.display = tafsirContent.style.display === "none" ? "block" : "none";
+    };
+
+    translationDiv.appendChild(tafsirBtn);
+    document.getElementById("result").appendChild(tafsirContent);
+  })
+  .catch(error => {
+    console.error("Error loading tafsir:", error);
+    const errorDiv = document.createElement("div");
+    errorDiv.className = "tafsir-text";
+    errorDiv.textContent = "Gagal memuat tafsir. Silakan coba lagi.";
+    document.getElementById("result").appendChild(errorDiv);
+  });
+
+      
       if (footnotes) {
   const foot = document.createElement("div");
   foot.className = "footnote";
