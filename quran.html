@@ -388,28 +388,6 @@ const tafsirSources = {
   }
 };
 
-// Fungsi memuat tafsir
-async function loadTafsir(sourceKey, surah, ayah) {
-  const source = tafsirSources[sourceKey];
-  if (!source) return "Sumber tafsir tidak valid";
-
-  try {
-    const response = await fetch(source.path);
-    if (!response.ok) throw new Error('File tafsir tidak ditemukan');
-    
-    const xmlText = await response.text();
-    const parser = new DOMParser();
-    const xmlDoc = parser.parseFromString(xmlText, "text/xml");
-    
-    const tafsirNode = xmlDoc.querySelector(source.query(surah, ayah));
-    return tafsirNode?.getAttribute("text") || tafsirNode?.textContent || "Tafsir tidak ditemukan";
-  } catch (error) {
-    console.error(`Error loading ${source.name}:`, error);
-    return `Gagal memuat ${source.name}`;
-  }
-}
-
-// Buat dropdown tafsir
 function createTafsirDropdown(surah, ayah) {
   const dropdownContainer = document.createElement("div");
   dropdownContainer.className = "tafsir-dropdown";
@@ -417,10 +395,13 @@ function createTafsirDropdown(surah, ayah) {
   const dropbtn = document.createElement("button");
   dropbtn.className = "tafsir-dropbtn";
   dropbtn.textContent = "Pilih Tafsir";
+  dropbtn.setAttribute('aria-haspopup', 'true');
+  dropbtn.setAttribute('aria-expanded', 'false');
   
   const dropdownContent = document.createElement("div");
   dropdownContent.className = "tafsir-dropdown-content";
-  
+  dropdownContent.setAttribute('aria-label', "Daftar tafsir");
+
   // Tambahkan opsi tafsir
   Object.keys(tafsirSources).forEach(key => {
     const source = tafsirSources[key];
@@ -429,48 +410,69 @@ function createTafsirDropdown(surah, ayah) {
     link.textContent = source.name;
     link.onclick = async (e) => {
       e.preventDefault();
+      dropbtn.textContent = `Memuat ${source.name}...`;
       const tafsirText = await loadTafsir(key, surah, ayah);
       showTafsir(source.name, tafsirText);
+      dropdownContent.classList.remove("show");
+      dropbtn.setAttribute('aria-expanded', 'false');
+      dropbtn.textContent = "Pilih Tafsir";
     };
     dropdownContent.appendChild(link);
   });
-  
-  // Toggle dropdown
-  dropbtn.onclick = () => {
-    dropdownContent.classList.toggle("show");
-  };
-  
-  // Tutup dropdown saat klik di luar
-  window.onclick = (e) => {
-    if (!e.target.matches('.tafsir-dropbtn')) {
-      const dropdowns = document.querySelectorAll(".tafsir-dropdown-content");
-      dropdowns.forEach(d => d.classList.remove("show"));
+
+  // Smart positioning
+  function updateDropdownPosition() {
+    const btnRect = dropbtn.getBoundingClientRect();
+    const viewportWidth = window.innerWidth;
+    
+    if (viewportWidth <= 768) {
+      dropdownContent.classList.add('left-align');
+    } else {
+      dropdownContent.classList.remove('left-align');
+      
+      // Jika terlalu dekat ke tepi kanan
+      if (btnRect.right > viewportWidth - 200) {
+        dropdownContent.style.right = 'auto';
+        dropdownContent.style.left = '0';
+      } else {
+        dropdownContent.style.right = '0';
+        dropdownContent.style.left = 'auto';
+      }
     }
+  }
+
+  // Toggle dropdown dengan positioning cerdas
+  dropbtn.onclick = (e) => {
+    e.stopPropagation();
+    const isShowing = dropdownContent.classList.contains("show");
+    
+    if (!isShowing) {
+      updateDropdownPosition();
+    }
+    
+    dropdownContent.classList.toggle("show", !isShowing);
+    dropbtn.setAttribute('aria-expanded', String(!isShowing));
   };
-  
+
+  // Tutup dropdown saat klik di luar
+  document.addEventListener('click', (e) => {
+    if (!dropdownContainer.contains(e.target)) {
+      dropdownContent.classList.remove("show");
+      dropbtn.setAttribute('aria-expanded', 'false');
+    }
+  });
+
+  // Handle resize
+  window.addEventListener('resize', () => {
+    if (dropdownContent.classList.contains("show")) {
+      updateDropdownPosition();
+    }
+  });
+
   dropdownContainer.appendChild(dropbtn);
   dropdownContainer.appendChild(dropdownContent);
   return dropdownContainer;
 }
-
-// Fungsi tampilkan tafsir
-function showTafsir(title, content) {
-  let tafsirBox = document.getElementById("current-tafsir");
-  
-  if (!tafsirBox) {
-    tafsirBox = document.createElement("div");
-    tafsirBox.id = "current-tafsir";
-    tafsirBox.className = "tafsir-text";
-    document.getElementById("result").appendChild(tafsirBox);
-  }
-  
-  tafsirBox.innerHTML = `<strong>${title}:</strong><br>${content}`;
-  tafsirBox.style.display = "block";
-}
-
-// Cara penggunaan (ganti kode tafsir lama):
-const tafsirDropdown = createTafsirDropdown(surah, ayat);
-translationDiv.appendChild(tafsirDropdown);
       
       if (footnotes) {
   const foot = document.createElement("div");
