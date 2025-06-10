@@ -272,16 +272,20 @@ const ayatNodes = xmlDoc.querySelectorAll("aya");
 ayatNodes.forEach(aya => {
   const footnotesText = aya.querySelector("footnotes")?.textContent;
   if (footnotesText) {
-    const cleanedText = footnotesText.trim().replace(/\r\n|\r/g, "\n");
-    const matches = cleanedText.matchAll(/(\d+)\.\s*((?:.|\n)*?)(?=\n\d+\.\s|\n*$)/g);
+    const text = footnotesText.replace(/\r\n|\r/g, "\n").trim();
 
-    for (const match of matches) {
-      const number = match[1];
-      const isi = match[2].replace(/\n/g, ' ').trim();
-      if (!footnoteMap[number]) {
-        footnoteMap[number] = isi;
+    // Tangani baris demi baris agar fleksibel
+    const lines = text.split("\n");
+    let currentNumber = null;
+    lines.forEach(line => {
+      const match = line.match(/^(\d+)\.\s*(.*)/);
+      if (match) {
+        currentNumber = match[1];
+        footnoteMap[currentNumber] = match[2].trim();
+      } else if (currentNumber && line.trim()) {
+        footnoteMap[currentNumber] += ' ' + line.trim();
       }
-    }
+    });
   }
 });
 
