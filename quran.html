@@ -20,53 +20,6 @@
       background-color: #fff;
       color: #111;
     }
-
-    .tafsir-link {
-  color: #1e88e5;
-  text-decoration: none;
-  margin-left: 10px;
-  font-size: 0.9em;
-  cursor: pointer;
-}
-
-.tafsir-link:hover {
-  text-decoration: underline;
-}
-
-.tafsir-popup {
-  display: none;
-  position: fixed;
-  z-index: 1000;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0,0,0,0.7);
-}
-
-.tafsir-content {
-  background-color: #fefefe;
-  margin: 5% auto;
-  padding: 20px;
-  border: 1px solid #888;
-  width: 80%;
-  max-width: 800px;
-  max-height: 80vh;
-  overflow-y: auto;
-  border-radius: 5px;
-}
-
-.close-btn {
-  color: #aaa;
-  float: right;
-  font-size: 28px;
-  font-weight: bold;
-  cursor: pointer;
-}
-
-.close-btn:hover {
-  color: black;
-}
     
     .rasm-symbol {
   font-size: 0.9em;
@@ -302,12 +255,6 @@
       arabicText += ` \u06dd${toArabicNumber(ayat)}`;
       arabicText = wrapRasmSymbols(arabicText);
 
-      fetch('https://raw.githubusercontent.com/dickymiswardi/tadabbur/main/id.jalalayn.xml')
-  .then(response => response.text())
-  .then(data => {
-    // Parse the XML here
-  });
-
       const arabDiv = document.createElement('div');
       arabDiv.className = 'arabic';
       arabDiv.innerHTML = arabicText;
@@ -364,53 +311,6 @@ ayatNodes.forEach(aya => {
   document.getElementById("result").appendChild(foot);
 }
 
-// Parse XML data (you can load this from your GitHub repo)
-const tafsirData = `<?xml version="1.0" encoding="utf-8" ?>
-<quran>
-  <!-- Your XML content here -->
-</quran>`;
-
-// Parse the XML
-const parser = new DOMParser();
-const xmlDoc = parser.parseFromString(tafsirData, "text/xml");
-
-// Function to get tafsir for specific sura and aya
-function getTafsir(sura, aya) {
-  const suraNode = xmlDoc.querySelector(`sura[index="${sura}"]`);
-  if (suraNode) {
-    const ayaNode = suraNode.querySelector(`aya[index="${aya}"]`);
-    if (ayaNode) {
-      return ayaNode.getAttribute('text');
-    }
-  }
-  return "Tafsir tidak ditemukan untuk ayat ini.";
-}
-
-// Set up event listeners
-document.querySelectorAll('.tafsir-link').forEach(link => {
-  link.addEventListener('click', function(e) {
-    e.preventDefault();
-    const sura = this.getAttribute('data-sura');
-    const aya = this.getAttribute('data-aya');
-    
-    const tafsirText = getTafsir(sura, aya);
-    document.getElementById('tafsir-text').innerHTML = tafsirText;
-    document.getElementById('tafsir-popup').style.display = 'block';
-  });
-});
-
-// Close popup
-document.querySelector('.close-btn').addEventListener('click', function() {
-  document.getElementById('tafsir-popup').style.display = 'none';
-});
-
-// Close when clicking outside content
-window.addEventListener('click', function(e) {
-  if (e.target === document.getElementById('tafsir-popup')) {
-    document.getElementById('tafsir-popup').style.display = 'none';
-  }
-});
-      
       const navDiv = document.createElement("div");
       navDiv.className = "nav-buttons";
 
@@ -473,17 +373,5 @@ window.addEventListener('click', function(e) {
   // Simpan URL terakhir ke localStorage saat halaman ini dibuka
   localStorage.setItem("lastQuranPage", window.location.href);
 </script>
-<div class="quran-verse">
-  <p class="translation">(Dengan nama Allah Yang Maha Pemurah lagi Maha Penyayang)</p>
-  <a href="#" class="tafsir-link" data-sura="1" data-aya="1">Tafsir</a>
-</div>
-
-<!-- Popup container -->
-<div id="tafsir-popup" class="tafsir-popup">
-  <div class="tafsir-content">
-    <span class="close-btn">&times;</span>
-    <div id="tafsir-text"></div>
-  </div>
-</div>
 </body>
 </html>
