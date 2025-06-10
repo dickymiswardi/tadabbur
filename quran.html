@@ -410,14 +410,14 @@ async function loadTafsir(sourceKey, surah, ayah) {
 function createTafsirDropdown(surah, ayah) {
   const dropdownContainer = document.createElement("div");
   dropdownContainer.className = "tafsir-dropdown";
-  
+
   const dropbtn = document.createElement("button");
   dropbtn.className = "tafsir-dropbtn";
   dropbtn.textContent = "Pilih Tafsir";
-  
+
   const dropdownContent = document.createElement("div");
   dropdownContent.className = "tafsir-dropdown-content";
-  
+
   // Tambahkan opsi tafsir
   Object.keys(tafsirSources).forEach(key => {
     const source = tafsirSources[key];
@@ -428,34 +428,46 @@ function createTafsirDropdown(surah, ayah) {
       e.preventDefault();
       const tafsirText = await loadTafsir(key, surah, ayah);
       showTafsir(source.name, tafsirText);
+
+      // Tutup dropdown setelah klik
+      dropdownContent.classList.remove("show", "upward");
     };
     dropdownContent.appendChild(link);
   });
-  
-  // Toggle dropdown
+
+  // Tombol klik buka/tutup dropdown
   dropbtn.onclick = (e) => {
-  e.stopPropagation();
+    e.stopPropagation();
 
-  document.querySelectorAll(".tafsir-dropdown-content").forEach(d => {
-    if (d !== dropdownContent) d.classList.remove("show", "upward");
-  });
+    // Tutup semua dropdown lain
+    document.querySelectorAll(".tafsir-dropdown-content").forEach(d => {
+      if (d !== dropdownContent) d.classList.remove("show", "upward");
+    });
 
-  dropdownContent.classList.toggle("show");
+    dropdownContent.classList.toggle("show");
 
-  const rect = dropbtn.getBoundingClientRect();
-  const spaceBelow = window.innerHeight - rect.bottom;
+    // Deteksi apakah tombol terlalu bawah
+    const rect = dropbtn.getBoundingClientRect();
+    const spaceBelow = window.innerHeight - rect.bottom;
 
-  if (spaceBelow < 250) {
-    dropdownContent.classList.add("upward");
-  } else {
-    dropdownContent.classList.remove("upward");
-  }
-};
-  
+    if (spaceBelow < 250) {
+      dropdownContent.classList.add("upward");
+    } else {
+      dropdownContent.classList.remove("upward");
+    }
+  };
+
   dropdownContainer.appendChild(dropbtn);
   dropdownContainer.appendChild(dropdownContent);
   return dropdownContainer;
 }
+
+      // Tutup dropdown saat klik di luar
+window.addEventListener("click", function () {
+  document.querySelectorAll(".tafsir-dropdown-content").forEach(d => {
+    d.classList.remove("show", "upward");
+  });
+});
 
 // Fungsi tampilkan tafsir
 function showTafsir(title, content) {
