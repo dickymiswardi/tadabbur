@@ -162,7 +162,6 @@
   <script>
     const surah = parseInt(new URLSearchParams(window.location.search).get("surah") || "1");
     const ayat = parseInt(new URLSearchParams(window.location.search).get("ayat") || "1");
-    let xmlDocGlobal = null;
 
     const surahNames = {
       1:"Al-Fatihah",2:"Al-Baqarah",3:"Ali 'Imran",4:"An-Nisa'",5:"Al-Ma'idah",
@@ -264,30 +263,24 @@
 
       const parser = new DOMParser();
       const xmlDoc = parser.parseFromString(xmlText, "text/xml");
-xmlDocGlobal = xmlDoc;
 
       // Buat peta footnoteNumber ke posisi Surah & Ayat
-// Buat peta global semua footnote dari seluruh XML
 const footnoteMap = {};
 const ayatNodes = xmlDoc.querySelectorAll("aya");
-
 ayatNodes.forEach(aya => {
-  const footnotesText = aya.querySelector("footnotes")?.textContent;
-  if (footnotesText) {
-    const text = footnotesText.replace(/\r\n|\r/g, "\n").trim();
-
-    // Tangani baris demi baris agar fleksibel
-    const lines = text.split("\n");
-    let currentNumber = null;
-    lines.forEach(line => {
-      const match = line.match(/^(\d+)\.\s*(.*)/);
-      if (match) {
-        currentNumber = match[1];
-        footnoteMap[currentNumber] = match[2].trim();
-      } else if (currentNumber && line.trim()) {
-        footnoteMap[currentNumber] += ' ' + line.trim();
-      }
-    });
+  const footnotes = aya.querySelector("footnotes");
+  if (footnotes && footnotes.textContent.trim()) {
+    const matches = footnotes.textContent.match(/\d+/g);
+    if (matches) {
+      matches.forEach(num => {
+        // Simpan hanya jika belum ada
+        if (!footnoteMap[num]) {
+          const surahNum = aya.parentElement.getAttribute("number");
+          const ayahNum = aya.getAttribute("number");
+          footnoteMap[num] = `Surah ${surahNum} Ayat ${ayahNum}`;
+        }
+      });
+    }
   }
 });
 
@@ -310,7 +303,8 @@ ayatNodes.forEach(aya => {
 
   // Tambahkan keterangan referensi footnote jika ada
   let modifiedFootnote = footnotes.replace(/Lihat catatan kaki nomor (\d+)/g, (fullMatch, num) => {
-  return `Lihat catatan kaki nomor <a href="#" class="footnote-link" data-num="${num}">${num}</a>`;
+  const ref = footnoteMap[num];
+  return ref ? `Lihat catatan kaki nomor ${num} (${ref})` : fullMatch;
 });
 
   foot.innerHTML = `<strong>Catatan:</strong> ${modifiedFootnote}`;
@@ -374,67 +368,10 @@ ayatNodes.forEach(aya => {
       console.error(err);
       document.getElementById("result").textContent = "Gagal memuat data.";
     });
-
-    // Event listener untuk tautan pop-up footnote
-document.addEventListener("click", function (e) {
-  if (e.target.classList.contains("footnote-link")) {
-    e.preventDefault();
-    const content = e.target.getAttribute("data-ref");
-    document.getElementById("footnote-content").textContent = content;
-    document.getElementById("footnote-popup").style.display = "block";
-  }
-});
-
-    document.addEventListener("click", function (e) {
-  if (e.target.classList.contains("footnote-link")) {
-    e.preventDefault();
-    const nomor = e.target.getAttribute("data-num");
-
-    if (!xmlDocGlobal) {
-      alert("XML belum dimuat.");
-      return;
-    }
-
-    // Cari semua <footnotes> yang mengandung teks seperti "80."
-    const semuaFootnote = xmlDocGlobal.querySelectorAll("footnotes");
-    let isi = "";
-    semuaFootnote.forEach(f => {
-      const txt = f.textContent;
-      const regex = new RegExp(`\\b${nomor}\\.[ \\t]*(.*)`, "i");
-      const match = txt.match(regex);
-      if (match) {
-        isi = match[1].trim();
-      }
-    });
-
-    document.getElementById("footnote-content").textContent = isi || "(Catatan kaki tidak ditemukan)";
-    document.getElementById("footnote-popup").style.display = "block";
-  }
-});
   </script>
-  
   <script>
   // Simpan URL terakhir ke localStorage saat halaman ini dibuka
   localStorage.setItem("lastQuranPage", window.location.href);
 </script>
-  <div id="footnote-popup" style="
-  display: none;
-  position: fixed;
-  top: 10%;
-  left: 5%;
-  right: 5%;
-  max-height: 80%;
-  background: white;
-  border: 1px solid #ccc;
-  padding: 1em;
-  overflow-y: auto;
-  z-index: 1000;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-  border-radius: 8px;">
-  <span id="footnote-content"></span>
-  <div style="text-align:right; margin-top: 1em;">
-    <button onclick="document.getElementById('footnote-popup').style.display='none'">Tutup</button>
-  </div>
-</div>
 </body>
 </html>
