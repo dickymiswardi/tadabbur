@@ -20,6 +20,12 @@
       background-color: #fff;
       color: #111;
     }
+
+    #footnote-popup {
+  white-space: pre-wrap;
+  font-size: 0.95em;
+  line-height: 1.6;
+}
     
     .rasm-symbol {
   font-size: 0.9em;
@@ -309,6 +315,35 @@ ayatNodes.forEach(aya => {
 
   foot.innerHTML = `<strong>Catatan:</strong> ${modifiedFootnote}`;
   document.getElementById("result").appendChild(foot);
+}
+
+      const tafsirBtn = document.createElement("button");
+tafsirBtn.textContent = "📖 Buka Tafsir";
+tafsirBtn.style.marginTop = "1em";
+tafsirBtn.onclick = () => showTafsir(surah, ayat);
+foot.appendChild(tafsirBtn);
+
+      function showTafsir(surah, ayah) {
+  fetch("id.jalalayn.xml")
+    .then((res) => res.text())
+    .then((xmlText) => {
+      const parser = new DOMParser();
+      const xmlDoc = parser.parseFromString(xmlText, "text/xml");
+
+      const tafsirNode = xmlDoc.querySelector(`sura[index="${surah}"] > aya[index="${ayah}"]`);
+      const tafsirText = tafsirNode?.getAttribute("text") || "(Tafsir tidak ditemukan)";
+
+      // Gunakan innerHTML untuk mendukung format HTML
+      document.getElementById("footnote-content").innerHTML = `
+        <strong>Tafsir Jalalayn (Surah ${surah}, Ayat ${ayah}):</strong><br><br>${tafsirText}
+      `;
+      document.getElementById("footnote-popup").style.display = "block";
+    })
+    .catch((err) => {
+      console.error("Gagal memuat tafsir:", err);
+      document.getElementById("footnote-content").innerHTML = "Gagal memuat tafsir.";
+      document.getElementById("footnote-popup").style.display = "block";
+    });
 }
 
       const navDiv = document.createElement("div");
