@@ -21,12 +21,12 @@
       color: #111;
     }
 
-    /* Tambahkan ini di bagian <style> */
-/* Dropdown Responsif */
+   /* Ganti atau tambahkan bagian CSS dropdown dengan ini */
 .tafsir-dropdown {
   position: relative;
   display: inline-block;
   margin-left: 0.5em;
+  z-index: 1000; /* Pastikan dropdown selalu di atas */
 }
 
 .tafsir-dropbtn {
@@ -37,7 +37,11 @@
   border-radius: 4px;
   cursor: pointer;
   transition: all 0.2s;
-  white-space: nowrap;
+  white-space: nowrap; /* Hindari text wrapping */
+}
+
+.tafsir-dropbtn:hover {
+  background-color: #ddd;
 }
 
 .tafsir-dropdown-content {
@@ -45,40 +49,44 @@
   position: absolute;
   background-color: #f9f9f9;
   min-width: 200px;
-  max-width: 90vw;
+  max-width: 90vw; /* Maksimal 90% lebar layar */
   box-shadow: 0px 8px 16px rgba(0,0,0,0.1);
   border-radius: 4px;
-  z-index: 1000;
+  z-index: 1001;
   right: 0;
-  overflow-y: auto;
-  max-height: 60vh;
+  left: auto; /* Reset left position */
+  overflow-y: auto; /* Scroll jika konten panjang */
+  max-height: 70vh; /* Maksimal 70% tinggi layar */
 }
 
-/* Penyesuaian untuk mobile */
+/* Responsive positioning */
 @media (max-width: 768px) {
   .tafsir-dropdown-content {
-    position: fixed;
-    left: 50%;
-    transform: translateX(-50%);
     right: auto;
-    width: 90%;
-    max-width: 300px;
+    left: 0;
+    transform: translateX(0);
   }
   
-  .tafsir-dropdown-content.left-align {
-    left: 10px;
-    right: auto;
-    transform: none;
+  /* Jika dropdown keluar layar */
+  .tafsir-dropdown-content.right-edge {
+    right: 0;
+    left: auto;
+    transform: translateX(0);
   }
 }
 
 .tafsir-dropdown-content a {
   color: #333;
-  padding: 12px 16px;
+  padding: 0.6em 1em;
   text-decoration: none;
   display: block;
   font-size: 0.85em;
   border-bottom: 1px solid #eee;
+  word-break: break-word; /* Handle text panjang */
+}
+
+.tafsir-dropdown-content a:hover {
+  background-color: #f1f1f1;
 }
 
 .show { 
@@ -90,13 +98,11 @@
   from { opacity: 0; transform: translateY(-10px); }
   to { opacity: 1; transform: translateY(0); }
 }
-    
-    .rasm-symbol {
-  font-size: 0.9em;
-  vertical-align: super;
-  margin-right: 0.4em;
-  margin-left: 0.1em; /* jarak ke huruf sebelumnya */
-  color: #777;
+
+/* Handle dropdown yang terlalu ke kiri */
+.tafsir-dropdown-content.adjust-right {
+  right: 0;
+  left: auto;
 }
     
 .rasm-symbol-special {
@@ -367,6 +373,7 @@ ayatNodes.forEach(aya => {
       translationDiv.innerHTML = translation;
       document.getElementById("result").appendChild(translationDiv);
 
+      // Cari tafsir Jalalayn untuk ayat ini
 // GANTI bagian kode tafsir yang lama DENGAN ini:
 
 // Daftar sumber tafsir
@@ -388,6 +395,28 @@ const tafsirSources = {
   }
 };
 
+// Fungsi memuat tafsir
+async function loadTafsir(sourceKey, surah, ayah) {
+  const source = tafsirSources[sourceKey];
+  if (!source) return "Sumber tafsir tidak valid";
+
+  try {
+    const response = await fetch(source.path);
+    if (!response.ok) throw new Error('File tafsir tidak ditemukan');
+    
+    const xmlText = await response.text();
+    const parser = new DOMParser();
+    const xmlDoc = parser.parseFromString(xmlText, "text/xml");
+    
+    const tafsirNode = xmlDoc.querySelector(source.query(surah, ayah));
+    return tafsirNode?.getAttribute("text") || tafsirNode?.textContent || "Tafsir tidak ditemukan";
+  } catch (error) {
+    console.error(`Error loading ${source.name}:`, error);
+    return `Gagal memuat ${source.name}`;
+  }
+}
+
+// Buat dropdown tafsir
 function createTafsirDropdown(surah, ayah) {
   const dropdownContainer = document.createElement("div");
   dropdownContainer.className = "tafsir-dropdown";
@@ -395,13 +424,10 @@ function createTafsirDropdown(surah, ayah) {
   const dropbtn = document.createElement("button");
   dropbtn.className = "tafsir-dropbtn";
   dropbtn.textContent = "Pilih Tafsir";
-  dropbtn.setAttribute('aria-haspopup', 'true');
-  dropbtn.setAttribute('aria-expanded', 'false');
   
   const dropdownContent = document.createElement("div");
   dropdownContent.className = "tafsir-dropdown-content";
-  dropdownContent.setAttribute('aria-label', "Daftar tafsir");
-
+  
   // Tambahkan opsi tafsir
   Object.keys(tafsirSources).forEach(key => {
     const source = tafsirSources[key];
@@ -410,69 +436,79 @@ function createTafsirDropdown(surah, ayah) {
     link.textContent = source.name;
     link.onclick = async (e) => {
       e.preventDefault();
-      dropbtn.textContent = `Memuat ${source.name}...`;
       const tafsirText = await loadTafsir(key, surah, ayah);
       showTafsir(source.name, tafsirText);
-      dropdownContent.classList.remove("show");
-      dropbtn.setAttribute('aria-expanded', 'false');
-      dropbtn.textContent = "Pilih Tafsir";
     };
     dropdownContent.appendChild(link);
   });
 
-  // Smart positioning
-  function updateDropdownPosition() {
-    const btnRect = dropbtn.getBoundingClientRect();
-    const viewportWidth = window.innerWidth;
-    
-    if (viewportWidth <= 768) {
-      dropdownContent.classList.add('left-align');
-    } else {
-      dropdownContent.classList.remove('left-align');
-      
-      // Jika terlalu dekat ke tepi kanan
-      if (btnRect.right > viewportWidth - 200) {
-        dropdownContent.style.right = 'auto';
-        dropdownContent.style.left = '0';
-      } else {
-        dropdownContent.style.right = '0';
-        dropdownContent.style.left = 'auto';
-      }
-    }
+  // Fungsi untuk menyesuaikan posisi dropdown
+function adjustDropdownPosition(dropdown) {
+  const dropbtnRect = dropbtn.getBoundingClientRect();
+  const dropdownContent = dropdown.querySelector('.tafsir-dropdown-content');
+  
+  // Reset kelas posisi
+  dropdownContent.classList.remove('right-edge', 'adjust-right');
+  
+  // Cek jika dropdown akan keluar layar di kanan
+  if (dropbtnRect.left + dropdownContent.offsetWidth > window.innerWidth) {
+    dropdownContent.classList.add('adjust-right');
   }
-
-  // Toggle dropdown dengan positioning cerdas
+  
+  // Cek jika dropdown akan keluar layar di kiri
+  if (dropbtnRect.right - dropdownContent.offsetWidth < 0) {
+    dropdownContent.classList.add('right-edge');
+  }
+}
+  
   dropbtn.onclick = (e) => {
-    e.stopPropagation();
-    const isShowing = dropdownContent.classList.contains("show");
-    
-    if (!isShowing) {
-      updateDropdownPosition();
-    }
-    
-    dropdownContent.classList.toggle("show", !isShowing);
-    dropbtn.setAttribute('aria-expanded', String(!isShowing));
-  };
-
+  e.stopPropagation();
+  const isShowing = dropdownContent.classList.contains("show");
+  
+  // Sembunyikan semua dropdown lain
+  document.querySelectorAll(".tafsir-dropdown-content.show").forEach(d => {
+    if (d !== dropdownContent) d.classList.remove("show");
+  });
+  
+  if (!isShowing) {
+    adjustDropdownPosition(dropdownContainer);
+  }
+  
+  dropdownContent.classList.toggle("show");
+};
+  
   // Tutup dropdown saat klik di luar
-  document.addEventListener('click', (e) => {
-    if (!dropdownContainer.contains(e.target)) {
-      dropdownContent.classList.remove("show");
-      dropbtn.setAttribute('aria-expanded', 'false');
+  window.onclick = (e) => {
+    if (!e.target.matches('.tafsir-dropbtn')) {
+      const dropdowns = document.querySelectorAll(".tafsir-dropdown-content");
+      dropdowns.forEach(d => d.classList.remove("show"));
     }
-  });
-
-  // Handle resize
-  window.addEventListener('resize', () => {
-    if (dropdownContent.classList.contains("show")) {
-      updateDropdownPosition();
-    }
-  });
-
+  };
+  
   dropdownContainer.appendChild(dropbtn);
   dropdownContainer.appendChild(dropdownContent);
   return dropdownContainer;
 }
+
+// Fungsi tampilkan tafsir
+function showTafsir(title, content) {
+  let tafsirBox = document.getElementById("current-tafsir");
+  
+  if (!tafsirBox) {
+    tafsirBox = document.createElement("div");
+    tafsirBox.id = "current-tafsir";
+    tafsirBox.className = "tafsir-text";
+    document.getElementById("result").appendChild(tafsirBox);
+  }
+  
+  tafsirBox.innerHTML = `<strong>${title}:</strong><br>${content}`;
+  tafsirBox.style.display = "block";
+}
+
+// Cara penggunaan (ganti kode tafsir lama):
+const tafsirDropdown = createTafsirDropdown(surah, ayat);
+translationDiv.appendChild(tafsirDropdown);
+
       
       if (footnotes) {
   const foot = document.createElement("div");
