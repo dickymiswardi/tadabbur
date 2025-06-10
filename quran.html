@@ -157,7 +157,6 @@
   cursor: pointer;
   color: #444;
 }
-
     @media (max-width: 480px) {
       body {
         padding: 1em;
@@ -343,15 +342,7 @@ ayatNodes.forEach(aya => {
     : fullMatch;
 });
 
-  document.addEventListener('DOMContentLoaded', () => {
-    document.body.addEventListener('click', function (e) {
-      if (e.target.classList.contains('footnote-popup-trigger')) {
-        const content = e.target.getAttribute('data-footnote');
-        showFootnotePopup(content);
-      }
-    });
-  });
-
+  // Fungsi popup
   function showFootnotePopup(content) {
     const popup = document.createElement('div');
     popup.className = 'footnote-popup';
@@ -369,6 +360,16 @@ ayatNodes.forEach(aya => {
       if (e.target === popup) popup.remove();
     };
   }
+
+  // Tunggu DOM siap baru pasang event listener
+  document.addEventListener('DOMContentLoaded', () => {
+    document.body.addEventListener('click', function (e) {
+      if (e.target.classList.contains('footnote-popup-trigger')) {
+        const content = e.target.getAttribute('data-footnote');
+        showFootnotePopup(content);
+      }
+    });
+  });
 
   foot.innerHTML = `<strong>Catatan:</strong> ${modifiedFootnote}`;
   document.getElementById("result").appendChild(foot);
