@@ -277,10 +277,8 @@ ayatNodes.forEach(aya => {
         if (!footnoteMap[num]) {
           const surahNum = aya.parentElement.getAttribute("number");
           const ayahNum = aya.getAttribute("number");
-          const footnoteMatch = footnotes.textContent.match(new RegExp(`${num}\\.\\s+(.*?)(?=\\d+\\.|$)`));
-if (footnoteMatch) {
-  footnoteMap[num] = footnoteMatch[1].trim();
-}
+          footnoteMap[num] = `Surah ${surahNum} Ayat ${ayahNum}`;
+        }
       });
     }
   }
@@ -305,10 +303,8 @@ if (footnoteMatch) {
 
   // Tambahkan keterangan referensi footnote jika ada
   let modifiedFootnote = footnotes.replace(/Lihat catatan kaki nomor (\d+)/g, (fullMatch, num) => {
-  const refText = footnoteMap[num];
-  return refText
-    ? `Lihat catatan kaki nomor <a href="#" class="footnote-link" data-ref="${refText}">${num} (${ref})</a>`
-    : fullMatch;
+  const ref = footnoteMap[num];
+  return ref ? `Lihat catatan kaki nomor ${num} (${ref})` : fullMatch;
 });
 
   foot.innerHTML = `<strong>Catatan:</strong> ${modifiedFootnote}`;
@@ -368,16 +364,6 @@ if (footnoteMatch) {
 
       document.getElementById("result").appendChild(navDiv);
     })
-
-    // Event listener untuk tautan pop-up footnote
-document.addEventListener("click", function (e) {
-  if (e.target.classList.contains("footnote-link")) {
-    e.preventDefault();
-    const content = e.target.getAttribute("data-ref");
-    document.getElementById("footnote-content").textContent = content;
-    document.getElementById("footnote-popup").style.display = "block";
-  }
-});
     .catch(err => {
       console.error(err);
       document.getElementById("result").textContent = "Gagal memuat data.";
@@ -387,11 +373,5 @@ document.addEventListener("click", function (e) {
   // Simpan URL terakhir ke localStorage saat halaman ini dibuka
   localStorage.setItem("lastQuranPage", window.location.href);
 </script>
-  <div id="footnote-popup" style="display:none; position:fixed; top:20%; left:20%; background:white; border:1px solid #ccc; padding:1em; max-width:60%; z-index:1000; box-shadow: 0 2px 10px rgba(0,0,0,0.3);">
-  <span id="footnote-content"></span>
-  <div style="text-align:right;">
-    <button onclick="document.getElementById('footnote-popup').style.display='none'">Tutup</button>
-  </div>
-</div>
 </body>
 </html>
