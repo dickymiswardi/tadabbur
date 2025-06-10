@@ -270,18 +270,18 @@ const ayatNodes = xmlDoc.querySelectorAll("aya");
 ayatNodes.forEach(aya => {
   const footnotes = aya.querySelector("footnotes");
   if (footnotes && footnotes.textContent.trim()) {
-   const lines = footnotes.textContent.split('\n');
-let currentNum = null;
+    const lines = footnotes.textContent.trim().split('\n');
+    let currentNum = null;
 
-lines.forEach(line => {
-  const match = line.match(/^(\d+)\.\s*(.*)/);
-  if (match) {
-    currentNum = match[1];
-    footnoteMap[currentNum] = match[2];
-  } else if (currentNum) {
-    footnoteMap[currentNum] += ' ' + line.trim();
-  }
-});
+    lines.forEach(line => {
+      const match = line.match(/^(\d+)\.\s*(.*)/);
+      if (match) {
+        currentNum = match[1];
+        footnoteMap[currentNum] = match[2].trim();
+      } else if (currentNum) {
+        footnoteMap[currentNum] += ' ' + line.trim();
+      }
+    });
   }
 });
 
