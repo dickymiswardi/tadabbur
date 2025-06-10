@@ -518,6 +518,16 @@ translationDiv.appendChild(tafsirDropdown);
     el.classList.add("rtl");
   }
 }
+
+      const tafsir = await loadTafsir("al_muyassar", surah, ayah);
+const el = document.getElementById("current-tafsir");
+el.innerHTML = `<strong>Al Muyassar Arabic:</strong><br>${tafsir}`;
+
+      if (/[\u0600-\u06FF]/.test(tafsir)) {
+  el.classList.add("rtl");
+} else {
+  el.classList.remove("rtl");
+}
       
       if (footnotes) {
   const foot = document.createElement("div");
