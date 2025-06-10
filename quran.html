@@ -311,7 +311,7 @@ ayatNodes.forEach(aya => {
   const refText = footnoteMap[num];
   return refText
     ? `Lihat catatan kaki nomor <a href="#" class="footnote-link" data-ref="${refText}">${num}</a>`
-    : fullMatch;
+    : `Lihat catatan kaki nomor ${num} (tidak tersedia)`;
 });
 
   foot.innerHTML = `<strong>Catatan:</strong> ${modifiedFootnote}`;
