@@ -21,87 +21,140 @@
       color: #111;
     }
 
-   /* Dropdown Responsif */
-.tafsir-dropdown {
+   /* ===== POPUP TAFSIR ===== */
+.tafsir-popup {
   position: relative;
   display: inline-block;
   margin-left: 0.5em;
 }
 
-.tafsir-dropbtn {
+.tafsir-popup-btn {
   font-size: 0.8em;
-  padding: 0.4em 0.8em;
-  background-color: #b3f6ff;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  padding: 0.5em 1em;
+  background-color: #007b8a;
+  color: white;
+  border: none;
+  border-radius: 20px;
   cursor: pointer;
-  transition: all 0.2s;
-  white-space: nowrap;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
-.tafsir-dropdown-content {
+.tafsir-popup-btn:hover {
+  background-color: #005f6b;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.tafsir-popup-content {
   display: none;
-  position: absolute;
-  background-color: #f9f9f9;
-  min-width: 200px;
-  max-width: 90vw;
-  box-shadow: 0px 8px 16px rgba(0,0,0,0.1);
-  border-radius: 4px;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 90%;
+  max-width: 400px;
+  max-height: 70vh;
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
   z-index: 1000;
-  right: 0;
-  overflow-y: auto;
-  max-height: 60vh;
+  overflow: hidden;
+  animation: popupFadeIn 0.3s ease-out;
 }
 
-/* Penyesuaian untuk mobile */
+@keyframes popupFadeIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -40%);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
+}
+
+.tafsir-popup-header {
+  padding: 1em;
+  background-color: #007b8a;
+  color: white;
+  font-weight: bold;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.tafsir-popup-close {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.2em;
+  cursor: pointer;
+}
+
+.tafsir-popup-list {
+  overflow-y: auto;
+  max-height: calc(70vh - 60px);
+}
+
+.tafsir-popup-item {
+  padding: 0.8em 1em;
+  border-bottom: 1px solid #eee;
+  transition: background-color 0.2s;
+  cursor: pointer;
+  font-size: 0.9em;
+}
+
+.tafsir-popup-item:hover {
+  background-color: #f5f5f5;
+}
+
+.tafsir-popup-item:active {
+  background-color: #e9e9e9;
+}
+
+.tafsir-popup-backdrop {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0,0,0,0.5);
+  z-index: 999;
+}
+
+/* Animasi untuk mobile */
 @media (max-width: 768px) {
-  .tafsir-dropdown-content {
-    position: fixed;
-    left: 50%;
-    transform: translateX(-50%);
-    right: auto;
-    top: auto;
-    bottom: auto;
-    width: 90%;
-    max-width: 300px;
+  .tafsir-popup-content {
+    width: 95%;
+    max-height: 80vh;
+    top: 40%;
+    animation: mobilePopupFadeIn 0.3s ease-out;
   }
   
-  .tafsir-dropdown-content.left-align {
-    left: 10px;
-    right: auto;
-    top: auto;
-    bottom: auto;
-    transform: none;
+  @keyframes mobilePopupFadeIn {
+    from {
+      opacity: 0;
+      transform: translate(-50%, -30%);
+    }
+    to {
+      opacity: 1;
+      transform: translate(-50%, -40%);
+    }
   }
 }
 
-.tafsir-dropdown-content a {
-  color: #333;
-  padding: 12px 16px;
-  text-decoration: none;
-  display: block;
-  font-size: 0.85em;
-  border-bottom: 1px solid #eee;
-}
-
-.show { 
-  display: block;
-  animation: fadeIn 0.3s;
-}
-
-  .tafsir-text {
-  margin-top: 0.8em;
-  font-size: 0.88em;
-  background-color: #f4f4f4;
-  padding: 0.8em;
+/* Tafsir Text Display */
+.tafsir-text {
+  margin: 1em 0;
+  padding: 1em;
+  background-color: #f8f8f8;
   border-left: 3px solid #007b8a;
-  border-right: 3px solid #007b8a;
-  display: none;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-10px); }
-  to { opacity: 1; transform: translateY(0); }
+  border-radius: 0 8px 8px 0;
+  box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
+  line-height: 1.6;
+  font-size: 0.9em;
 }
     
 .rasm-symbol {
@@ -423,50 +476,84 @@ async function loadTafsir(sourceKey, surah, ayah) {
 }
 
 // Buat dropdown tafsir
-function createTafsirDropdown(surah, ayah) {
-  const dropdownContainer = document.createElement("div");
-  dropdownContainer.className = "tafsir-dropdown";
+function createTafsirPopup(surah, ayah) {
+  // Buat container popup
+  const popupContainer = document.createElement("div");
+  popupContainer.className = "tafsir-popup";
   
-  const dropbtn = document.createElement("button");
-  dropbtn.className = "tafsir-dropbtn";
-  dropbtn.textContent = "Pilih Tafsir";
+  // Buat tombol trigger
+  const popupBtn = document.createElement("button");
+  popupBtn.className = "tafsir-popup-btn";
+  popupBtn.textContent = "Pilih Tafsir";
+  popupBtn.innerHTML = '<i class="fas fa-book-open"></i> Pilih Tafsir'; // Jika menggunakan Font Awesome
   
-  const dropdownContent = document.createElement("div");
-  dropdownContent.className = "tafsir-dropdown-content";
+  // Buat backdrop
+  const backdrop = document.createElement("div");
+  backdrop.className = "tafsir-popup-backdrop";
+  
+  // Buat konten popup
+  const popupContent = document.createElement("div");
+  popupContent.className = "tafsir-popup-content";
+  
+  // Header popup
+  const popupHeader = document.createElement("div");
+  popupHeader.className = "tafsir-popup-header";
+  popupHeader.innerHTML = `
+    <span>Pilih Sumber Tafsir</span>
+    <button class="tafsir-popup-close">&times;</button>
+  `;
+  
+  // List konten
+  const popupList = document.createElement("div");
+  popupList.className = "tafsir-popup-list";
   
   // Tambahkan opsi tafsir
   Object.keys(tafsirSources).forEach(key => {
     const source = tafsirSources[key];
-    const link = document.createElement("a");
-    link.href = "#";
-    link.textContent = source.name;
-    link.onclick = async (e) => {
-      e.preventDefault();
+    const item = document.createElement("div");
+    item.className = "tafsir-popup-item";
+    item.textContent = source.name;
+    
+    item.onclick = async () => {
+      item.textContent = `Memuat ${source.name}...`;
       const tafsirText = await loadTafsir(key, surah, ayah);
       showTafsir(source.name, tafsirText);
+      closePopup();
+      item.textContent = source.name;
     };
-    dropdownContent.appendChild(link);
+    
+    popupList.appendChild(item);
   });
   
-  // Toggle dropdown
-  dropbtn.onclick = () => {
-    dropdownContent.classList.toggle("show");
-  };
+  // Fungsi buka/tutup popup
+  function openPopup() {
+    popupContent.style.display = "block";
+    backdrop.style.display = "block";
+    document.body.style.overflow = "hidden";
+  }
   
-  // Tutup dropdown saat klik di luar
-  window.onclick = (e) => {
-    if (!e.target.matches('.tafsir-dropbtn')) {
-      const dropdowns = document.querySelectorAll(".tafsir-dropdown-content");
-      dropdowns.forEach(d => d.classList.remove("show"));
-    }
-  };
+  function closePopup() {
+    popupContent.style.display = "none";
+    backdrop.style.display = "none";
+    document.body.style.overflow = "";
+  }
   
-  dropdownContainer.appendChild(dropbtn);
-  dropdownContainer.appendChild(dropdownContent);
-  return dropdownContainer;
+  // Event listeners
+  popupBtn.onclick = openPopup;
+  backdrop.onclick = closePopup;
+  popupHeader.querySelector('.tafsir-popup-close').onclick = closePopup;
+  
+  // Gabungkan semua elemen
+  popupContent.appendChild(popupHeader);
+  popupContent.appendChild(popupList);
+  popupContainer.appendChild(popupBtn);
+  popupContainer.appendChild(backdrop);
+  popupContainer.appendChild(popupContent);
+  
+  return popupContainer;
 }
 
-// Fungsi tampilkan tafsir
+// Fungsi untuk menampilkan tafsir
 function showTafsir(title, content) {
   let tafsirBox = document.getElementById("current-tafsir");
   
@@ -477,13 +564,17 @@ function showTafsir(title, content) {
     document.getElementById("result").appendChild(tafsirBox);
   }
   
-  tafsirBox.innerHTML = `<strong>${title}:</strong><br>${content}`;
-  tafsirBox.style.display = "block";
+  tafsirBox.innerHTML = `
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+      <strong>${title}</strong>
+      <button onclick="this.parentElement.parentElement.style.display='none'" 
+              style="background: none; border: none; color: #007b8a; cursor: pointer;">
+        Tutup
+      </button>
+    </div>
+    <div style="margin-top: 0.5em;">${content}</div>
+  `;
 }
-
-// Cara penggunaan (ganti kode tafsir lama):
-const tafsirDropdown = createTafsirDropdown(surah, ayat);
-translationDiv.appendChild(tafsirDropdown);
       
       if (footnotes) {
   const foot = document.createElement("div");
