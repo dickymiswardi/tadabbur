@@ -245,15 +245,41 @@
 
     const apiURL = `https://api.quran.com/api/v4/quran/verses/uthmani?verse_key=${surah}:${ayat}`;
 
+    function getTafsirFromXML(xmlString, surah, ayat) {
+  const parser = new DOMParser();
+  const xmlDoc = parser.parseFromString(xmlString, "text/xml");
+  const sura = xmlDoc.querySelector(`sura[index="${surah}"]`);
+  const aya = sura?.querySelector(`aya[index="${ayat}"]`);
+  return aya?.getAttribute("text") || "(Tafsir tidak ditemukan)";
+}
+
+const tafsirLink = document.createElement("a");
+tafsirLink.href = "#";
+tafsirLink.textContent = "Lihat Tafsir Jalalayn";
+tafsirLink.className = "footnote-link";
+tafsirLink.setAttribute("data-ref", ""); // nanti diisi saat diklik
+tafsirLink.onclick = function(e) {
+  e.preventDefault();
+  const tafsirText = getTafsirFromXML(tafsirXmlText, surah, ayat);
+  document.getElementById("footnote-content").textContent = tafsirText;
+  document.getElementById("footnote-popup").style.display = "block";
+};
+document.getElementById("result").appendChild(tafsirLink);
+    let tafsirXmlText = "id.jalalayn.xml"; // variabel global untuk XML tafsir
+    
     Promise.all([
       fetch(apiURL).then(res => res.json()),
       fetch("indonesian_complex_v1.0.xml").then(res => res.text())
+      fetch("https://raw.githubusercontent.com/dickymiswardi/tadabbur/main/id.jalalayn.xml").then(res => res.text()) // ini tambahan
     ])
     .then(([arabData, xmlText]) => {
       const verse = arabData.verses?.[0];
       let arabicText = verse?.text_uthmani || "(Teks Arab tidak ditemukan)";
       arabicText += ` \u06dd${toArabicNumber(ayat)}`;
       arabicText = wrapRasmSymbols(arabicText);
+
+      .then(([arabData, xmlText, jalalaynXml]) => {
+  tafsirXmlText = jalalaynXml; // simpan di variabel global
 
       const arabDiv = document.createElement('div');
       arabDiv.className = 'arabic';
