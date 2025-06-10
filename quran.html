@@ -20,6 +20,29 @@
       background-color: #fff;
       color: #111;
     }
+
+    .tafsir-button {
+  font-size: 0.8em;
+  margin-left: 0.5em;
+  padding: 0.2em 0.5em;
+  background-color: #eee;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.tafsir-button:hover {
+  background-color: #ddd;
+}
+
+.tafsir-text {
+  margin-top: 0.8em;
+  font-size: 0.88em;
+  background-color: #f4f4f4;
+  padding: 0.8em;
+  border-left: 3px solid #007b8a;
+  display: none;
+}
     
     .rasm-symbol {
   font-size: 0.9em;
@@ -296,6 +319,27 @@ ayatNodes.forEach(aya => {
       translationDiv.className = "translation";
       translationDiv.innerHTML = translation;
       document.getElementById("result").appendChild(translationDiv);
+
+      // Cari tafsir Jalalayn untuk ayat ini
+const tafsirDoc = parser.parseFromString(xmlText, "text/xml");
+const tafsirAyah = tafsirDoc.querySelector(`sura[index="${surah}"] > aya[index="${ayat}"]`);
+const tafsirText = tafsirAyah?.getAttribute("text") || "Tafsir tidak ditemukan.";
+
+const tafsirBtn = document.createElement("button");
+tafsirBtn.className = "tafsir-button";
+tafsirBtn.textContent = "Tafsir";
+
+const tafsirContent = document.createElement("div");
+tafsirContent.className = "tafsir-text";
+tafsirContent.innerHTML = `<strong>Tafsir Jalalayn:</strong><br>${tafsirText}`;
+
+tafsirBtn.onclick = () => {
+  tafsirContent.style.display = tafsirContent.style.display === "none" ? "block" : "none";
+};
+
+// Tambahkan tombol di sebelah terjemahan
+translationDiv.appendChild(tafsirBtn);
+document.getElementById("result").appendChild(tafsirContent);
 
       if (footnotes) {
   const foot = document.createElement("div");
