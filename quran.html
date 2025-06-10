@@ -30,7 +30,7 @@
 .tafsir-dropbtn {
   font-size: 0.8em;
   padding: 0.4em 0.8em;
-  background-color: #b3ffff;
+  background-color: #66ffff;
   border: 1px solid #ccc;
   border-radius: 4px;
   cursor: pointer;
@@ -88,7 +88,6 @@
   border-right: 3px solid #007b8a;
   border-radius: 0 4px 4px 0;
 }
-
     
 .rasm-symbol {
   font-size: 0.9em;
@@ -366,19 +365,20 @@ ayatNodes.forEach(aya => {
       translationDiv.innerHTML = translation;
       document.getElementById("result").appendChild(translationDiv);
 
-// LOAD TAFSIR
+// GANTI bagian kode tafsir yang lama DENGAN ini:
+
 // Daftar sumber tafsir
 const tafsirSources = {
   jalalayn: {
-    name: "Jalalayn Indonesia",
+    name: "Tafsir Jalalayn",
     path: "id.jalalayn.xml",
     query: (s, a) => `sura[index="${s}"] > aya[index="${a}"]`
   },
-  al_muyassar: {
-  name: "Al Muyassar Arabic",
-  path: "ar.muyassar.txt",
-  query: (s, a) => `${s}|${a}|` // mencari baris yang diawali dengan "s|a|"
-},
+  ibnu_katsir: {
+    name: "Tafsir Ibnu Katsir",
+    path: "ibnukatsir.xml",
+    query: (s, a) => `surah[number="${s}"] > ayah[number="${a}"]`
+  },
   quraish: {
     name: "Tafsir Quraish Shihab",
     path: "tafsir_quraish.xml",
@@ -386,6 +386,7 @@ const tafsirSources = {
   }
 };
 
+// Fungsi memuat tafsir
 async function loadTafsir(sourceKey, surah, ayah) {
   const source = tafsirSources[sourceKey];
   if (!source) return "Sumber tafsir tidak valid";
@@ -393,28 +394,19 @@ async function loadTafsir(sourceKey, surah, ayah) {
   try {
     const response = await fetch(source.path);
     if (!response.ok) throw new Error('File tafsir tidak ditemukan');
-
-    const textContent = await response.text();
-
-    // Tangani .txt secara manual
-    if (source.path.endsWith(".txt")) {
-      const key = source.query(surah, ayah); // contoh: "2|255|"
-      const line = textContent.split("\n").find(line => line.startsWith(key));
-      return line ? line.split("|")[2] : "Tafsir tidak ditemukan";
-    }
-
-    // Tangani .xml seperti biasa
+    
+    const xmlText = await response.text();
     const parser = new DOMParser();
-    const xmlDoc = parser.parseFromString(textContent, "text/xml");
+    const xmlDoc = parser.parseFromString(xmlText, "text/xml");
+    
     const tafsirNode = xmlDoc.querySelector(source.query(surah, ayah));
     return tafsirNode?.getAttribute("text") || tafsirNode?.textContent || "Tafsir tidak ditemukan";
-
   } catch (error) {
     console.error(`Error loading ${source.name}:`, error);
     return `Gagal memuat ${source.name}`;
   }
 }
-      
+
 // Buat dropdown tafsir
 function createTafsirDropdown(surah, ayah) {
   const dropdownContainer = document.createElement("div");
@@ -568,8 +560,6 @@ translationDiv.appendChild(tafsirDropdown);
       console.error(err);
       document.getElementById("result").textContent = "Gagal memuat data.";
     });
-
-}
   </script>
   <script>
   // Simpan URL terakhir ke localStorage saat halaman ini dibuka
