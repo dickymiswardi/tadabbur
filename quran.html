@@ -426,9 +426,15 @@ document.addEventListener("click", function (e) {
   if (e.target.classList.contains("footnote-link")) {
     e.preventDefault();
     const content = e.target.getAttribute("data-ref");
-    document.getElementById("footnote-content").textContent = content;
-    document.getElementById("footnote-popup").style.display = "block";
-  }
+    const popup = document.getElementById("footnote-popup");
+const contentBox = document.getElementById("footnote-content");
+
+if (popup.style.display === "block") {
+  popup.style.display = "none"; // pastikan ditutup dulu
+}
+
+contentBox.textContent = content;
+popup.style.display = "block";
 });
   </script>
   <script>
