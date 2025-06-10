@@ -265,20 +265,21 @@
       const xmlDoc = parser.parseFromString(xmlText, "text/xml");
 
       // Buat peta footnoteNumber ke posisi Surah & Ayat
+// ✅ Buat peta untuk menyimpan semua catatan kaki berdasarkan nomor
 const footnoteMap = {};
-const footnoteElements = xmlDoc.querySelectorAll("footnotes");
+const footnoteElements = xmlDoc.querySelectorAll("footnotes"); // Ambil semua elemen <footnotes>
 
 footnoteElements.forEach(footnotes => {
-  const lines = footnotes.textContent.trim().split('\n');
+  const lines = footnotes.textContent.trim().split('\n'); // Pisahkan tiap baris
   let currentNum = null;
 
   lines.forEach(line => {
-    const match = line.match(/^(\d+)[\.\)\-]?\s*(.*)/);
+    const match = line.match(/^(\d+)[\.\)\-]?\s*(.*)/); // Tangkap "34.", "34)", atau "34 -"
     if (match) {
       currentNum = match[1];
-      footnoteMap[currentNum] = match[2].trim();
+      footnoteMap[currentNum] = match[2].trim(); // Simpan isi pertama
     } else if (currentNum) {
-      footnoteMap[currentNum] += ' ' + line.trim();
+      footnoteMap[currentNum] += ' ' + line.trim(); // Gabungkan baris berikutnya ke catatan yang sama
     }
   });
 });
