@@ -379,13 +379,14 @@ const tafsirSources = {
   path: "ar.muyassar.txt",
   query: (s, a) => `${s}|${a}|` // mencari baris yang diawali dengan "s|a|"
 },
-  quraish: {
-    name: "Tafsir Quraish Shihab",
-    path: "tafsir_quraish.xml",
-    query: (s, a) => `verse[surah="${s}"][ayah="${a}"]`
-  }
+  As_Sadi: {
+  name: "As Sa'di Arabic",
+  path: "tafsir-as-saadi.json",
+  query: (s, a) => `${s}|${a}`  // kunci yang akan digunakan
+}
 };
 
+ // LOAD TAFSIR
 // Fungsi memuat tafsir
 async function loadTafsir(sourceKey, surah, ayah) {
   const source = tafsirSources[sourceKey];
@@ -395,24 +396,43 @@ async function loadTafsir(sourceKey, surah, ayah) {
     const response = await fetch(source.path);
     if (!response.ok) throw new Error('File tafsir tidak ditemukan');
 
-    const textContent = await response.text();
+    const ext = source.path.split('.').pop().toLowerCase();
 
-    // Tangani .txt secara manual
-    if (source.path.endsWith(".txt")) {
-      const key = source.query(surah, ayah); // contoh: "2|255|"
-      const line = textContent.split("\n").find(line => line.startsWith(key));
+    // JSON handler
+    if (ext === "json") {
+      const data = await response.json();
+      const key = source.query(surah, ayah);
+
+      // Kalau bentuknya array
+      if (Array.isArray(data)) {
+        const match = data.find(entry => 
+          Number(entry.surah) === Number(surah) && Number(entry.ayah) === Number(ayah)
+        );
+        return match?.text || "Tafsir tidak ditemukan";
+      }
+
+      // Kalau bentuknya objek dengan key "2|255"
+      return data[key] || "Tafsir tidak ditemukan";
+    }
+
+    // TXT handler
+    if (ext === "txt") {
+      const text = await response.text();
+      const key = source.query(surah, ayah);
+      const line = text.split("\n").find(line => line.startsWith(key));
       return line ? line.split("|")[2] : "Tafsir tidak ditemukan";
     }
 
-    // Tangani .xml seperti biasa
+    // XML handler
+    const xmlText = await response.text();
     const parser = new DOMParser();
-    const xmlDoc = parser.parseFromString(textContent, "text/xml");
+    const xmlDoc = parser.parseFromString(xmlText, "text/xml");
     const tafsirNode = xmlDoc.querySelector(source.query(surah, ayah));
     return tafsirNode?.getAttribute("text") || tafsirNode?.textContent || "Tafsir tidak ditemukan";
 
   } catch (error) {
-    console.error(`Error loading ${source.name}:`, error);
-    return `Gagal memuat ${source.name}`;
+    console.error(`Error loading ${source?.name}:`, error);
+    return `Gagal memuat ${source?.name}`;
   }
 }
 
