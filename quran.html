@@ -88,6 +88,13 @@
   border-right: 3px solid #007b8a;
   border-radius: 0 4px 4px 0;
 }
+
+    /* Tambahan: jika teks Arab, beri perataan kanan */
+.tafsir-text.rtl {
+  text-align: right;
+  direction: rtl;
+  font-family: "Scheherazade", "Amiri", "Arial", sans-serif;
+}
     
 .rasm-symbol {
   font-size: 0.9em;
@@ -572,8 +579,5 @@ translationDiv.appendChild(tafsirDropdown);
   // Simpan URL terakhir ke localStorage saat halaman ini dibuka
   localStorage.setItem("lastQuranPage", window.location.href);
 </script>
-  <div id="tafsir-container" style="direction: rtl; text-align: right; font-family: 'Scheherazade', 'Amiri', serif;">
-  <!-- Teks tafsir Arab akan dimasukkan di sini -->
-</div>
 </body>
 </html>
