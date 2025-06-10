@@ -124,6 +124,40 @@
       opacity: 0.85;
     }
 
+    .footnote-popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.3);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.footnote-popup-content {
+  background-color: white;
+  padding: 1.2em 1.5em;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  max-width: 90%;
+  max-height: 70%;
+  overflow-y: auto;
+  position: relative;
+  font-size: 1em;
+}
+
+.close-popup {
+  position: absolute;
+  top: 0.3em;
+  right: 0.6em;
+  font-size: 1.4em;
+  cursor: pointer;
+  color: #444;
+}
+
     @media (max-width: 480px) {
       body {
         padding: 1em;
@@ -304,8 +338,37 @@ ayatNodes.forEach(aya => {
   // Tambahkan keterangan referensi footnote jika ada
   let modifiedFootnote = footnotes.replace(/Lihat catatan kaki nomor (\d+)/g, (fullMatch, num) => {
   const ref = footnoteMap[num];
-  return ref ? `Lihat catatan kaki nomor ${num} (${ref})` : fullMatch;
+  return ref
+    ? `<button class="footnote-popup-trigger" data-footnote="${ref}">Lihat catatan kaki nomor ${num} (${ref})</button>`
+    : fullMatch;
 });
+
+  document.addEventListener('DOMContentLoaded', () => {
+    document.body.addEventListener('click', function (e) {
+      if (e.target.classList.contains('footnote-popup-trigger')) {
+        const content = e.target.getAttribute('data-footnote');
+        showFootnotePopup(content);
+      }
+    });
+  });
+
+  function showFootnotePopup(content) {
+    const popup = document.createElement('div');
+    popup.className = 'footnote-popup';
+    popup.innerHTML = `
+      <div class="footnote-popup-content">
+        <span class="close-popup">&times;</span>
+        <p>${content}</p>
+      </div>
+    `;
+    document.body.appendChild(popup);
+
+    // Close handler
+    popup.querySelector('.close-popup').onclick = () => popup.remove();
+    popup.onclick = (e) => {
+      if (e.target === popup) popup.remove();
+    };
+  }
 
   foot.innerHTML = `<strong>Catatan:</strong> ${modifiedFootnote}`;
   document.getElementById("result").appendChild(foot);
