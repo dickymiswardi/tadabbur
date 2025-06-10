@@ -20,6 +20,35 @@
       background-color: #fff;
       color: #111;
     }
+
+    .modal {
+  display: none;
+  position: fixed;
+  z-index: 999;
+  left: 0; top: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.6);
+}
+
+.modal-content {
+  background: #fff;
+  margin: 10% auto;
+  padding: 1em;
+  border-radius: 8px;
+  max-width: 600px;
+  max-height: 70vh;
+  overflow-y: auto;
+  position: relative;
+}
+
+.modal .close {
+  position: absolute;
+  right: 10px;
+  top: 8px;
+  font-size: 1.4em;
+  cursor: pointer;
+}
     
     .rasm-symbol {
   font-size: 0.9em;
@@ -240,6 +269,27 @@
       return { surah: surah - 1, ayah: surahAyahCount[surah - 1] };
     }
 
+  function showTafsir(surah, ayat, xmlText) {
+    const parser = new DOMParser();
+    const xmlDoc = parser.parseFromString(xmlText, "text/xml");
+    const sura = xmlDoc.querySelector(`quran > sura[index="${surah}"]`);
+    const aya = sura?.querySelector(`aya[index="${ayat}"]`);
+    const tafsir = aya?.getAttribute("text") || "(Tafsir tidak ditemukan)";
+    document.getElementById("tafsirContent").innerText = tafsir;
+    document.getElementById("tafsirModal").style.display = "block";
+  }
+
+  function closeTafsir() {
+    document.getElementById("tafsirModal").style.display = "none";
+  }
+
+  window.onclick = function(event) {
+    const modal = document.getElementById("tafsirModal");
+    if (event.target === modal) {
+      modal.style.display = "none";
+    }
+  }
+    
     const surahName = surahNames[surah] || "Surah Tidak Dikenal";
     document.getElementById("judul").textContent = `${surahName} Surah ${surah} Ayat ${ayat}`;
 
@@ -300,6 +350,17 @@ ayatNodes.forEach(aya => {
       if (footnotes) {
   const foot = document.createElement("div");
   foot.className = "footnote";
+
+        const tafsirLink = document.createElement("a");
+tafsirLink.href = "#";
+tafsirLink.textContent = "Lihat Tafsir Jalalayn";
+tafsirLink.style.display = "block";
+tafsirLink.style.marginTop = "1em";
+tafsirLink.onclick = (e) => {
+  e.preventDefault();
+  showTafsir(surah, ayat, id.jalalayn.xml); // `tafsirXmlText` adalah isi XML
+};
+document.getElementById("result").appendChild(tafsirLink);
 
   // Tambahkan keterangan referensi footnote jika ada
   let modifiedFootnote = footnotes.replace(/Lihat catatan kaki nomor (\d+)/g, (fullMatch, num) => {
@@ -373,5 +434,11 @@ ayatNodes.forEach(aya => {
   // Simpan URL terakhir ke localStorage saat halaman ini dibuka
   localStorage.setItem("lastQuranPage", window.location.href);
 </script>
+  <div id="tafsirModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeTafsir()">&times;</span>
+    <div id="tafsirContent">Memuat tafsir...</div>
+  </div>
+</div>
 </body>
 </html>
