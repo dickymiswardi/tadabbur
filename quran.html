@@ -270,20 +270,18 @@ const ayatNodes = xmlDoc.querySelectorAll("aya");
 ayatNodes.forEach(aya => {
   const footnotes = aya.querySelector("footnotes");
   if (footnotes && footnotes.textContent.trim()) {
-    const matches = footnotes.textContent.match(/\d+/g);
-    if (matches) {
-      matches.forEach(num => {
-        // Simpan hanya jika belum ada
-        if (!footnoteMap[num]) {
-          const surahNum = aya.parentElement.getAttribute("number");
-          const ayahNum = aya.getAttribute("number");
-          const footnoteMatch = footnotes.textContent.match(new RegExp(`${num}\\.\\s+(.*?)(?=\\d+\\.|$)`));
-if (footnoteMatch) {
-  footnoteMap[num] = footnoteMatch[1].trim();
-}
-        }
-      });
-    }
+   const lines = footnotes.textContent.split('\n');
+let currentNum = null;
+
+lines.forEach(line => {
+  const match = line.match(/^(\d+)\.\s*(.*)/);
+  if (match) {
+    currentNum = match[1];
+    footnoteMap[currentNum] = match[2];
+  } else if (currentNum) {
+    footnoteMap[currentNum] += ' ' + line.trim();
+  }
+});
   }
 });
 
@@ -389,9 +387,22 @@ document.addEventListener("click", function (e) {
   // Simpan URL terakhir ke localStorage saat halaman ini dibuka
   localStorage.setItem("lastQuranPage", window.location.href);
 </script>
-  <div id="footnote-popup" style="display:none; position:fixed; top:20%; left:20%; background:white; border:1px solid #ccc; padding:1em; max-width:60%; z-index:1000; box-shadow: 0 2px 10px rgba(0,0,0,0.3);">
+  <div id="footnote-popup" style="
+  display: none;
+  position: fixed;
+  top: 10%;
+  left: 5%;
+  right: 5%;
+  max-height: 80%;
+  background: white;
+  border: 1px solid #ccc;
+  padding: 1em;
+  overflow-y: auto;
+  z-index: 1000;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+  border-radius: 8px;">
   <span id="footnote-content"></span>
-  <div style="text-align:right;">
+  <div style="text-align:right; margin-top: 1em;">
     <button onclick="document.getElementById('footnote-popup').style.display='none'">Tutup</button>
   </div>
 </div>
