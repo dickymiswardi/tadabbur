@@ -21,27 +21,60 @@
       color: #111;
     }
 
-    .tafsir-button {
-  font-size: 0.8em;
+    /* Tambahkan ini di bagian <style> */
+.tafsir-dropdown {
+  position: relative;
+  display: inline-block;
   margin-left: 0.5em;
-  padding: 0.2em 0.5em;
-  background-color: #eee;
+}
+
+.tafsir-dropbtn {
+  font-size: 0.8em;
+  padding: 0.4em 0.8em;
+  background-color: #f0f0f0;
   border: 1px solid #ccc;
   border-radius: 4px;
   cursor: pointer;
+  transition: all 0.2s;
 }
 
-.tafsir-button:hover {
+.tafsir-dropbtn:hover {
   background-color: #ddd;
 }
+
+.tafsir-dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #f9f9f9;
+  min-width: 200px;
+  box-shadow: 0px 8px 16px rgba(0,0,0,0.1);
+  border-radius: 4px;
+  z-index: 1;
+  right: 0;
+}
+
+.tafsir-dropdown-content a {
+  color: #333;
+  padding: 0.6em 1em;
+  text-decoration: none;
+  display: block;
+  font-size: 0.85em;
+  border-bottom: 1px solid #eee;
+}
+
+.tafsir-dropdown-content a:hover {
+  background-color: #f1f1f1;
+}
+
+.show { display: block; }
 
 .tafsir-text {
   margin-top: 0.8em;
   font-size: 0.88em;
-  background-color: #f4f4f4;
-  padding: 0.8em;
+  background-color: #f8f8f8;
+  padding: 1em;
   border-left: 3px solid #007b8a;
-  display: none;
+  border-radius: 0 4px 4px 0;
 }
     
     .rasm-symbol {
@@ -320,48 +353,116 @@ ayatNodes.forEach(aya => {
       translationDiv.innerHTML = translation;
       document.getElementById("result").appendChild(translationDiv);
 
-      // Cari tafsir Jalalayn untuk ayat ini
 // GANTI bagian kode tafsir yang lama DENGAN ini:
 
-// 1. Pertama-tama, load file XML
-fetch('id.jalalayn.xml')
-  .then(response => {
+// Daftar sumber tafsir
+const tafsirSources = {
+  jalalayn: {
+    name: "Tafsir Jalalayn",
+    path: "id.jalalayn.xml",
+    query: (s, a) => `sura[index="${s}"] > aya[index="${a}"]`
+  },
+  ibnu_katsir: {
+    name: "Tafsir Ibnu Katsir",
+    path: "ibnukatsir.xml",
+    query: (s, a) => `surah[number="${s}"] > ayah[number="${a}"]`
+  },
+  quraish: {
+    name: "Tafsir Quraish Shihab",
+    path: "tafsir_quraish.xml",
+    query: (s, a) => `verse[surah="${s}"][ayah="${a}"]`
+  }
+};
+
+// Fungsi memuat tafsir
+async function loadTafsir(sourceKey, surah, ayah) {
+  const source = tafsirSources[sourceKey];
+  if (!source) return "Sumber tafsir tidak valid";
+
+  try {
+    const response = await fetch(source.path);
     if (!response.ok) throw new Error('File tafsir tidak ditemukan');
-    return response.text();
-  })
-  .then(xmlText => {
-    // 2. Parsing XML setelah berhasil dimuat
-    const parser = new DOMParser();
-    const tafsirDoc = parser.parseFromString(xmlText, "text/xml");
     
-    // 3. Cari tafsir sesuai surah dan ayat
-    const tafsirAyah = tafsirDoc.querySelector(`sura[index="${surah}"] aya[index="${ayat}"]`);
-    const tafsirText = tafsirAyah?.getAttribute("text") || "Tafsir tidak ditemukan.";
+    const xmlText = await response.text();
+    const parser = new DOMParser();
+    const xmlDoc = parser.parseFromString(xmlText, "text/xml");
+    
+    const tafsirNode = xmlDoc.querySelector(source.query(surah, ayah));
+    return tafsirNode?.getAttribute("text") || tafsirNode?.textContent || "Tafsir tidak ditemukan";
+  } catch (error) {
+    console.error(`Error loading ${source.name}:`, error);
+    return `Gagal memuat ${source.name}`;
+  }
+}
 
-    // 4. Buat tombol dan tampilkan tafsir
-    const tafsirBtn = document.createElement("button");
-    tafsirBtn.className = "tafsir-button";
-    tafsirBtn.textContent = "Tafsir";
-
-    const tafsirContent = document.createElement("div");
-    tafsirContent.className = "tafsir-text";
-    tafsirContent.innerHTML = `<strong>Tafsir Jalalayn:</strong><br>${tafsirText}`;
-    tafsirContent.style.display = "none";
-
-    tafsirBtn.onclick = () => {
-      tafsirContent.style.display = tafsirContent.style.display === "none" ? "block" : "none";
+// Buat dropdown tafsir
+function createTafsirDropdown(surah, ayah) {
+  const dropdownContainer = document.createElement("div");
+  dropdownContainer.className = "tafsir-dropdown";
+  
+  const dropbtn = document.createElement("button");
+  dropbtn.className = "tafsir-dropbtn";
+  dropbtn.textContent = "Pilih Tafsir";
+  
+  const dropdownContent = document.createElement("div");
+  dropdownContent.className = "tafsir-dropdown-content";
+  
+  // Tambahkan opsi tafsir
+  Object.keys(tafsirSources).forEach(key => {
+    const source = tafsirSources[key];
+    const link = document.createElement("a");
+    link.href = "#";
+    link.textContent = source.name;
+    link.onclick = async (e) => {
+      e.preventDefault();
+      const tafsirText = await loadTafsir(key, surah, ayah);
+      showTafsir(source.name, tafsirText);
     };
+    dropdownContent.appendChild(link);
+  });
+  
+  // Toggle dropdown
+  dropbtn.onclick = () => {
+    dropdownContent.classList.toggle("show");
+  };
+  
+  // Tutup dropdown saat klik di luar
+  window.onclick = (e) => {
+    if (!e.target.matches('.tafsir-dropbtn')) {
+      const dropdowns = document.querySelectorAll(".tafsir-dropdown-content");
+      dropdowns.forEach(d => d.classList.remove("show"));
+    }
+  };
+  
+  dropdownContainer.appendChild(dropbtn);
+  dropdownContainer.appendChild(dropdownContent);
+  return dropdownContainer;
+}
 
-    translationDiv.appendChild(tafsirBtn);
-    document.getElementById("result").appendChild(tafsirContent);
-  })
-  .catch(error => {
-    console.error("Error loading tafsir:", error);
-    const errorDiv = document.createElement("div");
-    errorDiv.className = "tafsir-text";
-    errorDiv.textContent = "Gagal memuat tafsir. Silakan coba lagi.";
-    document.getElementById("result").appendChild(errorDiv);
-  }); 
+// Fungsi tampilkan tafsir
+function showTafsir(title, content) {
+  let tafsirBox = document.getElementById("current-tafsir");
+  
+  if (!tafsirBox) {
+    tafsirBox = document.createElement("div");
+    tafsirBox.id = "current-tafsir";
+    tafsirBox.className = "tafsir-text";
+    document.getElementById("result").appendChild(tafsirBox);
+  }
+  
+  tafsirBox.innerHTML = `<strong>${title}:</strong><br>${content}`;
+  tafsirBox.style.display = "block";
+}
+
+// Cara penggunaan (ganti kode tafsir lama):
+const tafsirDropdown = createTafsirDropdown(surah, ayat);
+translationDiv.appendChild(tafsirDropdown);
+
+      // Untuk menampilkan tafsir default saat pertama kali:
+loadTafsir('jalalayn', surah, ayat).then(text => {
+  showTafsir("Tafsir Jalalayn", text);
+});
+      
       if (footnotes) {
   const foot = document.createElement("div");
   foot.className = "footnote";
