@@ -572,15 +572,8 @@ translationDiv.appendChild(tafsirDropdown);
   // Simpan URL terakhir ke localStorage saat halaman ini dibuka
   localStorage.setItem("lastQuranPage", window.location.href);
 </script>
-  <style>
-  .arabic-text {
-    direction: rtl;
-    text-align: right;
-    font-family: 'Scheherazade', 'Amiri', serif;
-    line-height: 1.8;
-    font-size: 1.2em;
-  }
-</style>
-<div id="tafsir-container" class="arabic-text"></div>
+  <div id="tafsir-container" style="direction: rtl; text-align: right; font-family: 'Scheherazade', 'Amiri', serif;">
+  <!-- Teks tafsir Arab akan dimasukkan di sini -->
+</div>
 </body>
 </html>
