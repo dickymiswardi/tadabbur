@@ -1,5 +1,3 @@
-Saya punya kode .html, saya sudah berhasil memunculkan pop up yang berisi naskah footnote, akan tetapi hanya naskah footnote nomor 1 saja yang ada. Sisa pop up kosong belum terisi naskah itu. Naskah itu diambil dari file .xml yang saya kirim. Dan berikut ini isi .html saya:
-
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -272,18 +270,17 @@ const ayatNodes = xmlDoc.querySelectorAll("aya");
 ayatNodes.forEach(aya => {
   const footnotes = aya.querySelector("footnotes");
   if (footnotes && footnotes.textContent.trim()) {
-    const lines = footnotes.textContent.trim().split('\n');
-    let currentNum = null;
-
-    lines.forEach(line => {
-      const match = line.match(/^(\d+)\.\s*(.*)/);
-      if (match) {
-        currentNum = match[1];
-        footnoteMap[currentNum] = match[2].trim();
-      } else if (currentNum) {
-        footnoteMap[currentNum] += ' ' + line.trim();
-      }
-    });
+    const matches = footnotes.textContent.match(/\d+/g);
+    if (matches) {
+      matches.forEach(num => {
+        // Simpan hanya jika belum ada
+        if (!footnoteMap[num]) {
+          const surahNum = aya.parentElement.getAttribute("number");
+          const ayahNum = aya.getAttribute("number");
+          footnoteMap[num] = `Surah ${surahNum} Ayat ${ayahNum}`;
+        }
+      });
+    }
   }
 });
 
@@ -306,10 +303,8 @@ ayatNodes.forEach(aya => {
 
   // Tambahkan keterangan referensi footnote jika ada
   let modifiedFootnote = footnotes.replace(/Lihat catatan kaki nomor (\d+)/g, (fullMatch, num) => {
-  const refText = footnoteMap[num];
-  return refText
-    ? `Lihat catatan kaki nomor <a href="#" class="footnote-link" data-ref="${refText}">${num}</a>`
-    : fullMatch;
+  const ref = footnoteMap[num];
+  return ref ? `Lihat catatan kaki nomor ${num} (${ref})` : fullMatch;
 });
 
   foot.innerHTML = `<strong>Catatan:</strong> ${modifiedFootnote}`;
@@ -373,40 +368,10 @@ ayatNodes.forEach(aya => {
       console.error(err);
       document.getElementById("result").textContent = "Gagal memuat data.";
     });
-
-    // Event listener untuk tautan pop-up footnote
-document.addEventListener("click", function (e) {
-  if (e.target.classList.contains("footnote-link")) {
-    e.preventDefault();
-    const content = e.target.getAttribute("data-ref");
-    document.getElementById("footnote-content").textContent = content;
-    document.getElementById("footnote-popup").style.display = "block";
-  }
-});
   </script>
-  
   <script>
   // Simpan URL terakhir ke localStorage saat halaman ini dibuka
   localStorage.setItem("lastQuranPage", window.location.href);
 </script>
-  <div id="footnote-popup" style="
-  display: none;
-  position: fixed;
-  top: 10%;
-  left: 5%;
-  right: 5%;
-  max-height: 80%;
-  background: white;
-  border: 1px solid #ccc;
-  padding: 1em;
-  overflow-y: auto;
-  z-index: 1000;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-  border-radius: 8px;">
-  <span id="footnote-content"></span>
-  <div style="text-align:right; margin-top: 1em;">
-    <button onclick="document.getElementById('footnote-popup').style.display='none'">Tutup</button>
-  </div>
-</div>
 </body>
 </html>
