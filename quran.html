@@ -79,13 +79,6 @@
   display: block;
 }
 
-    .tafsir-text.rtl {
-  text-align: right;
-  direction: rtl;
-  font-family: "Amiri", "Scheherazade", "Arial", sans-serif;
-}
-
-
 .tafsir-text {
   margin-top: 0.8em;
   font-size: 0.88em;
@@ -504,30 +497,6 @@ function showTafsir(title, content) {
 // Cara penggunaan (ganti kode tafsir lama):
 const tafsirDropdown = createTafsirDropdown(surah, ayat);
 translationDiv.appendChild(tafsirDropdown);
-
-      function showArabicTafsir(text) {
-  const el = document.getElementById("current-tafsir");
-
-  el.innerHTML = `<strong>Al Muyassar Arabic:</strong><br>${text}`;
-
-  // Reset class RTL
-  el.classList.remove("rtl");
-
-  // Jika teks Arab, tambahkan RTL
-  if (/[\u0600-\u06FF]/.test(text)) {
-    el.classList.add("rtl");
-  }
-}
-
-      const tafsir = await loadTafsir("al_muyassar", surah, ayah);
-const el = document.getElementById("current-tafsir");
-el.innerHTML = `<strong>Al Muyassar Arabic:</strong><br>${tafsir}`;
-
-      if (/[\u0600-\u06FF]/.test(tafsir)) {
-  el.classList.add("rtl");
-} else {
-  el.classList.remove("rtl");
-}
       
       if (footnotes) {
   const foot = document.createElement("div");
