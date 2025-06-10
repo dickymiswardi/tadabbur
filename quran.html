@@ -457,11 +457,6 @@ function showTafsir(title, content) {
 // Cara penggunaan (ganti kode tafsir lama):
 const tafsirDropdown = createTafsirDropdown(surah, ayat);
 translationDiv.appendChild(tafsirDropdown);
-
-      // Untuk menampilkan tafsir default saat pertama kali:
-loadTafsir('jalalayn', surah, ayat).then(text => {
-  showTafsir("Tafsir Jalalayn", text);
-});
       
       if (footnotes) {
   const foot = document.createElement("div");
