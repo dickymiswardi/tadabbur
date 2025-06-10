@@ -322,7 +322,7 @@ ayatNodes.forEach(aya => {
 
       // Cari tafsir Jalalayn untuk ayat ini
 const tafsirDoc = parser.parseFromString(xmlText, "text/xml");
-const tafsirAyah = tafsirDoc.querySelector(`sura[index="${surah}"] > aya[index="${ayat}"]`);
+const tafsirAyah = tafsirDoc.querySelector(`sura[index="${surah}"] aya[index="${ayat}"]`);
 const tafsirText = tafsirAyah?.getAttribute("text") || "Tafsir tidak ditemukan.";
 
 const tafsirBtn = document.createElement("button");
