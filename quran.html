@@ -124,39 +124,39 @@
       opacity: 0.85;
     }
 
-    .footnote-popup {
+  .footnote-popup {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.3);
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.4);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
+  z-index: 9999;
 }
 
 .footnote-popup-content {
-  background-color: white;
-  padding: 1.2em 1.5em;
+  background: #fff;
+  padding: 1em 1.5em;
   border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
   max-width: 90%;
-  max-height: 70%;
+  max-height: 70vh;
   overflow-y: auto;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
   position: relative;
-  font-size: 1em;
 }
 
 .close-popup {
   position: absolute;
-  top: 0.3em;
-  right: 0.6em;
+  top: 0.5em;
+  right: 0.8em;
   font-size: 1.4em;
   cursor: pointer;
-  color: #444;
+  color: #555;
 }
+
     @media (max-width: 480px) {
       body {
         padding: 1em;
@@ -334,15 +334,7 @@ ayatNodes.forEach(aya => {
   const foot = document.createElement("div");
   foot.className = "footnote";
 
-  // Tambahkan keterangan referensi footnote jika ada
-  let modifiedFootnote = footnotes.replace(/Lihat catatan kaki nomor (\d+)/g, (fullMatch, num) => {
-  const ref = footnoteMap[num];
-  return ref
-    ? `<button class="footnote-popup-trigger" data-footnote="${ref}">Lihat catatan kaki nomor ${num} (${ref})</button>`
-    : fullMatch;
-});
-
-  // Fungsi popup
+  // Fungsi untuk menampilkan popup
   function showFootnotePopup(content) {
     const popup = document.createElement('div');
     popup.className = 'footnote-popup';
@@ -354,19 +346,19 @@ ayatNodes.forEach(aya => {
     `;
     document.body.appendChild(popup);
 
-    // Close handler
+    // Klik luar atau close = tutup popup
     popup.querySelector('.close-popup').onclick = () => popup.remove();
     popup.onclick = (e) => {
       if (e.target === popup) popup.remove();
     };
   }
 
-  // Tunggu DOM siap baru pasang event listener
+  // Pasang event listener setelah DOM siap
   document.addEventListener('DOMContentLoaded', () => {
     document.body.addEventListener('click', function (e) {
-      if (e.target.classList.contains('footnote-popup-trigger')) {
+      if (e.target.matches('.footnote-popup-trigger')) {
         const content = e.target.getAttribute('data-footnote');
-        showFootnotePopup(content);
+        if (content) showFootnotePopup(content);
       }
     });
   });
