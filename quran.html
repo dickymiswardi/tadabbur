@@ -321,8 +321,8 @@ ayatNodes.forEach(aya => {
       document.getElementById("result").appendChild(translationDiv);
 
       // Cari tafsir Jalalayn untuk ayat ini
-const tafsirDoc = parser.parseFromString(xmlText, "text/xml");
-const tafsirAyah = tafsirDoc.querySelector(`sura[index="${surah}"] aya[index="${ayat}"]`);
+// Cari tafsir Jalalayn untuk ayat ini
+const tafsirAyah = xmlDoc.querySelector(`sura[index="${surah}"] > aya[index="${ayat}"]`);
 const tafsirText = tafsirAyah?.getAttribute("text") || "Tafsir tidak ditemukan.";
 
 const tafsirBtn = document.createElement("button");
@@ -331,12 +331,11 @@ tafsirBtn.textContent = "Tafsir";
 
 const tafsirContent = document.createElement("div");
 tafsirContent.className = "tafsir-text";
-tafsirContent.innerHTML = `<strong>Tafsir Jalalayn:</strong><br>${tafsirText}`;
+tafsirContent.innerHTML = `<strong>Tafsir Jalalayn:</strong><br>${tafsirText.replace(/\(/g, "<br>(")}`;
 
 tafsirBtn.onclick = () => {
   tafsirContent.style.display = tafsirContent.style.display === "none" ? "block" : "none";
 };
-
 // Tambahkan tombol di sebelah terjemahan
 translationDiv.appendChild(tafsirBtn);
 document.getElementById("result").appendChild(tafsirContent);
