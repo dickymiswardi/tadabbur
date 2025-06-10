@@ -22,6 +22,7 @@
     }
 
     /* Tambahkan ini di bagian <style> */
+/* Dropdown Responsif */
 .tafsir-dropdown {
   position: relative;
   display: inline-block;
@@ -31,15 +32,12 @@
 .tafsir-dropbtn {
   font-size: 0.8em;
   padding: 0.4em 0.8em;
-  background-color: #FFC7C7;
+  background-color: #f0f0f0;
   border: 1px solid #ccc;
   border-radius: 4px;
   cursor: pointer;
   transition: all 0.2s;
-}
-
-.tafsir-dropbtn:hover {
-  background-color: #ddd;
+  white-space: nowrap;
 }
 
 .tafsir-dropdown-content {
@@ -47,34 +45,50 @@
   position: absolute;
   background-color: #f9f9f9;
   min-width: 200px;
+  max-width: 90vw;
   box-shadow: 0px 8px 16px rgba(0,0,0,0.1);
   border-radius: 4px;
-  z-index: 1;
+  z-index: 1000;
   right: 0;
+  overflow-y: auto;
+  max-height: 60vh;
+}
+
+/* Penyesuaian untuk mobile */
+@media (max-width: 768px) {
+  .tafsir-dropdown-content {
+    position: fixed;
+    left: 50%;
+    transform: translateX(-50%);
+    right: auto;
+    width: 90%;
+    max-width: 300px;
+  }
+  
+  .tafsir-dropdown-content.left-align {
+    left: 10px;
+    right: auto;
+    transform: none;
+  }
 }
 
 .tafsir-dropdown-content a {
   color: #333;
-  padding: 0.6em 1em;
+  padding: 12px 16px;
   text-decoration: none;
   display: block;
   font-size: 0.85em;
   border-bottom: 1px solid #eee;
 }
 
-.tafsir-dropdown-content a:hover {
-  background-color: #f1f1f1;
+.show { 
+  display: block;
+  animation: fadeIn 0.3s;
 }
 
-.show { display: block; }
-
-.tafsir-text {
-  margin-top: 0.8em;
-  font-size: 0.88em;
-  background-color: #f8f8f8;
-  padding: 1em;
-  border-left: 3px solid #007b8a;
-  border-radius: 0 4px 4px 0;
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
     
     .rasm-symbol {
