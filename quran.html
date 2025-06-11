@@ -95,6 +95,19 @@
   border-right: 3px solid #007b8a;
   border-radius: 0 4px 4px 0;
 }
+
+    .tafsir-arabic {
+    direction: rtl;
+    text-align: right;
+  }
+
+  .tafsir-latin {
+    direction: ltr;
+    text-align: left;
+    font-family: "Inter", sans-serif;
+    margin-top: 0.5em;
+    line-height: 1.6;
+  }
     
 .rasm-symbol {
   font-size: 0.9em;
@@ -539,7 +552,13 @@ function showTafsir(title, content) {
     document.getElementById("result").appendChild(tafsirBox);
   }
   
-  tafsirBox.innerHTML = `<strong>${title}:</strong><br>${content}`;
+const arabicRegex = /[\u0600-\u06FF]/; // huruf Arab
+const isArabic = arabicRegex.test(content);
+
+const arabicPart = isArabic ? `<div class="tafsir-arabic">${content}</div>` : '';
+const latinPart = !isArabic ? `<div class="tafsir-latin">${content}</div>` : '';
+
+tafsirBox.innerHTML = `<strong>${title}:</strong><br>${arabicPart}${latinPart}`;
   tafsirBox.style.display = "block";
 }
 
