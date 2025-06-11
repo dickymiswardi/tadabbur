@@ -616,20 +616,30 @@ function showTafsir(title, content) {
   const titleClass = title === "Al-Jalalayn ID" ? "tafsir-title-left" : "tafsir-title";
 
   // Tempatkan tombol dan status di dalam div yang ikut class rata kiri
-  const copyButtonBlock = `
-  <div class="${titleClass}">
-    <button id="copy-tafsir-btn" class="copy-button">Salin Tafsir</button>
-    <span id="copy-status" class="copy-status"></span>
+  // 1. Tampilkan animasi loading terlebih dahulu
+tafsirBox.innerHTML = `
+  <div id="tafsir-loading" style="text-align: center; padding: 1em;">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/3/3a/Gray_circles_rotate.gif" alt="Memuat tafsir..." width="50" />
+    <div style="font-size: 0.9em; color: #555;">Memuat tafsir…</div>
   </div>
 `;
+tafsirBox.style.display = "block";
+
+// 2. Setelah data tafsir siap, tampilkan kontennya (ganti ini setelah proses parsing selesai)
+setTimeout(() => {
+  const copyButtonBlock = `
+    <div class="${titleClass}">
+      <button id="copy-tafsir-btn" class="copy-button">Salin Tafsir</button>
+      <span id="copy-status" class="copy-status"></span>
+    </div>
+  `;
 
   tafsirBox.innerHTML = `
     <div class="${titleClass}">${title}</div>
     ${copyButtonBlock}
     ${arabicPart}${latinPart}
   `;
-
-  tafsirBox.style.display = "block";
+}, 1000); // <- ganti 1000 dengan waktu delay aktual atau pindahkan ke dalam .then() atau async function
 
   document.getElementById("copy-tafsir-btn").addEventListener("click", () => {
     const plainText = tafsirBox.innerText
