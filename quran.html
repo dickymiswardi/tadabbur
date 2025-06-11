@@ -589,10 +589,11 @@ function showTafsir(title, content) {
   // Cek apakah judulnya Al-Jalalayn ID
   const titleClass = title === "Al-Jalalayn ID" ? "tafsir-title-left" : "tafsir-title";
 
-  // Isi tafsir + tombol
+  // Isi HTML + tombol + status teks kosong
   tafsirBox.innerHTML = `
     <div class="${titleClass}">${title}</div>
-    <button id="copy-tafsir-btn" style="margin: 5px 0 10px 0;">Salin Tafsir</button>
+    <button id="copy-tafsir-btn" style="margin: 5px 5px 10px 0;">Salin Tafsir</button>
+    <span id="copy-status" style="font-size: 0.9em; color: green;"></span>
     ${arabicPart}${latinPart}
   `;
 
