@@ -143,6 +143,29 @@
   margin-left: 0.1em; /* jarak ke huruf sebelumnya */
   color: #777;
 }
+
+    .copy-button {
+  background-color: #4CAF50;       /* Hijau elegan */
+  border: none;
+  color: white;
+  padding: 8px 14px;
+  font-size: 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-right: 10px;
+  margin-top: 5px;
+}
+
+.copy-button:hover {
+  background-color: #45a049;       /* Lebih gelap saat hover */
+}
+
+.copy-status {
+  font-size: 0.9em;
+  color: green;
+  vertical-align: middle;
+}
     
 .rasm-symbol-special {
   margin-left: 0.0;
@@ -588,11 +611,11 @@ function showTafsir(title, content) {
 
   // Tempatkan tombol dan status di dalam div yang ikut class rata kiri
   const copyButtonBlock = `
-    <div class="${titleClass}">
-      <button id="copy-tafsir-btn" style="margin: 5px 5px 10px 0;">Salin Tafsir</button>
-      <span id="copy-status" style="font-size: 0.9em; color: green;"></span>
-    </div>
-  `;
+  <div class="${titleClass}">
+    <button id="copy-tafsir-btn" class="copy-button">Salin Tafsir</button>
+    <span id="copy-status" class="copy-status"></span>
+  </div>
+`;
 
   tafsirBox.innerHTML = `
     <div class="${titleClass}">${title}</div>
