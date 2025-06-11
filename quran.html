@@ -600,10 +600,14 @@ function showTafsir(title, content) {
 
   // Event klik tombol salin
   document.getElementById("copy-tafsir-btn").addEventListener("click", () => {
-    const plainText = tafsirBox.innerText.replace("Salin Tafsir", "").trim();
+    const plainText = tafsirBox.innerText.replace("Salin Tafsir", "").replace("✅ Tersalin", "").trim();
     navigator.clipboard.writeText(plainText)
-      .then(() => alert("Tafsir berhasil disalin!"))
-      .catch(err => alert("Gagal menyalin tafsir: " + err));
+      .then(() => {
+        document.getElementById("copy-status").textContent = "✅ Tersalin";
+      })
+      .catch(err => {
+        document.getElementById("copy-status").textContent = "❌ Gagal menyalin";
+      });
   });
 }
 
