@@ -379,14 +379,27 @@ const tafsirSources = {
     query: (s, a) => `sura[index="${s}"] > aya[index="${a}"]`
   },
   al_muyassar: {
-  name: "Al Muyassar Arabic",
-  path: "ar.muyassar.txt",
-  query: (s, a) => `${s}|${a}|` // mencari baris yang diawali dengan "s|a|"
-},
+    name: "Al Muyassar Arabic",
+    path: "ar.muyassar.txt",
+    query: (s, a) => `${s}|${a}|` // mencari baris yang diawali dengan "s|a|"
+  },
   As_Saadi: {
     name: "As Saadi",
     path: "assaadi.json",
     query: (s, a) => `verse[surah="${s}"][ayah="${a}"]`
+  },
+  quran_com: {
+    name: "Quran.com Tafsir (e.g., Jalalayn)",
+    apiId: 169, // ID tafsir yang ingin digunakan, ganti sesuai kebutuhan
+    query: async (s, a) => {
+      const tafsirId = tafsirSources.quran_com.apiId;
+      const response = await fetch(`https://api.quran.com/v4/tafsirs/${tafsirId}/by_ayah/${s}/${a}`);
+      if (!response.ok) {
+        throw new Error("Gagal memuat tafsir dari Quran.com");
+      }
+      const data = await response.json();
+      return data?.data?.text || "Tafsir tidak tersedia.";
+    }
   }
 };
 
