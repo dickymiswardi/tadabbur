@@ -558,7 +558,7 @@ const isArabic = arabicRegex.test(content);
 const arabicPart = isArabic ? `<div class="tafsir-arabic">${content}</div>` : '';
 const latinPart = !isArabic ? `<div class="tafsir-latin">${content}</div>` : '';
 
-tafsirBox.innerHTML = `<strong>${title}:</strong><br>${arabicPart}${latinPart}`;
+tafsirBox.innerHTML = `<strong>${title}</strong><br>${arabicPart}${latinPart}`;
   tafsirBox.style.display = "block";
 }
 
