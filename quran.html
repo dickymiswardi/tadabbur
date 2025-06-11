@@ -578,7 +578,7 @@ window.addEventListener("click", function () {
 // Fungsi tampilkan tafsir
 function showTafsir(title, content) {
   let tafsirBox = document.getElementById("current-tafsir");
-
+  
   if (!tafsirBox) {
     tafsirBox = document.createElement("div");
     tafsirBox.id = "current-tafsir";
@@ -587,7 +587,7 @@ function showTafsir(title, content) {
     document.getElementById("result").appendChild(tafsirBox);
   }
 
-  const arabicRegex = /[\u0600-\u06FF]/;
+  const arabicRegex = /[\u0600-\u06FF]/; // huruf Arab
   const isArabic = arabicRegex.test(content);
 
   const arabicPart = isArabic ? `<div class="tafsir-arabic">${content}</div>` : '';
@@ -595,8 +595,8 @@ function showTafsir(title, content) {
 
   tafsirBox.innerHTML = `
     <strong class="${title === 'Al-Jalalayn ID' ? 'tafsir-title-left' : ''}">${title}</strong><br>
-    <button onclick="copyTafsir()">Salin Tafsir</button><br><br>
     ${arabicPart}${latinPart}
+    <br><button onclick="copyTafsir()">Salin Tafsir</button>
   `;
   tafsirBox.style.display = "block";
 }
