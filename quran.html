@@ -84,6 +84,8 @@
 }
 
 .tafsir-text {
+  direction: rtl;
+  text-align: right;
   font-family: sans-serif;
   margin-top: 0.8em;
   font-size: 0.88em;
@@ -533,6 +535,7 @@ function showTafsir(title, content) {
     tafsirBox = document.createElement("div");
     tafsirBox.id = "current-tafsir";
     tafsirBox.className = "tafsir-text";
+    tafsirBox.setAttribute("lang", "ar");
     document.getElementById("result").appendChild(tafsirBox);
   }
   
