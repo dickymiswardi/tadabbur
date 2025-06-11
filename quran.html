@@ -568,10 +568,9 @@ window.addEventListener("click", function () {
 });
 
 // Fungsi tampilkan tafsir
-// Fungsi tampilkan tafsir
 function showTafsir(title, content) {
   let tafsirBox = document.getElementById("current-tafsir");
-  
+
   if (!tafsirBox) {
     tafsirBox = document.createElement("div");
     tafsirBox.id = "current-tafsir";
@@ -590,8 +589,22 @@ function showTafsir(title, content) {
   // Cek apakah judulnya Al-Jalalayn ID
   const titleClass = title === "Al-Jalalayn ID" ? "tafsir-title-left" : "tafsir-title";
 
-  tafsirBox.innerHTML = `<div class="${titleClass}">${title}</div>${arabicPart}${latinPart}`;
+  // Isi tafsir + tombol
+  tafsirBox.innerHTML = `
+    <div class="${titleClass}">${title}</div>
+    <button id="copy-tafsir-btn" style="margin: 5px 0 10px 0;">Salin Tafsir</button>
+    ${arabicPart}${latinPart}
+  `;
+
   tafsirBox.style.display = "block";
+
+  // Event klik tombol salin
+  document.getElementById("copy-tafsir-btn").addEventListener("click", () => {
+    const plainText = tafsirBox.innerText.replace("Salin Tafsir", "").trim();
+    navigator.clipboard.writeText(plainText)
+      .then(() => alert("Tafsir berhasil disalin!"))
+      .catch(err => alert("Gagal menyalin tafsir: " + err));
+  });
 }
 
 // Cara penggunaan (ganti kode tafsir lama):
