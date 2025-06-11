@@ -398,18 +398,20 @@ const tafsirSources = {
       return match?.split("|").slice(2).join("|").trim() || "(Tafsir tidak ditemukan)";
     }
   },
-  As_Saadi: {
-  name: "As Saadi (JSON)",
-  path: "https://raw.githubusercontent.com/username/repo/main/assaadi.json", // Ganti sesuai repo kamu
-  async query(surah, ayah) {
-    const res = await fetch(this.path);
-    const data = await res.json();
-    const match = data.verses.find(v => v.surah == surah && v.ayah == ayah);
-    return match?.text || "(Tafsir tidak ditemukan)";
-  }
-}
-  },
-  quran_foundation: {
+  jalalayn: {...},        // tetap seperti sebelumnya
+  al_muyassar: {...},     // tetap
+  As_Saadi: {             // JSON entry
+    name: "As Saadi (JSON)",
+    path: "https://raw.githubusercontent.com/username/repo/main/assaadi.json",
+    async query(surah, ayah) {
+      const res = await fetch(this.path);
+      const data = await res.json();
+      const match = data.verses.find(v => v.surah == surah && v.ayah == ayah);
+      return match?.text || "(Tafsir tidak ditemukan)";
+    }
+  },  //<-- jangan lupa koma di akhir entry
+
+  quran_foundation: {     // entry API
     name: "Quran Foundation Tafsir (API)",
     resourceId: "169",
     headers: {
@@ -423,7 +425,7 @@ const tafsirSources = {
       const data = await res.json();
       return data?.data?.tafsirs?.[0]?.text || "(Tafsir tidak ditemukan)";
     }
-  }
+  } // <-- tidak ada koma di sini karena ini entry terakhir
 };
 
 
