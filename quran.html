@@ -84,8 +84,6 @@
 }
 
 .tafsir-text {
-  direction: rtl;
-  text-align: right;
   font-family: sans-serif;
   margin-top: 0.8em;
   font-size: 0.88em;
@@ -94,33 +92,6 @@
   border-left: 3px solid #007b8a;
   border-right: 3px solid #007b8a;
   border-radius: 0 4px 4px 0;
-}
-
-    .tafsir-arabic {
-    direction: rtl;
-    text-align: right;
-  }
-
-  .tafsir-latin {
-    direction: ltr;
-    text-align: left;
-    font-family: "Inter", sans-serif;
-    margin-top: 0.5em;
-    line-height: 1.6;
-  }
-
-    .tafsir-title {
-  text-align: right;
-  direction: rtl;
-  font-weight: bold;
-  margin-bottom: 0.5em;
-}
-
-.tafsir-title-left {
-  text-align: left;
-  direction: ltr;
-  font-weight: bold;
-  margin-bottom: 0.5em;
 }
     
 .rasm-symbol {
@@ -555,7 +526,6 @@ window.addEventListener("click", function () {
 });
 
 // Fungsi tampilkan tafsir
-// Fungsi tampilkan tafsir
 function showTafsir(title, content) {
   let tafsirBox = document.getElementById("current-tafsir");
   
@@ -565,30 +535,8 @@ function showTafsir(title, content) {
     tafsirBox.className = "tafsir-text";
     document.getElementById("result").appendChild(tafsirBox);
   }
-
-  // Cek apakah konten mengandung huruf Arab
-  const arabicRegex = /[\u0600-\u06FF]/;
-  const isArabic = arabicRegex.test(content);
-
-  // Buat isi teks
-  const arabicPart = isArabic ? `<div class="tafsir-arabic">${content}</div>` : '';
-  const latinPart = !isArabic ? `<div class="tafsir-latin">${content}</div>` : '';
-
-  // Cek apakah judulnya Al-Jalalayn ID
-  const titleClass = title === "Al-Jalalayn ID" ? "tafsir-title-left" : "tafsir-title";
-
-  tafsirBox.innerHTML = `<div class="${titleClass}">${title}</div>${arabicPart}${latinPart}`;
-  tafsirBox.style.display = "block";
-}
-      
-  // Buat isi teks
-  const arabicPart = isArabic ? `<div class="tafsir-arabic">${content}</div>` : '';
-  const latinPart = !isArabic ? `<div class="tafsir-latin">${content}</div>` : '';
-
-  // Cek apakah judulnya Al-Jalalayn ID
-  const titleClass = title === "Al-Jalalayn ID" ? "tafsir-title-left" : "tafsir-title";
-
-  tafsirBox.innerHTML = `<div class="${titleClass}">${title}</div>${arabicPart}${latinPart}`;
+  
+  tafsirBox.innerHTML = `<strong>${title}:</strong><br>${content}`;
   tafsirBox.style.display = "block";
 }
 
