@@ -122,27 +122,6 @@
   font-weight: bold;
   margin-bottom: 0.5em;
 }
-
-    #current-tafsir button {
-  margin-top: 8px;
-  padding: 6px 12px;
-  font-size: 14px;
-  background-color: #4CAF50; /* hijau lembut */
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.2s ease;
-}
-
-#current-tafsir button:hover {
-  background-color: #45a049;
-  transform: scale(1.03);
-}
-
-#current-tafsir button:active {
-  transform: scale(0.97);
-}
     
 .rasm-symbol {
   font-size: 0.9em;
@@ -576,6 +555,7 @@ window.addEventListener("click", function () {
 });
 
 // Fungsi tampilkan tafsir
+// Fungsi tampilkan tafsir
 function showTafsir(title, content) {
   let tafsirBox = document.getElementById("current-tafsir");
   
@@ -583,34 +563,22 @@ function showTafsir(title, content) {
     tafsirBox = document.createElement("div");
     tafsirBox.id = "current-tafsir";
     tafsirBox.className = "tafsir-text";
-    tafsirBox.setAttribute("lang", "ar");
     document.getElementById("result").appendChild(tafsirBox);
   }
 
-  const arabicRegex = /[\u0600-\u06FF]/; // huruf Arab
+  // Cek apakah konten mengandung huruf Arab
+  const arabicRegex = /[\u0600-\u06FF]/;
   const isArabic = arabicRegex.test(content);
 
+  // Buat isi teks
   const arabicPart = isArabic ? `<div class="tafsir-arabic">${content}</div>` : '';
   const latinPart = !isArabic ? `<div class="tafsir-latin">${content}</div>` : '';
 
-  tafsirBox.innerHTML = `
-    <strong class="${title === 'Al-Jalalayn ID' ? 'tafsir-title-left' : ''}">${title}</strong><br>
-    ${arabicPart}${latinPart}
-    <br><button onclick="copyTafsir()">Salin Tafsir</button>
-  `;
+  // Cek apakah judulnya Al-Jalalayn ID
+  const titleClass = title === "Al-Jalalayn ID" ? "tafsir-title-left" : "tafsir-title";
+
+  tafsirBox.innerHTML = `<div class="${titleClass}">${title}</div>${arabicPart}${latinPart}`;
   tafsirBox.style.display = "block";
-}
-
-function copyTafsir() {
-  const tafsirBox = document.getElementById("current-tafsir");
-  const textToCopy = tafsirBox.innerText.replace('Salin Tafsir', '').trim();
-
-  navigator.clipboard.writeText(textToCopy).then(() => {
-    alert("Tafsir berhasil disalin!");
-  }).catch(err => {
-    alert("Gagal menyalin tafsir.");
-    console.error(err);
-  });
 }
       
   // Buat isi teks
