@@ -94,6 +94,48 @@
   border-radius: 0 4px 4px 0;
 }
     
+  .tafsir-text {
+    direction: rtl;
+    text-align: right;
+  }
+
+  .tafsir-arabic {
+    direction: rtl;
+    text-align: right;
+    font-family: "Scheherazade", "Amiri", "Noto Naskh Arabic", serif;
+    margin-top: 0.5em;
+    line-height: 1.8;
+  }
+
+  .tafsir-latin {
+    direction: ltr;
+    text-align: left;
+    font-family: "Inter", sans-serif;
+    margin-top: 0.5em;
+    line-height: 1.6;
+  }
+
+    .tafsir-title {
+  text-align: left;
+  direction: ltr;
+  font-weight: bold;
+  margin-bottom: 0.5em;
+}
+
+    .tafsir-title {
+  text-align: right;
+  direction: rtl;
+  font-weight: bold;
+  margin-bottom: 0.5em;
+}
+
+.tafsir-title-left {
+  text-align: left;
+  direction: ltr;
+  font-weight: bold;
+  margin-bottom: 0.5em;
+}
+    
 .rasm-symbol {
   font-size: 0.9em;
   vertical-align: super;
@@ -526,6 +568,7 @@ window.addEventListener("click", function () {
 });
 
 // Fungsi tampilkan tafsir
+// Fungsi tampilkan tafsir
 function showTafsir(title, content) {
   let tafsirBox = document.getElementById("current-tafsir");
   
@@ -535,8 +578,19 @@ function showTafsir(title, content) {
     tafsirBox.className = "tafsir-text";
     document.getElementById("result").appendChild(tafsirBox);
   }
-  
-  tafsirBox.innerHTML = `<strong>${title}:</strong><br>${content}`;
+
+  // Cek apakah konten mengandung huruf Arab
+  const arabicRegex = /[\u0600-\u06FF]/;
+  const isArabic = arabicRegex.test(content);
+
+  // Buat isi teks
+  const arabicPart = isArabic ? `<div class="tafsir-arabic">${content}</div>` : '';
+  const latinPart = !isArabic ? `<div class="tafsir-latin">${content}</div>` : '';
+
+  // Cek apakah judulnya Al-Jalalayn ID
+  const titleClass = title === "Al-Jalalayn ID" ? "tafsir-title-left" : "tafsir-title";
+
+  tafsirBox.innerHTML = `<div class="${titleClass}">${title}</div>${arabicPart}${latinPart}`;
   tafsirBox.style.display = "block";
 }
 
