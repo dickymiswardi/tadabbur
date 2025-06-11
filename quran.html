@@ -615,46 +615,51 @@ function showTafsir(title, content) {
 
   const titleClass = title === "Al-Jalalayn ID" ? "tafsir-title-left" : "tafsir-title";
 
-  // Tempatkan tombol dan status di dalam div yang ikut class rata kiri
-  // 1. Tampilkan animasi loading terlebih dahulu
-tafsirBox.innerHTML = `
-  <div id="tafsir-loading" style="text-align: center; padding: 1em;">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/3/3a/Gray_circles_rotate.gif" alt="Memuat tafsir..." width="50" />
-    <div style="font-size: 0.9em; color: #555;">Memuat tafsir…</div>
-  </div>
-`;
-tafsirBox.style.display = "block";
-
-// 2. Setelah data tafsir siap, tampilkan kontennya (ganti ini setelah proses parsing selesai)
-setTimeout(() => {
-  const copyButtonBlock = `
-    <div class="${titleClass}">
-      <button id="copy-tafsir-btn" class="copy-button">Salin Tafsir</button>
-      <span id="copy-status" class="copy-status"></span>
+  // 1. Tampilkan animasi loading
+  tafsirBox.innerHTML = `
+    <div id="tafsir-loading" style="text-align: center; padding: 1em;">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/3/3a/Gray_circles_rotate.gif" alt="Memuat tafsir..." width="50" />
+      <div style="font-size: 0.9em; color: #555;">Memuat tafsir…</div>
     </div>
   `;
+  tafsirBox.style.display = "block";
 
-  tafsirBox.innerHTML = `
-    <div class="${titleClass}">${title}</div>
-    ${copyButtonBlock}
-    ${arabicPart}${latinPart}
-  `;
-}, 1000); // <- ganti 1000 dengan waktu delay aktual atau pindahkan ke dalam .then() atau async function
+  // 2. Setelah data tafsir siap, ganti isi box dan pasang event listener
+  setTimeout(() => {
+    const copyButtonBlock = `
+      <div class="${titleClass}">
+        <button id="copy-tafsir-btn" class="copy-button">Salin Tafsir</button>
+        <span id="copy-status" class="copy-status"></span>
+      </div>
+    `;
 
-  document.getElementById("copy-tafsir-btn").addEventListener("click", () => {
-    const plainText = tafsirBox.innerText
-      .replace("Salin Tafsir", "")
-      .replace("✅ Tersalin", "")
-      .trim();
+    tafsirBox.innerHTML = `
+      <div class="${titleClass}">${title}</div>
+      ${copyButtonBlock}
+      ${arabicPart}${latinPart}
+    `;
 
-    navigator.clipboard.writeText(plainText)
-      .then(() => {
-        document.getElementById("copy-status").textContent = "✅ Tersalin";
-      })
-      .catch(() => {
-        document.getElementById("copy-status").textContent = "❌ Gagal menyalin";
+    // ✅ Event listener dipasang setelah tombol tersedia
+    const copyBtn = document.getElementById("copy-tafsir-btn");
+    const copyStatus = document.getElementById("copy-status");
+
+    if (copyBtn) {
+      copyBtn.addEventListener("click", () => {
+        const plainText = tafsirBox.innerText
+          .replace("Salin Tafsir", "")
+          .replace("✅ Tersalin", "")
+          .trim();
+
+        navigator.clipboard.writeText(plainText)
+          .then(() => {
+            copyStatus.textContent = "✅ Tersalin";
+          })
+          .catch(() => {
+            copyStatus.textContent = "❌ Gagal menyalin";
+          });
       });
-  });
+    }
+  }, 1000); // <- Atau ganti dengan setelah parsing/fetch selesai
 }
 // Cara penggunaan (ganti kode tafsir lama):
 const tafsirDropdown = createTafsirDropdown(surah, ayat);
