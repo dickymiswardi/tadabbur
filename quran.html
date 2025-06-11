@@ -384,10 +384,15 @@ const tafsirSources = {
   query: (s, a) => `${s}|${a}|` // mencari baris yang diawali dengan "s|a|"
 },
   As_Saadi: {
-    name: "As Saadi",
-    path: "assaadi.json",
-    query: (s, a) => `verse[surah="${s}"][ayah="${a}"]`
+  name: "As Saadi",
+  path: "https://cdn.jsdelivr.net/gh/dickymiswardi/tadabbur@main/tafsir-as-saadi.json",
+  async query(surah, ayah) {
+    const res = await fetch(this.path);
+    const data = await res.json();
+    const result = data.find(item => item.surah === String(surah) && item.ayah === String(ayah));
+    return result?.text || "(Tafsir tidak ditemukan)";
   }
+}
 };
 
 // Fungsi memuat tafsir
