@@ -384,13 +384,43 @@ const tafsirSources = {
   path: "ar.muyassar.txt",
   query: (s, a) => `${s}|${a}|` // mencari baris yang diawali dengan "s|a|"
 },
+  const TafsirSources = {
   As_Saadi: {
     name: "As-Sa'di Arabic",
     path: (s, a) =>
       `https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/arabic-saadi/${s}/${a}.json`,
     query: (data) => data?.text
+  },
+  Baghawi: {
+    name: "Al-Baghawi Arabic",
+    path: (s, a) =>
+      `https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/arabic-baghawi/${s}/${a}.json`,
+    query: (data) => data?.text
+  },
+  Kathir: {
+    name: "Ibnu Katsir Arabic",
+    path: (s, a) =>
+      `https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/arabic-kathir/${s}/${a}.json`,
+    query: (data) => data?.text
+  },
+  Qurtubi: {
+    name: "Al-Qurtubi Arabic",
+    path: (s, a) =>
+      `https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/arabic-qurtubi/${s}/${a}.json`,
+    query: (data) => data?.text
+  },
+  Tabari: {
+    name: "At-Tabari Arabic",
+    path: (s, a) =>
+      `https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/arabic-tabari/${s}/${a}.json`,
+    query: (data) => data?.text
+  },
+  Wasit: {
+    name: "Al-Washit Arabic",
+    path: (s, a) =>
+      `https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/arabic-wasit/${s}/${a}.json`,
+    query: (data) => data?.text
   }
-  // XML dan TXT tetap bisa gunakan query(s, a) seperti sebelumnya
 };
 
 // Fungsi memuat tafsir
