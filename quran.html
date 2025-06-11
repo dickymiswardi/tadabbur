@@ -399,14 +399,15 @@ const tafsirSources = {
     }
   },
   As_Saadi: {
-    name: "As Saadi (JSON)",
-    path: "assaadi.json",
-    async query(surah, ayah) {
-      const res = await fetch(this.path);
-      const data = await res.json();
-      const match = data.verses.find(v => v.surah == surah && v.ayah == ayah);
-      return match?.text || "(Tafsir tidak ditemukan)";
-    }
+  name: "As Saadi (JSON)",
+  path: "https://raw.githubusercontent.com/username/repo/main/assaadi.json", // Ganti sesuai repo kamu
+  async query(surah, ayah) {
+    const res = await fetch(this.path);
+    const data = await res.json();
+    const match = data.verses.find(v => v.surah == surah && v.ayah == ayah);
+    return match?.text || "(Tafsir tidak ditemukan)";
+  }
+}
   },
   quran_foundation: {
     name: "Quran Foundation Tafsir (API)",
