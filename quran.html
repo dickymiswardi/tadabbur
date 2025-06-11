@@ -578,40 +578,45 @@ function showTafsir(title, content) {
     document.getElementById("result").appendChild(tafsirBox);
   }
 
-  // Cek apakah konten mengandung huruf Arab
   const arabicRegex = /[\u0600-\u06FF]/;
   const isArabic = arabicRegex.test(content);
 
-  // Buat isi teks
   const arabicPart = isArabic ? `<div class="tafsir-arabic">${content}</div>` : '';
   const latinPart = !isArabic ? `<div class="tafsir-latin">${content}</div>` : '';
 
-  // Cek apakah judulnya Al-Jalalayn ID
   const titleClass = title === "Al-Jalalayn ID" ? "tafsir-title-left" : "tafsir-title";
 
-  // Isi HTML + tombol + status teks kosong
+  // Tempatkan tombol dan status di dalam div yang ikut class rata kiri
+  const copyButtonBlock = `
+    <div class="${titleClass}">
+      <button id="copy-tafsir-btn" style="margin: 5px 5px 10px 0;">Salin Tafsir</button>
+      <span id="copy-status" style="font-size: 0.9em; color: green;"></span>
+    </div>
+  `;
+
   tafsirBox.innerHTML = `
     <div class="${titleClass}">${title}</div>
-    <button id="copy-tafsir-btn" style="margin: 5px 5px 10px 0;">Salin Tafsir</button>
-    <span id="copy-status" style="font-size: 0.9em; color: green;"></span>
+    ${copyButtonBlock}
     ${arabicPart}${latinPart}
   `;
 
   tafsirBox.style.display = "block";
 
-  // Event klik tombol salin
   document.getElementById("copy-tafsir-btn").addEventListener("click", () => {
-    const plainText = tafsirBox.innerText.replace("Salin Tafsir", "").replace("✅ Tersalin", "").trim();
+    const plainText = tafsirBox.innerText
+      .replace("Salin Tafsir", "")
+      .replace("✅ Tersalin", "")
+      .trim();
+
     navigator.clipboard.writeText(plainText)
       .then(() => {
         document.getElementById("copy-status").textContent = "✅ Tersalin";
       })
-      .catch(err => {
+      .catch(() => {
         document.getElementById("copy-status").textContent = "❌ Gagal menyalin";
       });
   });
 }
-
 // Cara penggunaan (ganti kode tafsir lama):
 const tafsirDropdown = createTafsirDropdown(surah, ayat);
 translationDiv.appendChild(tafsirDropdown);
