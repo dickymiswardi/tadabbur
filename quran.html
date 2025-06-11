@@ -383,25 +383,11 @@ const tafsirSources = {
   path: "ar.muyassar.txt",
   query: (s, a) => `${s}|${a}|` // mencari baris yang diawali dengan "s|a|"
 },
-  Al_Qurtubi: {
-    name: "Al Qurtubi (spa5k)",
-    async query(surah, ayah) {
-      const originalUrl = `https://raw.githubusercontent.com/spa5k/tafsir_api/refs/heads/main/tafsir/ar-tafseer-al-qurtubi/${surah}/${ayah}.json`;
-      const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(originalUrl)}`;
-
-      try {
-        const response = await fetch(proxyUrl);
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}`);
-        }
-        const data = await response.json();
-        return data.text || "(Tafsir tidak ditemukan)";
-      } catch (err) {
-        console.error(`[Al Qurtubi] Gagal memuat Surah ${surah} Ayat ${ayah}:`, err);
-        return "(Gagal memuat tafsir Al-Qurtubi)";
-      }
-    }
-  }
+  As_Saadi: {
+  name: "As Saadi (GitHub)",
+  path: (s, a) => `https://raw.githubusercontent.com/dickymiswardi/tadabbur/main/${s}.json`,
+  query: (s, a) => `tafsir.find(item => item.surah === ${s} && item.ayah === ${a})`
+}
 };
 
 // Fungsi memuat tafsir
