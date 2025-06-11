@@ -388,19 +388,36 @@ const tafsirSources = {
     path: "assaadi.json",
     query: (s, a) => `verse[surah="${s}"][ayah="${a}"]`
   },
-  quran_com: {
-  name: "Quran.com Tafsir (e.g., Jalalayn)",
-  apiId: 169,
-  query: async (s, a) => {
-    try {
-      const tafsirId = tafsirSources.quran_com.apiId;
-      const res = await fetch(`https://api.quran.com/v4/tafsirs/${tafsirId}/by_ayah/${s}/${a}`);
-      if (!res.ok) throw new Error("HTTP error " + res.status);
-      const json = await res.json();
-      return json?.data?.text || "Tafsir tidak tersedia.";
-    } catch (err) {
-      console.error(err);
-      return "❌ Gagal memuat tafsir dari Quran.com";
+  const tafsirSources = {
+  quran_foundation: {
+    name: "Quran Foundation Tafsir (e.g., Jalalayn)",
+    resourceId: "169", // Ganti dengan ID tafsir yang sesuai
+    headers: {
+      "x-auth-token": "<API_KEY_VALUE>",
+      "x-client-id": "<CLIENT_ID_VALUE>",
+      "Accept": "application/json"
+    },
+    query: async (s, a) => {
+      const ayahKey = `${s}:${a}`;
+      const resourceId = tafsirSources.quran_foundation.resourceId;
+      const url = `https://apis-prelive.quran.foundation/content/api/v4/tafsirs/${resourceId}/by_ayah/${ayahKey}`;
+
+      try {
+        const res = await fetch(url, {
+          method: "GET",
+          headers: tafsirSources.quran_foundation.headers
+        });
+
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+        }
+
+        const json = await res.json();
+        return json?.data?.text || "Tafsir tidak tersedia.";
+      } catch (error) {
+        console.error("Tafsir fetch error:", error);
+        return "❌ Gagal memuat tafsir dari Quran Foundation.";
+      }
     }
   }
 }
