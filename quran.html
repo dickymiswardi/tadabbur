@@ -386,10 +386,11 @@ const tafsirSources = {
   Al_Qurtubi: {
     name: "Al Qurtubi (spa5k)",
     async query(surah, ayah) {
-      const url = `https://raw.githubusercontent.com/spa5k/tafsir_api/refs/heads/main/tafsir/ar-tafseer-al-qurtubi/${surah}/${ayah}.json`;
+      const originalUrl = `https://raw.githubusercontent.com/spa5k/tafsir_api/refs/heads/main/tafsir/ar-tafseer-al-qurtubi/${surah}/${ayah}.json`;
+      const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(originalUrl)}`;
 
       try {
-        const response = await fetch(url);
+        const response = await fetch(proxyUrl);
         if (!response.ok) {
           throw new Error(`HTTP ${response.status}`);
         }
