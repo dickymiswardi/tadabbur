@@ -108,6 +108,20 @@
     margin-top: 0.5em;
     line-height: 1.6;
   }
+
+    .tafsir-title {
+  text-align: right;
+  direction: rtl;
+  font-weight: bold;
+  margin-bottom: 0.5em;
+}
+
+.tafsir-title-left {
+  text-align: left;
+  direction: ltr;
+  font-weight: bold;
+  margin-bottom: 0.5em;
+}
     
 .rasm-symbol {
   font-size: 0.9em;
@@ -548,17 +562,21 @@ function showTafsir(title, content) {
     tafsirBox = document.createElement("div");
     tafsirBox.id = "current-tafsir";
     tafsirBox.className = "tafsir-text";
-    tafsirBox.setAttribute("lang", "ar");
     document.getElementById("result").appendChild(tafsirBox);
   }
-  
-const arabicRegex = /[\u0600-\u06FF]/; // huruf Arab
-const isArabic = arabicRegex.test(content);
 
-const arabicPart = isArabic ? `<div class="tafsir-arabic">${content}</div>` : '';
-const latinPart = !isArabic ? `<div class="tafsir-latin">${content}</div>` : '';
+  // Cek apakah konten mengandung huruf Arab
+  const arabicRegex = /[\u0600-\u06FF]/;
+  const isArabic = arabicRegex.test(content);
 
-tafsirBox.innerHTML = `<strong>${title}</strong><br>${arabicPart}${latinPart}`;
+  // Buat isi teks
+  const arabicPart = isArabic ? `<div class="tafsir-arabic">${content}</div>` : '';
+  const latinPart = !isArabic ? `<div class="tafsir-latin">${content}</div>` : '';
+
+  // Cek apakah judulnya Al-Jalalayn ID
+  const titleClass = title === "Al-Jalalayn ID" ? "tafsir-title-left" : "tafsir-title";
+
+  tafsirBox.innerHTML = `<div class="${titleClass}">${title}</div>${arabicPart}${latinPart}`;
   tafsirBox.style.display = "block";
 }
 
