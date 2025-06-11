@@ -389,18 +389,21 @@ const tafsirSources = {
     query: (s, a) => `verse[surah="${s}"][ayah="${a}"]`
   },
   quran_com: {
-    name: "Quran.com Tafsir (e.g., Jalalayn)",
-    apiId: 169, // ID tafsir yang ingin digunakan, ganti sesuai kebutuhan
-    query: async (s, a) => {
+  name: "Quran.com Tafsir (e.g., Jalalayn)",
+  apiId: 169,
+  query: async (s, a) => {
+    try {
       const tafsirId = tafsirSources.quran_com.apiId;
-      const response = await fetch(`https://api.quran.com/v4/tafsirs/${tafsirId}/by_ayah/${s}/${a}`);
-      if (!response.ok) {
-        throw new Error("Gagal memuat tafsir dari Quran.com");
-      }
-      const data = await response.json();
-      return data?.data?.text || "Tafsir tidak tersedia.";
+      const res = await fetch(`https://api.quran.com/v4/tafsirs/${tafsirId}/by_ayah/${s}/${a}`);
+      if (!res.ok) throw new Error("HTTP error " + res.status);
+      const json = await res.json();
+      return json?.data?.text || "Tafsir tidak tersedia.";
+    } catch (err) {
+      console.error(err);
+      return "❌ Gagal memuat tafsir dari Quran.com";
     }
   }
+}
 };
 
 // Fungsi memuat tafsir
