@@ -136,7 +136,7 @@
   margin-bottom: 0.5em;
 }
     
-    .rasm-symbol {
+.rasm-symbol {
   font-size: 0.9em;
   vertical-align: super;
   margin-right: 0.4em;
@@ -149,8 +149,7 @@
   margin-right: 0.2em; /* symbol yang dikecualikan ukurannya */
   color: #777;
 }
-    
-    
+
     .copy-button {
   background-color: #4CAF50;       /* Hijau elegan */
   border: none;
@@ -647,11 +646,6 @@ function showTafsir(title, content) {
       });
   });
 }
-
-<div id="loading-indicator" style="display: none; text-align: center; margin: 10px 0;">
-  <img src="loading.gif" alt="Loading..." width="40" height="40">
-</div>
-      
 // Cara penggunaan (ganti kode tafsir lama):
 const tafsirDropdown = createTafsirDropdown(surah, ayat);
 translationDiv.appendChild(tafsirDropdown);
