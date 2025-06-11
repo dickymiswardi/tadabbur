@@ -384,18 +384,17 @@ const tafsirSources = {
   query: (s, a) => `${s}|${a}|` // mencari baris yang diawali dengan "s|a|"
 },
   As_Saadi: {
-  name: "As Saadi (API gratis)",
+  name: "As Saadi (spa5k)",
   async query(surah, ayah) {
-    const slug = "ar-tafseer-al-saddi";
-    const url = `https://cdn.jsdelivr.net/gh/spa5k/tafsir_api@main/tafsir/editions/${slug}/${surah}/${ayah}.json`;
+    const url = `https://raw.githubusercontent.com/spa5k/tafsir_api/main/tafsir/editions/ar-tafseer-al-saddi/${surah}/${ayah}.json`;
 
     try {
       const res = await fetch(url);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
-      return data?.text || "(Tafsir tidak ditemukan)";
+      return data.text || "(Tafsir tidak ditemukan)";
     } catch (e) {
-      console.error("Fetch As‑Saʽdi error:", e);
+      console.error("Gagal memuat tafsir As‑Saʽdi:", e);
       return "(Gagal memuat tafsir As‑Saʽdi)";
     }
   }
