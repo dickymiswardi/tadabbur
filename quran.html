@@ -66,7 +66,7 @@
 }
 
 .tafsir-dropdown-content a {
-  font-family: Times New Roman;
+  font-family: sans-serif;
   color: #007b8a;
   padding: 0.6em 1em;
   text-decoration: none;
@@ -374,60 +374,21 @@ ayatNodes.forEach(aya => {
 // Daftar sumber tafsir
 const tafsirSources = {
   jalalayn: {
-    name: "Jalalayn Bahasa Indonesia (XML)",
+    name: "Jalalayn Bahasa Indonesia",
     path: "id.jalalayn.xml",
-    async query(surah, ayah) {
-      const res = await fetch(this.path);
-      const text = await res.text();
-      const parser = new DOMParser();
-      const xml = parser.parseFromString(text, "application/xml");
-      const selector = `sura[index="${surah}"] > aya[index="${ayah}"]`;
-      const result = xml.querySelector(selector);
-      return result?.textContent || "(Tafsir tidak ditemukan)";
-    }
+    query: (s, a) => `sura[index="${s}"] > aya[index="${a}"]`
   },
   al_muyassar: {
-    name: "Al Muyassar Arabic (TXT)",
-    path: "ar.muyassar.txt",
-    async query(surah, ayah) {
-      const res = await fetch(this.path);
-      const text = await res.text();
-      const lines = text.split("\n");
-      const key = `${surah}|${ayah}|`;
-      const match = lines.find(line => line.startsWith(key));
-      return match?.split("|").slice(2).join("|").trim() || "(Tafsir tidak ditemukan)";
-    }
-  },
-  jalalayn: {...},        // tetap seperti sebelumnya
-  al_muyassar: {...},     // tetap
-  As_Saadi: {             // JSON entry
-    name: "As Saadi (JSON)",
-    path: "https://raw.githubusercontent.com/username/repo/main/assaadi.json",
-    async query(surah, ayah) {
-      const res = await fetch(this.path);
-      const data = await res.json();
-      const match = data.verses.find(v => v.surah == surah && v.ayah == ayah);
-      return match?.text || "(Tafsir tidak ditemukan)";
-    }
-  },  //<-- jangan lupa koma di akhir entry
-
-  quran_foundation: {     // entry API
-    name: "Quran Foundation Tafsir (API)",
-    resourceId: "169",
-    headers: {
-      "x-auth-token": "<API_KEY_VALUE>",
-      "x-client-id": "<CLIENT_ID_VALUE>",
-      "Accept": "application/json"
-    },
-    async query(surah, ayah) {
-      const url = `https://apis-prelive.quran.foundation/v2/tafsirs?resource_id=${this.resourceId}&ayah_key=${surah}:${ayah}`;
-      const res = await fetch(url, { headers: this.headers });
-      const data = await res.json();
-      return data?.data?.tafsirs?.[0]?.text || "(Tafsir tidak ditemukan)";
-    }
-  } // <-- tidak ada koma di sini karena ini entry terakhir
+  name: "Al Muyassar Arabic",
+  path: "ar.muyassar.txt",
+  query: (s, a) => `${s}|${a}|` // mencari baris yang diawali dengan "s|a|"
+},
+  As_Saadi: {
+    name: "As Saadi",
+    path: "assaadi.json",
+    query: (s, a) => `verse[surah="${s}"][ayah="${a}"]`
+  }
 };
-
 
 // Fungsi memuat tafsir
 async function loadTafsir(sourceKey, surah, ayah) {
