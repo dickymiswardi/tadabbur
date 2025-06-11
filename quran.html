@@ -374,42 +374,57 @@ ayatNodes.forEach(aya => {
 // Daftar sumber tafsir
 const tafsirSources = {
   jalalayn: {
-    name: "Jalalayn Bahasa Indonesia",
+    name: "Jalalayn Bahasa Indonesia (XML)",
     path: "id.jalalayn.xml",
-    query: (s, a) => `sura[index="${s}"] > aya[index="${a}"]`
+    async query(surah, ayah) {
+      const res = await fetch(this.path);
+      const text = await res.text();
+      const parser = new DOMParser();
+      const xml = parser.parseFromString(text, "application/xml");
+      const selector = `sura[index="${surah}"] > aya[index="${ayah}"]`;
+      const result = xml.querySelector(selector);
+      return result?.textContent || "(Tafsir tidak ditemukan)";
+    }
   },
   al_muyassar: {
-    name: "Al Muyassar Arabic",
+    name: "Al Muyassar Arabic (TXT)",
     path: "ar.muyassar.txt",
-    query: (s, a) => `${s}|${a}|`
+    async query(surah, ayah) {
+      const res = await fetch(this.path);
+      const text = await res.text();
+      const lines = text.split("\n");
+      const key = `${surah}|${ayah}|`;
+      const match = lines.find(line => line.startsWith(key));
+      return match?.split("|").slice(2).join("|").trim() || "(Tafsir tidak ditemukan)";
+    }
   },
   As_Saadi: {
-    name: "As Saadi",
+    name: "As Saadi (JSON)",
     path: "assaadi.json",
-    query: (s, a) => `verse[surah="${s}"][ayah="${a}"]`
+    async query(surah, ayah) {
+      const res = await fetch(this.path);
+      const data = await res.json();
+      const match = data.verses.find(v => v.surah == surah && v.ayah == ayah);
+      return match?.text || "(Tafsir tidak ditemukan)";
+    }
   },
   quran_foundation: {
-    name: "Quran Foundation Tafsir (e.g., Jalalayn)",
-    resourceId: "169", // Ganti dengan ID tafsir yang sesuai
+    name: "Quran Foundation Tafsir (API)",
+    resourceId: "169",
     headers: {
       "x-auth-token": "<API_KEY_VALUE>",
       "x-client-id": "<CLIENT_ID_VALUE>",
       "Accept": "application/json"
     },
-    query: async (s, a) => {
-      const url = `https://apis-prelive.quran.foundation/v2/tafsirs?resource_id=169&ayah_key=${s}:${a}`;
-      const res = await fetch(url, {
-        headers: {
-          "x-auth-token": "<API_KEY_VALUE>",
-          "x-client-id": "<CLIENT_ID_VALUE>",
-          "Accept": "application/json"
-        }
-      });
+    async query(surah, ayah) {
+      const url = `https://apis-prelive.quran.foundation/v2/tafsirs?resource_id=${this.resourceId}&ayah_key=${surah}:${ayah}`;
+      const res = await fetch(url, { headers: this.headers });
       const data = await res.json();
       return data?.data?.tafsirs?.[0]?.text || "(Tafsir tidak ditemukan)";
     }
   }
 };
+
 
 // Fungsi memuat tafsir
 async function loadTafsir(sourceKey, surah, ayah) {
