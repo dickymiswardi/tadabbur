@@ -6,33 +6,63 @@
   <title>Qur'an Picker</title>
   <style>
     body {
-      font-family: sans-serif;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       max-width: 700px;
       margin: auto;
-      padding: 1.5em;
-      background-color: #fff;
-      color: #111;
+      padding: 2em 1em;
+      background-color: #f5f7fa;
+      color: #333;
     }
+
+    .container {
+      background-color: #ffffff;
+      padding: 1em;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
     .row {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 1em;
     }
+
     select {
       width: 100%;
-      padding: 0.5em;
+      padding: 0.75em;
       font-size: 1em;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      background-color: #fafafa;
+      transition: all 0.2s ease;
+      box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    select:focus,
+    select:hover {
+      outline: none;
+      border-color: #5c8df6;
+      background-color: #fff;
+      box-shadow: 0 0 0 3px rgba(92, 141, 246, 0.2);
+    }
+
+    @media (max-width: 600px) {
+      .row {
+        grid-template-columns: 1fr 1fr; /* tetap horizontal */
+      }
     }
   </style>
 </head>
 <body style="visibility: hidden;">
-  <div class="row">
-    <select id="surah">
-      <option value="">-- Pilih Surah --</option>
-    </select>
-    <select id="ayat">
-      <option value="">-- Pilih Ayat --</option>
-    </select>
+  <div class="container">
+    <div class="row">
+      <select id="surah">
+        <option value="">-- Pilih Surah --</option>
+      </select>
+      <select id="ayat">
+        <option value="">-- Pilih Ayat --</option>
+      </select>
+    </div>
   </div>
 
   <script>
@@ -53,7 +83,7 @@
 
     function populateAyat(surahNumber, selectedAyat = null) {
       ayatSelect.innerHTML = '<option value="">-- Pilih Ayat --</option>';
-      const ayatCount = 286; // Default, atau nanti bisa pakai API untuk jumlah real
+      const ayatCount = 286; // Dummy total ayat, bisa disesuaikan
       for (let i = 1; i <= ayatCount; i++) {
         const opt = new Option(`Ayat ${i}`, i);
         ayatSelect.appendChild(opt);
@@ -61,7 +91,6 @@
       if (selectedAyat) ayatSelect.value = selectedAyat;
     }
 
-    // Event listeners
     surahSelect.addEventListener("change", () => {
       const surah = surahSelect.value;
       localStorage.setItem("lastSurah", surah);
@@ -78,7 +107,6 @@
       }
     });
 
-    // Saat pertama kali load
     document.addEventListener("DOMContentLoaded", () => {
       populateSurahs();
       const lastSurah = localStorage.getItem("lastSurah");
@@ -89,7 +117,7 @@
         populateAyat(lastSurah, lastAyat);
       }
 
-      document.body.style.visibility = 'visible'; // Tampilkan setelah semua siap
+      document.body.style.visibility = 'visible';
     });
   </script>
 </body>
