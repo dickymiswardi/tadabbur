@@ -6,19 +6,12 @@
   <title>Qur'an Picker</title>
   <style>
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-family: 'Segoe UI', sans-serif;
       max-width: 700px;
       margin: auto;
-      padding: 2em 1em;
-      background-color: #f5f7fa;
-      color: #333;
-    }
-
-    .container {
-      background-color: #ffffff;
-      padding: 1em;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      padding: 1.5em;
+      background-color: #f9f9f9;
+      color: #111;
     }
 
     .row {
@@ -29,40 +22,41 @@
 
     select {
       width: 100%;
-      padding: 0.75em;
+      padding: 0.6em 1em;
       font-size: 1em;
       border: 1px solid #ccc;
-      border-radius: 8px;
-      background-color: #fafafa;
-      transition: all 0.2s ease;
-      box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+      border-radius: 12px;
+      background-color: #fff;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+      transition: all 0.25s ease;
+      appearance: none;
+      background-image: url('data:image/svg+xml;charset=UTF-8,<svg fill="%23777" height="20" viewBox="0 0 20 20" width="20" xmlns="http://www.w3.org/2000/svg"><path d="M7 7l3-3 3 3z"/></svg>');
+      background-repeat: no-repeat;
+      background-position: right 1em center;
+      background-size: 1em;
     }
 
-    select:focus,
-    select:hover {
+    select:focus {
       outline: none;
-      border-color: #5c8df6;
-      background-color: #fff;
-      box-shadow: 0 0 0 3px rgba(92, 141, 246, 0.2);
+      border-color: #888;
+      box-shadow: 0 0 0 3px rgba(100, 100, 255, 0.2);
     }
 
     @media (max-width: 600px) {
       .row {
-        grid-template-columns: 1fr 1fr; /* tetap horizontal */
+        grid-template-columns: 1fr 1fr; /* Tetap 2 kolom di HP */
       }
     }
   </style>
 </head>
 <body style="visibility: hidden;">
-  <div class="container">
-    <div class="row">
-      <select id="surah">
-        <option value="">-- Pilih Surah --</option>
-      </select>
-      <select id="ayat">
-        <option value="">-- Pilih Ayat --</option>
-      </select>
-    </div>
+  <div class="row">
+    <select id="surah">
+      <option value="">-- Pilih Surah --</option>
+    </select>
+    <select id="ayat">
+      <option value="">-- Pilih Ayat --</option>
+    </select>
   </div>
 
   <script>
@@ -83,7 +77,7 @@
 
     function populateAyat(surahNumber, selectedAyat = null) {
       ayatSelect.innerHTML = '<option value="">-- Pilih Ayat --</option>';
-      const ayatCount = 286; // Dummy total ayat, bisa disesuaikan
+      const ayatCount = 286; // Default jumlah ayat
       for (let i = 1; i <= ayatCount; i++) {
         const opt = new Option(`Ayat ${i}`, i);
         ayatSelect.appendChild(opt);
