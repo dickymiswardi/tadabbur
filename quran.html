@@ -267,63 +267,70 @@
   <!-- PILIHAN SURAH & AYAT -->
 <div id="pilihan-container" style="visibility: hidden; margin-bottom: 1em;">
   <style>
-  #pilihan-container .row {
+  body {
+    font-family: sans-serif;
+    margin: 0;
+    padding: 2em;
+    background-color: #f5f5f5;
+    color: #333;
+    max-width: 700px;
+    margin: auto;
+  }
+
+  #pilihan-container {
     display: flex;
-    flex-direction: row;
     border: 1px solid #ccc;
     border-radius: 6px;
     overflow: hidden;
-    background-color: #f9f9f9;
+    background-color: #fff;
   }
 
-  #pilihan-container .col {
+  #pilihan-container > div {
     flex: 1;
-    display: flex;
-    align-items: center;
     border-right: 1px solid #ccc;
+    position: relative;
   }
 
-  #pilihan-container .col:last-child {
+  #pilihan-container > div:last-child {
     border-right: none;
   }
 
-  #pilihan-container .select-wrapper {
+  .select-wrapper {
+    width: 100%;
     position: relative;
-    width: 100%;
     background-color: #007b8a;
-    border-radius: 0;
-  }
-
-  #pilihan-container select {
-    width: 100%;
-    font-size: 1em;
-    padding: 0.6em 2em 0.6em 0.8em;
-    border: none;
-    border-radius: 0;
-    background: transparent;
     color: #fff;
-    appearance: none;
-    cursor: pointer;
   }
 
-  #pilihan-container .select-wrapper::after {
-    content: '▾';
+  .select-wrapper::after {
+    content: "▾";
     position: absolute;
-    right: 1em;
     top: 50%;
+    right: 1em;
     transform: translateY(-50%);
     pointer-events: none;
     font-size: 1em;
     color: #fff;
   }
 
+  select {
+    width: 100%;
+    font-size: 1em;
+    padding: 0.7em 2em 0.7em 1em;
+    border: none;
+    appearance: none;
+    background-color: transparent;
+    color: #fff;
+    border-radius: 0;
+    cursor: pointer;
+  }
+
   @media (max-width: 600px) {
-    #pilihan-container .row {
+    #pilihan-container {
       flex-direction: row;
     }
   }
 </style>
-
   <div class="row">
     <div class="col">
       <div class="select-wrapper">
