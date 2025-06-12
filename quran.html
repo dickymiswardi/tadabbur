@@ -267,66 +267,62 @@
   <!-- PILIHAN SURAH & AYAT -->
 <div id="pilihan-container" style="visibility: hidden; margin-bottom: 1em;">
   <style>
+  #pilihan-container .row {
+    display: flex;
+    flex-direction: row;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    overflow: hidden;
+    background-color: #f9f9f9;
+  }
+
+  #pilihan-container .col {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    border-right: 1px solid #ccc;
+  }
+
+  #pilihan-container .col:last-child {
+    border-right: none;
+  }
+
+  #pilihan-container .select-wrapper {
+    position: relative;
+    width: 100%;
+    background-color: #007b8a;
+    border-radius: 0;
+  }
+
+  #pilihan-container select {
+    width: 100%;
+    font-size: 1em;
+    padding: 0.6em 2em 0.6em 0.8em;
+    border: none;
+    border-radius: 0;
+    background: transparent;
+    color: #fff;
+    appearance: none;
+    cursor: pointer;
+  }
+
+  #pilihan-container .select-wrapper::after {
+    content: '▾';
+    position: absolute;
+    right: 1em;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    font-size: 1em;
+    color: #fff;
+  }
+
+  @media (max-width: 600px) {
     #pilihan-container .row {
-      display: flex;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      overflow: hidden;
-      background-color: #fff;
+      flex-direction: row;
     }
-
-    #pilihan-container .col {
-      flex: 1;
-      padding: 0.0em;
-      border-right: 1px solid #ddd;
-      display: flex;
-      align-items: center;
-    }
-
-    #pilihan-container .col:last-child {
-      border-right: none;
-    }
-
-    #pilihan-container select {
-  width: 100%;
-  font-size: 1em;
-  padding: 0.6em 2em 0.6em 0.8em;
-  border: 1px solid #ccc;
-  border-radius: 2px;
-  appearance: none;
-  background-color: transparent;
-  color: inherit;
-}
-
-    #pilihan-container .select-wrapper {
-      position: relative;
-      width: 100%;
-    }
-
-    #pilihan-container .select-wrapper {
-  position: relative;
-  background-color: #007b8a;
-  color: #fff;
-  border-radius: 4px;
-}
-
-    #pilihan-container .select-wrapper::after {
-      content: '▾';
-      position: absolute;
-      right: 1.8em;
-      top: 50%;
-      transform: translateY(-50%);
-      pointer-events: none;
-      font-size: 1em;
-      color: #fff;
-    }
-
-    @media (max-width: 600px) {
-      #pilihan-container .row {
-        flex-direction: row;
-      }
-    }
-  </style>
+  }
+</style>
 
   <div class="row">
     <div class="col">
