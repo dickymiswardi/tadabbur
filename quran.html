@@ -258,16 +258,12 @@
       .translation {
         font-size: 1em;
       }
-
-      .judul-container h1 {
-        font-size: 1.2em;
-      }
     }
   </style>
 </head>
 <body>
 
-  <!-- BATAS TAMBAHAN KOLOM SURAH DAN AYAT -->
+  <!-- BATAS TAMBAHAN -->
   <!-- PILIHAN SURAH & AYAT -->
 <div id="pilihan-container" style="visibility: hidden; margin-bottom: 1em;">
   <style>
@@ -294,7 +290,7 @@
     #pilihan-container select {
       width: 100%;
       font-size: 1em;
-      padding: 0.6em 2em 0.6em 0.8em;
+      padding: 0.0em 2em 0.6em 0.8em;
       border: 1px solid #ccc;
       border-radius: 6px;
       background-color: #fafafa;
@@ -422,8 +418,8 @@
     });
   </script>
 </div>
-  <!-- BATAS TAMBAHAN KOLOM SURAH DAN AYAT -->
-  
+  <!-- BATAS TAMBAHAN -->
+
   <!-- Ganti 'Memuat...' dengan animasi -->
   <div id="result">
     <div class="loader">
@@ -515,9 +511,6 @@
       if (ayah > 1) return { surah, ayah: ayah - 1 };
       return { surah: surah - 1, ayah: surahAyahCount[surah - 1] };
     }
-
-    const surahName = surahNames[surah] || "Surah Tidak Dikenal";
-    document.getElementById("judul").textContent = `${surahName} Surah ${surah} Ayat ${ayat}`;
 
     const apiURL = `https://api.quran.com/api/v4/quran/verses/uthmani?verse_key=${surah}:${ayat}`;
 
