@@ -16,10 +16,8 @@
 
     .box {
       display: flex;
-      border: 1px solid #ddd;
+      border: 1px solid #ccc;
       background-color: #fff;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-      overflow: hidden;
     }
 
     .half {
@@ -28,7 +26,7 @@
     }
 
     .half + .half {
-      border-left: 1px solid #eee;
+      border-left: 1px solid #ccc;
     }
 
     .select-wrapper {
@@ -60,12 +58,11 @@
     .select-wrapper select:focus {
       outline: none;
       border-color: #aaa;
-      box-shadow: 0 0 0 2px rgba(150, 150, 255, 0.15);
     }
 
     @media (max-width: 600px) {
       .box {
-        flex-direction: row; /* tetap horizontal di HP */
+        flex-direction: row;
       }
     }
   </style>
