@@ -178,29 +178,6 @@
   margin-right: 0.2em; /* symbol yang dikecualikan ukurannya */
   color: #777;
 }
-
-    .judul-container {
-      border: 2px solid #ddd;
-      padding: 1em;
-      background-color: #f9f9f9;
-      border-radius: 12px;
-      text-align: center;
-      margin-bottom: 1.5em;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-      transition: box-shadow 0.3s ease;
-    }
-
-    .judul-container:hover {
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    }
-
-    .judul-container h1 {
-      margin: 0;
-      font-size: 1.4em;
-      color: #222;
-      font-weight: bold;
-    }
-
     .arabic {
       font-family: 'Madina', serif;
       font-size: 2.2em;
@@ -280,55 +257,10 @@
       .translation {
         font-size: 1em;
       }
-.dropdown-wrapper {
-  display: flex;
-  gap: 1em;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  margin-top: 1em;
-}
-
-.dropdown-item {
-  flex: 1;
-  min-width: 140px;
-  text-align: left;
-}
-
-.dropdown-item label {
-  font-weight: bold;
-  font-size: 0.9em;
-  margin-bottom: 0.3em;
-  display: block;
-}
-
-select {
-  width: 100%;
-  padding: 0.6em;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  font-size: 1em;
-}
     }
   </style>
 </head>
 <body>
-  <div class="judul-container">
-  <div class="dropdown-wrapper">
-    <div class="dropdown-item">
-      <label for="surah">Surah:</label>
-      <select id="surah" onchange="updateAyatDropdown()">
-        <option value="" disabled selected>-- Pilih Surah --</option>
-      </select>
-    </div>
-    <div class="dropdown-item">
-      <label for="ayat">Ayat:</label>
-      <select id="ayat">
-        <option value="" disabled selected>-- Pilih Ayat --</option>
-      </select>
-    </div>
-  </div>
-</div>
-  </div>
 
   <!-- Ganti 'Memuat...' dengan animasi -->
   <div id="result">
@@ -422,36 +354,7 @@ select {
       return { surah: surah - 1, ayah: surahAyahCount[surah - 1] };
     }
 
-    const surahName = surahNames[surah] || "Surah Tidak Dikenal";
-    document.getElementById("judul").textContent = `${surahName} Surah ${surah} Ayat ${ayat}`;
-
     const apiURL = `https://api.quran.com/api/v4/quran/verses/uthmani?verse_key=${surah}:${ayat}`;
-
-    function updateAyatDropdown() {
-  const selected = parseInt(surahSelect.value);
-  const totalAyat = surahAyahCount[selected] || 1;
-
-  // Bersihkan dropdown ayat
-  ayatSelect.innerHTML = "";
-
-  // Tambahkan ayat ke dropdown
-  for (let i = 1; i <= totalAyat; i++) {
-    const opt = document.createElement("option");
-    opt.value = i;
-    opt.textContent = i;
-    ayatSelect.appendChild(opt);
-  }
-
-  // Pasang event listener agar pilih ayat langsung redirect
-  ayatSelect.onchange = function () {
-    const ayat = this.value;
-    if (ayat) {
-      localStorage.setItem("lastSurah", selected);
-      localStorage.setItem("lastAyat", ayat);
-      window.location.href = `?surah=${selected}&ayat=${ayat}`;
-    }
-  };
-}
 
     Promise.all([
       fetch(apiURL).then(res => res.json()),
@@ -772,18 +675,6 @@ translationDiv.appendChild(tafsirDropdown);
         };
         navDiv.appendChild(nextBtn);
       }
-
-      function goToAyat() {
-  const s = surahSelect.value;
-  const a = ayatSelect.value;
-  if (!s || !a) {
-    alert("Pilih Surah dan Ayat terlebih dahulu.");
-    return;
-  }
-  localStorage.setItem("lastSurah", s);
-  localStorage.setItem("lastAyat", a);
-  window.location.href = `?surah=${s}&ayat=${a}`;
-}
 
   document.addEventListener('keydown', function (event) {
     if (event.key === 'ArrowRight') {
