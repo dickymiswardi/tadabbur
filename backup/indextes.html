@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Pilih Ayat</title>
   <style>
     * {
@@ -58,12 +58,12 @@
 <body>
 
   <div class="card">
-    <form class="form-row">
-      <select id="surah" onchange="updateAyatDropdown()" required>
-        <option value="" disabled selected>-- Pilih Surah --</option>
+    <form class="form-row" onsubmit="return false;">
+      <select id="surah" required>
+        <!-- Pilihan akan diisi oleh JS -->
       </select>
 
-      <select id="ayat" onchange="redirectToAyat()" required>
+      <select id="ayat" required>
         <option disabled selected>-- Pilih Ayat --</option>
       </select>
     </form>
@@ -74,22 +74,36 @@
       { number: 1, name: "Al-Fatihah", totalAyah: 7 },
       { number: 2, name: "Al-Baqarah", totalAyah: 286 },
       { number: 3, name: "Ali 'Imran", totalAyah: 200 },
-      // Tambahkan semua surah lainnya sesuai kebutuhan
       { number: 114, name: "An-Nas", totalAyah: 6 }
     ];
 
     const surahSelect = document.getElementById("surah");
     const ayatSelect = document.getElementById("ayat");
 
-    // Isi dropdown surah
-    surahList.forEach(surah => {
-      const option = document.createElement("option");
-      option.value = surah.number;
-      option.text = `${surah.number}. ${surah.name}`;
-      surahSelect.appendChild(option);
-    });
+    function resetSurahDropdown() {
+      surahSelect.innerHTML = "";
+      const defaultOption = document.createElement("option");
+      defaultOption.disabled = true;
+      defaultOption.selected = true;
+      defaultOption.text = "-- Pilih Surah --";
+      surahSelect.appendChild(defaultOption);
 
-    // Saat surah dipilih
+      surahList.forEach(surah => {
+        const option = document.createElement("option");
+        option.value = surah.number;
+        option.text = `${surah.number}. ${surah.name}`;
+        surahSelect.appendChild(option);
+      });
+
+      // Reset ayat juga
+      ayatSelect.innerHTML = "";
+      const defaultAyat = document.createElement("option");
+      defaultAyat.disabled = true;
+      defaultAyat.selected = true;
+      defaultAyat.text = "-- Pilih Ayat --";
+      ayatSelect.appendChild(defaultAyat);
+    }
+
     function updateAyatDropdown() {
       const selectedSurah = parseInt(surahSelect.value);
       ayatSelect.innerHTML = "";
@@ -110,7 +124,6 @@
       }
     }
 
-    // Arahkan ke halaman tadabbur
     function redirectToAyat() {
       const surah = surahSelect.value;
       const ayat = ayatSelect.value;
@@ -119,6 +132,13 @@
         window.location.href = url;
       }
     }
+
+    // Inisialisasi saat halaman dimuat
+    window.addEventListener("DOMContentLoaded", () => {
+      resetSurahDropdown();
+      surahSelect.addEventListener("change", updateAyatDropdown);
+      ayatSelect.addEventListener("change", redirectToAyat);
+    });
   </script>
 
 </body>
