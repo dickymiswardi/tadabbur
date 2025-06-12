@@ -348,7 +348,7 @@
 
   <script>
     const surahSelect = document.getElementById("surah");
-    const ayatSelect = document.getElementById("ayat");
+  const ayatSelect = document.getElementById("ayat");
 
     const surahData = [
       ["Al-Fatihah", 7], ["Al-Baqarah", 286], ["Ali 'Imran", 200], ["An-Nisa'", 176],
@@ -378,52 +378,69 @@
     ];
 
     function populateSurahs() {
-      surahData.forEach(([name], i) => {
-        const opt = new Option(`${i + 1}. ${name}`, i + 1);
-        surahSelect.appendChild(opt);
-      });
-    }
+    surahData.forEach(([name], i) => {
+      const opt = new Option(`${i + 1}. ${name}`, i + 1);
+      surahSelect.appendChild(opt);
+    });
+  }
 
-    function populateAyat(surahIndex, selectedAyat = null) {
-      ayatSelect.innerHTML = '<option value="">-- Pilih Ayat --</option>';
-      if (!surahIndex) return;
-      const totalAyat = surahData[surahIndex - 1][1];
-      for (let i = 1; i <= totalAyat; i++) {
-        const opt = new Option(`Ayat ${i}`, i);
-        ayatSelect.appendChild(opt);
-      }
-      if (selectedAyat) ayatSelect.value = selectedAyat;
+  function populateAyat(surahIndex, selectedAyat = null) {
+    ayatSelect.innerHTML = '<option value="">-- Pilih Ayat --</option>';
+    if (!surahIndex) return;
+    const totalAyat = surahData[surahIndex - 1][1];
+    for (let i = 1; i <= totalAyat; i++) {
+      const opt = new Option(`Ayat ${i}`, i);
+      ayatSelect.appendChild(opt);
     }
+    if (selectedAyat) ayatSelect.value = selectedAyat;
+  }
 
-    surahSelect.addEventListener("change", () => {
-      const surah = surahSelect.value;
+  // Menyimpan pilihan surah
+  surahSelect.addEventListener("change", () => {
+    const surah = surahSelect.value;
+    localStorage.setItem("lastSurah", surah);
+    populateAyat(surah);
+    localStorage.removeItem("lastAyat");
+  });
+
+  // Menyimpan pilihan ayat dan redirect ke URL
+  ayatSelect.addEventListener("change", () => {
+    const ayat = ayatSelect.value;
+    const surah = surahSelect.value;
+    if (surah && ayat) {
+      // Simpan sebelum redirect
       localStorage.setItem("lastSurah", surah);
-      populateAyat(surah);
-      localStorage.removeItem("lastAyat");
-    });
-
-    ayatSelect.addEventListener("change", () => {
-      const ayat = ayatSelect.value;
       localStorage.setItem("lastAyat", ayat);
-      const surah = surahSelect.value;
-      if (surah && ayat) {
-        const url = new URL(window.location.href);
-        url.searchParams.set("surah", surah);
-        url.searchParams.set("ayat", ayat);
-        window.location.href = url.toString();
-      }
-    });
+      // Redirect ke URL
+      const newUrl = `https://dickymiswardi.github.io/tadabbur/?surah=${surah}&ayat=${ayat}`;
+      window.location.href = newUrl;
+    }
+  });
 
-    document.addEventListener("DOMContentLoaded", () => {
-      populateSurahs();
-      const lastSurah = localStorage.getItem("lastSurah");
-      const lastAyat = localStorage.getItem("lastAyat");
-      if (lastSurah) {
-        surahSelect.value = lastSurah;
-        populateAyat(lastSurah, lastAyat);
-      }
-      document.getElementById("pilihan-container").style.visibility = 'visible';
-    });
+  // Helper: ambil query string
+  function getQueryParams() {
+    const urlParams = new URLSearchParams(window.location.search);
+    return {
+      surah: urlParams.get("surah"),
+      ayat: urlParams.get("ayat")
+    };
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    populateSurahs();
+
+    // Ambil dari URL jika ada, jika tidak dari localStorage
+    const { surah, ayat } = getQueryParams();
+    const lastSurah = surah || localStorage.getItem("lastSurah");
+    const lastAyat = ayat || localStorage.getItem("lastAyat");
+
+    if (lastSurah) {
+      surahSelect.value = lastSurah;
+      populateAyat(lastSurah, lastAyat);
+    }
+
+    document.getElementById("pilihan-container").style.visibility = 'visible';
+  });
   </script>
 </div>
   <!-- BATAS TAMBAHAN -->
