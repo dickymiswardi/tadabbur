@@ -3,7 +3,6 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pilih Ayat Al-Qur'an</title>
   <style>
     body {
       font-family: sans-serif;
@@ -89,22 +88,17 @@ button {
   </style>
 </head>
 <body>
-  <h1>Cari Ayat Al-Qur'an</h1>
 
-  <div class="card">
-    <form onsubmit="goToAyat(event)">
-      <label for="surah">Pilih Surah:</label>
-      <select id="surah" onchange="updateAyatDropdown()" required>
-        <option value="" disabled selected>-- Pilih Surah --</option>
-      </select>
+  <!-- Bagian dalam <body> -->
+<div class="card">
+  <label for="surah">Pilih Surah:</label>
+  <select id="surah" onchange="updateAyatDropdown()" required>
+    <option value="" disabled selected>-- Pilih Surah --</option>
+  </select>
 
-      <label for="ayat">Pilih Ayat:</label>
-      <select id="ayat" required></select>
-
-      <button type="submit">Baca Dan Tadabbur</button>
-      <a href="#" id="continueLink">Ayat Terakhir Dibaca</a>
-    </form>
-  </div>
+  <label for="ayat">Pilih Ayat:</label>
+  <select id="ayat" required onchange="goToAyat()"></select>
+</div>
 
   <script>
     const surahList = [
@@ -224,71 +218,67 @@ button {
       { number: 114, name: "An-Nas", totalAyah: 6 }
     ];
 
-    const surahSelect = document.getElementById("surah");
+    <script>
+  // ... bagian surahList tetap
 
-    surahList.forEach(surah => {
-  const option = document.createElement("option");
-  option.value = surah.number;
-  option.text = `${surah.number}. ${surah.name}`;
-  surahSelect.appendChild(option);
-});
-    function updateAyatDropdown() {
-      const ayatSelect = document.getElementById("ayat");
-      ayatSelect.innerHTML = "";
-      const selectedSurah = parseInt(surahSelect.value);
-      if (!selectedSurah) return;
-      const totalAyah = surahList.find(s => s.number === selectedSurah)?.totalAyah || 1;
-      for (let i = 1; i <= totalAyah; i++) {
-        const opt = document.createElement("option");
-        opt.value = i;
-        opt.text = i;
-        ayatSelect.appendChild(opt);
-      }
+  const surahSelect = document.getElementById("surah");
+
+  surahList.forEach(surah => {
+    const option = document.createElement("option");
+    option.value = surah.number;
+    option.text = `${surah.number}. ${surah.name}`;
+    surahSelect.appendChild(option);
+  });
+
+  function updateAyatDropdown() {
+    const ayatSelect = document.getElementById("ayat");
+    ayatSelect.innerHTML = "";
+    const selectedSurah = parseInt(surahSelect.value);
+    if (!selectedSurah) return;
+    const totalAyah = surahList.find(s => s.number === selectedSurah)?.totalAyah || 1;
+    for (let i = 1; i <= totalAyah; i++) {
+      const opt = document.createElement("option");
+      opt.value = i;
+      opt.text = i;
+      ayatSelect.appendChild(opt);
     }
 
-    // Saat halaman dibuka, load nilai dari localStorage kalau ada
-function loadLastSelection() {
-  const lastSurah = localStorage.getItem("lastSurah");
-  const lastAyat = localStorage.getItem("lastAyat");
-
-  if (lastSurah) {
-    surahSelect.value = lastSurah;
-    updateAyatDropdown();
+    // Jika sudah ada pilihan sebelumnya
+    const lastAyat = localStorage.getItem("lastAyat");
     if (lastAyat) {
       document.getElementById("ayat").value = lastAyat;
     }
   }
-}
 
-// Simpan pilihan ke localStorage saat submit form
-function goToAyat(e) {
-  e.preventDefault();
-  const surah = surahSelect.value;
-  const ayat = document.getElementById("ayat").value;
+  function loadLastSelection() {
+    const lastSurah = localStorage.getItem("lastSurah");
+    const lastAyat = localStorage.getItem("lastAyat");
 
-  if (!surah || !ayat) {
-    alert("Silakan pilih Surah dan Ayat terlebih dahulu.");
-    return;
+    if (lastSurah) {
+      surahSelect.value = lastSurah;
+      updateAyatDropdown();
+      if (lastAyat) {
+        document.getElementById("ayat").value = lastAyat;
+      }
+    }
   }
 
-  // Simpan ke localStorage
-  localStorage.setItem("lastSurah", surah);
-  localStorage.setItem("lastAyat", ayat);
+  function goToAyat() {
+    const surah = surahSelect.value;
+    const ayat = document.getElementById("ayat").value;
 
-  window.location.href = `quran.html?surah=${surah}&ayat=${ayat}`;
-}
+    if (!surah || !ayat) return;
 
-updateAyatDropdown();
-loadLastSelection(); // Panggil saat pertama halaman load
+    localStorage.setItem("lastSurah", surah);
+    localStorage.setItem("lastAyat", ayat);
 
-    // Cek apakah ada data URL terakhir
-  var lastPage = localStorage.getItem("lastQuranPage");
-  if (lastPage) {
-    document.getElementById("continueLink").href = lastPage;
-  } else {
-    // Kalau belum ada, sembunyikan link atau disable
-    document.getElementById("continueLink").style.display = "none";
+    const targetURL = `https://dickymiswardi.github.io/tadabbur/ayat.html?surah=${surah}&ayat=${ayat}`;
+    localStorage.setItem("lastQuranPage", targetURL);
+    window.location.href = targetURL;
   }
+
+  loadLastSelection();
+</script>
     
   </script>
 </body>
