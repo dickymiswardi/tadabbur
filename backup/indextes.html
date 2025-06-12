@@ -3,20 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pilih Ayat Al-Qur'an</title>
+  <title>Pilih Ayat</title>
   <style>
     body {
       font-family: sans-serif;
-      max-width: 500px;
+      max-width: 600px;
       margin: auto;
       padding: 1em;
       background-color: #fff;
-    }
-
-    h1 {
-      font-size: 1.5em;
-      margin-bottom: 1em;
-      text-align: center;
     }
 
     .card {
@@ -24,56 +18,46 @@
       padding: 1em;
       background-color: #f9f9f9;
       border-radius: 12px;
-      text-align: center;
       margin-bottom: 1.5em;
       box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-      transition: box-shadow 0.3s ease;
     }
 
-    .card:hover {
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    form {
+      display: flex;
+      gap: 1em;
+      flex-wrap: wrap;
+      justify-content: space-between;
     }
 
     select {
       font-size: 1em;
       padding: 0.8em;
-      margin: 0.8em 0;
-      width: 100%;
-      box-sizing: border-box;
+      flex: 1 1 45%;
       border-radius: 8px;
       border: 1px solid #ccc;
-      cursor: pointer;
-    }
-
-    label {
-      display: block;
-      text-align: left;
-      margin-top: 1em;
-      font-weight: bold;
+      box-sizing: border-box;
     }
 
     @media (max-width: 480px) {
-      body {
-        padding: 0.8em;
+      form {
+        flex-direction: column;
       }
 
-      h1 {
-        font-size: 1.2em;
+      select {
+        width: 100%;
+        flex: 1 1 100%;
       }
     }
   </style>
 </head>
 <body>
-  <h1>Cari Ayat Al-Qur'an</h1>
 
   <div class="card">
     <form>
-      <label for="surah">Pilih Surah:</label>
       <select id="surah" onchange="updateAyatDropdown()" required>
         <option value="" disabled selected>-- Pilih Surah --</option>
       </select>
 
-      <label for="ayat">Pilih Ayat:</label>
       <select id="ayat" onchange="redirectToAyat()" required></select>
     </form>
   </div>
@@ -227,22 +211,6 @@
         window.location.href = url;
       }
     }
-
-    // Load sebelumnya
-    function loadLastSelection() {
-      const lastSurah = localStorage.getItem("lastSurah");
-      const lastAyat = localStorage.getItem("lastAyat");
-
-      if (lastSurah) {
-        surahSelect.value = lastSurah;
-        updateAyatDropdown();
-        if (lastAyat) {
-          ayatSelect.value = lastAyat;
-        }
-      }
-    }
-
-    loadLastSelection();
   </script>
 </body>
 </html>
