@@ -23,14 +23,9 @@
       padding: 0.5em;
       font-size: 1em;
     }
-    @media (max-width: 400px) {
-      .row {
-        grid-template-columns: 1fr 1fr;
-      }
-    }
   </style>
 </head>
-<body>
+<body style="visibility: hidden;">
   <div class="row">
     <select id="surah">
       <option value="">-- Pilih Surah --</option>
@@ -47,7 +42,6 @@
     const surahList = [
       "Al-Fatihah", "Al-Baqarah", "Ali 'Imran", "An-Nisa'", "Al-Ma'idah",
       "Al-An'am", "Al-A'raf", "Al-Anfal", "At-Tawbah", "Yunus"
-      // Tambahkan lebih banyak jika diperlukan
     ];
 
     function populateSurahs() {
@@ -57,14 +51,17 @@
       });
     }
 
-    function populateAyat(surahNumber) {
+    function populateAyat(surahNumber, selectedAyat = null) {
       ayatSelect.innerHTML = '<option value="">-- Pilih Ayat --</option>';
-      const ayatCount = 286; // Default jumlah ayat
+      const ayatCount = 286; // Default, atau nanti bisa pakai API untuk jumlah real
       for (let i = 1; i <= ayatCount; i++) {
-        ayatSelect.appendChild(new Option(`Ayat ${i}`, i));
+        const opt = new Option(`Ayat ${i}`, i);
+        ayatSelect.appendChild(opt);
       }
+      if (selectedAyat) ayatSelect.value = selectedAyat;
     }
 
+    // Event listeners
     surahSelect.addEventListener("change", () => {
       const surah = surahSelect.value;
       localStorage.setItem("lastSurah", surah);
@@ -81,6 +78,7 @@
       }
     });
 
+    // Saat pertama kali load
     document.addEventListener("DOMContentLoaded", () => {
       populateSurahs();
       const lastSurah = localStorage.getItem("lastSurah");
@@ -88,13 +86,10 @@
 
       if (lastSurah) {
         surahSelect.value = lastSurah;
-        populateAyat(lastSurah);
+        populateAyat(lastSurah, lastAyat);
       }
-      if (lastAyat) {
-        setTimeout(() => {
-          ayatSelect.value = lastAyat;
-        }, 50);
-      }
+
+      document.body.style.visibility = 'visible'; // Tampilkan setelah semua siap
     });
   </script>
 </body>
