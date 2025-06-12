@@ -21,6 +21,64 @@
       color: #111;
     }
 
+    .card {
+  border: 2px solid #ddd;
+  padding: 1em;
+  background-color: #f9f9f9;
+  border-radius: 12px;
+  text-align: center;
+  margin-bottom: 1.5em;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  transition: box-shadow 0.3s ease;
+}
+
+.card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+select,
+button {
+  font-size: 1em;
+  padding: 0.8em;
+  margin: 0.8em 0;
+  width: 100%;
+  box-sizing: border-box;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #007b8a;
+  color: white;
+}
+
+label {
+  display: block;
+  text-align: left;
+  margin-top: 1em;
+  font-weight: bold;
+}
+
+#continueLink {
+  display: inline-block;
+  padding: 10px 20px;
+  background-color: #007b8a;
+  color: white;
+  text-decoration: none;
+  border-radius: 8px;
+  font-size: 16px;
+  transition: background-color 0.3s ease;
+}
+
+#continueLink:hover {
+  background-color: #005f6b;
+}
+
+#continueLink:active {
+  background-color: #005f6b;
+}
+
 .tafsir-dropdown {
   position: relative;
   display: inline-block;
@@ -261,6 +319,21 @@
   </style>
 </head>
 <body>
+
+  <div class="card">
+  <form id="ayatSelectorForm">
+    <label for="surah">Pilih Surah:</label>
+    <select id="surah" required>
+      <option value="" disabled selected>-- Pilih Surah --</option>
+    </select>
+
+    <label for="ayat">Pilih Ayat:</label>
+    <select id="ayat" required></select>
+
+    <button type="submit">Tampilkan Ayat</button>
+    <a href="#" id="continueLink">Ayat Terakhir Dibaca</a>
+  </form>
+</div>
 
   <!-- Ganti 'Memuat...' dengan animasi -->
   <div id="result">
@@ -707,5 +780,72 @@ translationDiv.appendChild(tafsirDropdown);
   // Simpan URL terakhir ke localStorage saat halaman ini dibuka
   localStorage.setItem("lastQuranPage", window.location.href);
 </script>
+
+<script>
+  const surahList = [...]; // Gunakan array surahList dari index.html (boleh saya sederhanakan nanti jika kamu ingin)
+
+  const surahSelect = document.getElementById("surah");
+  const ayatSelect = document.getElementById("ayat");
+
+  surahList.forEach(surah => {
+    const option = document.createElement("option");
+    option.value = surah.number;
+    option.text = `${surah.number}. ${surah.name}`;
+    surahSelect.appendChild(option);
+  });
+
+  function updateAyatDropdown() {
+    ayatSelect.innerHTML = "";
+    const selectedSurah = parseInt(surahSelect.value);
+    const totalAyah = surahList.find(s => s.number === selectedSurah)?.totalAyah || 1;
+    for (let i = 1; i <= totalAyah; i++) {
+      const opt = document.createElement("option");
+      opt.value = i;
+      opt.text = i;
+      ayatSelect.appendChild(opt);
+    }
+  }
+
+  function loadLastSelection() {
+    const lastSurah = localStorage.getItem("lastSurah");
+    const lastAyat = localStorage.getItem("lastAyat");
+
+    if (lastSurah) {
+      surahSelect.value = lastSurah;
+      updateAyatDropdown();
+      if (lastAyat) {
+        ayatSelect.value = lastAyat;
+      }
+    }
+  }
+
+  function handleFormSubmit(e) {
+    e.preventDefault();
+    const surah = surahSelect.value;
+    const ayat = ayatSelect.value;
+    if (!surah || !ayat) return;
+
+    localStorage.setItem("lastSurah", surah);
+    localStorage.setItem("lastAyat", ayat);
+    localStorage.setItem("lastQuranPage", `quran.html?surah=${surah}&ayat=${ayat}`);
+
+    // Ubah isi URL tanpa reload
+    history.pushState({}, "", `?surah=${surah}&ayat=${ayat}`);
+    
+    // Panggil ulang fungsi utama untuk memuat ayat baru
+    loadAyatContent(); 
+  }
+
+  function setupAyatSelector() {
+    surahSelect.addEventListener("change", updateAyatDropdown);
+    document.getElementById("ayatSelectorForm").addEventListener("submit", handleFormSubmit);
+    updateAyatDropdown();
+    loadLastSelection();
+  }
+
+  // Jalankan saat halaman siap
+  window.addEventListener("DOMContentLoaded", setupAyatSelector);
+</script>
+  
 </body>
 </html>
