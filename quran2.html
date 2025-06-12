@@ -470,8 +470,8 @@
       surahSelect.value = "1";
       surahSelect.dispatchEvent(new Event("change"));
     });
-  </script>
-  / Buat peta footnoteNumber ke posisi Surah & Ayat
+
+/ Buat peta footnoteNumber ke posisi Surah & Ayat
 const footnoteMap = {};
 const ayatNodes = xmlDoc.querySelectorAll("aya");
 ayatNodes.forEach(aya => {
@@ -798,6 +798,7 @@ translationDiv.appendChild(tafsirDropdown);
       console.error(err);
       document.getElementById("result").textContent = "Gagal memuat data.";
     });
+    
   </script>
 </body>
 </html>
