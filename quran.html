@@ -288,26 +288,32 @@
     }
 
     #pilihan-container select {
-      width: 100%;
-      font-size: 1em;
-      color: #fff;
-      padding: 0.6em 2em 0.6em 0.8em;
-      border: 1px solid #ccc;
-      border-radius: 2px;
-      background-color: #007b8a;
-      appearance: none;
-      background-image: none;
-    }
+  width: 100%;
+  font-size: 1em;
+  padding: 0.6em 2em 0.6em 0.8em;
+  border: 1px solid #ccc;
+  border-radius: 2px;
+  appearance: none;
+  background-color: transparent;
+  color: inherit;
+}
 
     #pilihan-container .select-wrapper {
       position: relative;
       width: 100%;
     }
 
+    #pilihan-container .select-wrapper {
+  position: relative;
+  background-color: #007b8a;
+  color: #fff;
+  border-radius: 4px;
+}
+
     #pilihan-container .select-wrapper::after {
       content: '▾';
       position: absolute;
-      right: 1.2em;
+      right: 1.8em;
       top: 50%;
       transform: translateY(-50%);
       pointer-events: none;
