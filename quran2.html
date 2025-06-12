@@ -39,18 +39,18 @@
     }
 
     .rasm-symbol {
-  font-size: 0.9em;
-  vertical-align: super;
-  margin-right: 0.4em;
-  margin-left: 0.1em;
-  color: #777;
-}
+      font-size: 0.9em;
+      vertical-align: super;
+      margin-right: 0.4em;
+      margin-left: 0.1em;
+      color: #777;
+    }
 
-.rasm-symbol-special {
-  margin-left: 0;
-  margin-right: 0.2em;
-  color: #777;
-}
+    .rasm-symbol-special {
+      margin-left: 0;
+      margin-right: 0.2em;
+      color: #777;
+    }
 
     @media (max-width: 600px) {
       .row {
@@ -89,7 +89,6 @@
     const surahList = [
       { number: 1, name: "Al-Fatihah", totalAyah: 7 },
       { number: 2, name: "Al-Baqarah", totalAyah: 286 },
-      // Tambahkan semua surah lainnya sesuai kebutuhan
       { number: 114, name: "An-Nas", totalAyah: 6 }
     ];
 
@@ -116,58 +115,39 @@
       }
     }
 
-    function loadAyat(surah, ayat) {
-  localStorage.setItem("lastSurah", surah);
-  localStorage.setItem("lastAyat", ayat);
-
-  document.getElementById("result").innerHTML = '<div class="loader"><p>Memuat ayat...</p></div>';
-
-  const apiURL = `https://api.quran.com/api/v4/quran/verses/uthmani?verse_key=${surah}:${ayat}`;
-  fetch(apiURL)
-    .then(res => res.json())
-    .then(data => {
-      const rawText = data?.verses?.[0]?.text_uthmani || "(Teks tidak ditemukan)";
-      const processed = wrapRasmSymbols(rawText);
-      document.getElementById("result").innerHTML = `
-        <div class='arabic' style='font-size:2em;text-align:right;margin-top:1em;'>${processed}</div>
-      `;
-    });
-}
-
-      function toArabicNumber(n) {
-  const map = ["٠", "١", "٢", "٣", "٤", "٥", "٦", "٧", "٨", "٩"];
-  return String(n).split('').map(d => map[parseInt(d)]).join('');
-}
-
-function wrapRasmSymbols(text) {
-  // Tangani kasus khusus "ً ۢ ا" → "ًا<sup>ۢ</sup>"
-  text = text.replace(/ً\\s*ۢ\\s*ا/g, function () {
-    return 'ًا<sup class="rasm-symbol rasm-symbol-special">ۢ</sup>';
-  });
-
-  // Hapus ۢ jika muncul tepat setelah ن
-  text = text.replace(/ن\\s*ۢ/g, 'ن');
-
-  // Bungkus simbol-simbol rasm
-  return text.replace(/([ۭۛۖۚۗۙۘۜۢ])/g, function (match) {
-    if (match === 'ۢ' || match === 'ۭ') {
-      return ' <sup class="rasm-symbol rasm-symbol-special">' + match + '</sup> ';
-    } else {
-      return ' <sup class="rasm-symbol">' + match + '</sup> ';
+    function toArabicNumber(n) {
+      const map = ["٠", "١", "٢", "٣", "٤", "٥", "٦", "٧", "٨", "٩"];
+      return String(n).split('').map(d => map[parseInt(d)]).join('');
     }
-  });
-}
 
-      // Tampilkan loader sementara
+    function wrapRasmSymbols(text) {
+      text = text.replace(/ً\s*ۢ\s*ا/g, () => 'ًا<sup class="rasm-symbol rasm-symbol-special">ۢ</sup>');
+      text = text.replace(/ن\s*ۢ/g, 'ن');
+      return text.replace(/([ۭۛۖۚۗۙۘۜۢ])/g, match => {
+        if (match === 'ۢ' || match === 'ۭ') {
+          return ' <sup class="rasm-symbol rasm-symbol-special">' + match + '</sup> ';
+        } else {
+          return ' <sup class="rasm-symbol">' + match + '</sup> ';
+        }
+      });
+    }
+
+    function loadAyat(surah, ayat) {
+      localStorage.setItem("lastSurah", surah);
+      localStorage.setItem("lastAyat", ayat);
       document.getElementById("result").innerHTML = '<div class="loader"><p>Memuat ayat...</p></div>';
 
-      // Panggil API dan tampilkan (sederhana)
       const apiURL = `https://api.quran.com/api/v4/quran/verses/uthmani?verse_key=${surah}:${ayat}`;
       fetch(apiURL)
         .then(res => res.json())
         .then(data => {
-          const text = data?.verses?.[0]?.text_uthmani || "(Teks tidak ditemukan)";
-          document.getElementById("result").innerHTML = `<div class='arabic' style='font-size:2em;text-align:right;margin-top:1em;'>${text}</div>`;
+          const raw = data?.verses?.[0]?.text_uthmani || "(Teks tidak ditemukan)";
+          const processed = wrapRasmSymbols(raw);
+          const label = `${toArabicNumber(surah)}:${toArabicNumber(ayat)}`;
+          document.getElementById("result").innerHTML = `
+            <div class='arabic' style='font-size:2em;text-align:right;margin-top:1em;'>${processed}</div>
+            <div style='text-align:right;color:#888;font-size:0.9em;margin-top:0.2em;'>[${label}]</div>
+          `;
         });
     }
 
@@ -181,9 +161,8 @@ function wrapRasmSymbols(text) {
       loadAyat(surahSelect.value, ayatSelect.value);
     });
 
-    // Inisialisasi awal
     populateSurahDropdown();
-    surahSelect.value = 1; // Default Surah Al-Fatihah
+    surahSelect.value = 1;
     updateAyatDropdown(1);
     ayatSelect.value = 1;
     loadAyat(1, 1);
