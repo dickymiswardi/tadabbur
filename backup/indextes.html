@@ -77,6 +77,13 @@
     function updateAyatDropdown() {
       const selectedSurah = parseInt(surahSelect.value);
       ayatSelect.innerHTML = "";
+
+      const defaultOption = document.createElement("option");
+      defaultOption.disabled = true;
+      defaultOption.selected = true;
+      defaultOption.text = "-- Pilih Ayat --";
+      ayatSelect.appendChild(defaultOption);
+
       if (!selectedSurah) return;
       const totalAyah = surahList.find(s => s.number === selectedSurah)?.totalAyah || 1;
       for (let i = 1; i <= totalAyah; i++) {
