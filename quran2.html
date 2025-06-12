@@ -184,19 +184,6 @@
   });
 }
 
-    function getNextAyah(surah, ayah) {
-      if (surah === 114 && ayah === 6) return { surah: 1, ayah: 1 };
-      const lastAyah = surahAyahCount[surah];
-      if (ayah < lastAyah) return { surah, ayah: ayah + 1 };
-      return { surah: surah + 1, ayah: 1 };
-    }
-
-    function getPrevAyah(surah, ayah) {
-      if (surah === 1 && ayah === 1) return null;
-      if (ayah > 1) return { surah, ayah: ayah - 1 };
-      return { surah: surah - 1, ayah: surahAyahCount[surah - 1] };
-    }
-
     const surahName = surahNames[surah] || "Surah Tidak Dikenal";
     document.getElementById("judul").textContent = `${surahName} Surah ${surah} Ayat ${ayat}`;
 
