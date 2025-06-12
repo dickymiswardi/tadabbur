@@ -21,29 +21,6 @@
       color: #111;
     }
 
-    .row {
-  display: flex;
-  gap: 0.5em;
-  flex-wrap: nowrap;
-  justify-content: space-between;
-  margin-bottom: 1em;
-}
-
-.column {
-  flex: 1 1 48%;
-}
-
-select {
-  font-size: 1em;
-  padding: 0.5em;
-  margin: 0.5em 0;
-  width: 100%;
-  box-sizing: border-box;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  cursor: pointer; /* MODIF */
-}
-
 .tafsir-dropdown {
   position: relative;
   display: inline-block;
@@ -315,17 +292,15 @@ select {
     <h1 id="judul">Surah</h1>
   </div>
 
-  <!-- MODIF -->
   <div class="row">
-  <div class="column">
-    <select id="surah"></select>
+    <div class="column">
+      <select id="surah"></select>
+    </div>
+    <div class="column">
+      <select id="ayat"></select>
+    </div>
   </div>
-  <div class="column">
-    <select id="ayat"></select>
-  </div>
-</div>
 
-  <!-- Ganti 'Memuat...' dengan animasi -->
   <div id="result">
     <div class="loader">
       <img src="https://raw.githubusercontent.com/dickymiswardi/tadabbur/aa160525691e67e5d0b7aab1e7e9f37657d0ed45/AnimatedBook.gif" class="loading-icon" />
@@ -337,7 +312,6 @@ select {
   </div>
 
   <script>
-
     const surahNames = {
       1:"Al-Fatihah",2:"Al-Baqarah",3:"Ali 'Imran",4:"An-Nisa'",5:"Al-Ma'idah",
       6:"Al-An'am",7:"Al-A'raf",8:"Al-Anfal",9:"At-Tawbah",10:"Yunus",
@@ -380,56 +354,76 @@ select {
     };
 
     const surahSelect = document.getElementById("surah");
-const ayatSelect = document.getElementById("ayat");
+    const ayatSelect = document.getElementById("ayat");
 
-// Isi dropdown surah
-Object.entries(surahNames).forEach(([key, name]) => {
-  const option = document.createElement("option");
-  option.value = key;
-  option.textContent = `${key}. ${name}`;
-  surahSelect.appendChild(option);
-});
+    Object.entries(surahNames).forEach(([key, name]) => {
+      const option = document.createElement("option");
+      option.value = key;
+      option.textContent = `${key}. ${name}`;
+      surahSelect.appendChild(option);
+    });
 
-// Ketika surah berubah, isi ayatnya
-surahSelect.addEventListener("change", () => {
-  const surah = parseInt(surahSelect.value);
-  const totalAyat = surahAyahCount[surah] || 7;
-  ayatSelect.innerHTML = "";
-  for (let i = 1; i <= totalAyat; i++) {
-    const option = document.createElement("option");
-    option.value = i;
-    option.textContent = `Ayat ${i}`;
-    ayatSelect.appendChild(option);
-  }
-  ayatSelect.selectedIndex = 0;
-  loadAyat(surah, 1);
-});
+    surahSelect.addEventListener("change", () => {
+      const surah = parseInt(surahSelect.value);
+      const totalAyat = surahAyahCount[surah] || 7;
+      ayatSelect.innerHTML = "";
+      for (let i = 1; i <= totalAyat; i++) {
+        const option = document.createElement("option");
+        option.value = i;
+        option.textContent = `Ayat ${i}`;
+        ayatSelect.appendChild(option);
+      }
+      ayatSelect.selectedIndex = 0;
+      loadAyat(surah, 1);
+    });
 
-// Ketika ayat berubah
-ayatSelect.addEventListener("change", () => {
-  const surah = parseInt(surahSelect.value);
-  const ayah = parseInt(ayatSelect.value);
-  loadAyat(surah, ayah);
-});
+    ayatSelect.addEventListener("change", () => {
+      const surah = parseInt(surahSelect.value);
+      const ayah = parseInt(ayatSelect.value);
+      loadAyat(surah, ayah);
+    });
 
-    
-// MODIF
     function loadAyat(surah, ayah) {
-  document.getElementById("judul").textContent = `${surahNames[surah]} Surah ${surah} Ayat ${ayah}`;
-  document.getElementById("result").innerHTML = `
-    <div class="loader">
-      <img src="https://raw.githubusercontent.com/dickymiswardi/tadabbur/aa160525691e67e5d0b7aab1e7e9f37657d0ed45/AnimatedBook.gif" class="loading-icon" />
-    </div>
-  `;
+      document.getElementById("judul").textContent = `${surahNames[surah]} Surah ${surah} Ayat ${ayah}`;
+      document.getElementById("result").innerHTML = `
+        <div class="loader">
+          <img src="https://raw.githubusercontent.com/dickymiswardi/tadabbur/aa160525691e67e5d0b7aab1e7e9f37657d0ed45/AnimatedBook.gif" class="loading-icon" />
+        </div>
+      `;
 
-  // Salin isi kode lama yang sebelumnya pakai fetch(...), lalu modifikasi:
-  // ganti bagian:
-  // const surah = parseInt(new URLSearchParams(window.location.search).get("surah") || "1");
-  // const ayat = parseInt(new URLSearchParams(window.location.search).get("ayat") || "1");
-  // menjadi menggunakan parameter surah & ayah langsung
+      const apiURL = `https://api.quran.com/api/v4/quran/verses/uthmani?verse_key=${surah}:${ayah}`;
 
-  // Gunakan fetch dan render seperti biasa tapi berdasarkan `surah` dan `ayah` yang dikirim ke fungsi ini
-}
+      Promise.all([
+        fetch(apiURL).then(res => res.json()),
+        fetch("indonesian_complex_v1.0.xml").then(res => res.text())
+      ])
+      .then(([arabData, xmlText]) => {
+        const verse = arabData.verses?.[0];
+        let arabicText = verse?.text_uthmani || "(Teks Arab tidak ditemukan)";
+        arabicText += ` \u06dd${toArabicNumber(ayah)}`;
+        arabicText = wrapRasmSymbols(arabicText);
+
+        const arabDiv = document.createElement("div");
+        arabDiv.className = "arabic";
+        arabDiv.innerHTML = arabicText;
+        document.getElementById("result").innerHTML = "";
+        document.getElementById("result").appendChild(arabDiv);
+
+        const parser = new DOMParser();
+        const xmlDoc = parser.parseFromString(xmlText, "text/xml");
+        const translationAyah = xmlDoc.querySelector(`sura[number="${surah}"] > aya[number="${ayah}"]`);
+        let translation = translationAyah?.querySelector("translation")?.textContent || "(Terjemahan tidak ditemukan)";
+
+        const translationDiv = document.createElement("div");
+        translationDiv.className = "translation";
+        translationDiv.innerHTML = translation;
+        document.getElementById("result").appendChild(translationDiv);
+      })
+      .catch(err => {
+        console.error(err);
+        document.getElementById("result").textContent = "Gagal memuat data.";
+      });
+    }
 
     function toArabicNumber(n) {
       const map = ["٠", "١", "٢", "٣", "٤", "٥", "٦", "٧", "٨", "٩"];
@@ -454,6 +448,7 @@ ayatSelect.addEventListener("change", () => {
     }
   });
 }
+
     function getNextAyah(surah, ayah) {
       if (surah === 114 && ayah === 6) return { surah: 1, ayah: 1 };
       const lastAyah = surahAyahCount[surah];
@@ -470,28 +465,13 @@ ayatSelect.addEventListener("change", () => {
     const surahName = surahNames[surah] || "Surah Tidak Dikenal";
     document.getElementById("judul").textContent = `${surahName} Surah ${surah} Ayat ${ayat}`;
 
-    const apiURL = `https://api.quran.com/api/v4/quran/verses/uthmani?verse_key=${surah}:${ayat}`;
-
-    Promise.all([
-      fetch(apiURL).then(res => res.json()),
-      fetch("indonesian_complex_v1.0.xml").then(res => res.text())
-    ])
-    .then(([arabData, xmlText]) => {
-      const verse = arabData.verses?.[0];
-      let arabicText = verse?.text_uthmani || "(Teks Arab tidak ditemukan)";
-      arabicText += ` \u06dd${toArabicNumber(ayat)}`;
-      arabicText = wrapRasmSymbols(arabicText);
-
-      const arabDiv = document.createElement('div');
-      arabDiv.className = 'arabic';
-      arabDiv.innerHTML = arabicText;
-      document.getElementById("result").innerHTML = '';
-      document.getElementById("result").appendChild(arabDiv);
-
-      const parser = new DOMParser();
-      const xmlDoc = parser.parseFromString(xmlText, "text/xml");
-
-      // Buat peta footnoteNumber ke posisi Surah & Ayat
+    // Inisialisasi default saat halaman pertama kali dibuka
+    document.addEventListener("DOMContentLoaded", () => {
+      surahSelect.value = "1";
+      surahSelect.dispatchEvent(new Event("change"));
+    });
+  </script>
+  / Buat peta footnoteNumber ke posisi Surah & Ayat
 const footnoteMap = {};
 const ayatNodes = xmlDoc.querySelectorAll("aya");
 ayatNodes.forEach(aya => {
@@ -819,9 +799,5 @@ translationDiv.appendChild(tafsirDropdown);
       document.getElementById("result").textContent = "Gagal memuat data.";
     });
   </script>
-  <script>
-  // Simpan URL terakhir ke localStorage saat halaman ini dibuka
-  localStorage.setItem("lastQuranPage", window.location.href);
-</script>
 </body>
 </html>
