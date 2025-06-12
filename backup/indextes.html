@@ -5,9 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Pilih Ayat</title>
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       font-family: sans-serif;
-      margin: auto;
+      margin: 0;
       padding: 1em;
       background-color: #fff;
     }
@@ -18,26 +22,24 @@
       background-color: #f9f9f9;
       border-radius: 12px;
       box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+      max-width: 100%;
     }
 
     .form-row {
       display: flex;
-      flex-wrap: wrap;
+      flex-direction: row;
+      flex-wrap: nowrap;
       gap: 1em;
+      width: 100%;
     }
 
     .form-row select {
-      flex: 1 1 100%;
+      width: 50%;
       padding: 0.8em;
       font-size: 1em;
       border-radius: 8px;
       border: 1px solid #ccc;
-    }
-
-    @media (min-width: 500px) {
-      .form-row select {
-        flex: 1 1 45%;
-      }
+      appearance: none;
     }
   </style>
 </head>
@@ -58,7 +60,7 @@
       { number: 1, name: "Al-Fatihah", totalAyah: 7 },
       { number: 2, name: "Al-Baqarah", totalAyah: 286 },
       { number: 3, name: "Ali 'Imran", totalAyah: 200 },
-      // ... lanjutkan dengan daftar lengkap ...
+      // Tambahkan seluruh surah lainnya di sini
       { number: 114, name: "An-Nas", totalAyah: 6 }
     ];
 
