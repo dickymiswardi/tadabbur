@@ -275,15 +275,16 @@
     background-color: #fff;
   }
 
-  #pilihan-container .col {
-    flex: 1;
-    padding: 0.0em;
-    border-right: 1px solid #ddd;
-    display: flex;
-    align-items: center;
-    background-color: #007b8a; /* Ubah warna latar */
-    color: #ffffff; /* Warna teks */
-  }
+  #pilihan-container select {
+  width: 100%;
+  font-size: 1em;
+  padding: 0.6em 2em 0.6em 0.8em;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background-color: transparent; /* Biarkan transparan agar pakai warna dari parent */
+  color: #ffffff; /* Putih agar sesuai kolom */
+  appearance: menulist; /* Tetap gunakan tampilan default */
+}
 
   #pilihan-container .col:last-child {
     border-right: none;
