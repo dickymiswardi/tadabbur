@@ -3,129 +3,187 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Qur'an Picker</title>
+  <title>Tadabbur Quran</title>
   <style>
     body {
-      font-family: 'Segoe UI', sans-serif;
+      font-family: sans-serif;
       max-width: 700px;
       margin: auto;
       padding: 1.5em;
-      background-color: #f9f9f9;
+      background-color: #fff;
       color: #111;
     }
 
     .row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
+      display: flex;
       gap: 1em;
+      flex-wrap: wrap;
     }
 
-    .select-wrapper {
-      position: relative;
+    .column {
+      flex: 1 1 48%;
+      display: flex;
+      flex-direction: column;
     }
 
-    .select-wrapper select {
-      width: 100%;
-      padding: 0.6em 2.5em 0.6em 1em;
-      font-size: 1em;
+    label {
+      margin-bottom: 0.5em;
+      font-size: 0.9em;
+      color: #444;
+    }
+
+    select {
+      padding: 0.7em 1em;
       border: 1px solid #ccc;
       border-radius: 12px;
-      background-color: #fff;
-      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+      background: #f9f9f9;
       appearance: none;
-      -webkit-appearance: none;
-      -moz-appearance: none;
+      background-image: url('data:image/svg+xml;utf8,<svg fill="%23333" height="16" viewBox="0 0 24 24" width="16" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
+      background-repeat: no-repeat;
+      background-position: right 0.7em center;
+      background-size: 1em;
     }
 
-    .select-wrapper::after {
-      content: '▾';
-      position: absolute;
-      right: 1em;
-      top: 50%;
-      transform: translateY(-50%);
-      pointer-events: none;
-      font-size: 1.2em;
-      color: #666;
-    }
-
-    .select-wrapper select:focus {
-      outline: none;
-      border-color: #888;
-      box-shadow: 0 0 0 3px rgba(100, 100, 255, 0.2);
+    audio {
+      margin-top: 1em;
+      width: 100%;
     }
 
     @media (max-width: 600px) {
       .row {
-        grid-template-columns: 1fr 1fr;
+        flex-wrap: nowrap;
+        flex-direction: row;
+      }
+      .column {
+        flex: 1;
       }
     }
   </style>
 </head>
-<body style="visibility: hidden;">
+<body>
+
   <div class="row">
-    <div class="select-wrapper">
-      <select id="surah">
-        <option value="">-- Pilih Surah --</option>
+    <div class="column">
+      <label for="surah">Surah</label>
+      <select id="surah"></select>
+    </div>
+    <div class="column">
+      <label for="ayah">Pilih Ayat</label>
+      <select id="ayah">
+        <option value="">Pilih Ayat</option>
       </select>
     </div>
-    <div class="select-wrapper">
-      <select id="ayat">
-        <option value="">-- Pilih Ayat --</option>
+  </div>
+
+  <div class="row" style="margin-top: 1.5em;">
+    <div class="column">
+      <label for="qori">Qori</label>
+      <select id="qori">
+        <option value="ar.alafasy">Mishary Alafasy</option>
+        <option value="ar.abdulbasitmurattal">Abdul Basit</option>
+        <option value="ar.mahermuaiqly">Maher Al-Muaiqly</option>
       </select>
+    </div>
+    <div class="column">
+      <label for="audio">Audio Murottal</label>
+      <audio id="player" controls></audio>
     </div>
   </div>
 
   <script>
     const surahSelect = document.getElementById("surah");
-    const ayatSelect = document.getElementById("ayat");
+    const ayahSelect = document.getElementById("ayah");
+    const qoriSelect = document.getElementById("qori");
+    const player = document.getElementById("player");
 
-    const surahList = [
-      "Al-Fatihah", "Al-Baqarah", "Ali 'Imran", "An-Nisa'", "Al-Ma'idah",
-      "Al-An'am", "Al-A'raf", "Al-Anfal", "At-Tawbah", "Yunus"
-    ];
+    let totalAyat = 0;
 
-    function populateSurahs() {
-      surahList.forEach((name, i) => {
-        const opt = new Option(`${i + 1}. ${name}`, i + 1);
-        surahSelect.appendChild(opt);
+    async function loadSurahs() {
+      const res = await fetch("https://api.quran.gading.dev/surah");
+      const data = await res.json();
+      surahSelect.innerHTML = '<option value="">Pilih Surah</option>';
+      data.data.forEach(surah => {
+        const option = document.createElement("option");
+        option.value = surah.number;
+        option.textContent = `${surah.number}. ${surah.name.transliteration.id}`;
+        surahSelect.appendChild(option);
       });
+
+      // Load saved selection
+      const savedSurah = localStorage.getItem("surah");
+      if (savedSurah) {
+        surahSelect.value = savedSurah;
+        await populateAyahs(savedSurah);
+        const savedAyah = localStorage.getItem("ayah");
+        if (savedAyah) ayahSelect.value = savedAyah;
+        playAudio(savedSurah, savedAyah || 1);
+      }
     }
 
-    function populateAyat(surahNumber, selectedAyat = null) {
-      ayatSelect.innerHTML = '<option value="">-- Pilih Ayat --</option>';
-      const ayatCount = 286;
-      for (let i = 1; i <= ayatCount; i++) {
-        const opt = new Option(`Ayat ${i}`, i);
-        ayatSelect.appendChild(opt);
+    async function populateAyahs(surahNumber) {
+      const res = await fetch(`https://api.quran.gading.dev/surah/${surahNumber}`);
+      const data = await res.json();
+      totalAyat = data.data.numberOfVerses;
+      ayahSelect.innerHTML = '<option value="">Pilih Ayat</option>';
+      for (let i = 1; i <= totalAyat; i++) {
+        const option = document.createElement("option");
+        option.value = i;
+        option.textContent = i;
+        ayahSelect.appendChild(option);
       }
-      if (selectedAyat) ayatSelect.value = selectedAyat;
     }
 
-    surahSelect.addEventListener("change", () => {
+    async function playAudio(surah, ayah) {
+      const qori = qoriSelect.value;
+      const res = await fetch(`https://api.quran.gading.dev/surah/${surah}/${ayah}`);
+      const data = await res.json();
+      const audioURL = data.data.audio.primary;
+      player.src = audioURL;
+      player.play();
+
+      localStorage.setItem("surah", surah);
+      localStorage.setItem("ayah", ayah);
+      localStorage.setItem("qori", qori);
+    }
+
+    surahSelect.addEventListener("change", async () => {
       const surah = surahSelect.value;
-      localStorage.setItem("lastSurah", surah);
-      populateAyat(surah);
-      localStorage.removeItem("lastAyat");
+      if (!surah) return;
+      await populateAyahs(surah);
+      localStorage.setItem("surah", surah);
     });
 
-    ayatSelect.addEventListener("change", () => {
-      const ayat = ayatSelect.value;
-      localStorage.setItem("lastAyat", ayat);
+    ayahSelect.addEventListener("change", () => {
       const surah = surahSelect.value;
-      if (surah && ayat) {
-        window.location.href = `https://dickymiswardi.github.io/tadabbur/quran.html?surah=${surah}&ayat=${ayat}`;
+      const ayah = ayahSelect.value;
+      if (surah && ayah) {
+        playAudio(surah, ayah);
       }
     });
 
-    document.addEventListener("DOMContentLoaded", () => {
-      populateSurahs();
-      const lastSurah = localStorage.getItem("lastSurah");
-      const lastAyat = localStorage.getItem("lastAyat");
-      if (lastSurah) {
-        surahSelect.value = lastSurah;
-        populateAyat(lastSurah, lastAyat);
+    qoriSelect.addEventListener("change", () => {
+      const surah = surahSelect.value;
+      const ayah = ayahSelect.value;
+      if (surah && ayah) {
+        playAudio(surah, ayah);
       }
-      document.body.style.visibility = 'visible';
+    });
+
+    player.addEventListener("ended", () => {
+      const surah = parseInt(surahSelect.value);
+      let ayah = parseInt(ayahSelect.value);
+      if (ayah < totalAyat) {
+        ayah += 1;
+        ayahSelect.value = ayah;
+        playAudio(surah, ayah);
+      }
+    });
+
+    // Load initial qori
+    window.addEventListener("DOMContentLoaded", () => {
+      const savedQori = localStorage.getItem("qori");
+      if (savedQori) qoriSelect.value = savedQori;
+      loadSurahs();
     });
   </script>
 </body>
