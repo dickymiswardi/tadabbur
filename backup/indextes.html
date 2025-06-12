@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pilih Ayat Al-Qur'an</title>
   <style>
     body {
       font-family: sans-serif;
@@ -33,22 +34,16 @@
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
 
-    select,
-button {
-  font-size: 1em;
-  padding: 0.8em;
-  margin: 0.8em 0;
-  width: 100%;
-  box-sizing: border-box;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  cursor: pointer; /* <- Tambahan biar ada tangan saat hover */
-}
-
-    button:hover {
-  background-color: #007b8a;
-  color: white;
-}
+    select {
+      font-size: 1em;
+      padding: 0.8em;
+      margin: 0.8em 0;
+      width: 100%;
+      box-sizing: border-box;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      cursor: pointer;
+    }
 
     label {
       display: block;
@@ -56,25 +51,6 @@ button {
       margin-top: 1em;
       font-weight: bold;
     }
-
-    #continueLink {
-    display: inline-block;
-    padding: 10px 20px;
-    background-color: #007b8a; /* Warna hijau */
-    color: white;
-    text-decoration: none; /* Hilangkan underline */
-    border-radius: 8px;
-    font-size: 16px;
-    transition: background-color 0.3s ease;
-  }
-
-  #continueLink:hover {
-    background-color: #005f6b; /* Warna saat hover */
-  }
-
-  #continueLink:active {
-    background-color: #005f6b;
-  }
 
     @media (max-width: 480px) {
       body {
@@ -88,17 +64,19 @@ button {
   </style>
 </head>
 <body>
+  <h1>Cari Ayat Al-Qur'an</h1>
 
-  <!-- Bagian dalam <body> -->
-<div class="card">
-  <label for="surah">Pilih Surah:</label>
-  <select id="surah" onchange="updateAyatDropdown()" required>
-    <option value="" disabled selected>-- Pilih Surah --</option>
-  </select>
+  <div class="card">
+    <form>
+      <label for="surah">Pilih Surah:</label>
+      <select id="surah" onchange="updateAyatDropdown()" required>
+        <option value="" disabled selected>-- Pilih Surah --</option>
+      </select>
 
-  <label for="ayat">Pilih Ayat:</label>
-  <select id="ayat" required onchange="goToAyat()"></select>
-</div>
+      <label for="ayat">Pilih Ayat:</label>
+      <select id="ayat" onchange="redirectToAyat()" required></select>
+    </form>
+  </div>
 
   <script>
     const surahList = [
@@ -218,68 +196,53 @@ button {
       { number: 114, name: "An-Nas", totalAyah: 6 }
     ];
 
-    <script>
-  // ... bagian surahList tetap
-
-  const surahSelect = document.getElementById("surah");
-
-  surahList.forEach(surah => {
-    const option = document.createElement("option");
-    option.value = surah.number;
-    option.text = `${surah.number}. ${surah.name}`;
-    surahSelect.appendChild(option);
-  });
-
-  function updateAyatDropdown() {
+    const surahSelect = document.getElementById("surah");
     const ayatSelect = document.getElementById("ayat");
-    ayatSelect.innerHTML = "";
-    const selectedSurah = parseInt(surahSelect.value);
-    if (!selectedSurah) return;
-    const totalAyah = surahList.find(s => s.number === selectedSurah)?.totalAyah || 1;
-    for (let i = 1; i <= totalAyah; i++) {
-      const opt = document.createElement("option");
-      opt.value = i;
-      opt.text = i;
-      ayatSelect.appendChild(opt);
-    }
 
-    // Jika sudah ada pilihan sebelumnya
-    const lastAyat = localStorage.getItem("lastAyat");
-    if (lastAyat) {
-      document.getElementById("ayat").value = lastAyat;
-    }
-  }
+    surahList.forEach(surah => {
+      const option = document.createElement("option");
+      option.value = surah.number;
+      option.text = `${surah.number}. ${surah.name}`;
+      surahSelect.appendChild(option);
+    });
 
-  function loadLastSelection() {
-    const lastSurah = localStorage.getItem("lastSurah");
-    const lastAyat = localStorage.getItem("lastAyat");
-
-    if (lastSurah) {
-      surahSelect.value = lastSurah;
-      updateAyatDropdown();
-      if (lastAyat) {
-        document.getElementById("ayat").value = lastAyat;
+    function updateAyatDropdown() {
+      const selectedSurah = parseInt(surahSelect.value);
+      ayatSelect.innerHTML = "";
+      if (!selectedSurah) return;
+      const totalAyah = surahList.find(s => s.number === selectedSurah)?.totalAyah || 1;
+      for (let i = 1; i <= totalAyah; i++) {
+        const opt = document.createElement("option");
+        opt.value = i;
+        opt.text = i;
+        ayatSelect.appendChild(opt);
       }
     }
-  }
 
-  function goToAyat() {
-    const surah = surahSelect.value;
-    const ayat = document.getElementById("ayat").value;
+    function redirectToAyat() {
+      const surah = surahSelect.value;
+      const ayat = ayatSelect.value;
+      if (surah && ayat) {
+        const url = `https://dickymiswardi.github.io/tadabbur/quran.html?surah=${surah}&ayat=${ayat}`;
+        window.location.href = url;
+      }
+    }
 
-    if (!surah || !ayat) return;
+    // Load sebelumnya
+    function loadLastSelection() {
+      const lastSurah = localStorage.getItem("lastSurah");
+      const lastAyat = localStorage.getItem("lastAyat");
 
-    localStorage.setItem("lastSurah", surah);
-    localStorage.setItem("lastAyat", ayat);
+      if (lastSurah) {
+        surahSelect.value = lastSurah;
+        updateAyatDropdown();
+        if (lastAyat) {
+          ayatSelect.value = lastAyat;
+        }
+      }
+    }
 
-    const targetURL = `https://dickymiswardi.github.io/tadabbur/ayat.html?surah=${surah}&ayat=${ayat}`;
-    localStorage.setItem("lastQuranPage", targetURL);
-    window.location.href = targetURL;
-  }
-
-  loadLastSelection();
-</script>
-    
+    loadLastSelection();
   </script>
 </body>
 </html>
