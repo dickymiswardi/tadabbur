@@ -38,6 +38,20 @@
       cursor: pointer;
     }
 
+    .rasm-symbol {
+  font-size: 0.9em;
+  vertical-align: super;
+  margin-right: 0.4em;
+  margin-left: 0.1em;
+  color: #777;
+}
+
+.rasm-symbol-special {
+  margin-left: 0;
+  margin-right: 0.2em;
+  color: #777;
+}
+
     @media (max-width: 600px) {
       .row {
         flex-wrap: nowrap;
@@ -103,9 +117,46 @@
     }
 
     function loadAyat(surah, ayat) {
-      // Simpan ke localStorage
-      localStorage.setItem("lastSurah", surah);
-      localStorage.setItem("lastAyat", ayat);
+  localStorage.setItem("lastSurah", surah);
+  localStorage.setItem("lastAyat", ayat);
+
+  document.getElementById("result").innerHTML = '<div class="loader"><p>Memuat ayat...</p></div>';
+
+  const apiURL = `https://api.quran.com/api/v4/quran/verses/uthmani?verse_key=${surah}:${ayat}`;
+  fetch(apiURL)
+    .then(res => res.json())
+    .then(data => {
+      const rawText = data?.verses?.[0]?.text_uthmani || "(Teks tidak ditemukan)";
+      const processed = wrapRasmSymbols(rawText);
+      document.getElementById("result").innerHTML = `
+        <div class='arabic' style='font-size:2em;text-align:right;margin-top:1em;'>${processed}</div>
+      `;
+    });
+}
+
+      function toArabicNumber(n) {
+  const map = ["٠", "١", "٢", "٣", "٤", "٥", "٦", "٧", "٨", "٩"];
+  return String(n).split('').map(d => map[parseInt(d)]).join('');
+}
+
+function wrapRasmSymbols(text) {
+  // Tangani kasus khusus "ً ۢ ا" → "ًا<sup>ۢ</sup>"
+  text = text.replace(/ً\\s*ۢ\\s*ا/g, function () {
+    return 'ًا<sup class="rasm-symbol rasm-symbol-special">ۢ</sup>';
+  });
+
+  // Hapus ۢ jika muncul tepat setelah ن
+  text = text.replace(/ن\\s*ۢ/g, 'ن');
+
+  // Bungkus simbol-simbol rasm
+  return text.replace(/([ۭۛۖۚۗۙۘۜۢ])/g, function (match) {
+    if (match === 'ۢ' || match === 'ۭ') {
+      return ' <sup class="rasm-symbol rasm-symbol-special">' + match + '</sup> ';
+    } else {
+      return ' <sup class="rasm-symbol">' + match + '</sup> ';
+    }
+  });
+}
 
       // Tampilkan loader sementara
       document.getElementById("result").innerHTML = '<div class="loader"><p>Memuat ayat...</p></div>';
