@@ -11,9 +11,12 @@
 
     body {
       font-family: sans-serif;
-      margin: 0;
-      padding: 1em;
+      max-width: 700px;
+      margin: auto;
+      padding: 1.5em;
+      line-height: 1.6;
       background-color: #fff;
+      color: #111;
     }
 
     .card {
@@ -22,24 +25,33 @@
       background-color: #f9f9f9;
       border-radius: 12px;
       box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-      max-width: 100%;
     }
 
     .form-row {
       display: flex;
       flex-direction: row;
-      flex-wrap: nowrap;
       gap: 1em;
       width: 100%;
     }
 
-    .form-row select {
-      width: 50%;
-      padding: 0.8em;
+    select {
+      flex: 1;
+      padding: 0.75em;
       font-size: 1em;
       border-radius: 8px;
       border: 1px solid #ccc;
-      appearance: none;
+      width: 100%;
+    }
+
+    @media (max-width: 600px) {
+      .form-row {
+        flex-direction: row;
+        flex-wrap: wrap;
+      }
+
+      select {
+        flex: 1 1 45%;
+      }
     }
   </style>
 </head>
@@ -51,7 +63,9 @@
         <option value="" disabled selected>-- Pilih Surah --</option>
       </select>
 
-      <select id="ayat" onchange="redirectToAyat()" required></select>
+      <select id="ayat" onchange="redirectToAyat()" required>
+        <option disabled selected>-- Pilih Ayat --</option>
+      </select>
     </form>
   </div>
 
@@ -60,13 +74,14 @@
       { number: 1, name: "Al-Fatihah", totalAyah: 7 },
       { number: 2, name: "Al-Baqarah", totalAyah: 286 },
       { number: 3, name: "Ali 'Imran", totalAyah: 200 },
-      // Tambahkan seluruh surah lainnya di sini
+      // Tambahkan semua surah lainnya sesuai kebutuhan
       { number: 114, name: "An-Nas", totalAyah: 6 }
     ];
 
     const surahSelect = document.getElementById("surah");
     const ayatSelect = document.getElementById("ayat");
 
+    // Isi dropdown surah
     surahList.forEach(surah => {
       const option = document.createElement("option");
       option.value = surah.number;
@@ -74,6 +89,7 @@
       surahSelect.appendChild(option);
     });
 
+    // Saat surah dipilih
     function updateAyatDropdown() {
       const selectedSurah = parseInt(surahSelect.value);
       ayatSelect.innerHTML = "";
@@ -94,6 +110,7 @@
       }
     }
 
+    // Arahkan ke halaman tadabbur
     function redirectToAyat() {
       const surah = surahSelect.value;
       const ayat = ayatSelect.value;
@@ -103,5 +120,6 @@
       }
     }
   </script>
+
 </body>
 </html>
