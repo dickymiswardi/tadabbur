@@ -16,12 +16,12 @@
     }
 
     .card {
-      border: 2px solid #ddd;
-      padding: 1em;
+      border: 1px solid #ddd;
+      padding: 0.5em;
       background-color: #f9f9f9;
-      border-radius: 12px;
+      border-radius: 6px;
       text-align: center;
-      margin-bottom: 1.5em;
+      margin-bottom: 0.75em;
       box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
       transition: box-shadow 0.3s ease;
     }
@@ -60,14 +60,14 @@
   </style>
 </head>
 <body>
-  <!-- Dropdown Surah dan Ayat tanpa label atau tombol -->
+  <!-- Dropdown Surah di kiri, Ayat di kanan -->
   <div class="card">
     <div class="row">
       <div class="column">
-        <select id="ayat"></select>
+        <select id="surah"></select>
       </div>
       <div class="column">
-        <select id="surah"></select>
+        <select id="ayat"></select>
       </div>
     </div>
   </div>
@@ -254,10 +254,10 @@
 
     // Inisialisasi awal
     populateSurahDropdown();
-    surahSelect.value = 2; // Default Surah Al-Baqarah
-    updateAyatDropdown(2);
+    surahSelect.value = 1; // Default Surah Al-Fatihah
+    updateAyatDropdown(1);
     ayatSelect.value = 1;
-    loadAyat(2, 1);
+    loadAyat(1, 1);
   </script>
 </body>
 </html>
