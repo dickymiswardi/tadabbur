@@ -782,10 +782,9 @@ function createTafsirDropdown(surah, ayah) {
     link.href = "#";
     link.textContent = source.name;
     link.onclick = async (e) => {
-  e.preventDefault();
-  const tafsirText = await loadTafsir(key, surah, ayah);
-  showTafsir(source.name, tafsirText);
-};
+      e.preventDefault();
+      const tafsirText = await loadTafsir(key, surah, ayah);
+      showTafsir(source.name, tafsirText);
 
       // Tutup dropdown setelah klik
       dropdownContent.classList.remove("show", "upward");
@@ -908,7 +907,6 @@ function showTafsir(title, content) {
     }
   }, 300);
 }
-
 // Cara penggunaan (ganti kode tafsir lama):
 const tafsirDropdown = createTafsirDropdown(surah, ayat);
 translationDiv.appendChild(tafsirDropdown);
