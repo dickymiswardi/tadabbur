@@ -496,7 +496,7 @@ const lastAyat = urlParams.get("ayat") || localStorage.getItem("lastAyat");
       <img src="https://raw.githubusercontent.com/dickymiswardi/tadabbur/aa160525691e67e5d0b7aab1e7e9f37657d0ed45/AnimatedBook.gif" class="loading-icon" />
     </div>
   </div>
-
+<div id="audio-player-container" style="display: none;"></div>
   <div class="sumber">
     © Aplikasi Jariyah Untuk Kaum Muslimin
   </div>
@@ -1001,8 +1001,6 @@ navDiv.appendChild(playAudioBtn);
 if (savedQari) {
   playAudioForAyah(savedQari);
 }
-
-      <div id="audio-player-container" style="display: none;"></div>
 
       if (next) {
         const nextBtn = document.createElement("button");
