@@ -969,7 +969,6 @@ navDiv.appendChild(playAudioBtn);
   confirmBtn.onclick = () => {
     const qariId = select.value;
     localStorage.setItem("lastQari", qariId);
-    playAudioForAyah(qariId);
     overlay.remove();
     backdrop.remove();
   };
@@ -982,6 +981,7 @@ navDiv.appendChild(playAudioBtn);
   document.body.appendChild(overlay);
 }
 
+      playAudioForAyah(qariId);
       const surahStr = String(surah).padStart(3, '0');
 const ayahStr = String(ayat).padStart(3, '0');
 const url = `https://quran.ksu.edu.sa/ayat/mp3/${qariId}/${surahStr}${ayahStr}.mp3`;
