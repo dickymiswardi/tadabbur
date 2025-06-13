@@ -967,6 +967,20 @@ function updateAudio() {
   }
 }
 
+      audioPlayer.addEventListener('ended', () => {
+  if (!autoplayToggle.checked) return;
+
+  const { surah, ayat } = getSurahAyat();
+  const next = getNextAyah(parseInt(surah), parseInt(ayat));
+  if (next) {
+    const url = new URL(window.location.href);
+    url.searchParams.set("surah", next.surah);
+    url.searchParams.set("ayat", next.ayah);
+    window.location.href = url.toString(); // reload ke ayat berikut
+  }
+});
+
+
 qariSelect.addEventListener('change', updateAudio);
 window.addEventListener('load', updateAudio);
 
