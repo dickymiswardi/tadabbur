@@ -898,10 +898,47 @@ translationDiv.appendChild(tafsirDropdown);
         navDiv.appendChild(prevBtn);
       }
 
-      <div class="murottal-player">
-  <select id="qariSelect">
-    <!-- isi dropdown dari langkah sebelumnya -->
-  </select>
+      const murottalDiv = document.createElement("div");
+murottalDiv.innerHTML = `
+  <div class="murottal-player">
+    <select id="qariSelect">
+      <option value="ar.ahmedajamy">Ahmed Ajamy</option>
+      <option value="ar.alafasy">Al‑Afasy</option>
+      <option value="ar.hudhaify">Hudhaify</option>
+      <option value="ar.husary">Husary</option>
+      <option value="ar.husarymujawwad">Husary Mujawwad</option>
+      <option value="ar.mahermuaiqly">Maher Al‑Muaiqly</option>
+      <option value="ar.minshawimujawwad">Minshawi Mujawwad</option>
+      <option value="ar.muhammadayyoub">Muhammad Ayyoub</option>
+      <option value="ar.muhammadjibreel">Muhammad Jibreel</option>
+      <option value="ar.shaatree">Shaatree</option>
+      <option value="fr.leclerc">Leclerc (Prancis)</option>
+      <option value="ru.kuliev-audio">Kuliev (Rusia)</option>
+      <option value="ar.abdulbasitmurattal">Abdul Basit Murattal</option>
+      <option value="ar.abdullahbasfar">Abdullah Basfar</option>
+      <option value="ar.abdurrahmaansudais">Abdurrahman Sudais</option>
+      <option value="ar.hanirifai">Hanirifai</option>
+      <option value="en.walk">Walk (Inggris)</option>
+      <option value="ar.ibrahimakhbar">Ibrahim Akhbar</option>
+      <option value="fa.hedayatfarfooladvand">Hedayatfar (Farsi)</option>
+      <option value="ar.parhizgar">Parhizgar</option>
+      <option value="ar.abdulsamad">Abdulsamad</option>
+      <option value="ar.saoodshuraym">Saood Shuraym</option>
+      <option value="ur.khan">Khan (Urdu)</option>
+    </select>
+
+    <label class="autoplay-toggle">
+      <span>Autoplay</span>
+      <div class="switch">
+        <input type="checkbox" id="autoplayToggle">
+        <span class="slider"></span>
+      </div>
+    </label>
+
+    <audio id="murottalAudio" controls></audio>
+  </div>
+`;
+navDiv.appendChild(murottalDiv);
 
   <label class="autoplay-toggle">
     <span>Autoplay</span>
