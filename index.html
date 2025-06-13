@@ -936,7 +936,6 @@ const qariSelect = document.createElement("select");
       async function loadAvailableQaris(qariSelect) {
   const apiURL = "https://api.alquran.cloud/v1/edition/format/audio";
   const cdnURL = "https://raw.githubusercontent.com/islamic-network/cdn/master/info/cdn.txt";
-loadAvailableQaris(qariSelect); // ← kita akan ubah jadi menerima parameter
         console.log("Jumlah Qari yang tersedia:", availableQaris.length);
         if (availableQaris.length === 0) {
           
