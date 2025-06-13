@@ -883,8 +883,9 @@ translationDiv.appendChild(tafsirDropdown);
         const prevBtn = document.createElement("button");
         prevBtn.textContent = "PREV ▶";
         prevBtn.onclick = () => {
-          window.location.search = `?surah=${prev.surah}&ayat=${prev.ayah}`;
-        };
+  localStorage.setItem("fromAutoplay", "false");
+  window.location.search = `?surah=${prev.surah}&ayat=${prev.ayah}`;
+};
         navDiv.appendChild(prevBtn);
       }
 
@@ -980,7 +981,8 @@ const url = `https://quran.ksu.edu.sa/ayat/mp3/${qariId}/${surahStr}${ayahStr}.m
     if (toggle.checked) {
       const next = getNextAyah(surah, ayat);
       if (next) {
-        window.location.href = `?surah=${next.surah}&ayat=${next.ayah}`;
+        localStorage.setItem("fromAutoplay", "true");
+window.location.href = `?surah=${next.surah}&ayat=${next.ayah}`;
       }
     }
   };
@@ -999,16 +1001,22 @@ const url = `https://quran.ksu.edu.sa/ayat/mp3/${qariId}/${surahStr}${ayahStr}.m
 }
 
       const savedQari = localStorage.getItem("lastQari");
-if (savedQari) {
+const fromAutoplay = localStorage.getItem("fromAutoplay") === "true";
+
+if (savedQari && fromAutoplay) {
   playAudioForAyah(savedQari);
 }
+
+// setelah dicek, hapus flag agar tidak autoplay lagi tanpa sengaja
+localStorage.removeItem("fromAutoplay");
 
       if (next) {
         const nextBtn = document.createElement("button");
         nextBtn.textContent = "◀ NEXT";
         nextBtn.onclick = () => {
-          window.location.search = `?surah=${next.surah}&ayat=${next.ayah}`;
-        };
+  localStorage.setItem("fromAutoplay", "false");
+  window.location.search = `?surah=${next.surah}&ayat=${next.ayah}`;
+};
         navDiv.appendChild(nextBtn);
       }
 
