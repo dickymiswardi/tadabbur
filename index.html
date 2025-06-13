@@ -227,6 +227,64 @@
       background-color: #005f6b;
     }
 
+
+.audio-overlay {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: white;
+  border: 2px solid #007b8a;
+  border-radius: 12px;
+  box-shadow: 0 0 20px rgba(0,0,0,0.2);
+  z-index: 9999;
+  padding: 1.5em;
+  width: 90%;
+  max-width: 350px;
+}
+
+.audio-overlay h3 {
+  margin-top: 0;
+  font-size: 1.1em;
+  text-align: center;
+  color: #007b8a;
+}
+
+.audio-overlay select {
+  width: 100%;
+  padding: 0.5em;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  margin-top: 1em;
+}
+
+.audio-overlay button {
+  margin-top: 1em;
+  background: #007b8a;
+  color: white;
+  border: none;
+  padding: 0.5em 1em;
+  border-radius: 8px;
+  width: 100%;
+  font-size: 1em;
+  cursor: pointer;
+}
+
+.audio-overlay button:hover {
+  background: #005f6b;
+}
+
+.audio-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.4);
+  z-index: 9998;
+}
+    
+
     .loader {
       display: flex;
       justify-content: center;
@@ -822,8 +880,88 @@ translationDiv.appendChild(tafsirDropdown);
         navDiv.appendChild(prevBtn);
       }
 
-      // Hitung posisi ayat global (1–6236)
-function getGlobalAyahNumber(surah, ayah) {
+      const playAudioBtn = document.createElement("button");
+playAudioBtn.textContent = "PLAY AUDIO";
+playAudioBtn.onclick = showAudioOverlay;
+navDiv.appendChild(playAudioBtn);
+
+      function showAudioOverlay() {
+  // Backdrop
+  const backdrop = document.createElement("div");
+  backdrop.className = "audio-backdrop";
+  backdrop.onclick = () => {
+    document.body.removeChild(backdrop);
+    document.body.removeChild(overlay);
+  };
+
+  // Overlay container
+  const overlay = document.createElement("div");
+  overlay.className = "audio-overlay";
+
+  const title = document.createElement("h3");
+  title.textContent = "Pilih Qari untuk mendengarkan";
+
+  const select = document.createElement("select");
+  const qaris = [
+    { name: "Alafasy", id: "ar.alafasy" },
+    { name: "Basfar", id: "ar.basfar" },
+    { name: "Sudais", id: "ar.sudais" },
+    { name: "Saad Al-Ghamdi", id: "ar.ghamadi" },
+    { name: "Minshawi", id: "ar.minshawi" },
+    { name: "Husary", id: "ar.husary" },
+    { name: "Hudhaify", id: "ar.hudhaify" },
+    { name: "Muhammad Ayyub", id: "ar.ayyub" }
+  ];
+
+  const defaultOpt = document.createElement("option");
+  defaultOpt.textContent = "-- Pilih Qari --";
+  defaultOpt.disabled = true;
+  defaultOpt.selected = true;
+  select.appendChild(defaultOpt);
+
+  qaris.forEach(qari => {
+    const opt = document.createElement("option");
+    opt.value = qari.id;
+    opt.textContent = qari.name;
+    select.appendChild(opt);
+  });
+
+  const playBtn = document.createElement("button");
+  playBtn.textContent = "Putar Ayat Ini";
+
+  const audioPlayer = document.createElement("audio");
+  audioPlayer.controls = true;
+  audioPlayer.style.marginTop = "1em";
+  audioPlayer.style.width = "100%";
+  audioPlayer.style.display = "none";
+
+  playBtn.onclick = () => {
+    const qariId = select.value;
+    if (!qariId) {
+      alert("Silakan pilih Qari");
+      return;
+    }
+    const globalAyah = getGlobalAyahNumber(surah, ayat);
+    const audioUrl = `https://cdn.islamic.network/quran/audio/128/${qariId}/${globalAyah}.mp3`;
+
+    audioPlayer.src = audioUrl;
+    audioPlayer.style.display = "block";
+    audioPlayer.play().catch(err => {
+      alert("Gagal memutar audio.");
+      console.error(err);
+    });
+  };
+
+  overlay.appendChild(title);
+  overlay.appendChild(select);
+  overlay.appendChild(playBtn);
+  overlay.appendChild(audioPlayer);
+
+  document.body.appendChild(backdrop);
+  document.body.appendChild(overlay);
+}
+
+      function getGlobalAyahNumber(surah, ayah) {
   let total = 0;
   for (let i = 1; i < surah; i++) {
     total += surahAyahCount[i];
@@ -831,70 +969,8 @@ function getGlobalAyahNumber(surah, ayah) {
   return total + ayah;
 }
 
-// Daftar Qari dan ID-nya sesuai alquran.cloud CDN
-const qaris = [
-  { name: "Alafasy", id: "ar.alafasy" },
-  { name: "Abdullah Basfar", id: "ar.basfar" },
-  { name: "Abdurrahman Sudais", id: "ar.sudais" },
-  { name: "Saad Al-Ghamdi", id: "ar.ghamadi" },
-  { name: "Mishary Rashid", id: "ar.mishary" },
-  { name: "Minshawi (Mujawwad)", id: "ar.minshawi" },
-  { name: "Husary (Murattal)", id: "ar.husary" },
-  { name: "Hudhaify", id: "ar.hudhaify" },
-  { name: "Muhammad Ayyub", id: "ar.ayyub" }
-];
+      
 
-// Komponen dropdown Qari
-const qariSelect = document.createElement("select");
-qariSelect.style.padding = "0.6em";
-qariSelect.style.borderRadius = "6px";
-qariSelect.style.border = "1px solid #007b8a";
-qariSelect.style.backgroundColor = "#fff";
-qariSelect.style.marginRight = "1em";
-
-const defaultOption = document.createElement("option");
-defaultOption.textContent = "-- Pilih Qari --";
-defaultOption.disabled = true;
-defaultOption.selected = true;
-qariSelect.appendChild(defaultOption);
-
-qaris.forEach(qari => {
-  const opt = document.createElement("option");
-  opt.value = qari.id;
-  opt.textContent = qari.name;
-  qariSelect.appendChild(opt);
-});
-
-// Tombol Play
-const playBtn = document.createElement("button");
-playBtn.textContent = "▶ Putar Audio";
-playBtn.className = "copy-button";
-playBtn.style.backgroundColor = "#007b8a";
-playBtn.onclick = () => {
-  const qariId = qariSelect.value;
-  if (!qariId) {
-    alert("Silakan pilih Qari terlebih dahulu.");
-    return;
-  }
-
-  const globalAyah = getGlobalAyahNumber(surah, ayat);
-  const audioUrl = `https://cdn.islamic.network/quran/audio/128/${qariId}/${globalAyah}.mp3`;
-
-  const audio = new Audio(audioUrl);
-  audio.play().catch(err => {
-    alert("Gagal memutar audio. Mungkin Qari belum tersedia untuk ayat ini.");
-    console.error(err);
-  });
-};
-
-// Gabungkan ke nav
-const audioContainer = document.createElement("div");
-audioContainer.style.display = "flex";
-audioContainer.style.alignItems = "center";
-audioContainer.style.flexWrap = "wrap";
-audioContainer.appendChild(qariSelect);
-audioContainer.appendChild(playBtn);
-navDiv.appendChild(audioContainer);
 
       if (next) {
         const nextBtn = document.createElement("button");
