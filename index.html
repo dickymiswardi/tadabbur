@@ -822,12 +822,79 @@ translationDiv.appendChild(tafsirDropdown);
         navDiv.appendChild(prevBtn);
       }
 
-      const searchBtn = document.createElement("button");
-      searchBtn.textContent = "PLAY AUDIO";
-      searchBtn.onclick = () => {
-        window.location.href = "index.html";
-      };
-      navDiv.appendChild(searchBtn);
+      // Hitung posisi ayat global (1–6236)
+function getGlobalAyahNumber(surah, ayah) {
+  let total = 0;
+  for (let i = 1; i < surah; i++) {
+    total += surahAyahCount[i];
+  }
+  return total + ayah;
+}
+
+// Daftar Qari dan ID-nya sesuai alquran.cloud CDN
+const qaris = [
+  { name: "Alafasy", id: "ar.alafasy" },
+  { name: "Abdullah Basfar", id: "ar.basfar" },
+  { name: "Abdurrahman Sudais", id: "ar.sudais" },
+  { name: "Saad Al-Ghamdi", id: "ar.ghamadi" },
+  { name: "Mishary Rashid", id: "ar.mishary" },
+  { name: "Minshawi (Mujawwad)", id: "ar.minshawi" },
+  { name: "Husary (Murattal)", id: "ar.husary" },
+  { name: "Hudhaify", id: "ar.hudhaify" },
+  { name: "Muhammad Ayyub", id: "ar.ayyub" }
+];
+
+// Komponen dropdown Qari
+const qariSelect = document.createElement("select");
+qariSelect.style.padding = "0.6em";
+qariSelect.style.borderRadius = "6px";
+qariSelect.style.border = "1px solid #007b8a";
+qariSelect.style.backgroundColor = "#fff";
+qariSelect.style.marginRight = "1em";
+
+const defaultOption = document.createElement("option");
+defaultOption.textContent = "-- Pilih Qari --";
+defaultOption.disabled = true;
+defaultOption.selected = true;
+qariSelect.appendChild(defaultOption);
+
+qaris.forEach(qari => {
+  const opt = document.createElement("option");
+  opt.value = qari.id;
+  opt.textContent = qari.name;
+  qariSelect.appendChild(opt);
+});
+
+// Tombol Play
+const playBtn = document.createElement("button");
+playBtn.textContent = "▶ Putar Audio";
+playBtn.className = "copy-button";
+playBtn.style.backgroundColor = "#007b8a";
+playBtn.onclick = () => {
+  const qariId = qariSelect.value;
+  if (!qariId) {
+    alert("Silakan pilih Qari terlebih dahulu.");
+    return;
+  }
+
+  const globalAyah = getGlobalAyahNumber(surah, ayat);
+  const audioUrl = `https://cdn.islamic.network/quran/audio/128/${qariId}/${globalAyah}.mp3`;
+
+  const audio = new Audio(audioUrl);
+  audio.play().catch(err => {
+    alert("Gagal memutar audio. Mungkin Qari belum tersedia untuk ayat ini.");
+    console.error(err);
+  });
+};
+
+// Gabungkan ke nav
+const audioContainer = document.createElement("div");
+audioContainer.style.display = "flex";
+audioContainer.style.alignItems = "center";
+audioContainer.style.flexWrap = "wrap";
+audioContainer.appendChild(qariSelect);
+audioContainer.appendChild(playBtn);
+navDiv.appendChild(audioContainer);
 
       if (next) {
         const nextBtn = document.createElement("button");
