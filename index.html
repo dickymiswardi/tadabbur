@@ -227,84 +227,6 @@
       background-color: #005f6b;
     }
 
-
-    .murottal-player {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1em;
-  align-items: center;
-  justify-content: center;
-  margin-top: 1em;
-}
-
-.murottal-player select {
-  padding: 0.4em 0.8em;
-  font-size: 0.95em;
-  border-radius: 6px;
-  border: 1px solid #007b8a;
-  background-color: white;
-  color: #007b8a;
-}
-
-.autoplay-toggle {
-  display: flex;
-  align-items: center;
-  gap: 0.5em;
-  font-size: 0.9em;
-  color: #007b8a;
-}
-
-.switch {
-  position: relative;
-  display: inline-block;
-  width: 42px;
-  height: 24px;
-}
-
-.switch input {
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-
-.slider {
-  position: absolute;
-  cursor: pointer;
-  background-color: #ccc;
-  border-radius: 34px;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  transition: 0.4s;
-}
-
-.slider:before {
-  position: absolute;
-  content: "";
-  height: 18px;
-  width: 18px;
-  left: 3px;
-  bottom: 3px;
-  background-color: white;
-  border-radius: 50%;
-  transition: 0.4s;
-}
-
-input:checked + .slider {
-  background-color: #007b8a;
-}
-
-input:checked + .slider:before {
-  transform: translateX(18px);
-}
-
-.murottal-player audio {
-  max-width: 300px;
-  width: 100%;
-}
-
-
     .loader {
       display: flex;
       justify-content: center;
@@ -900,91 +822,12 @@ translationDiv.appendChild(tafsirDropdown);
         navDiv.appendChild(prevBtn);
       }
 
-
-      const murottalDiv = document.createElement("div");
-murottalDiv.innerHTML = `
-  <div class="murottal-player">
-    <select id="qariSelect">
-      <option value="ar.ahmedajamy">Ahmed Ajamy</option>
-      <option value="ar.alafasy">Al‑Afasy</option>
-      <option value="ar.hudhaify">Hudhaify</option>
-      <option value="ar.husary">Husary</option>
-      <option value="ar.husarymujawwad">Husary Mujawwad</option>
-      <option value="ar.mahermuaiqly">Maher Al‑Muaiqly</option>
-      <option value="ar.minshawimujawwad">Minshawi Mujawwad</option>
-      <option value="ar.muhammadayyoub">Muhammad Ayyoub</option>
-      <option value="ar.muhammadjibreel">Muhammad Jibreel</option>
-      <option value="ar.shaatree">Shaatree</option>
-      <option value="fr.leclerc">Leclerc (Prancis)</option>
-      <option value="ru.kuliev-audio">Kuliev (Rusia)</option>
-      <option value="ar.abdulbasitmurattal">Abdul Basit Murattal</option>
-      <option value="ar.abdullahbasfar">Abdullah Basfar</option>
-      <option value="ar.abdurrahmaansudais">Abdurrahman Sudais</option>
-      <option value="ar.hanirifai">Hanirifai</option>
-      <option value="en.walk">Walk (Inggris)</option>
-      <option value="ar.ibrahimakhbar">Ibrahim Akhbar</option>
-      <option value="fa.hedayatfarfooladvand">Hedayatfar (Farsi)</option>
-      <option value="ar.parhizgar">Parhizgar</option>
-      <option value="ar.abdulsamad">Abdulsamad</option>
-      <option value="ar.saoodshuraym">Saood Shuraym</option>
-      <option value="ur.khan">Khan (Urdu)</option>
-    </select>
-
-    <label class="autoplay-toggle">
-      <span>Autoplay</span>
-      <div class="switch">
-        <input type="checkbox" id="autoplayToggle">
-        <span class="slider"></span>
-      </div>
-    </label>
-
-    <audio id="murottalAudio" controls></audio>
-  </div>
-`;
-navDiv.appendChild(murottalDiv);
-
-
-const qariSelect = document.getElementById('qariSelect');
-const autoplayToggle = document.getElementById('autoplayToggle');
-const audioPlayer = document.getElementById('murottalAudio');
-
-function getSurahAyat() {
-  const params = new URLSearchParams(window.location.search);
-  return {
-    surah: params.get("surah") || "1",
-    ayat: params.get("ayat") || "1"
-  };
-}
-
-function updateAudio() {
-  const { surah, ayat } = getSurahAyat();
-  const qari = qariSelect.value;
-  const fileName = String(ayat).padStart(3, '0');
-  const audioUrl = `https://cdn.islamic.network/quran/audio/128/${qari}/${surah}${fileName}.mp3`;
-  audioPlayer.src = audioUrl;
-  if (autoplayToggle.checked) {
-    audioPlayer.play().catch(err => console.warn("Gagal autoplay:", err));
-  }
-}
-
-      audioPlayer.addEventListener('ended', () => {
-  if (!autoplayToggle.checked) return;
-
-  const { surah, ayat } = getSurahAyat();
-  const next = getNextAyah(parseInt(surah), parseInt(ayat));
-  if (next) {
-    const url = new URL(window.location.href);
-    url.searchParams.set("surah", next.surah);
-    url.searchParams.set("ayat", next.ayah);
-    window.location.href = url.toString(); // reload ke ayat berikut
-  }
-});
-
-
-qariSelect.addEventListener('change', updateAudio);
-window.addEventListener('load', updateAudio);
-
-      
+      const searchBtn = document.createElement("button");
+      searchBtn.textContent = "⚲ SEARCH";
+      searchBtn.onclick = () => {
+        window.location.href = "index.html";
+      };
+      navDiv.appendChild(searchBtn);
 
       if (next) {
         const nextBtn = document.createElement("button");
