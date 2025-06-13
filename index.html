@@ -1003,14 +1003,6 @@ if (savedQari) {
   playAudioForAyah(savedQari);
 }
 
-      const resultDiv = document.getElementById("result");
-const tafsirBox = document.getElementById("current-tafsir");
-if (tafsirBox) {
-  resultDiv.insertBefore(audioPlayerContainer, tafsirBox);
-} else {
-  resultDiv.appendChild(audioPlayerContainer);
-}
-
       if (next) {
         const nextBtn = document.createElement("button");
         nextBtn.textContent = "◀ NEXT";
