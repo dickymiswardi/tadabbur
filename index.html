@@ -135,6 +135,41 @@
   font-weight: bold;
   margin-bottom: 0.5em;
 }
+
+    #tafsir-overlay {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 90%;
+  max-width: 700px;
+  max-height: 80vh;
+  overflow-y: auto;
+  background-color: #ffffff;
+  border: 2px solid #007b8a;
+  border-radius: 12px;
+  padding: 1.5em;
+  z-index: 9999;
+  box-shadow: 0 0 25px rgba(0, 0, 0, 0.2);
+}
+
+#tafsir-overlay-close {
+  position: absolute;
+  top: 0.3em;
+  right: 0.8em;
+  font-size: 1.2em;
+  font-weight: bold;
+  color: #007b8a;
+  cursor: pointer;
+}
+
+#tafsir-backdrop {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.4);
+  z-index: 9998;
+}
     
 .rasm-symbol {
   font-size: 0.9em;
@@ -793,15 +828,32 @@ window.addEventListener("click", function () {
 
 // Fungsi tampilkan tafsir
 function showTafsir(title, content) {
-  let tafsirBox = document.getElementById("current-tafsir");
+  // Hapus overlay sebelumnya jika ada
+  document.getElementById("tafsir-overlay")?.remove();
+  document.getElementById("tafsir-backdrop")?.remove();
 
-  if (!tafsirBox) {
-    tafsirBox = document.createElement("div");
-    tafsirBox.id = "current-tafsir";
-    tafsirBox.className = "tafsir-text";
-    document.getElementById("result").appendChild(tafsirBox);
-  }
+  // Buat backdrop
+  const backdrop = document.createElement("div");
+  backdrop.id = "tafsir-backdrop";
+  backdrop.onclick = () => {
+    overlay.remove();
+    backdrop.remove();
+  };
 
+  // Buat overlay kontainer
+  const overlay = document.createElement("div");
+  overlay.id = "tafsir-overlay";
+
+  // Tombol close
+  const closeBtn = document.createElement("div");
+  closeBtn.id = "tafsir-overlay-close";
+  closeBtn.innerHTML = "&times;";
+  closeBtn.onclick = () => {
+    overlay.remove();
+    backdrop.remove();
+  };
+
+  // Cek apakah konten Arab atau Latin
   const arabicRegex = /[\u0600-\u06FF]/;
   const isArabic = arabicRegex.test(content);
 
@@ -810,36 +862,32 @@ function showTafsir(title, content) {
 
   const titleClass = title === "Al-Jalalayn ID" ? "tafsir-title-left" : "tafsir-title";
 
-  // 1. Tampilkan animasi loading
-  tafsirBox.innerHTML = `
-    <div id="tafsir-loading" style="text-align: center; padding: 1em;">
-      <img src="https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/Settings.gif" width="50" />
+  // Blok salin
+  const copyButtonBlock = `
+    <div class="${titleClass}">
+      <button id="copy-tafsir-btn" class="copy-button">Salin Tafsir</button>
+      <span id="copy-status" class="copy-status"></span>
     </div>
   `;
-  tafsirBox.style.display = "block";
 
-  // 2. Setelah data tafsir siap, ganti isi box dan pasang event listener
+  overlay.innerHTML = `
+    ${closeBtn.outerHTML}
+    <div class="${titleClass}">${title}</div>
+    ${copyButtonBlock}
+    ${arabicPart}${latinPart}
+  `;
+
+  document.body.appendChild(backdrop);
+  document.body.appendChild(overlay);
+
+  // Event tombol salin
   setTimeout(() => {
-    const copyButtonBlock = `
-      <div class="${titleClass}">
-        <button id="copy-tafsir-btn" class="copy-button">Salin Tafsir</button>
-        <span id="copy-status" class="copy-status"></span>
-      </div>
-    `;
-
-    tafsirBox.innerHTML = `
-      <div class="${titleClass}">${title}</div>
-      ${copyButtonBlock}
-      ${arabicPart}${latinPart}
-    `;
-
-    // ✅ Event listener dipasang setelah tombol tersedia
     const copyBtn = document.getElementById("copy-tafsir-btn");
     const copyStatus = document.getElementById("copy-status");
 
     if (copyBtn) {
       copyBtn.addEventListener("click", () => {
-        const plainText = tafsirBox.innerText
+        const plainText = overlay.innerText
           .replace("Salin Tafsir", "")
           .replace("✅ Tersalin", "")
           .trim();
@@ -853,7 +901,7 @@ function showTafsir(title, content) {
           });
       });
     }
-  }, 1000); // <- Atau ganti dengan setelah parsing/fetch selesai
+  }, 500);
 }
 // Cara penggunaan (ganti kode tafsir lama):
 const tafsirDropdown = createTafsirDropdown(surah, ayat);
