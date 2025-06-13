@@ -496,7 +496,6 @@ const lastAyat = urlParams.get("ayat") || localStorage.getItem("lastAyat");
       <img src="https://raw.githubusercontent.com/dickymiswardi/tadabbur/aa160525691e67e5d0b7aab1e7e9f37657d0ed45/AnimatedBook.gif" class="loading-icon" />
     </div>
   </div>
-<div id="audio-player-container" style="display: none;"></div>
   <div class="sumber">
     © Aplikasi Jariyah Untuk Kaum Muslimin
   </div>
@@ -791,6 +790,11 @@ window.addEventListener("click", function () {
   });
 });
 
+      <div id="result">
+  <div id="audio-player-container" style="display: none;"></div>
+  <!-- konten tafsir muncul setelah ini -->
+</div>
+
 // Fungsi tampilkan tafsir
 function showTafsir(title, content) {
   let tafsirBox = document.getElementById("current-tafsir");
@@ -958,7 +962,7 @@ const url = `https://quran.ksu.edu.sa/ayat/mp3/${qariId}/${surahStr}${ayahStr}.m
   const audio = document.createElement("audio");
   audio.controls = true;
   audio.src = url;
-  audio.autoplay = true;
+  // audio.autoplay = true;
 
   // Autoplay toggle
   const toggleWrap = document.createElement("label");
