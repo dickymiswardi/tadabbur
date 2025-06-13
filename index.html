@@ -496,11 +496,7 @@ const lastAyat = urlParams.get("ayat") || localStorage.getItem("lastAyat");
       <img src="https://raw.githubusercontent.com/dickymiswardi/tadabbur/aa160525691e67e5d0b7aab1e7e9f37657d0ed45/AnimatedBook.gif" class="loading-icon" />
     </div>
   </div>
-   <div id="result">
   <div id="audio-player-container" style="display: none;"></div>
- <div class="loader"> ... </div>
-  <div id="audio-player-container" style="display: none;"></div>
-</div>
   <div class="sumber">
     © Aplikasi Jariyah Untuk Kaum Muslimin
   </div>
@@ -947,10 +943,10 @@ navDiv.appendChild(playAudioBtn);
   document.body.appendChild(overlay);
 }
 
-      function playAudioForAyah(qariId) {
+      function playAudioForAyah(qariId, autoPlay = false) {
   const surahStr = String(surah).padStart(3, '0');
-const ayahStr = String(ayat).padStart(3, '0');
-const url = `https://quran.ksu.edu.sa/ayat/mp3/${qariId}/${surahStr}${ayahStr}.mp3`;
+  const ayahStr = String(ayat).padStart(3, '0');
+  const url = `https://quran.ksu.edu.sa/ayat/mp3/${qariId}/${surahStr}${ayahStr}.mp3`;
 
   const container = document.getElementById("audio-player-container");
   container.style.display = "block";
@@ -962,7 +958,11 @@ const url = `https://quran.ksu.edu.sa/ayat/mp3/${qariId}/${surahStr}${ayahStr}.m
   const audio = document.createElement("audio");
   audio.controls = true;
   audio.src = url;
-  // audio.autoplay = true;
+
+  // 🔑 hanya nyalakan autoplay jika flag autoPlay = true
+  if (autoPlay) {
+    audio.autoplay = true;
+  }
 
   // Autoplay toggle
   const toggleWrap = document.createElement("label");
@@ -984,7 +984,10 @@ const url = `https://quran.ksu.edu.sa/ayat/mp3/${qariId}/${surahStr}${ayahStr}.m
     if (toggle.checked) {
       const next = getNextAyah(surah, ayat);
       if (next) {
-        window.location.href = `?surah=${next.surah}&ayat=${next.ayah}`;
+        const url = new URL(window.location.href);
+        url.searchParams.set("surah", next.surah);
+        url.searchParams.set("ayat", next.ayah);
+        window.location.href = url.toString();
       }
     }
   };
@@ -992,6 +995,9 @@ const url = `https://quran.ksu.edu.sa/ayat/mp3/${qariId}/${surahStr}${ayahStr}.m
   audioWrapper.appendChild(audio);
   audioWrapper.appendChild(toggleWrap);
   container.appendChild(audioWrapper);
+
+  // Sisipkan ke atas konten tafsir (opsional jika belum)
+  document.getElementById("result").prepend(container);
 }
 
       function getGlobalAyahNumber(surah, ayah) {
@@ -1003,8 +1009,9 @@ const url = `https://quran.ksu.edu.sa/ayat/mp3/${qariId}/${surahStr}${ayahStr}.m
 }
 
       const savedQari = localStorage.getItem("lastQari");
+const isAutoplay = localStorage.getItem("autoplay") === "true";
 if (savedQari) {
-  playAudioForAyah(savedQari);
+  playAudioForAyah(savedQari, isAutoplay);
 }
 
       if (next) {
