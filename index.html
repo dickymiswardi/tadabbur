@@ -854,8 +854,8 @@ playPanel.appendChild(autoPlayLabel);
 navDiv.appendChild(playPanel);
 
       const params = new URLSearchParams(window.location.search);
-const surah = parseInt(params.get("surah"));
-const ayat = parseInt(params.get("ayat"));
+const currentSurah = parseInt(params.get("surah"));
+const currentAyat = parseInt(params.get("ayat"));
 
 // Fungsi putar audio
 function playAudio(surah, ayat) {
