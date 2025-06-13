@@ -3,14 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Pencarian Al-Qur'an</title>
+  <title>Pencarian Kata Al-Qur'an</title>
   <style>
     body {
       font-family: Arial, sans-serif;
       padding: 2em;
     }
 
-    /* Tombol SEARCH (gunakan CSS kamu sendiri jika sudah ada) */
     button {
       padding: 10px 20px;
       background-color: #007b8a;
@@ -21,7 +20,6 @@
       font-size: 16px;
     }
 
-    /* Modal overlay */
     .modal {
       display: none;
       position: fixed;
@@ -35,7 +33,6 @@
       align-items: center;
     }
 
-    /* Modal content box */
     .modal-content {
       background-color: #ffffff;
       padding: 2em;
@@ -46,7 +43,6 @@
       box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
     }
 
-    /* Close button */
     .close-btn {
       position: absolute;
       top: 10px;
@@ -57,7 +53,6 @@
       cursor: pointer;
     }
 
-    /* Search input */
     #quran-search {
       width: 100%;
       padding: 10px;
@@ -67,7 +62,6 @@
       border: 1px solid #ccc;
     }
 
-    /* Result links */
     #search-results a {
       display: block;
       margin: 5px 0;
@@ -79,6 +73,11 @@
 
     #search-results a:hover {
       background-color: #f0f0f0;
+    }
+
+    #search-status {
+      margin-bottom: 1em;
+      color: #333;
     }
   </style>
 </head>
@@ -95,85 +94,67 @@
   <div id="search-modal" class="modal">
     <div class="modal-content">
       <span class="close-btn">&times;</span>
-      <input type="search" id="quran-search" placeholder="Ketik kata dalam Bahasa Arab atau Indonesia">
+      <input type="search" id="quran-search" placeholder="Ketik kata Arab atau Indonesia">
       <button id="do-search">🔍 Cari</button>
+      <div id="search-status"></div>
       <div id="search-results"></div>
     </div>
   </div>
 
   <script>
-  let xmlData = null; // cache global
+    // Buka modal
+    document.getElementById("open-search").onclick = () => {
+      document.getElementById("search-modal").style.display = "flex";
+      document.getElementById("quran-search").focus();
+    };
 
-  // Buka modal
-  document.getElementById("open-search").onclick = () => {
-    document.getElementById("search-modal").style.display = "flex";
-  };
+    // Tutup modal
+    document.querySelector(".close-btn").onclick = () => {
+      document.getElementById("search-modal").style.display = "none";
+      document.getElementById("search-results").innerHTML = "";
+      document.getElementById("search-status").textContent = "";
+      document.getElementById("quran-search").value = "";
+    };
 
-  // Tutup modal
-  document.querySelector(".close-btn").onclick = () => {
-    document.getElementById("search-modal").style.display = "none";
-  };
+    // Pencarian API Quran.com
+    document.getElementById("do-search").onclick = async () => {
+      const query = document.getElementById("quran-search").value.trim();
+      const resultsDiv = document.getElementById("search-results");
+      const statusDiv = document.getElementById("search-status");
 
-  // Fungsi untuk memuat XML sekali saja
-  async function loadXMLOnce() {
-    if (xmlData) return xmlData;
-    try {
-      const res = await fetch("https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/indonesian_complex_v1.0.xml");
-      const xmlText = await res.text();
-      const parser = new DOMParser();
-      xmlData = parser.parseFromString(xmlText, "text/xml");
-      return xmlData;
-    } catch (err) {
-      console.error("Gagal memuat XML:", err);
-      return null;
-    }
-  }
+      resultsDiv.innerHTML = "";
+      statusDiv.textContent = "🔄 Mencari...";
 
-  // Fungsi pencarian
-  document.getElementById("do-search").onclick = async () => {
-    const keyword = document.getElementById("quran-search").value.trim().toLowerCase();
-    const resultsDiv = document.getElementById("search-results");
-    resultsDiv.innerHTML = "Mencari...";
-
-    if (!keyword || keyword.length < 2) {
-      resultsDiv.textContent = "Masukkan kata minimal 2 huruf.";
-      return;
-    }
-
-    const xml = await loadXMLOnce();
-    if (!xml) {
-      resultsDiv.textContent = "Gagal memuat data.";
-      return;
-    }
-
-    const ayats = xml.querySelectorAll("ayah");
-    const results = [];
-
-    ayats.forEach(ayat => {
-      const text = ayat.textContent.toLowerCase();
-      if (text.includes(keyword)) {
-        const surah = ayat.getAttribute("surah");
-        const ayah = ayat.getAttribute("ayah");
-        results.push({ surah, ayah, text });
+      if (!query || query.length < 2) {
+        statusDiv.textContent = "Masukkan kata minimal 2 huruf.";
+        return;
       }
-    });
 
-    // Tampilkan hasil
-    resultsDiv.innerHTML = "";
-    if (results.length === 0) {
-      resultsDiv.textContent = "Tidak ditemukan.";
-    } else {
-      results.forEach(({ surah, ayah, text }) => {
-        const link = document.createElement("a");
-        link.href = `https://dickymiswardi.github.io/tadabbur/?surah=${surah}&ayat=${ayah}`;
-        link.target = "_blank";
-        link.textContent = `[${surah}:${ayah}] ${text}`;
-        resultsDiv.appendChild(link);
-      });
-    }
-  };
-</script>
+      try {
+        const url = `https://api.quran.com/v4/search?q=${encodeURIComponent(query)}&size=40&page=1`;
+        const res = await fetch(url);
+        const data = await res.json();
 
+        if (!data.results || data.results.length === 0) {
+          statusDiv.textContent = "Tidak ditemukan.";
+          return;
+        }
+
+        statusDiv.textContent = `Menampilkan ${data.results.length} hasil:`;
+        data.results.forEach(item => {
+          const [surah, ayat] = item.verse_key.split(":");
+          const link = document.createElement("a");
+          link.href = `https://dickymiswardi.github.io/tadabbur/?surah=${surah}&ayat=${ayat}`;
+          link.target = "_blank";
+          link.innerHTML = `📖 [${surah}:${ayat}] ${item.text}`;
+          resultsDiv.appendChild(link);
+        });
+      } catch (err) {
+        console.error(err);
+        statusDiv.textContent = "Terjadi kesalahan saat mengakses API.";
+      }
+    };
+  </script>
 
 </body>
 </html>
