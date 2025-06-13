@@ -496,7 +496,8 @@ const lastAyat = urlParams.get("ayat") || localStorage.getItem("lastAyat");
       <img src="https://raw.githubusercontent.com/dickymiswardi/tadabbur/aa160525691e67e5d0b7aab1e7e9f37657d0ed45/AnimatedBook.gif" class="loading-icon" />
     </div>
   </div>
-<div id="audio-player-container" style="display: none;"></div>
+<div id="result">
+  <div id="audio-player-container" style="display: none;"></div>
   <div class="sumber">
     © Aplikasi Jariyah Untuk Kaum Muslimin
   </div>
@@ -636,8 +637,9 @@ ayatNodes.forEach(aya => {
       translationDiv.innerHTML = translation;
       document.getElementById("result").appendChild(translationDiv);
 
-// GANTI bagian kode tafsir yang lama DENGAN ini:
+      
 
+// GANTI bagian kode tafsir yang lama DENGAN ini:
 // Daftar sumber tafsir
 const tafsirSources = {
   jalalayn: {
@@ -858,6 +860,8 @@ function showTafsir(title, content) {
 // Cara penggunaan (ganti kode tafsir lama):
 const tafsirDropdown = createTafsirDropdown(surah, ayat);
 translationDiv.appendChild(tafsirDropdown);
+
+      </div>
       
       if (footnotes) {
   const foot = document.createElement("div");
