@@ -229,8 +229,9 @@
 
     @media (max-width: 600px) {
   #audio-player-container {
-    flex-direction: column;
-    align-items: flex-start;
+    margin-left: 0;
+    margin-top: 1em;
+    width: 100%;
   }
 }
 
@@ -894,24 +895,26 @@ translationDiv.appendChild(tafsirDropdown);
         navDiv.appendChild(prevBtn);
       }
 
-      const audioControlRow = document.createElement("div");
-audioControlRow.style.display = "flex";
-audioControlRow.style.flexWrap = "wrap";
-audioControlRow.style.alignItems = "center";
-audioControlRow.style.gap = "1em";
+      // Container horizontal
+const audioRow = document.createElement("div");
+audioRow.style.display = "flex";
+audioRow.style.alignItems = "center";
+audioRow.style.flexWrap = "wrap";
 
+// Tombol PLAY AUDIO
 const playAudioBtn = document.createElement("button");
 playAudioBtn.textContent = "PLAY AUDIO";
 playAudioBtn.onclick = showQariSelector;
 
-const audioContainer = document.createElement("div");
-audioContainer.id = "audio-player-container";
-audioContainer.style.display = "none";
+// Tambahkan tombol ke container
+audioRow.appendChild(playAudioBtn);
 
-audioControlRow.appendChild(playAudioBtn);
-audioControlRow.appendChild(audioContainer);
-navDiv.appendChild(audioControlRow);
+// Tambahkan container audio player (ditempatkan secara dinamis)
+const audioPlayerContainer = document.getElementById("audio-player-container");
+audioRow.appendChild(audioPlayerContainer);
 
+// Tambahkan baris ke nav
+navDiv.appendChild(audioRow);
 
       function showQariSelector() {
   const backdrop = document.createElement("div");
@@ -963,27 +966,25 @@ navDiv.appendChild(audioControlRow);
   document.body.appendChild(overlay);
 }
 
-function playAudioForAyah(qariId) {
+      function playAudioForAyah(qariId) {
   const globalAyah = getGlobalAyahNumber(surah, ayat);
   const url = `https://cdn.islamic.network/quran/audio/128/${qariId}/${globalAyah}.mp3`;
 
   const container = document.getElementById("audio-player-container");
-  container.style.display = "flex";
-  container.style.flexWrap = "wrap";
-  container.style.alignItems = "center";
-  container.style.gap = "1em";
-  container.style.marginTop = "1.5em";
-  container.innerHTML = ''; // kosongkan
+  container.style.display = "block";
+  container.innerHTML = '';
+
+  const audioWrapper = document.createElement("div");
+  audioWrapper.className = "audio-wrapper";
 
   const audio = document.createElement("audio");
   audio.controls = true;
   audio.src = url;
   audio.autoplay = true;
-  audio.style.maxWidth = "240px";
 
+  // Autoplay toggle
   const toggleWrap = document.createElement("label");
   toggleWrap.className = "autoplay-toggle";
-  toggleWrap.style.whiteSpace = "nowrap";
 
   const toggle = document.createElement("input");
   toggle.type = "checkbox";
@@ -994,8 +995,9 @@ function playAudioForAyah(qariId) {
   };
 
   toggleWrap.appendChild(toggle);
-  toggleWrap.appendChild(document.createTextNode(" Autoplay"));
+  toggleWrap.appendChild(document.createTextNode("Putar otomatis ayat selanjutnya"));
 
+  // Event audio selesai
   audio.onended = () => {
     if (toggle.checked) {
       const next = getNextAyah(surah, ayat);
@@ -1005,10 +1007,11 @@ function playAudioForAyah(qariId) {
     }
   };
 
-  container.appendChild(audio);
-  container.appendChild(toggleWrap);
+  audioWrapper.appendChild(audio);
+  audioWrapper.appendChild(toggleWrap);
+  container.appendChild(audioWrapper);
 }
-      
+
       function getGlobalAyahNumber(surah, ayah) {
   let total = 0;
   for (let i = 1; i < surah; i++) {
@@ -1088,5 +1091,6 @@ if (savedQari) {
   // Simpan URL terakhir ke localStorage saat halaman ini dibuka
   localStorage.setItem("lastQuranPage", window.location.href);
 </script>
+<div id="audio-player-container" style="display: none; margin-left: 1em;"></div>
 </body>
 </html>
