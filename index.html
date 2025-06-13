@@ -781,10 +781,11 @@ function createTafsirDropdown(surah, ayah) {
     const link = document.createElement("a");
     link.href = "#";
     link.textContent = source.name;
-    link.onclick = async (e) => {
-      e.preventDefault();
-      const tafsirText = await loadTafsir(key, surah, ayah);
-      showTafsir(source.name, tafsirText);
+    link.onclick = (e) => {
+  e.preventDefault();
+  const tafsirPromise = loadTafsir(key, surah, ayah);
+  showTafsir(source.name, tafsirPromise);
+};
 
       // Tutup dropdown setelah klik
       dropdownContent.classList.remove("show", "upward");
@@ -827,7 +828,7 @@ window.addEventListener("click", function () {
 });
 
 // Fungsi tampilkan tafsir
-function showTafsir(title, content) {
+function showTafsir(title, contentPromise) {
   // Bersihkan jika ada sebelumnya
   document.getElementById("tafsir-overlay")?.remove();
   document.getElementById("tafsir-backdrop")?.remove();
@@ -853,39 +854,48 @@ function showTafsir(title, content) {
     backdrop.remove();
   };
 
-  // Deteksi arab/latin
-  const arabicRegex = /[\u0600-\u06FF]/;
-  const isArabic = arabicRegex.test(content);
-  const titleClass = title === "Al-Jalalayn ID" ? "tafsir-title-left" : "tafsir-title";
-
-  // Buat elemen
-  const titleEl = document.createElement("div");
-  titleEl.className = titleClass;
-  titleEl.textContent = title;
-
-  const copyWrap = document.createElement("div");
-  copyWrap.className = titleClass;
-  copyWrap.innerHTML = `
-    <button id="copy-tafsir-btn" class="copy-button">Salin Tafsir</button>
-    <span id="copy-status" class="copy-status"></span>
+  // Loading animasi
+  const loadingDiv = document.createElement("div");
+  loadingDiv.style.textAlign = "center";
+  loadingDiv.innerHTML = `
+    <img src="https://raw.githubusercontent.com/dickymiswardi/tadabbur/main/Settings.gif" width="60" alt="Loading..." />
+    <p style="margin-top: 0.5em; color: #555;">Memuat tafsir...</p>
   `;
 
-  const contentWrap = document.createElement("div");
-  contentWrap.innerHTML = isArabic
-    ? `<div class="tafsir-arabic">${content}</div>`
-    : `<div class="tafsir-latin">${content}</div>`;
-
-  // Susun overlay
   overlay.appendChild(closeBtn);
-  overlay.appendChild(titleEl);
-  overlay.appendChild(copyWrap);
-  overlay.appendChild(contentWrap);
-
+  overlay.appendChild(loadingDiv);
   document.body.appendChild(backdrop);
   document.body.appendChild(overlay);
 
-  // Salin tafsir
-  setTimeout(() => {
+  // Tunggu data selesai di-load (promise tafsir)
+  Promise.resolve(contentPromise).then(content => {
+    overlay.removeChild(loadingDiv);
+
+    const arabicRegex = /[\u0600-\u06FF]/;
+    const isArabic = arabicRegex.test(content);
+    const titleClass = title === "Al-Jalalayn ID" ? "tafsir-title-left" : "tafsir-title";
+
+    const titleEl = document.createElement("div");
+    titleEl.className = titleClass;
+    titleEl.textContent = title;
+
+    const copyWrap = document.createElement("div");
+    copyWrap.className = titleClass;
+    copyWrap.innerHTML = `
+      <button id="copy-tafsir-btn" class="copy-button">Salin Tafsir</button>
+      <span id="copy-status" class="copy-status"></span>
+    `;
+
+    const contentWrap = document.createElement("div");
+    contentWrap.innerHTML = isArabic
+      ? `<div class="tafsir-arabic">${content}</div>`
+      : `<div class="tafsir-latin">${content}</div>`;
+
+    overlay.appendChild(titleEl);
+    overlay.appendChild(copyWrap);
+    overlay.appendChild(contentWrap);
+
+    // Event tombol salin
     const copyBtn = document.getElementById("copy-tafsir-btn");
     const copyStatus = document.getElementById("copy-status");
 
@@ -905,7 +915,7 @@ function showTafsir(title, content) {
           });
       });
     }
-  }, 300);
+  });
 }
 // Cara penggunaan (ganti kode tafsir lama):
 const tafsirDropdown = createTafsirDropdown(surah, ayat);
