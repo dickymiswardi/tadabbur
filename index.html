@@ -828,8 +828,8 @@ window.addEventListener("click", function () {
 });
 
 // Fungsi tampilkan tafsir
-function showTafsir(title, contentPromise) {
-  // Bersihkan jika ada sebelumnya
+function showTafsir(title, contentOrPromise) {
+  // Bersihkan sebelumnya
   document.getElementById("tafsir-overlay")?.remove();
   document.getElementById("tafsir-backdrop")?.remove();
 
@@ -841,11 +841,9 @@ function showTafsir(title, contentPromise) {
     backdrop.remove();
   };
 
-  // Overlay
   const overlay = document.createElement("div");
   overlay.id = "tafsir-overlay";
 
-  // Tombol close
   const closeBtn = document.createElement("div");
   closeBtn.id = "tafsir-overlay-close";
   closeBtn.innerHTML = "&times;";
@@ -854,22 +852,21 @@ function showTafsir(title, contentPromise) {
     backdrop.remove();
   };
 
-  // Loading animasi
+  overlay.appendChild(closeBtn);
+
   const loadingDiv = document.createElement("div");
   loadingDiv.style.textAlign = "center";
   loadingDiv.innerHTML = `
     <img src="https://raw.githubusercontent.com/dickymiswardi/tadabbur/main/Settings.gif" width="60" alt="Loading..." />
-    <p style="margin-top: 0.5em; color: #555;">Memuat tafsir...</p>
   `;
-
-  overlay.appendChild(closeBtn);
   overlay.appendChild(loadingDiv);
+
   document.body.appendChild(backdrop);
   document.body.appendChild(overlay);
 
-  // Tunggu data selesai di-load (promise tafsir)
-  Promise.resolve(contentPromise).then(content => {
-    overlay.removeChild(loadingDiv);
+  // Pastikan promise (bisa string biasa atau promise)
+  Promise.resolve(contentOrPromise).then(content => {
+    loadingDiv.remove();
 
     const arabicRegex = /[\u0600-\u06FF]/;
     const isArabic = arabicRegex.test(content);
@@ -895,7 +892,6 @@ function showTafsir(title, contentPromise) {
     overlay.appendChild(copyWrap);
     overlay.appendChild(contentWrap);
 
-    // Event tombol salin
     const copyBtn = document.getElementById("copy-tafsir-btn");
     const copyStatus = document.getElementById("copy-status");
 
@@ -917,6 +913,7 @@ function showTafsir(title, contentPromise) {
     }
   });
 }
+
 // Cara penggunaan (ganti kode tafsir lama):
 const tafsirDropdown = createTafsirDropdown(surah, ayat);
 translationDiv.appendChild(tafsirDropdown);
