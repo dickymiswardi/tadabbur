@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pencarian Al-Qur'an</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 2em;
+    }
+
+    /* Tombol SEARCH (gunakan CSS kamu sendiri jika sudah ada) */
+    button {
+      padding: 10px 20px;
+      background-color: #007b8a;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    /* Modal overlay */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 9999;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.6);
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* Modal content box */
+    .modal-content {
+      background-color: #ffffff;
+      padding: 2em;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 600px;
+      position: relative;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Close button */
+    .close-btn {
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      font-size: 24px;
+      font-weight: bold;
+      color: #333;
+      cursor: pointer;
+    }
+
+    /* Search input */
+    #quran-search {
+      width: 100%;
+      padding: 10px;
+      font-size: 16px;
+      margin-bottom: 1em;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+
+    /* Result links */
+    #search-results a {
+      display: block;
+      margin: 5px 0;
+      padding: 6px;
+      text-decoration: none;
+      border-bottom: 1px solid #eee;
+      color: #007b8a;
+    }
+
+    #search-results a:hover {
+      background-color: #f0f0f0;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Pencarian Kata Al-Qur’an</h1>
+
+  <!-- Tombol pencarian -->
+  <div id="navDiv">
+    <button id="open-search">⚲ SEARCH</button>
+  </div>
+
+  <!-- Modal Pencarian -->
+  <div id="search-modal" class="modal">
+    <div class="modal-content">
+      <span class="close-btn">&times;</span>
+      <input type="search" id="quran-search" placeholder="Ketik kata dalam Bahasa Arab atau Indonesia">
+      <button id="do-search">🔍 Cari</button>
+      <div id="search-results"></div>
+    </div>
+  </div>
+
+  <script>
+    // Buka modal
+    document.getElementById("open-search").onclick = () => {
+      document.getElementById("search-modal").style.display = "flex";
+    };
+
+    // Tutup modal
+    document.querySelector(".close-btn").onclick = () => {
+      document.getElementById("search-modal").style.display = "none";
+    };
+
+    // Fungsi pencarian
+    document.getElementById("do-search").onclick = async () => {
+      const keyword = document.getElementById("quran-search").value.toLowerCase();
+      const resultsDiv = document.getElementById("search-results");
+      resultsDiv.innerHTML = "Mencari...";
+
+      if (!keyword || keyword.length < 2) {
+        resultsDiv.textContent = "Masukkan kata minimal 2 huruf.";
+        return;
+      }
+
+      try {
+        const res = await fetch("https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/indonesian_complex_v1.0.xml");
+        const xmlText = await res.text();
+
+        const parser = new DOMParser();
+        const xml = parser.parseFromString(xmlText, "text/xml");
+        const ayats = xml.querySelectorAll("ayah");
+
+        const results = [];
+        ayats.forEach(ayat => {
+          const text = ayat.textContent.toLowerCase();
+          if (text.includes(keyword)) {
+            const surah = ayat.getAttribute("surah");
+            const ayah = ayat.getAttribute("ayah");
+            results.push({ surah, ayah, text });
+          }
+        });
+
+        // Tampilkan hasil
+        resultsDiv.innerHTML = "";
+        if (results.length === 0) {
+          resultsDiv.textContent = "Tidak ditemukan.";
+        } else {
+          results.forEach(({ surah, ayah, text }) => {
+            const link = document.createElement("a");
+            link.href = `https://dickymiswardi.github.io/tadabbur/?surah=${surah}&ayat=${ayah}`;
+            link.target = "_blank";
+            link.textContent = `[${surah}:${ayah}] ${text}`;
+            resultsDiv.appendChild(link);
+          });
+        }
+      } catch (err) {
+        resultsDiv.textContent = "Terjadi kesalahan saat mengambil data.";
+        console.error(err);
+      }
+    };
+  </script>
+
+</body>
+</html>
