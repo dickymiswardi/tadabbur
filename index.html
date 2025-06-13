@@ -204,28 +204,103 @@
       text-align: center;
     }
 
-    .nav-buttons {
-      display: flex;
-      justify-content: space-between;
-      flex-direction: row-reverse;
-      gap: 0.5em;
-      margin-top: 2em;
-    }
+    /* Tombol Navigasi Lama */
+.nav-buttons {
+  display: flex;
+  justify-content: space-between;
+  flex-direction: row-reverse;
+  gap: 0.5em;
+  margin-top: 2em;
+}
 
-    .nav-buttons button {
-      padding: 0.6em 1.2em;
-      border: none;
-      background-color: #007b8a;
-      color: white;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 0.95em;
-      transition: background-color 0.2s ease;
-    }
+.nav-buttons button {
+  padding: 0.6em 1.2em;
+  border: none;
+  background-color: #007b8a;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.95em;
+  transition: background-color 0.2s ease;
+}
 
-    .nav-buttons button:hover {
-      background-color: #005f6b;
-    }
+.nav-buttons button:hover {
+  background-color: #005f6b;
+}
+
+/* Tombol Play Audio (pengganti SEARCH) */
+#audio-toggle-btn {
+  background-color: #007b8a;
+  color: white;
+  border: none;
+  padding: 0.6em 1.2em;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.95em;
+  transition: background-color 0.2s ease;
+}
+
+#audio-toggle-btn:hover {
+  background-color: #005f6b;
+}
+
+/* Panel Audio */
+#audio-panel {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.audio-panel-content {
+  background: white;
+  padding: 20px 30px;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.audio-panel-content h3 {
+  margin-bottom: 1em;
+}
+
+.audio-panel-content select,
+.audio-panel-content button {
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+  font-size: 1em;
+}
+
+.autoplay-label {
+  display: block;
+  margin: 10px 0;
+  font-size: 0.95em;
+}
+
+#audio-panel button {
+  background-color: #007b8a;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+#audio-panel button:hover {
+  background-color: #005f6b;
+}
+
+.hidden {
+  display: none;
+}
 
     .loader {
       display: flex;
@@ -822,12 +897,75 @@ translationDiv.appendChild(tafsirDropdown);
         navDiv.appendChild(prevBtn);
       }
 
-      const searchBtn = document.createElement("button");
-      searchBtn.textContent = "⚲ SEARCH";
-      searchBtn.onclick = () => {
-        window.location.href = "index.html";
-      };
-      navDiv.appendChild(searchBtn);
+      const navDiv = document.querySelector(".nav-buttons"); // Pastikan class sama
+const audioBtn = document.createElement("button");
+audioBtn.id = "audio-toggle-btn";
+audioBtn.textContent = "▶ Play Audio";
+audioBtn.onclick = () => {
+  document.getElementById("audio-panel").classList.remove("hidden");
+};
+navDiv.appendChild(audioBtn);
+
+      function getSurahAyatFromURL() {
+  const params = new URLSearchParams(window.location.search);
+  return {
+    surah: parseInt(params.get("surah")),
+    ayat: parseInt(params.get("ayat"))
+  };
+}
+
+      // Isi array ayatPerSurah dari data kamu atau API
+const ayatPerSurah = {
+  1: 7, 2: 286, 3: 200, /* ... isi lengkap sampai 114 */
+};
+
+function getGlobalAyahNumber(surah, ayah) {
+  let globalNumber = 0;
+  for (let i = 1; i < surah; i++) {
+    globalNumber += ayatPerSurah[i];
+  }
+  globalNumber += parseInt(ayah);
+  return globalNumber;
+}
+
+      function playAyat(qari, bitrate = 64) {
+  const { surah, ayat } = getSurahAyatFromURL();
+  if (!surah || !ayat) {
+    alert("URL tidak memiliki parameter surah/ayat.");
+    return;
+  }
+
+  const globalAyah = getGlobalAyahNumber(surah, ayat);
+  const audioUrl = `https://cdn.islamic.network/quran/audio/${bitrate}/${qari}/${globalAyah}.mp3`;
+
+  const audio = document.getElementById("quran-audio");
+  audio.src = audioUrl;
+  audio.style.display = "block";
+  audio.play();
+}
+
+      document.getElementById("play-btn").onclick = () => {
+  const qari = document.getElementById("qari-select").value;
+  playAyat(qari, 64);
+};
+
+      document.getElementById("quran-audio").onended = () => {
+  const autoPlay = document.getElementById("autoplay-toggle").checked;
+  if (autoPlay) {
+    let { surah, ayat } = getSurahAyatFromURL();
+    ayat = parseInt(ayat) + 1;
+
+    if (ayat > ayatPerSurah[surah]) {
+      surah = parseInt(surah) + 1;
+      ayat = 1;
+      if (surah > 114) return;
+    }
+
+    window.location.href = `index.html?surah=${surah}&ayat=${ayat}`;
+  }
+};
+
+      
 
       if (next) {
         const nextBtn = document.createElement("button");
@@ -895,5 +1033,23 @@ translationDiv.appendChild(tafsirDropdown);
   // Simpan URL terakhir ke localStorage saat halaman ini dibuka
   localStorage.setItem("lastQuranPage", window.location.href);
 </script>
+  <div id="audio-panel" class="hidden">
+  <div class="audio-panel-content">
+    <h3>Putar Audio Ayat</h3>
+    <select id="qari-select">
+      <option value="ar.alafasy">Mishary Alafasy</option>
+      <option value="ar.husary">Husary</option>
+      <option value="ar.abdulbasit">Abdul Basit</option>
+    </select>
+
+    <label class="autoplay-label">
+      <input type="checkbox" id="autoplay-toggle"> Auto Play Ayat Berikutnya
+    </label>
+
+    <button id="play-btn">▶ Mulai</button>
+    <button onclick="document.getElementById('audio-panel').classList.add('hidden')">✕ Tutup</button>
+  </div>
+</div>
+<audio id="quran-audio" style="display: none;" controls></audio>
 </body>
 </html>
