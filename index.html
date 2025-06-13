@@ -227,61 +227,69 @@
       background-color: #005f6b;
     }
 
-
-.audio-overlay {
+/* Overlay Qari */
+.audio-qari-overlay {
   position: fixed;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   background: white;
-  border: 2px solid #007b8a;
   border-radius: 12px;
-  box-shadow: 0 0 20px rgba(0,0,0,0.2);
+  box-shadow: 0 0 20px rgba(0,0,0,0.3);
   z-index: 9999;
   padding: 1.5em;
   width: 90%;
-  max-width: 350px;
-}
-
-.audio-overlay h3 {
-  margin-top: 0;
-  font-size: 1.1em;
+  max-width: 320px;
   text-align: center;
-  color: #007b8a;
 }
 
-.audio-overlay select {
+.audio-qari-overlay select {
   width: 100%;
-  padding: 0.5em;
-  border-radius: 8px;
-  border: 1px solid #ccc;
+  padding: 0.6em;
   margin-top: 1em;
+  font-size: 1em;
+  border-radius: 8px;
+  border: 1px solid #007b8a;
 }
 
-.audio-overlay button {
+.audio-qari-overlay button {
   margin-top: 1em;
+  padding: 0.6em 1em;
   background: #007b8a;
   color: white;
   border: none;
-  padding: 0.5em 1em;
-  border-radius: 8px;
-  width: 100%;
-  font-size: 1em;
+  border-radius: 6px;
   cursor: pointer;
-}
-
-.audio-overlay button:hover {
-  background: #005f6b;
-}
-
-.audio-backdrop {
-  position: fixed;
-  top: 0;
-  left: 0;
   width: 100%;
-  height: 100%;
+}
+
+.audio-qari-backdrop {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
   background: rgba(0,0,0,0.4);
   z-index: 9998;
+}
+
+/* Audio Player */
+#audio-player-container {
+  margin-top: 2em;
+  text-align: center;
+}
+
+.audio-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.autoplay-toggle {
+  margin-top: 0.5em;
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  font-size: 0.9em;
+  color: #333;
 }
     
 
@@ -882,24 +890,19 @@ translationDiv.appendChild(tafsirDropdown);
 
       const playAudioBtn = document.createElement("button");
 playAudioBtn.textContent = "PLAY AUDIO";
-playAudioBtn.onclick = showAudioOverlay;
+playAudioBtn.onclick = showQariSelector;
 navDiv.appendChild(playAudioBtn);
 
-      function showAudioOverlay() {
-  // Backdrop
+      function showQariSelector() {
   const backdrop = document.createElement("div");
-  backdrop.className = "audio-backdrop";
+  backdrop.className = "audio-qari-backdrop";
   backdrop.onclick = () => {
-    document.body.removeChild(backdrop);
-    document.body.removeChild(overlay);
+    backdrop.remove();
+    overlay.remove();
   };
 
-  // Overlay container
   const overlay = document.createElement("div");
-  overlay.className = "audio-overlay";
-
-  const title = document.createElement("h3");
-  title.textContent = "Pilih Qari untuk mendengarkan";
+  overlay.className = "audio-qari-overlay";
 
   const select = document.createElement("select");
   const qaris = [
@@ -913,52 +916,77 @@ navDiv.appendChild(playAudioBtn);
     { name: "Muhammad Ayyub", id: "ar.ayyub" }
   ];
 
-  const defaultOpt = document.createElement("option");
-  defaultOpt.textContent = "-- Pilih Qari --";
-  defaultOpt.disabled = true;
-  defaultOpt.selected = true;
-  select.appendChild(defaultOpt);
-
+  const savedQari = localStorage.getItem("lastQari") || "";
   qaris.forEach(qari => {
     const opt = document.createElement("option");
     opt.value = qari.id;
     opt.textContent = qari.name;
+    if (qari.id === savedQari) opt.selected = true;
     select.appendChild(opt);
   });
 
-  const playBtn = document.createElement("button");
-  playBtn.textContent = "Putar Ayat Ini";
-
-  const audioPlayer = document.createElement("audio");
-  audioPlayer.controls = true;
-  audioPlayer.style.marginTop = "1em";
-  audioPlayer.style.width = "100%";
-  audioPlayer.style.display = "none";
-
-  playBtn.onclick = () => {
+  const confirmBtn = document.createElement("button");
+  confirmBtn.textContent = "Gunakan Qari Ini";
+  confirmBtn.onclick = () => {
     const qariId = select.value;
-    if (!qariId) {
-      alert("Silakan pilih Qari");
-      return;
-    }
-    const globalAyah = getGlobalAyahNumber(surah, ayat);
-    const audioUrl = `https://cdn.islamic.network/quran/audio/128/${qariId}/${globalAyah}.mp3`;
-
-    audioPlayer.src = audioUrl;
-    audioPlayer.style.display = "block";
-    audioPlayer.play().catch(err => {
-      alert("Gagal memutar audio.");
-      console.error(err);
-    });
+    localStorage.setItem("lastQari", qariId);
+    playAudioForAyah(qariId);
+    overlay.remove();
+    backdrop.remove();
   };
 
-  overlay.appendChild(title);
+  overlay.innerHTML = `<h3>Pilih Qari</h3>`;
   overlay.appendChild(select);
-  overlay.appendChild(playBtn);
-  overlay.appendChild(audioPlayer);
+  overlay.appendChild(confirmBtn);
 
   document.body.appendChild(backdrop);
   document.body.appendChild(overlay);
+}
+
+      function playAudioForAyah(qariId) {
+  const globalAyah = getGlobalAyahNumber(surah, ayat);
+  const url = `https://cdn.islamic.network/quran/audio/128/${qariId}/${globalAyah}.mp3`;
+
+  const container = document.getElementById("audio-player-container");
+  container.style.display = "block";
+  container.innerHTML = '';
+
+  const audioWrapper = document.createElement("div");
+  audioWrapper.className = "audio-wrapper";
+
+  const audio = document.createElement("audio");
+  audio.controls = true;
+  audio.src = url;
+  audio.autoplay = true;
+
+  // Autoplay toggle
+  const toggleWrap = document.createElement("label");
+  toggleWrap.className = "autoplay-toggle";
+
+  const toggle = document.createElement("input");
+  toggle.type = "checkbox";
+  toggle.checked = localStorage.getItem("autoplay") === "true";
+
+  toggle.onchange = () => {
+    localStorage.setItem("autoplay", toggle.checked);
+  };
+
+  toggleWrap.appendChild(toggle);
+  toggleWrap.appendChild(document.createTextNode("Putar otomatis ayat selanjutnya"));
+
+  // Event audio selesai
+  audio.onended = () => {
+    if (toggle.checked) {
+      const next = getNextAyah(surah, ayat);
+      if (next) {
+        window.location.href = `?surah=${next.surah}&ayat=${next.ayah}`;
+      }
+    }
+  };
+
+  audioWrapper.appendChild(audio);
+  audioWrapper.appendChild(toggleWrap);
+  container.appendChild(audioWrapper);
 }
 
       function getGlobalAyahNumber(surah, ayah) {
@@ -969,7 +997,10 @@ navDiv.appendChild(playAudioBtn);
   return total + ayah;
 }
 
-      
+      const savedQari = localStorage.getItem("lastQari");
+if (savedQari) {
+  playAudioForAyah(savedQari);
+}
 
 
       if (next) {
@@ -1038,5 +1069,6 @@ navDiv.appendChild(playAudioBtn);
   // Simpan URL terakhir ke localStorage saat halaman ini dibuka
   localStorage.setItem("lastQuranPage", window.location.href);
 </script>
+  <div id="audio-player-container" style="display: none;"></div>
 </body>
 </html>
