@@ -167,6 +167,28 @@
   background-color: #45a049;       /* Lebih gelap saat hover */
 }
 
+.murottal-ayah-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 1.5em;
+  gap: 0.8em;
+}
+
+.qari-dropdown {
+  padding: 0.5em 1em;
+  font-size: 0.95em;
+  border-radius: 6px;
+  border: 1px solid #007b8a;
+  background-color: white;
+  color: #007b8a;
+  width: 80%;
+  max-width: 300px;
+  text-align: center;
+}
+
+
+    
 .copy-status {
   font-size: 0.9em;
   color: green;
@@ -792,6 +814,66 @@ function showTafsir(title, content) {
 // Cara penggunaan (ganti kode tafsir lama):
 const tafsirDropdown = createTafsirDropdown(surah, ayat);
 translationDiv.appendChild(tafsirDropdown);
+
+// === PLAY PER AYAT DENGAN DROPDOWN QARI ===
+const murottalPerAyatContainer = document.createElement("div");
+murottalPerAyatContainer.className = "murottal-ayah-container";
+
+// Buat dropdown
+const qariDropdown = document.createElement("select");
+qariDropdown.className = "qari-dropdown";
+
+const qaris = [
+  ["ar.ahmedajamy", "Ahmed Ajamy"],
+  ["ar.alafasy", "Al‑Afasy"],
+  ["ar.hudhaify", "Hudhaify"],
+  ["ar.husary", "Husary"],
+  ["ar.husarymujawwad", "Husary Mujawwad"],
+  ["ar.mahermuaiqly", "Maher Al‑Muaiqly"],
+  ["ar.minshawimujawwad", "Minshawi Mujawwad"],
+  ["ar.muhammadayyoub", "Muhammad Ayyoub"],
+  ["ar.muhammadjibreel", "Muhammad Jibreel"],
+  ["ar.shaatree", "Shaatree"],
+  ["fr.leclerc", "Leclerc (Prancis)"],
+  ["ru.kuliev-audio", "Kuliev (Rusia)"],
+  ["ar.abdulbasitmurattal", "Abdul Basit Murattal"],
+  ["ar.abdullahbasfar", "Abdullah Basfar"],
+  ["ar.abdurrahmaansudais", "Abdurrahman Sudais"],
+  ["ar.hanirifai", "Hanirifai"],
+  ["en.walk", "Walk (Inggris)"],
+  ["ar.ibrahimakhbar", "Ibrahim Akhbar"],
+  ["fa.hedayatfarfooladvand", "Hedayatfar (Farsi)"],
+  ["ar.parhizgar", "Parhizgar"],
+  ["ar.abdulsamad", "Abdulsamad"],
+  ["ar.saoodshuraym", "Saood Shuraym"],
+  ["ur.khan", "Khan (Urdu)"]
+];
+
+qaris.forEach(([val, label]) => {
+  const opt = document.createElement("option");
+  opt.value = val;
+  opt.textContent = label;
+  qariDropdown.appendChild(opt);
+});
+
+// Buat tombol
+const playOneAyahBtn = document.createElement("button");
+playOneAyahBtn.textContent = "▶ PUTAR AYAT INI";
+playOneAyahBtn.className = "copy-button";
+
+playOneAyahBtn.onclick = () => {
+  const selectedQari = qariDropdown.value;
+  const fileName = String(ayat).padStart(3, '0');
+  const audioUrl = `https://cdn.islamic.network/quran/audio/128/${selectedQari}/${surah}${fileName}.mp3`;
+  const audio = new Audio(audioUrl);
+  audio.play().catch(err => alert("Gagal memutar audio: " + err.message));
+};
+
+// Tambahkan elemen
+murottalPerAyatContainer.appendChild(qariDropdown);
+murottalPerAyatContainer.appendChild(playOneAyahBtn);
+translationDiv.appendChild(murottalPerAyatContainer);
+
       
       if (footnotes) {
   const foot = document.createElement("div");
@@ -822,12 +904,19 @@ translationDiv.appendChild(tafsirDropdown);
         navDiv.appendChild(prevBtn);
       }
 
-      const searchBtn = document.createElement("button");
-      searchBtn.textContent = "⚲ SEARCH";
-      searchBtn.onclick = () => {
-        window.location.href = "index.html";
-      };
-      navDiv.appendChild(searchBtn);
+      const playBtn = document.createElement("button");
+playBtn.textContent = "▶ PUTAR AYAT INI";
+playBtn.className = "copy-button";
+
+playBtn.onclick = () => {
+  const qari = "ar.abdurrahmaansudais"; // Ganti qari jika perlu
+  const fileName = String(ayat).padStart(3, '0');
+  const audioUrl = `https://cdn.islamic.network/quran/audio/128/${qari}/${surah}${fileName}.mp3`;
+  const audio = new Audio(audioUrl);
+  audio.play().catch(err => alert("Gagal memutar audio: " + err.message));
+};
+
+navDiv.appendChild(playBtn);
 
       if (next) {
         const nextBtn = document.createElement("button");
