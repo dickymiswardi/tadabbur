@@ -102,64 +102,78 @@
   </div>
 
   <script>
-    // Buka modal
-    document.getElementById("open-search").onclick = () => {
-      document.getElementById("search-modal").style.display = "flex";
-    };
+  let xmlData = null; // cache global
 
-    // Tutup modal
-    document.querySelector(".close-btn").onclick = () => {
-      document.getElementById("search-modal").style.display = "none";
-    };
+  // Buka modal
+  document.getElementById("open-search").onclick = () => {
+    document.getElementById("search-modal").style.display = "flex";
+  };
 
-    // Fungsi pencarian
-    document.getElementById("do-search").onclick = async () => {
-      const keyword = document.getElementById("quran-search").value.toLowerCase();
-      const resultsDiv = document.getElementById("search-results");
-      resultsDiv.innerHTML = "Mencari...";
+  // Tutup modal
+  document.querySelector(".close-btn").onclick = () => {
+    document.getElementById("search-modal").style.display = "none";
+  };
 
-      if (!keyword || keyword.length < 2) {
-        resultsDiv.textContent = "Masukkan kata minimal 2 huruf.";
-        return;
+  // Fungsi untuk memuat XML sekali saja
+  async function loadXMLOnce() {
+    if (xmlData) return xmlData;
+    try {
+      const res = await fetch("https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/indonesian_complex_v1.0.xml");
+      const xmlText = await res.text();
+      const parser = new DOMParser();
+      xmlData = parser.parseFromString(xmlText, "text/xml");
+      return xmlData;
+    } catch (err) {
+      console.error("Gagal memuat XML:", err);
+      return null;
+    }
+  }
+
+  // Fungsi pencarian
+  document.getElementById("do-search").onclick = async () => {
+    const keyword = document.getElementById("quran-search").value.trim().toLowerCase();
+    const resultsDiv = document.getElementById("search-results");
+    resultsDiv.innerHTML = "Mencari...";
+
+    if (!keyword || keyword.length < 2) {
+      resultsDiv.textContent = "Masukkan kata minimal 2 huruf.";
+      return;
+    }
+
+    const xml = await loadXMLOnce();
+    if (!xml) {
+      resultsDiv.textContent = "Gagal memuat data.";
+      return;
+    }
+
+    const ayats = xml.querySelectorAll("ayah");
+    const results = [];
+
+    ayats.forEach(ayat => {
+      const text = ayat.textContent.toLowerCase();
+      if (text.includes(keyword)) {
+        const surah = ayat.getAttribute("surah");
+        const ayah = ayat.getAttribute("ayah");
+        results.push({ surah, ayah, text });
       }
+    });
 
-      try {
-        const res = await fetch("https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/indonesian_complex_v1.0.xml");
-        const xmlText = await res.text();
+    // Tampilkan hasil
+    resultsDiv.innerHTML = "";
+    if (results.length === 0) {
+      resultsDiv.textContent = "Tidak ditemukan.";
+    } else {
+      results.forEach(({ surah, ayah, text }) => {
+        const link = document.createElement("a");
+        link.href = `https://dickymiswardi.github.io/tadabbur/?surah=${surah}&ayat=${ayah}`;
+        link.target = "_blank";
+        link.textContent = `[${surah}:${ayah}] ${text}`;
+        resultsDiv.appendChild(link);
+      });
+    }
+  };
+</script>
 
-        const parser = new DOMParser();
-        const xml = parser.parseFromString(xmlText, "text/xml");
-        const ayats = xml.querySelectorAll("ayah");
-
-        const results = [];
-        ayats.forEach(ayat => {
-          const text = ayat.textContent.toLowerCase();
-          if (text.includes(keyword)) {
-            const surah = ayat.getAttribute("surah");
-            const ayah = ayat.getAttribute("ayah");
-            results.push({ surah, ayah, text });
-          }
-        });
-
-        // Tampilkan hasil
-        resultsDiv.innerHTML = "";
-        if (results.length === 0) {
-          resultsDiv.textContent = "Tidak ditemukan.";
-        } else {
-          results.forEach(({ surah, ayah, text }) => {
-            const link = document.createElement("a");
-            link.href = `https://dickymiswardi.github.io/tadabbur/?surah=${surah}&ayat=${ayah}`;
-            link.target = "_blank";
-            link.textContent = `[${surah}:${ayah}] ${text}`;
-            resultsDiv.appendChild(link);
-          });
-        }
-      } catch (err) {
-        resultsDiv.textContent = "Terjadi kesalahan saat mengambil data.";
-        console.error(err);
-      }
-    };
-  </script>
 
 </body>
 </html>
