@@ -943,10 +943,10 @@ navDiv.appendChild(playAudioBtn);
   document.body.appendChild(overlay);
 }
 
-      function playAudioForAyah(qariId, autoPlay = false) {
+      function playAudioForAyah(qariId) {
   const surahStr = String(surah).padStart(3, '0');
-  const ayahStr = String(ayat).padStart(3, '0');
-  const url = `https://quran.ksu.edu.sa/ayat/mp3/${qariId}/${surahStr}${ayahStr}.mp3`;
+const ayahStr = String(ayat).padStart(3, '0');
+const url = `https://quran.ksu.edu.sa/ayat/mp3/${qariId}/${surahStr}${ayahStr}.mp3`;
 
   const container = document.getElementById("audio-player-container");
   container.style.display = "block";
@@ -958,11 +958,7 @@ navDiv.appendChild(playAudioBtn);
   const audio = document.createElement("audio");
   audio.controls = true;
   audio.src = url;
-
-  // 🔑 hanya nyalakan autoplay jika flag autoPlay = true
-  if (autoPlay) {
-    audio.autoplay = true;
-  }
+  // audio.autoplay = true;
 
   // Autoplay toggle
   const toggleWrap = document.createElement("label");
@@ -984,10 +980,7 @@ navDiv.appendChild(playAudioBtn);
     if (toggle.checked) {
       const next = getNextAyah(surah, ayat);
       if (next) {
-        const url = new URL(window.location.href);
-        url.searchParams.set("surah", next.surah);
-        url.searchParams.set("ayat", next.ayah);
-        window.location.href = url.toString();
+        window.location.href = `?surah=${next.surah}&ayat=${next.ayah}`;
       }
     }
   };
@@ -995,9 +988,6 @@ navDiv.appendChild(playAudioBtn);
   audioWrapper.appendChild(audio);
   audioWrapper.appendChild(toggleWrap);
   container.appendChild(audioWrapper);
-
-  // Sisipkan ke atas konten tafsir (opsional jika belum)
-  document.getElementById("result").prepend(container);
 }
 
       function getGlobalAyahNumber(surah, ayah) {
@@ -1009,9 +999,8 @@ navDiv.appendChild(playAudioBtn);
 }
 
       const savedQari = localStorage.getItem("lastQari");
-const isAutoplay = localStorage.getItem("autoplay") === "true";
 if (savedQari) {
-  playAudioForAyah(savedQari, isAutoplay);
+  playAudioForAyah(savedQari);
 }
 
       if (next) {
