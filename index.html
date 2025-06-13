@@ -227,14 +227,6 @@
       background-color: #005f6b;
     }
 
-    @media (max-width: 600px) {
-  #audio-player-container {
-    margin-left: 0;
-    margin-top: 1em;
-    width: 100%;
-  }
-}
-
 /* Overlay Qari */
 .audio-qari-overlay {
   position: fixed;
@@ -280,7 +272,7 @@
 }
 
 /* Audio Player */
-#audio-player-container {
+# {
   margin-top: 2em;
   text-align: center;
 }
@@ -504,6 +496,7 @@ const lastAyat = urlParams.get("ayat") || localStorage.getItem("lastAyat");
       <img src="https://raw.githubusercontent.com/dickymiswardi/tadabbur/aa160525691e67e5d0b7aab1e7e9f37657d0ed45/AnimatedBook.gif" class="loading-icon" />
     </div>
   </div>
+<div id="audio-player-container" style="display: none;"></div>
   <div class="sumber">
     © Aplikasi Jariyah Untuk Kaum Muslimin
   </div>
@@ -895,26 +888,10 @@ translationDiv.appendChild(tafsirDropdown);
         navDiv.appendChild(prevBtn);
       }
 
-      // Container horizontal
-const audioRow = document.createElement("div");
-audioRow.style.display = "flex";
-audioRow.style.alignItems = "center";
-audioRow.style.flexWrap = "wrap";
-
-// Tombol PLAY AUDIO
-const playAudioBtn = document.createElement("button");
+      const playAudioBtn = document.createElement("button");
 playAudioBtn.textContent = "PLAY AUDIO";
 playAudioBtn.onclick = showQariSelector;
-
-// Tambahkan tombol ke container
-audioRow.appendChild(playAudioBtn);
-
-// Tambahkan container audio player (ditempatkan secara dinamis)
-const audioPlayerContainer = document.getElementById("audio-player-container");
-audioRow.appendChild(audioPlayerContainer);
-
-// Tambahkan baris ke nav
-navDiv.appendChild(audioRow);
+navDiv.appendChild(playAudioBtn);
 
       function showQariSelector() {
   const backdrop = document.createElement("div");
@@ -1091,6 +1068,5 @@ if (savedQari) {
   // Simpan URL terakhir ke localStorage saat halaman ini dibuka
   localStorage.setItem("lastQuranPage", window.location.href);
 </script>
-<div id="audio-player-container" style="display: none; margin-left: 1em;"></div>
 </body>
 </html>
