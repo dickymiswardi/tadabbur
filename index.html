@@ -933,6 +933,19 @@ playBtn.onclick = () => {
 
 // Dropdown Qari
 const qariSelect = document.createElement("select");
+      async function loadAvailableQaris(qariSelect) {
+  const apiURL = "https://api.alquran.cloud/v1/edition/format/audio";
+  const cdnURL = "https://raw.githubusercontent.com/islamic-network/cdn/master/info/cdn.txt";
+loadAvailableQaris(qariSelect); // ← kita akan ubah jadi menerima parameter
+        console.log("Jumlah Qari yang tersedia:", availableQaris.length);
+        if (availableQaris.length === 0) {
+          
+  const opt = document.createElement("option");
+  opt.textContent = "Tidak ada Qari ditemukan";
+  opt.disabled = true;
+  qariSelect.appendChild(opt);
+}
+
 
 // Toggle Auto Play
 const autoPlayLabel = document.createElement("label");
@@ -962,10 +975,6 @@ playPanel.appendChild(playNowBtn);
 
 // Masukkan panel ke nav-buttons
 navDiv.appendChild(playPanel);
-
-      async function loadAvailableQaris() {
-  const apiURL = "https://api.alquran.cloud/v1/edition/format/audio";
-  const cdnURL = "https://raw.githubusercontent.com/islamic-network/cdn/master/info/cdn.txt";
 
   try {
     const [apiRes, cdnRes] = await Promise.all([
