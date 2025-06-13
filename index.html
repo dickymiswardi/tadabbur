@@ -231,13 +231,14 @@
   display: flex;
   align-items: center;
   gap: 0.5em;
-  transition: max-width 0.3s ease;
+  transition: all 0.3s ease;
   overflow: hidden;
-  max-width: 2.5em;
+  max-width: 3em;
+  flex-wrap: nowrap;
 }
 
 .play-panel.expanded {
-  max-width: 300px;
+  max-width: 400px;
 }
 
 .play-panel select,
@@ -883,14 +884,37 @@ const currentSurah = parseInt(params.get("surah"));
 const currentAyat = parseInt(params.get("ayat"));
 
 // Fungsi putar audio
-function playAudio(surah, ayat) {
-  const edition = qariSelect.value || "ar.alafasy";
-  const bitrate = 64;
-  const ayahNumber = getGlobalAyahNumber(surah, ayat); // perlu fungsi ini
-  const audio = new Audio(`https://cdn.islamic.network/quran/audio/${bitrate}/${edition}/${ayahNumber}.mp3`);
-  audio.play();
+let audioPlayer = null; // global
 
-  audio.onended = () => {
+function playAudio(surah, ayat) {
+  const edition = qariSelect.value;
+  const bitrate = 64;
+
+  if (!edition) {
+    alert("Silakan pilih Qari terlebih dahulu.");
+    return;
+  }
+
+  const ayahNumber = getGlobalAyahNumber(surah, ayat);
+  const audioURL = `https://cdn.islamic.network/quran/audio/${bitrate}/${edition}/${ayahNumber}.mp3`;
+
+  if (audioPlayer) {
+    audioPlayer.pause();
+    audioPlayer = null;
+  }
+
+  audioPlayer = new Audio(audioURL);
+  playBtn.textContent = "⏸ Pause...";
+
+  audioPlayer.play().then(() => {
+    console.log("Playing:", audioURL);
+  }).catch(err => {
+    console.error("Audio error:", err);
+    playBtn.textContent = "▶️ Play";
+  });
+
+  audioPlayer.onended = () => {
+    playBtn.textContent = "▶️ Play";
     if (autoPlayToggle.checked) {
       const next = getNextAyah(surah, ayat);
       if (next) {
@@ -900,6 +924,7 @@ function playAudio(surah, ayat) {
   };
 }
 
+
 // Panggil otomatis saat halaman dimuat
 window.addEventListener("load", () => {
   setTimeout(() => {
@@ -908,7 +933,7 @@ window.addEventListener("load", () => {
 });
 
 // Fetch Qari list
-fetch("http://api.alquran.cloud/edition/format/audio")
+fetch("https://api.alquran.cloud/edition/format/audio")
   .then(res => res.json())
   .then(data => {
     data.data.forEach(edition => {
@@ -918,6 +943,7 @@ fetch("http://api.alquran.cloud/edition/format/audio")
       qariSelect.appendChild(opt);
     });
   });
+
 
       function getGlobalAyahNumber(surah, ayat) {
   const ayahOffsets = [
@@ -941,6 +967,25 @@ fetch("http://api.alquran.cloud/edition/format/audio")
   document.getElementById("result").textContent = "Parameter tidak valid.";
   throw new Error("Invalid surah/ayat");
 }
+
+      playBtn.onclick = () => {
+  playPanel.classList.toggle("expanded");
+};
+
+      const defaultOption = document.createElement("option");
+defaultOption.textContent = "-- Pilih Qari --";
+defaultOption.disabled = true;
+defaultOption.selected = true;
+qariSelect.appendChild(defaultOption);
+
+      const mainkanBtn = document.createElement("button");
+mainkanBtn.textContent = "Mainkan";
+mainkanBtn.onclick = () => {
+  playAudio(currentSurah, currentAyat);
+};
+playPanel.appendChild(mainkanBtn);
+
+      
 
       if (next) {
         const nextBtn = document.createElement("button");
