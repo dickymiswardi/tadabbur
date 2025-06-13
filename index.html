@@ -227,6 +227,31 @@
       background-color: #005f6b;
     }
 
+.play-panel {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  transition: max-width 0.3s ease;
+  overflow: hidden;
+  max-width: 2.5em;
+}
+
+.play-panel.expanded {
+  max-width: 300px;
+}
+
+.play-panel select,
+.play-panel label {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  white-space: nowrap;
+}
+
+.play-panel.expanded select,
+.play-panel.expanded label {
+  opacity: 1;
+}
+    
     .loader {
       display: flex;
       justify-content: center;
@@ -910,6 +935,11 @@ fetch("http://api.alquran.cloud/edition/format/audio")
     total += ayahOffsets[i];
   }
   return total + ayat;
+}
+
+      if (!surah || !ayat || surah < 1 || ayat < 1 || surah > 114 || ayat > surahAyahCount[surah]) {
+  document.getElementById("result").textContent = "Parameter tidak valid.";
+  throw new Error("Invalid surah/ayat");
 }
 
       if (next) {
