@@ -889,7 +889,7 @@ translationDiv.appendChild(tafsirDropdown);
       }
 
       const playAudioBtn = document.createElement("button");
-playAudioBtn.textContent = "🎙 PILIH QARI";
+playAudioBtn.textContent = "🎧 PILIH QARI";
 playAudioBtn.onclick = showQariSelector;
 navDiv.appendChild(playAudioBtn);
 
@@ -959,7 +959,7 @@ const url = `https://quran.ksu.edu.sa/ayat/mp3/${qariId}/${surahStr}${ayahStr}.m
   const audio = document.createElement("audio");
   audio.controls = true;
   audio.src = url;
-  audio.autoplay = true;
+  // audio.autoplay = true;
 
   // Autoplay toggle
   const toggleWrap = document.createElement("label");
