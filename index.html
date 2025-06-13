@@ -170,6 +170,19 @@
   background: rgba(0,0,0,0.4);
   z-index: 9998;
 }
+
+    #tafsir-loading-indicator {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2em;
+}
+
+#tafsir-loading-indicator img {
+  width: 48px;
+  height: auto;
+  opacity: 0.7;
+}
     
 .rasm-symbol {
   font-size: 0.9em;
@@ -782,9 +795,17 @@ function createTafsirDropdown(surah, ayah) {
     link.href = "#";
     link.textContent = source.name;
     link.onclick = async (e) => {
-      e.preventDefault();
-      const tafsirText = await loadTafsir(key, surah, ayah);
-      showTafsir(source.name, tafsirText);
+  e.preventDefault();
+
+  // Tampilkan overlay kosong + loading dulu
+  showTafsir(title = source.name, content = null, loading = true);
+
+  const tafsirText = await loadTafsir(key, surah, ayah);
+
+  // Setelah selesai, panggil ulang showTafsir untuk ganti loading dengan teks tafsir
+  showTafsir(source.name, tafsirText);
+};
+
 
       // Tutup dropdown setelah klik
       dropdownContent.classList.remove("show", "upward");
@@ -871,9 +892,19 @@ function showTafsir(title, content) {
   `;
 
   const contentWrap = document.createElement("div");
+
+if (loading) {
+  contentWrap.innerHTML = `
+    <div id="tafsir-loading-indicator">
+      <img src="https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/Settings.gif" alt="Memuat..." />
+    </div>
+  `;
+} else {
   contentWrap.innerHTML = isArabic
     ? `<div class="tafsir-arabic">${content}</div>`
     : `<div class="tafsir-latin">${content}</div>`;
+}
+
 
   // Susun overlay
   overlay.appendChild(closeBtn);
