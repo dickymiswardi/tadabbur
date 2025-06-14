@@ -795,13 +795,33 @@ function createTafsirDropdown(surah, ayah) {
     link.href = "#";
     link.textContent = source.name;
     link.onclick = async (e) => {
-      e.preventDefault();
-      const tafsirText = await loadTafsir(key, surah, ayah);
-      showTafsir(source.name, tafsirText);
+  e.preventDefault();
 
-      // Tutup dropdown setelah klik
-      dropdownContent.classList.remove("show", "upward");
-    };
+  // Tampilkan loader dulu
+  const overlay = document.createElement("div");
+  overlay.id = "tafsir-overlay";
+  overlay.innerHTML = `
+    <div class="loader">
+      <img src="https://raw.githubusercontent.com/dickymiswardi/tadabbur/aa160525691e67e5d0b7aab1e7e9f37657d0ed45/AnimatedBook.gif" class="loading-icon" />
+    </div>
+  `;
+  const backdrop = document.createElement("div");
+  backdrop.id = "tafsir-backdrop";
+
+  document.body.appendChild(backdrop);
+  document.body.appendChild(overlay);
+
+  // Proses ambil tafsir
+  const tafsirText = await loadTafsir(key, surah, ayah);
+
+  // Hapus loader & tampilkan tafsir
+  overlay.remove();
+  backdrop.remove();
+  showTafsir(source.name, tafsirText);
+
+  dropdownContent.classList.remove("show", "upward");
+};
+
     dropdownContent.appendChild(link);
   });
 
