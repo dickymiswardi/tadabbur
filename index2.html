@@ -625,7 +625,7 @@ const lastAyat = urlParams.get("ayat") || localStorage.getItem("lastAyat");
 ])
 .then(([quranData, xmlText]) => {
   const chapterObj = quranData.find(obj => obj[surah]);
-  let arabicText = "(Teks Arab tidak ditemukan)";
+  const arabicText = getAyatText(surah, ayat) || "(Teks Arab tidak ditemukan)";
   
   if (chapterObj) {
     const chapterData = chapterObj[surah];
