@@ -622,7 +622,7 @@ const lastAyat = urlParams.get("ayat") || localStorage.getItem("lastAyat");
   fetch("indonesian_complex_v1.0.xml").then(res => res.text())
 ])
 .then(([quranJson, xmlText]) => {
-  const quranData = Object.assign({}, ...quranJson);
+  quranData = Object.assign({}, ...quranJson);
   const surahStr = surah.toString();
   const verseObj = quranData[surahStr]?.text?.find(v => v.verseNumber == ayat);
   let arabicText = verseObj?.text || "(Teks Arab tidak ditemukan)";
@@ -635,6 +635,8 @@ const lastAyat = urlParams.get("ayat") || localStorage.getItem("lastAyat");
   arabDiv.innerHTML = arabicText;
   document.getElementById("result").innerHTML = '';
   document.getElementById("result").appendChild(arabDiv);
+
+  // Lanjutkan: proses XML, terjemahan, tafsir, dll
 });
 
       const parser = new DOMParser();
@@ -1163,7 +1165,7 @@ localStorage.removeItem("fromAutoplay");
   localStorage.setItem("lastSurah", surah);
   localStorage.setItem("lastAyat", ayat);
 
-  loadAyat(surah, ayat);
+  // loadAyat(surah, ayat);
 });
   </script>
   <script>
