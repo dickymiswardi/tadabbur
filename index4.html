@@ -451,11 +451,11 @@ document.addEventListener("DOMContentLoaded", function() {
       const hasil = simpleQuran.filter(e => normalizeArabic(e.text).includes(term));
       loadingBox.style.display = "none";
       resultsBox.innerHTML = hasil.length
-        ? hasil.map(e => `
-          <div style="margin-bottom:0.8em;">
-            <b>{surah_names[parseInt(e.surah)]} {e.ayah}</b> -
-            <a href="?surah={e.surah}&ayat={e.ayah}">{e.text}</a>
-          </div>`).join("")
+        ? hasil.map(e => {
+            const surahName = surah_names[parseInt(e.surah)];
+            return '<div style="margin-bottom:0.8em;"><b>' + surahName + ' ' + e.ayah + '</b> - ' +
+                   '<a href="?surah=' + e.surah + '&ayat=' + e.ayah + '">' + e.text + '</a></div>';
+          }).join("")
         : "<i>Tidak ditemukan</i>";
     }, 400);
   });
