@@ -797,7 +797,7 @@ function createTafsirDropdown(surah, ayah) {
     link.onclick = async (e) => {
   e.preventDefault();
 
-  // Tampilkan loader dulu
+  // LOADER SEBELUM TEKS TAFSIR MUNCUL
   const overlay = document.createElement("div");
   overlay.id = "tafsir-overlay";
   overlay.innerHTML = `
@@ -821,7 +821,9 @@ function createTafsirDropdown(surah, ayah) {
 
   dropdownContent.classList.remove("show", "upward");
 };
-
+    
+// LOADER SEBELUM TEKS TAFSIR MUNCUL
+    
     dropdownContent.appendChild(link);
   });
 
