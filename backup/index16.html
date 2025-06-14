@@ -629,24 +629,6 @@ const lastAyat = urlParams.get("ayat") || localStorage.getItem("lastAyat");
     }
     
 // Muat teks Al-Qur'an dari file JSON
-fetch('https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/quran.json')
-  .then(res => res.json())
-  .then(json => {
-    // Gabungkan isi setiap surah ke dalam quranData
-    json.forEach(entry => {
-      Object.keys(entry).forEach(key => {
-        if (key === "juzNumber") return;
-        const surah = entry[key];
-        if (!quranData[key]) quranData[key] = [];
-        surah.text.forEach(verse => {
-          quranData[key].push(verse);
-        });
-      });
-    });
-
-    // Setelah selesai load, lanjutkan tampilkan ayat
-    renderAyah();
-  })
   .catch(err => {
     console.error("Gagal memuat quran.json:", err);
   });
