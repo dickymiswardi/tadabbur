@@ -1188,8 +1188,8 @@ localStorage.removeItem("fromAutoplay");
   const surah = parseInt(params.get("surah") || "1");
   const ayat = parseInt(params.get("ayat") || "1");
 
-  document.getElementById("surah-select").value = surah;
-  document.getElementById("ayah-select").value = ayat;
+  document.getElementById("surah").value = surah;
+document.getElementById("ayat").value = ayat;
 
   // Simpan ke localStorage
   localStorage.setItem("lastSurah", surah);
