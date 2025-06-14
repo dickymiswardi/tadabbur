@@ -506,10 +506,25 @@
         const url = new URL(window.location.href);
         url.searchParams.set("surah", surah);
         url.searchParams.set("ayat", ayat);
-        window.location.href = url.toString();
+history.replaceState(null, '', url.toString());
+tampilkanAyat(surah, ayat);
       }
     });
 
+    fetch("https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/quran.json")
+  .then(res => res.json())
+  .then(json => {
+    quranData = Object.assign({}, ...json);
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const surah = parseInt(urlParams.get("surah")) || 1;
+    const ayat = parseInt(urlParams.get("ayat")) || 1;
+    tampilkanAyat(surah, ayat);
+  })
+  .catch(err => {
+    console.error("Gagal memuat quran.json:", err);
+    document.getElementById("result").textContent = "Gagal memuat data.";
+  });
     document.addEventListener("DOMContentLoaded", () => {
       populateSurahs();
       const urlParams = new URLSearchParams(window.location.search);
@@ -1167,13 +1182,20 @@ localStorage.removeItem("fromAutoplay");
   // Simpan ke localStorage
   localStorage.setItem("lastSurah", surah);
   localStorage.setItem("lastAyat", ayat);
-
-  loadAyat(surah, ayat);
 });
   </script>
   <script>
   // Simpan URL terakhir ke localStorage saat halaman ini dibuka
   localStorage.setItem("lastQuranPage", window.location.href);
+
+    let quranData = {};
+
+function tampilkanAyat(surah, ayat) {
+  const verse = quranData[surah]?.text?.find(v => v.verseNumber == ayat);
+  const arabicText = verse?.text || "(Teks Arab tidak ditemukan)";
+  const container = document.getElementById("result");
+  container.innerHTML = `<div class="arabic">${arabicText}</div>`;
+}
 </script>
 </body>
 </html>
