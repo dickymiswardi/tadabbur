@@ -617,17 +617,30 @@ const lastAyat = urlParams.get("ayat") || localStorage.getItem("lastAyat");
       return { surah: surah - 1, ayah: surahAyahCount[surah - 1] };
     }
 
-    const apiURL = `https://api.quran.com/api/v4/quran/verses/uthmani?verse_key=${surah}:${ayat}`;
+    const apiURL = `quran.json`; // ganti dari versi API lama
 
     Promise.all([
-      fetch(apiURL).then(res => res.json()),
-      fetch("indonesian_complex_v1.0.xml").then(res => res.text())
-    ])
-    .then(([arabData, xmlText]) => {
-      const verse = arabData.verses?.[0];
-      let arabicText = verse?.text_uthmani || "(Teks Arab tidak ditemukan)";
-      arabicText += ` \u06dd${toArabicNumber(ayat)}`;
-      arabicText = wrapRasmSymbols(arabicText);
+  fetch("quran.json").then(res => res.json()),
+  fetch("indonesian_complex_v1.0.xml").then(res => res.text())
+])
+.then(([quranData, xmlText]) => {
+  let arabicText = "(Teks Arab tidak ditemukan)";
+
+  // Loop ke seluruh entri quranData
+  for (const entry of quranData) {
+    for (const key in entry) {
+      const surahObj = entry[key];
+      if (parseInt(surahObj.chapterNumber) === surah) {
+        const verseObj = surahObj.text.find(v => parseInt(v.verseNumber) === ayat);
+        if (verseObj) {
+          arabicText = verseObj.text;
+        }
+      }
+    }
+  }
+      // Tambahkan simbol ayat
+  arabicText += ` \u06dd${toArabicNumber(ayat)}`;
+  arabicText = wrapRasmSymbols(arabicText);
 
       const arabDiv = document.createElement('div');
       arabDiv.className = 'arabic';
