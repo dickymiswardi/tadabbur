@@ -1,10 +1,11 @@
 <!DOCTYPE html>
+
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Al-Qur'an Digital</title>
-  <style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Al-Qur'an Digital</title>
+<style>
     @font-face {
       font-family: 'Madina';
       src: url('madina.woff2') format('woff2');
@@ -357,38 +358,32 @@
   </style>
 </head>
 <body>
-
-  <!-- BATAS TAMBAHAN -->
-  <!-- PILIHAN SURAH & AYAT -->
-
+<!-- BATAS TAMBAHAN -->
+<!-- PILIHAN SURAH & AYAT -->
 <!-- SEARCH & CATATAN AYAT -->
-
 <!-- Tombol Akses Fitur -->
 <div style="display: flex; justify-content:space-between; margin: 1em 0; gap: 1em; flex-wrap:wrap">
-  <button id="open-search-overlay" class="copy-button" style="background:#006e75;">🔍 Cari Kata</button>
-  <button id="catatan-btn" class="copy-button" style="background:#007b8a;">📝 Catatan Ayat</button>
+<button class="copy-button" id="open-search-overlay" style="background:#006e75;">🔍 Cari Kata</button>
+<button class="copy-button" id="catatan-btn" style="background:#007b8a;">📝 Catatan Ayat</button>
 </div>
-
 <!-- Overlay Pencarian Kata -->
 <div id="search-overlay" style="display:none; position:fixed; inset:0; margin:auto; width:90%; max-width:600px; height:auto; background:white; border:2px solid #007b8a; padding:1em; border-radius:8px; z-index:9999; box-shadow:0 0 20px rgba(0,0,0,0.2);">
-  <div style="text-align:right;"><button onclick="document.getElementById('search-overlay').style.display='none'" style="font-size:1.2em; border:none; background:none; color:#007b8a;">✖</button></div>
-  <h3 style="margin-top:0;">🔍 Cari Kosa Kata</h3>
-  <input type="text" id="search-kata" placeholder="Ketik kata Arab..." style="width: 100%; padding: 0.6em; margin-bottom: 1em; border-radius: 6px; border: 1px solid #007b8a; font-size: 1em;">
-  <div id="search-loading" style="display:none; color:#007b8a;">⏳ Mencari...</div>
-  <div id="search-results" style="font-size:0.95em; line-height:1.6;"></div>
+<div style="text-align:right;"><button onclick="document.getElementById('search-overlay').style.display='none'" style="font-size:1.2em; border:none; background:none; color:#007b8a;">✖</button></div>
+<h3 style="margin-top:0;">🔍 Cari Kosa Kata</h3>
+<input id="search-kata" placeholder="Ketik kata Arab..." style="width: 100%; padding: 0.6em; margin-bottom: 1em; border-radius: 6px; border: 1px solid #007b8a; font-size: 1em;" type="text"/>
+<div id="search-loading" style="display:none; color:#007b8a;">⏳ Mencari...</div>
+<div id="search-results" style="font-size:0.95em; line-height:1.6;"></div>
 </div>
-
 <!-- Overlay Catatan -->
 <div id="catatan-overlay" style="display:none; position:fixed; top:10%; left:50%; transform:translateX(-50%); width:90%; max-width:600px; background:white; border:2px solid #007b8a; border-radius:8px; padding:1em; z-index:9999; box-shadow:0 0 20px rgba(0,0,0,0.2);">
-  <div style="text-align:right;"><button onclick="document.getElementById('catatan-overlay').style.display='none'" style="font-size:1.2em; border:none; background:none; color:#007b8a;">✖</button></div>
-  <h3>Catatan untuk Surah <span id="catatan-surah"></span> Ayat <span id="catatan-ayat"></span></h3>
-  <textarea id="catatan-text" rows="6" style="width:100%; font-size:1em; padding:0.5em; margin-top:0.5em; border-radius:6px; border:1px solid #ccc;"></textarea>
-  <div style="display:flex; justify-content:space-between; align-items:center; margin-top:0.8em;">
-    <button onclick="saveCatatan()" style="padding:0.6em 1em; background:#007b8a; color:white; border:none; border-radius:6px;">💾 Simpan</button>
-    <span id="catatan-status" style="font-size:0.9em; color:green;"></span>
-  </div>
+<div style="text-align:right;"><button onclick="document.getElementById('catatan-overlay').style.display='none'" style="font-size:1.2em; border:none; background:none; color:#007b8a;">✖</button></div>
+<h3>Catatan untuk Surah <span id="catatan-surah"></span> Ayat <span id="catatan-ayat"></span></h3>
+<textarea id="catatan-text" rows="6" style="width:100%; font-size:1em; padding:0.5em; margin-top:0.5em; border-radius:6px; border:1px solid #ccc;"></textarea>
+<div style="display:flex; justify-content:space-between; align-items:center; margin-top:0.8em;">
+<button onclick="saveCatatan()" style="padding:0.6em 1em; background:#007b8a; color:white; border:none; border-radius:6px;">💾 Simpan</button>
+<span id="catatan-status" style="font-size:0.9em; color:green;"></span>
 </div>
-
+</div>
 <script>
 let simpleQuran = [];
 fetch("quran-simple.xml")
@@ -485,9 +480,8 @@ function saveCatatan() {
   document.getElementById("catatan-status").textContent = "✅ Disimpan offline";
 }
 </script>
-
 <div id="pilihan-container" style="visibility: hidden; margin-bottom: 1em;">
-  <style>
+<style>
   #pilihan-container .row {
     display: flex;
     border: 1px solid #007b8a;
@@ -550,25 +544,23 @@ function saveCatatan() {
     }
   }
 </style>
-
-  <div class="row">
-    <div class="col">
-      <div class="select-wrapper">
-        <select id="surah">
-          <option value="">-- Pilih Surah --</option>
-        </select>
-      </div>
-    </div>
-    <div class="col">
-      <div class="select-wrapper">
-        <select id="ayat">
-          <option value="">-- Pilih Ayat --</option>
-        </select>
-      </div>
-    </div>
-  </div>
-
-  <script>
+<div class="row">
+<div class="col">
+<div class="select-wrapper">
+<select id="surah">
+<option value="">-- Pilih Surah --</option>
+</select>
+</div>
+</div>
+<div class="col">
+<div class="select-wrapper">
+<select id="ayat">
+<option value="">-- Pilih Ayat --</option>
+</select>
+</div>
+</div>
+</div>
+<script>
     const surahSelect = document.getElementById("surah");
     const ayatSelect = document.getElementById("ayat");
 
@@ -649,20 +641,18 @@ const lastAyat = urlParams.get("ayat") || localStorage.getItem("lastAyat");
     });
   </script>
 </div>
-  <!-- BATAS TAMBAHAN -->
-
-  <!-- Ganti 'Memuat...' dengan animasi -->
-  <div id="result">
-    <div class="loader">
-      <img src="https://raw.githubusercontent.com/dickymiswardi/tadabbur/aa160525691e67e5d0b7aab1e7e9f37657d0ed45/AnimatedBook.gif" class="loading-icon" />
-    </div>
-  </div>
+<!-- BATAS TAMBAHAN -->
+<!-- Ganti 'Memuat...' dengan animasi -->
+<div id="result">
+<div class="loader">
+<img class="loading-icon" src="https://raw.githubusercontent.com/dickymiswardi/tadabbur/aa160525691e67e5d0b7aab1e7e9f37657d0ed45/AnimatedBook.gif"/>
+</div>
+</div>
 <div id="audio-player-container" style="display: none;"></div>
-  <div class="sumber">
+<div class="sumber">
     © Aplikasi Jariyah Untuk Kaum Muslimin
   </div>
-
-  <script>
+<script>
     const surah = parseInt(new URLSearchParams(window.location.search).get("surah") || "1");
     const ayat = parseInt(new URLSearchParams(window.location.search).get("ayat") || "1");
 
@@ -1303,7 +1293,7 @@ localStorage.removeItem("fromAutoplay");
   loadAyat(surah, ayat);
 });
   </script>
-  <script>
+<script>
   // Simpan URL terakhir ke localStorage saat halaman ini dibuka
   localStorage.setItem("lastQuranPage", window.location.href);
 </script>
