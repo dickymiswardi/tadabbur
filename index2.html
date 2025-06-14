@@ -618,36 +618,39 @@ const lastAyat = urlParams.get("ayat") || localStorage.getItem("lastAyat");
     }
 
     const quranJSONUrl = "https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/quran.json";
+const surah = parseInt(new URLSearchParams(window.location.search).get("surah") || "1");
+    const ayat = parseInt(new URLSearchParams(window.location.search).get("ayat") || "1");
 
     Promise.all([
-  fetch(quranJSONUrl).then(res => res.json()),
-  fetch("indonesian_complex_v1.0.xml").then(res => res.text())
-])
-.then(([quranData, xmlText]) => {
-  const chapterObj = quranData.find(obj => obj[surah]);
-  let arabicText = "(Teks Arab tidak ditemukan)";
-  
-  if (chapterObj) {
-    const chapterData = chapterObj[surah];
-    const verseObj = chapterData.text.find(v => v.verseNumber == ayat);
-    if (verseObj) {
-      arabicText = verseObj.text;
-    }
-  }
+      fetch(quranJSONUrl).then(res => res.json()),
+      fetch("indonesian_complex_v1.0.xml").then(res => res.text())
+    ]).then(([quranData, xmlText]) => {
+      const chapterObj = quranData.find(obj => obj[surah]);
+      let arabicText = "(Teks Arab tidak ditemukan)";
+      if (chapterObj) {
+        const chapterData = chapterObj[surah];
+        const verseObj = chapterData.text.find(v => v.verseNumber == ayat);
+        if (verseObj) arabicText = verseObj.text;
+      }
+      arabicText += ` \u06dd${toArabicNumber(ayat)}`;
+      arabicText = wrapRasmSymbols(arabicText);
 
-  arabicText += ` \u06dd${toArabicNumber(ayat)}`;
-  arabicText = wrapRasmSymbols(arabicText);
-
-  const arabDiv = document.createElement('div');
-  arabDiv.className = 'arabic';
-  arabDiv.innerHTML = arabicText;
-  document.getElementById("result").innerHTML = '';
-  document.getElementById("result").appendChild(arabDiv);
+      const arabDiv = document.createElement('div');
+      arabDiv.className = 'arabic';
+      arabDiv.innerHTML = arabicText;
+      document.getElementById("result").innerHTML = '';
+      document.getElementById("result").appendChild(arabDiv);
 
   // sisanya tetap untuk load terjemahan XML dll...
 
       const parser = new DOMParser();
       const xmlDoc = parser.parseFromString(xmlText, "text/xml");
+      const translationAyah = xmlDoc.querySelector(`sura[number="${surah}"] > aya[number="${ayat}"]`);
+      let translation = translationAyah?.querySelector("translation")?.textContent || "(Terjemahan tidak ditemukan)";
+      const translationDiv = document.createElement("div");
+      translationDiv.className = "translation";
+      translationDiv.innerHTML = translation;
+      document.getElementById("result").appendChild(translationDiv);
 
       // Buat peta footnoteNumber ke posisi Surah & Ayat
 const footnoteMap = {};
@@ -669,18 +672,12 @@ ayatNodes.forEach(aya => {
   }
 });
 
-      const translationAyah = xmlDoc.querySelector(`sura[number="${surah}"] > aya[number="${ayat}"]`);
-      let translation = translationAyah?.querySelector("translation")?.textContent || "(Terjemahan tidak ditemukan)";
+      
       const footnotes = translationAyah?.querySelector("footnotes")?.textContent || "";
 
       if (footnotes) {
         translation = translation.replace(/(\d+)/g, '<sup>($1)</sup>');
       }
-
-      const translationDiv = document.createElement("div");
-      translationDiv.className = "translation";
-      translationDiv.innerHTML = translation;
-      document.getElementById("result").appendChild(translationDiv);
 
 // GANTI bagian kode tafsir yang lama DENGAN ini:
 
@@ -1210,10 +1207,11 @@ localStorage.removeItem("fromAutoplay");
         document.getElementById("result").innerHTML = `
           <div class="arabic">${arabicText}</div>
         `;
-      } catch(err) {
-        console.error(err);
-        document.getElementById("result").innerHTML = "Terjadi error saat memuat data.";
       }
+        .catch(err => {
+      console.error(err);
+      document.getElementById("result").textContent = "Gagal memuat data.";
+    }
     }
   </script>
 </body>
