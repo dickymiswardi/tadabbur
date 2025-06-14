@@ -1140,7 +1140,19 @@ localStorage.removeItem("fromAutoplay");
       document.getElementById("result").textContent = "Gagal memuat data.";
     });
 
-    document.addEventListener("DOMContentLoaded", function () {
+    
+fetch("indonesian_complex_v1.0.xml")
+  .then(res => res.text())
+  .then(xmlText => {
+
+  })
+  .catch(err => {
+    console.error(err);
+    document.getElementById("result").textContent = "Gagal memuat data.";
+  });
+
+
+document.addEventListener("DOMContentLoaded", function () {
   const params = new URLSearchParams(window.location.search);
   const hasParams = params.has("surah") && params.has("ayat");
 
