@@ -422,55 +422,62 @@ function normalizeArabic(text) {
 }
 
 let searchTimeout;
-document.getElementById("search-kata").addEventListener("input", function() {
-  clearTimeout(searchTimeout);
-  const term = normalizeArabic(this.value.trim());
-  const resultsBox = document.getElementById("search-results");
-  const loadingBox = document.getElementById("search-loading");
-  resultsBox.innerHTML = "";
-  if (term === "") {
-    loadingBox.style.display = "none";
-    return;
+
+document.addEventListener("DOMContentLoaded", function() {
+  function normalizeArabic(text) {
+    return text
+      .replace(/[ًٌٍَُِّْ]/g, '')
+      .replace(/[إأآ]/g, 'ا')
+      .replace(/ى/g, 'ي')
+      .replace(/ؤ/g, 'و')
+      .replace(/ئ/g, 'ي')
+      .replace(/ۀ/g, 'ه')
+      .replace(/ة/g, 'ه');
   }
-  loadingBox.style.display = "block";
-  searchTimeout = setTimeout(() => {
-    const hasil = simpleQuran.filter(e => normalizeArabic(e.text).includes(term));
-    loadingBox.style.display = "none";
-    resultsBox.innerHTML = hasil.length
-      ? hasil.map(e => `<div style="margin-bottom:0.8em;"><b>${e.surah}:${e.ayah}</b> - <a href="?surah=${e.surah}&ayat=${e.ayah}">${e.text}</a></div>`).join("")
-      : "<i>Tidak ditemukan</i>";
-  }, 400);
+
+  let searchTimeout;
+  document.getElementById("search-kata").addEventListener("input", function() {
+    clearTimeout(searchTimeout);
+    const term = normalizeArabic(this.value.trim());
+    const resultsBox = document.getElementById("search-results");
+    const loadingBox = document.getElementById("search-loading");
+    resultsBox.innerHTML = "";
+    if (term === "") {
+      loadingBox.style.display = "none";
+      return;
+    }
+    loadingBox.style.display = "block";
+    searchTimeout = setTimeout(() => {
+      const hasil = simpleQuran.filter(e => normalizeArabic(e.text).includes(term));
+      loadingBox.style.display = "none";
+      resultsBox.innerHTML = hasil.length
+        ? hasil.map(e => `
+          <div style="margin-bottom:0.8em;">
+            <b>{surah_names[parseInt(e.surah)]} {e.ayah}</b> -
+            <a href="?surah={e.surah}&ayat={e.ayah}">{e.text}</a>
+          </div>`).join("")
+        : "<i>Tidak ditemukan</i>";
+    }, 400);
+  });
+
+  document.getElementById("open-search-overlay").onclick = () => {
+    document.getElementById("search-kata").value = "";
+    document.getElementById("search-results").innerHTML = "";
+    document.getElementById("search-overlay").style.display = "block";
+  };
+
+  document.getElementById("catatan-btn").onclick = () => {
+    const s = localStorage.getItem("lastSurah") || "1";
+    const a = localStorage.getItem("lastAyat") || "1";
+    document.getElementById("catatan-surah").textContent = s;
+    document.getElementById("catatan-ayat").textContent = a;
+    document.getElementById("catatan-status").textContent = "";
+    const saved = localStorage.getItem("catatan_" + s + "_" + a) || "";
+    document.getElementById("catatan-text").value = saved;
+    document.getElementById("catatan-overlay").style.display = "block";
+  };
 });
 
-  clearTimeout(searchTimeout);
-  const term = this.value.trim();
-  const resultsBox = document.getElementById("search-results");
-  const loadingBox = document.getElementById("search-loading");
-  resultsBox.innerHTML = "";
-  if (term === "") {
-    loadingBox.style.display = "none";
-    return;
-  }
-  loadingBox.style.display = "block";
-  searchTimeout = setTimeout(() => {
-    const hasil = simpleQuran.filter(e => e.text.includes(term));
-    loadingBox.style.display = "none";
-    resultsBox.innerHTML = hasil.length
-      ? hasil.map(e => `<div style="margin-bottom:0.8em;"><b>${e.surah}:${e.ayah}</b> - <a href="?surah=${e.surah}&ayat=${e.ayah}">${e.text}</a></div>`).join("")
-      : "<i>Tidak ditemukan</i>";
-  }, 400); // delay agar terasa smooth
-});
-
-document.getElementById("catatan-btn").onclick = () => {
-  const s = localStorage.getItem("lastSurah") || "1";
-  const a = localStorage.getItem("lastAyat") || "1";
-  document.getElementById("catatan-surah").textContent = s;
-  document.getElementById("catatan-ayat").textContent = a;
-  document.getElementById("catatan-status").textContent = "";
-  const saved = localStorage.getItem("catatan_" + s + "_" + a) || "";
-  document.getElementById("catatan-text").value = saved;
-  document.getElementById("catatan-overlay").style.display = "block";
-};
 
 function saveCatatan() {
   const s = document.getElementById("catatan-surah").textContent;
