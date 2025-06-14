@@ -525,6 +525,8 @@ const lastAyat = urlParams.get("ayat") || localStorage.getItem("lastAyat");
 </div>
   <!-- BATAS TAMBAHAN -->
 
+<div id="output-ayat" class="arabic"></div>
+  
   <!-- Ganti 'Memuat...' dengan animasi -->
   <div id="result">
     <div class="loader">
@@ -1168,5 +1170,60 @@ localStorage.removeItem("fromAutoplay");
   // Simpan URL terakhir ke localStorage saat halaman ini dibuka
   localStorage.setItem("lastQuranPage", window.location.href);
 </script>
+
+
+<script>
+  let quranData = {};
+
+  async function loadQuranJson() {
+    try {
+      const res = await fetch('quran.json'); // Pastikan file ini berada di direktori yang sama
+      const json = await res.json();
+
+      // Gabungkan semua objek dalam array menjadi satu object besar
+      for (const item of json) {
+        const keys = Object.keys(item);
+        if (keys.length && keys[0] !== 'juzNumber') {
+          const key = keys[0];
+          if (!quranData[key]) quranData[key] = item[key];
+          else quranData[key].text = [...quranData[key].text, ...item[key].text];
+        }
+      }
+    } catch (err) {
+      console.error('Gagal memuat quran.json', err);
+    }
+  }
+
+  function getAyatText(surahNum, ayatNum) {
+    const surah = quranData[surahNum];
+    if (!surah) return null;
+    const ayatObj = surah.text.find(v => parseInt(v.verseNumber) === parseInt(ayatNum));
+    return ayatObj ? ayatObj.text : null;
+  }
+
+  async function initQuranViewer() {
+    await loadQuranJson();
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const surahNum = urlParams.get('surah');
+    const ayatNum = urlParams.get('ayat');
+
+    if (surahNum && ayatNum) {
+      const arabicText = getAyatText(surahNum, ayatNum);
+      if (arabicText) {
+        const outputElement = document.getElementById("output-ayat");
+if (outputElement && arabicText) {
+  outputElement.textContent = arabicText;
+}
+      } else {
+        console.warn("Ayat tidak ditemukan dalam quran.json");
+      }
+    }
+  }
+
+  initQuranViewer();
+</script>
+
+  
 </body>
 </html>
