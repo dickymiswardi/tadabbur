@@ -822,6 +822,18 @@ function createTafsirDropdown(surah, ayah) {
   dropdownContent.classList.remove("show", "upward");
 };
 
+    dropdownContent.appendChild(link);
+  });
+
+  // Tombol klik buka/tutup dropdown
+  dropbtn.onclick = (e) => {
+    e.stopPropagation();
+
+    // Tutup semua dropdown lain
+    document.querySelectorAll(".tafsir-dropdown-content").forEach(d => {
+      if (d !== dropdownContent) d.classList.remove("show", "upward");
+    });
+
     dropdownContent.classList.toggle("show");
 
     // Deteksi apakah tombol terlalu bawah
