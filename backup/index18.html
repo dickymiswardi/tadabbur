@@ -361,6 +361,7 @@
   <!-- BATAS TAMBAHAN -->
   <!-- PILIHAN SURAH & AYAT -->
 <div id="pilihan-container" style="visibility: hidden; margin-bottom: 1em;">
+  <div id="hasil-ayat" style="margin-top: 2em;"></div>
   <style>
   #pilihan-container .row {
     display: flex;
@@ -506,25 +507,10 @@
         const url = new URL(window.location.href);
         url.searchParams.set("surah", surah);
         url.searchParams.set("ayat", ayat);
-history.replaceState(null, '', url.toString());
-tampilkanAyat(surah, ayat);
+        window.location.href = url.toString();
       }
     });
 
-    fetch("https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/quran.json")
-  .then(res => res.json())
-  .then(json => {
-    quranData = Object.assign({}, ...json);
-
-    const urlParams = new URLSearchParams(window.location.search);
-    const surah = parseInt(urlParams.get("surah")) || 1;
-    const ayat = parseInt(urlParams.get("ayat")) || 1;
-    tampilkanAyat(surah, ayat);
-  })
-  .catch(err => {
-    console.error("Gagal memuat quran.json:", err);
-    document.getElementById("result").textContent = "Gagal memuat data.";
-  });
     document.addEventListener("DOMContentLoaded", () => {
       populateSurahs();
       const urlParams = new URLSearchParams(window.location.search);
@@ -580,21 +566,76 @@ const lastAyat = urlParams.get("ayat") || localStorage.getItem("lastAyat");
       106:"Quraysh",107:"Al-Ma'un",108:"Al-Kawthar",109:"Al-Kafirun",110:"An-Nasr",
       111:"Al-Masad",112:"Al-Ikhlas",113:"Al-Falaq",114:"An-Nas"
     };
+    
+  let quranData = {};
+  const surahAyahCount = {};
 
-    const surahAyahCount = {
-      1:7, 2:286, 3:200, 4:176, 5:120, 6:165, 7:206, 8:75, 9:129, 10:109,
-      11:123, 12:111, 13:43, 14:52, 15:99, 16:128, 17:111, 18:110, 19:98, 20:135,
-      21:112, 22:78, 23:118, 24:64, 25:77, 26:227, 27:93, 28:88, 29:69, 30:60,
-      31:34, 32:30, 33:73, 34:54, 35:45, 36:83, 37:182, 38:88, 39:75, 40:85,
-      41:54, 42:53, 43:89, 44:59, 45:37, 46:35, 47:38, 48:29, 49:18, 50:45,
-      51:60, 52:49, 53:62, 54:55, 55:78, 56:96, 57:29, 58:22, 59:24, 60:13,
-      61:14, 62:11, 63:11, 64:18, 65:12, 66:12, 67:30, 68:52, 69:52, 70:44,
-      71:28, 72:28, 73:20, 74:56, 75:40, 76:31, 77:50, 78:40, 79:46, 80:42,
-      81:29, 82:19, 83:36, 84:25, 85:22, 86:17, 87:19, 88:26, 89:30, 90:20,
-      91:15, 92:21, 93:11, 94:8, 95:8, 96:19, 97:5, 98:8, 99:8, 100:11,
-      101:11, 102:8, 103:3, 104:9, 105:5, 106:4, 107:7, 108:3, 109:6, 110:3,
-      111:5, 112:4, 113:5, 114:6
-    };
+  fetch('https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/quran.json')
+    .then(response => response.json())
+    .then(json => {
+      // Gabungkan array JSON menjadi satu objek
+      quranData = Object.assign({}, ...json);
+
+      // Inisialisasi jumlah ayat per surah
+      for (const [surahNumber, surahObj] of Object.entries(quranData)) {
+        if (surahObj && surahObj.verseCount) {
+          surahAyahCount[parseInt(surahNumber)] = parseInt(surahObj.verseCount);
+        }
+      }
+
+      document.getElementById("pilihan-container").style.visibility = "visible";
+      populateSurahs();
+
+      // Tampilkan ayat dari URL jika tersedia
+      const params = new URLSearchParams(window.location.search);
+      const surah = params.get("surah");
+      const ayat = params.get("ayat");
+      if (surah && ayat) {
+        surahSelect.value = surah;
+        populateAyat(surah, ayat);
+        tampilkanAyat(surah, ayat);
+      }
+    })
+    .catch(err => console.error("Gagal memuat quran.json:", err));
+
+  function tampilkanAyat(surah, ayat) {
+    const container = document.getElementById("hasil-ayat") || document.createElement("div");
+    container.id = "hasil-ayat";
+    container.innerHTML = "";
+
+    const surahObj = quranData[surah];
+    if (!surahObj || !surahObj.text) {
+      container.textContent = "Surah tidak ditemukan.";
+      return;
+    }
+
+    const ayatObj = surahObj.text.find(a => parseInt(a.verseNumber) === parseInt(ayat));
+    if (!ayatObj) {
+      container.textContent = "Ayat tidak ditemukan.";
+      return;
+    }
+
+    container.innerHTML = `
+      <div class="arabic">${ayatObj.text}</div>
+      <div class="translation">[Surah ${surahObj.titleAr} - Ayat ${ayatObj.verseNumber}]</div>
+    `;
+
+    document.body.appendChild(container);
+  }
+
+  ayatSelect.addEventListener("change", () => {
+    const ayat = ayatSelect.value;
+    const surah = surahSelect.value;
+    localStorage.setItem("lastAyat", ayat);
+
+    if (surah && ayat) {
+      const url = new URL(window.location.href);
+      url.searchParams.set("surah", surah);
+      url.searchParams.set("ayat", ayat);
+      history.replaceState(null, "", url.toString());
+      tampilkanAyat(surah, ayat);
+    }
+  });
 
     function toArabicNumber(n) {
       const map = ["٠", "١", "٢", "٣", "٤", "٥", "٦", "٧", "٨", "٩"];
@@ -632,33 +673,32 @@ const lastAyat = urlParams.get("ayat") || localStorage.getItem("lastAyat");
       return { surah: surah - 1, ayah: surahAyahCount[surah - 1] };
     }
 
-Promise.all([
-  fetch("https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/quran.json")
-    .then(res => res.json()),
-  fetch("indonesian_complex_v1.0.xml").then(res => res.text())
-])
-.then(([json, xmlText]) => {
-  const quranData = Object.assign({}, ...json);
-  const verse = quranData[surah]?.text?.find(v => v.verseNumber == ayat);
-  let arabicText = verse?.text || "(Teks Arab tidak ditemukan)";
-  arabicText += ` \u06dd${toArabicNumber(ayat)}`;
-  arabicText = wrapRasmSymbols(arabicText);
 
-  const arabDiv = document.createElement('div');
-  arabDiv.className = 'arabic';
-  arabDiv.innerHTML = arabicText;
-  document.getElementById("result").innerHTML = '';
-  document.getElementById("result").appendChild(arabDiv);
+function tampilkanAyat(surah, ayah) {
+  const container = document.getElementById("result") || document.createElement("div");
+  container.id = "result";
+  container.innerHTML = ""; // Kosongkan kontainer
 
-  // bagian XML tetap untuk terjemahan
-  const parser = new DOMParser();
-  const xmlDoc = parser.parseFromString(xmlText, "text/xml");
-  const translationAyah = xmlDoc.querySelector(`sura[number="${surah}"] > aya[number="${ayat}"]`);
-  let translation = translationAyah?.querySelector("translation")?.textContent || "(Terjemahan tidak ditemukan)";
-  const footnotes = translationAyah?.querySelector("footnotes")?.textContent || "";
-  // tampilkan translation dan footnotes jika diperlukan
-});
+  const surahObj = quranData[surah];
+  if (!surahObj || !surahObj.text) {
+    container.textContent = "Data tidak ditemukan.";
+  } else {
+    const ayatObj = surahObj.text.find(a => parseInt(a.verseNumber) === parseInt(ayah));
+    if (ayatObj) {
+      const arabDiv = document.createElement("div");
+      arabDiv.className = "arabic";
+      arabDiv.innerHTML = `${wrapRasmSymbols(ayatObj.text)} <span class="rasm-symbol">\u06dd${toArabicNumber(ayah)}</span>`;
 
+      container.appendChild(arabDiv);
+    } else {
+      container.textContent = "Ayat tidak ditemukan.";
+    }
+  }
+
+  document.body.appendChild(container);
+}
+
+    
 
       // Buat peta footnoteNumber ke posisi Surah & Ayat
 const footnoteMap = {};
@@ -1182,20 +1222,13 @@ localStorage.removeItem("fromAutoplay");
   // Simpan ke localStorage
   localStorage.setItem("lastSurah", surah);
   localStorage.setItem("lastAyat", ayat);
+
+  loadAyat(surah, ayat);
 });
   </script>
   <script>
   // Simpan URL terakhir ke localStorage saat halaman ini dibuka
   localStorage.setItem("lastQuranPage", window.location.href);
-
-    let quranData = {};
-
-function tampilkanAyat(surah, ayat) {
-  const verse = quranData[surah]?.text?.find(v => v.verseNumber == ayat);
-  const arabicText = verse?.text || "(Teks Arab tidak ditemukan)";
-  const container = document.getElementById("result");
-  container.innerHTML = `<div class="arabic">${arabicText}</div>`;
-}
 </script>
 </body>
 </html>
