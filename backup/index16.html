@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -77,8 +76,8 @@
 
     function getAyahText(surah, ayah) {
       const key = String(surah);
-      const verses = quranData[key] || [];
-      const verse = verses.find(v => parseInt(v.verseNumber) === parseInt(ayah));
+      const ayats = quranData[key] || [];
+      const verse = ayats.find(v => parseInt(v.verseNumber) === parseInt(ayah));
       return verse ? verse.text : "(Teks ayat tidak ditemukan)";
     }
 
