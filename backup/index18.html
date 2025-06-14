@@ -617,27 +617,23 @@ const lastAyat = urlParams.get("ayat") || localStorage.getItem("lastAyat");
       return { surah: surah - 1, ayah: surahAyahCount[surah - 1] };
     }
 
+    const apiURL = `https://api.quran.com/api/v4/quran/verses/uthmani?verse_key=${surah}:${ayat}`;
+
     Promise.all([
-  fetch("quran.json").then(res => res.json()),
-  fetch("indonesian_complex_v1.0.xml").then(res => res.text())
-])
-.then(([quranJson, xmlText]) => {
-  quranData = Object.assign({}, ...quranJson);
-  const surahStr = surah.toString();
-  const verseObj = quranData[surahStr]?.text?.find(v => v.verseNumber == ayat);
-  let arabicText = verseObj?.text || "(Teks Arab tidak ditemukan)";
+      fetch(apiURL).then(res => res.json()),
+      fetch("indonesian_complex_v1.0.xml").then(res => res.text())
+    ])
+    .then(([arabData, xmlText]) => {
+      const verse = arabData.verses?.[0];
+      let arabicText = verse?.text_uthmani || "(Teks Arab tidak ditemukan)";
+      arabicText += ` \u06dd${toArabicNumber(ayat)}`;
+      arabicText = wrapRasmSymbols(arabicText);
 
-  arabicText += ` \u06dd${toArabicNumber(ayat)}`;
-  arabicText = wrapRasmSymbols(arabicText);
-
-  const arabDiv = document.createElement('div');
-  arabDiv.className = 'arabic';
-  arabDiv.innerHTML = arabicText;
-  document.getElementById("result").innerHTML = '';
-  document.getElementById("result").appendChild(arabDiv);
-
-  // Lanjutkan: proses XML, terjemahan, tafsir, dll
-});
+      const arabDiv = document.createElement('div');
+      arabDiv.className = 'arabic';
+      arabDiv.innerHTML = arabicText;
+      document.getElementById("result").innerHTML = '';
+      document.getElementById("result").appendChild(arabDiv);
 
       const parser = new DOMParser();
       const xmlDoc = parser.parseFromString(xmlText, "text/xml");
@@ -1165,7 +1161,7 @@ localStorage.removeItem("fromAutoplay");
   localStorage.setItem("lastSurah", surah);
   localStorage.setItem("lastAyat", ayat);
 
-  // loadAyat(surah, ayat);
+  loadAyat(surah, ayat);
 });
   </script>
   <script>
