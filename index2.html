@@ -525,8 +525,8 @@ const lastAyat = urlParams.get("ayat") || localStorage.getItem("lastAyat");
 </div>
   <!-- BATAS TAMBAHAN -->
 
-<div id="output-ayat" class="arabic"></div>
-  
+  <div id="output-ayat" class="arabic"></div>
+
   <!-- Ganti 'Memuat...' dengan animasi -->
   <div id="result">
     <div class="loader">
@@ -619,21 +619,21 @@ const lastAyat = urlParams.get("ayat") || localStorage.getItem("lastAyat");
       return { surah: surah - 1, ayah: surahAyahCount[surah - 1] };
     }
 
+    const apiURL = `https://api.quran.com/api/v4/quran/verses/uthmani?verse_key=${surah}:${ayat}`;
 
-
-    fetch("indonesian_complex_v1.0.xml")
-  .then(res => res.text())
-  .then((xmlText) => {
-    const arabicText = getAyatText(surah, ayat) || "(Teks Arab tidak ditemukan)";
-    let processedText = wrapRasmSymbols(arabicText + ` \u06dd${toArabicNumber(ayat)}`);
-
-
+    Promise.all([
+      fetch(apiURL).then(res => res.json()),
+      fetch("indonesian_complex_v1.0.xml").then(res => res.text())
+    ])
+    .then(([arabData, xmlText]) => {
+      const verse = arabData.verses?.[0];
+      let arabicText = verse?.text_uthmani || "(Teks Arab tidak ditemukan)";
       arabicText += ` \u06dd${toArabicNumber(ayat)}`;
       arabicText = wrapRasmSymbols(arabicText);
 
       const arabDiv = document.createElement('div');
       arabDiv.className = 'arabic';
-      arabDiv.innerHTML = processedText;
+      arabDiv.innerHTML = arabicText;
       document.getElementById("result").innerHTML = '';
       document.getElementById("result").appendChild(arabDiv);
 
@@ -1170,9 +1170,7 @@ localStorage.removeItem("fromAutoplay");
   // Simpan URL terakhir ke localStorage saat halaman ini dibuka
   localStorage.setItem("lastQuranPage", window.location.href);
 </script>
-
-
-<script>
+  <script>
   let quranData = {};
 
   async function loadQuranJson() {
@@ -1223,7 +1221,5 @@ if (outputElement && arabicText) {
 
   initQuranViewer();
 </script>
-
-  
 </body>
 </html>
