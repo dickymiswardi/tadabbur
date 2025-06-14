@@ -510,78 +510,7 @@
       }
     });
 
-    
-Promise.all([
-  fetch("https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/quran.json").then(res => res.json()),
-  fetch("indonesian_complex_v1.0.xml").then(res => res.text())
-])
-.then(([quranData, xmlText]) => {
-  const surahStr = String(surah);
-  const ayahStr = String(ayat);
-
-  const surahObj = quranData[surahStr];
-  const ayahObj = surahObj?.text?.find(v => v.verseNumber === ayahStr);
-
-  const arabicText = ayahObj?.text || "(Teks Arab tidak ditemukan)";
-  const arabDiv = document.createElement("div");
-  arabDiv.className = "arabic";
-  arabDiv.textContent = arabicText;
-  document.getElementById("result").innerHTML = '';
-  document.getElementById("result").appendChild(arabDiv);
-
-  // lanjutkan dengan parsing XML untuk translation & footnotes
-  const parser = new DOMParser();
-  const xmlDoc = parser.parseFromString(xmlText, "text/xml");
-
-  const footnoteMap = {};
-  const ayatNodes = xmlDoc.querySelectorAll("aya");
-  ayatNodes.forEach(aya => {
-    const footnotes = aya.querySelector("footnotes");
-    if (footnotes && footnotes.textContent.trim()) {
-      const matches = footnotes.textContent.match(/\d+/g);
-      if (matches) {
-        matches.forEach(num => {
-          if (!footnoteMap[num]) {
-            const surahNum = aya.parentElement.getAttribute("number");
-            const ayahNum = aya.getAttribute("number");
-            footnoteMap[num] = `Surah ${surahNum} Ayat ${ayahNum}`;
-          }
-        });
-      }
-    }
-  });
-
-  const translationAyah = xmlDoc.querySelector(`sura[number="${surah}"] > aya[number="${ayat}"]`);
-  let translation = translationAyah?.querySelector("translation")?.textContent || "(Terjemahan tidak ditemukan)";
-  const footnotes = translationAyah?.querySelector("footnotes")?.textContent || "";
-
-  if (footnotes) {
-    translation = translation.replace(/(\d+)/g, '<sup>($1)</sup>');
-  }
-
-  const translationDiv = document.createElement("div");
-  translationDiv.className = "translation";
-  translationDiv.innerHTML = translation;
-  document.getElementById("result").appendChild(translationDiv);
-
-  if (footnotes) {
-    const foot = document.createElement("div");
-    foot.className = "footnote";
-    let modifiedFootnote = footnotes.replace(/Lihat catatan kaki nomor (\d+)/g, (fullMatch, num) => {
-      const ref = footnoteMap[num];
-      return ref ? `Lihat catatan kaki nomor ${num} (${ref})` : fullMatch;
-    });
-    foot.innerHTML = `<strong>Catatan:</strong> ${modifiedFootnote}`;
-    document.getElementById("result").appendChild(foot);
-  }
-})
-.catch(err => {
-  console.error(err);
-  document.getElementById("result").textContent = "Gagal memuat data.";
-});
-
-
-document.addEventListener("DOMContentLoaded", () => {
+    document.addEventListener("DOMContentLoaded", () => {
       populateSurahs();
       const urlParams = new URLSearchParams(window.location.search);
 const lastSurah = urlParams.get("surah") || localStorage.getItem("lastSurah");
@@ -688,13 +617,13 @@ const lastAyat = urlParams.get("ayat") || localStorage.getItem("lastAyat");
       return { surah: surah - 1, ayah: surahAyahCount[surah - 1] };
     }
 
-    // const apiURL = `https://api.quran.com/api/v4/quran/verses/uthmani?verse_key=${surah}:${ayat}`;
+    const quranJsonURL = "https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/quran.json";
 
     Promise.all([
-      fetch(apiURL).then(res => res.json()),
+  fetch(quranJsonURL).then(res => res.json()),
       fetch("indonesian_complex_v1.0.xml").then(res => res.text())
     ])
-    .then(([arabData, xmlText]) => {
+    .then(([quranData, xmlText]) => {
       const verse = arabData.verses?.[0];
       let arabicText = verse?.text_uthmani || "(Teks Arab tidak ditemukan)";
       arabicText += ` \u06dd${toArabicNumber(ayat)}`;
