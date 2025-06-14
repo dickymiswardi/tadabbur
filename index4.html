@@ -617,13 +617,13 @@ const lastAyat = urlParams.get("ayat") || localStorage.getItem("lastAyat");
       return { surah: surah - 1, ayah: surahAyahCount[surah - 1] };
     }
 
-    const quranJsonURL = "https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/quran.json";
+    const apiURL = `https://api.quran.com/api/v4/quran/verses/uthmani?verse_key=${surah}:${ayat}`;
 
     Promise.all([
-  fetch(quranJsonURL).then(res => res.json()),
+      fetch(apiURL).then(res => res.json()),
       fetch("indonesian_complex_v1.0.xml").then(res => res.text())
     ])
-    .then(([quranData, xmlText]) => {
+    .then(([arabData, xmlText]) => {
       const verse = arabData.verses?.[0];
       let arabicText = verse?.text_uthmani || "(Teks Arab tidak ditemukan)";
       arabicText += ` \u06dd${toArabicNumber(ayat)}`;
