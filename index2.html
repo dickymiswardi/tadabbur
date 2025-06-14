@@ -1144,7 +1144,56 @@ localStorage.removeItem("fromAutoplay");
 fetch("indonesian_complex_v1.0.xml")
   .then(res => res.text())
   .then(xmlText => {
+    const parser = new DOMParser();
+    const xmlDoc = parser.parseFromString(xmlText, "text/xml");
 
+    const urlParams = new URLSearchParams(window.location.search);
+    const surah = parseInt(urlParams.get("surah") || "1");
+    const ayat = parseInt(urlParams.get("ayat") || "1");
+
+    const footnoteMap = {};
+    const ayatNodes = xmlDoc.querySelectorAll("aya");
+    ayatNodes.forEach(aya => {
+      const footnotes = aya.querySelector("footnotes");
+      if (footnotes && footnotes.textContent.trim()) {
+        const matches = footnotes.textContent.match(/\d+/g);
+        if (matches) {
+          matches.forEach(num => {
+            if (!footnoteMap[num]) {
+              const surahNum = aya.parentElement.getAttribute("number");
+              const ayahNum = aya.getAttribute("number");
+              footnoteMap[num] = `Surah ${surahNum} Ayat ${ayahNum}`;
+            }
+          });
+        }
+      }
+    });
+
+    const translationAyah = xmlDoc.querySelector(`sura[number="${surah}"] > aya[number="${ayat}"]`);
+    let translation = translationAyah?.querySelector("translation")?.textContent || "(Terjemahan tidak ditemukan)";
+    const footnotes = translationAyah?.querySelector("footnotes")?.textContent || "";
+
+    if (footnotes) {
+      translation = translation.replace(/(\d+)/g, '<sup>($1)</sup>');
+    }
+
+    const translationDiv = document.createElement("div");
+    translationDiv.className = "translation";
+    translationDiv.innerHTML = translation;
+    document.getElementById("result").appendChild(translationDiv);
+
+    if (footnotes) {
+      const foot = document.createElement("div");
+      foot.className = "footnote";
+
+      let modifiedFootnote = footnotes.replace(/Lihat catatan kaki nomor (\d+)/g, (fullMatch, num) => {
+        const ref = footnoteMap[num];
+        return ref ? `Lihat catatan kaki nomor ${num} (${ref})` : fullMatch;
+      });
+
+      foot.innerHTML = `<strong>Catatan:</strong> ${modifiedFootnote}`;
+      document.getElementById("result").appendChild(foot);
+    }
   })
   .catch(err => {
     console.error(err);
