@@ -651,24 +651,40 @@ fetch('https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/
     console.error("Gagal memuat quran.json:", err);
   });
     
-    Promise.all([
-  fetch("indonesian_complex_v1.0.xml").then(res => res.text())
-])
-.then(([xmlText]) => {
-  let arabicText = getAyahText(surah, ayat);
+    fetch('https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/quran.json')
+  .then(res => res.json())
+  .then(json => {
+    // parsing quran.json
+    ...
 
-  arabicText += ` \u06dd${toArabicNumber(ayat)}`;
-  arabicText = wrapRasmSymbols(arabicText);
+    // setelah quranData siap
+    return fetch("indonesian_complex_v1.0.xml").then(res => res.text());
+  })
+  .then((xmlText) => {
+    const parser = new DOMParser();
+    const xmlDoc = parser.parseFromString(xmlText, "text/xml");
 
-  const arabDiv = document.createElement('div');
-  arabDiv.className = 'arabic';
-  arabDiv.innerHTML = arabicText;
+    // kemudian jalankan semua render ayat, translation, tafsir, audio, navigasi dll DI SINI
 
-  document.getElementById("result").innerHTML = '';
-  document.getElementById("result").appendChild(arabDiv);
+    // Ambil teks arab dari JSON
+    let arabicText = getAyahText(surah, ayat);
+    arabicText += ` \u06dd${toArabicNumber(ayat)}`;
+    arabicText = wrapRasmSymbols(arabicText);
 
-  // Lanjut render tafsir, terjemah, dll.
-});
+    // Tampilkan teks arab
+    const arabDiv = document.createElement('div');
+    arabDiv.className = 'arabic';
+    arabDiv.innerHTML = arabicText;
+    document.getElementById("result").innerHTML = '';
+    document.getElementById("result").appendChild(arabDiv);
+
+    // lanjutkan: render translation, tafsir, audio player, tombol navigasi
+    ...
+  })
+  .catch(err => {
+    console.error(err);
+    document.getElementById("result").textContent = "Gagal memuat data.";
+  });
 
       const parser = new DOMParser();
       const xmlDoc = parser.parseFromString(xmlText, "text/xml");
