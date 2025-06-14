@@ -619,62 +619,36 @@ const lastAyat = urlParams.get("ayat") || localStorage.getItem("lastAyat");
       return { surah: surah - 1, ayah: surahAyahCount[surah - 1] };
     }
 
-    // FUNGSI DINON_AKTIFKAN
-    // const apiURL = `https://api.quran.com/api/v4/quran/verses/uthmani?verse_key=${surah}:${ayat}`;
-    // FUNGSI DINON_AKTIFKAN
+fetch("indonesian_complex_v1.0.xml")
+  .then(res => res.text())
+  .then(xmlText => {
+    const arabicText = getAyatText(surah, ayat) || "(Teks Arab tidak ditemukan)";
+    const arabDiv = document.createElement('div');
+    arabDiv.className = 'arabic';
+    arabDiv.innerHTML = wrapRasmSymbols(arabicText + ` \u06dd${toArabicNumber(ayat)}`);
+    document.getElementById("result").innerHTML = '';
+    document.getElementById("result").appendChild(arabDiv);
 
-    Promise.all([
-      fetch(apiURL).then(res => res.json()),
-      fetch("indonesian_complex_v1.0.xml").then(res => res.text())
-    ])
-    .then(([arabData, xmlText]) => {
-      const verse = arabData.verses?.[0];
-      let arabicText = verse?.text_uthmani || "(Teks Arab tidak ditemukan)";
-      arabicText += ` \u06dd${toArabicNumber(ayat)}`;
-      arabicText = wrapRasmSymbols(arabicText);
+    const parser = new DOMParser();
+    const xmlDoc = parser.parseFromString(xmlText, "text/xml");
 
-      const arabDiv = document.createElement('div');
-      arabDiv.className = 'arabic';
-      arabDiv.innerHTML = arabicText;
-      document.getElementById("result").innerHTML = '';
-      document.getElementById("result").appendChild(arabDiv);
+    // Footnote & tafsir tetap berjalan
+    const translationAyah = xmlDoc.querySelector(`sura[number="${surah}"] > aya[number="${ayat}"]`);
+    let translation = translationAyah?.querySelector("translation")?.textContent || "(Terjemahan tidak ditemukan)";
+    const footnotes = translationAyah?.querySelector("footnotes")?.textContent || "";
 
-      const parser = new DOMParser();
-      const xmlDoc = parser.parseFromString(xmlText, "text/xml");
-
-      // Buat peta footnoteNumber ke posisi Surah & Ayat
-const footnoteMap = {};
-const ayatNodes = xmlDoc.querySelectorAll("aya");
-ayatNodes.forEach(aya => {
-  const footnotes = aya.querySelector("footnotes");
-  if (footnotes && footnotes.textContent.trim()) {
-    const matches = footnotes.textContent.match(/\d+/g);
-    if (matches) {
-      matches.forEach(num => {
-        // Simpan hanya jika belum ada
-        if (!footnoteMap[num]) {
-          const surahNum = aya.parentElement.getAttribute("number");
-          const ayahNum = aya.getAttribute("number");
-          footnoteMap[num] = `Surah ${surahNum} Ayat ${ayahNum}`;
-        }
-      });
+    if (footnotes) {
+      translation = translation.replace(/(\d+)/g, '<sup>($1)</sup>');
     }
-  }
-});
 
-      const translationAyah = xmlDoc.querySelector(`sura[number="${surah}"] > aya[number="${ayat}"]`);
-      let translation = translationAyah?.querySelector("translation")?.textContent || "(Terjemahan tidak ditemukan)";
-      const footnotes = translationAyah?.querySelector("footnotes")?.textContent || "";
+    const translationDiv = document.createElement("div");
+    translationDiv.className = "translation";
+    translationDiv.innerHTML = translation;
+    document.getElementById("result").appendChild(translationDiv);
+  });
 
-      if (footnotes) {
-        translation = translation.replace(/(\d+)/g, '<sup>($1)</sup>');
-      }
 
-      const translationDiv = document.createElement("div");
-      translationDiv.className = "translation";
-      translationDiv.innerHTML = translation;
-      document.getElementById("result").appendChild(translationDiv);
-
+    
 // GANTI bagian kode tafsir yang lama DENGAN ini:
 
 // Daftar sumber tafsir
