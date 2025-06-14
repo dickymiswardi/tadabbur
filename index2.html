@@ -1182,40 +1182,6 @@ localStorage.removeItem("fromAutoplay");
 </script>
   <script>
     const quranJSONUrl = "quran.json"; // pakai lokal, atau ganti ke URL raw github-mu jika mau online
-
-    async function loadAyat() {
-      const surah = document.getElementById("surah").value;
-      const ayat = document.getElementById("ayat").value;
-      
-      document.getElementById("result").innerHTML = "Loading...";
-
-      try {
-        const quranData = await fetch(quranJSONUrl).then(res => res.json());
-
-        // cari object yang punya key surah
-        const chapterObj = quranData.find(obj => obj[surah]);
-        if (!chapterObj) {
-          document.getElementById("result").innerHTML = "(Surah tidak ditemukan)";
-          return;
-        }
-
-        const chapterData = chapterObj[surah];
-        const verseObj = chapterData.text.find(v => v.verseNumber == ayat);
-        if (!verseObj) {
-          document.getElementById("result").innerHTML = "(Ayat tidak ditemukan)";
-          return;
-        }
-
-        const arabicText = verseObj.text;
-        
-        document.getElementById("result").innerHTML = `
-          <div class="arabic">${arabicText}</div>
-        `;
-      } catch(err) {
-        console.error(err);
-        document.getElementById("result").innerHTML = "Terjadi error saat memuat data.";
-      }
-    }
   </script>
 </body>
 </html>
