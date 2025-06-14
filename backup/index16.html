@@ -443,6 +443,17 @@
   </div>
 
   <script>
+
+// QURAN JSON
+let quranData = {};
+    function getAyahText(surah, ayah) {
+  const key = String(surah);
+  const ayats = quranData[key] || [];
+  const verse = ayats.find(v => parseInt(v.verseNumber) === parseInt(ayah));
+  return verse ? verse.text : "(Teks ayat tidak ditemukan)";
+}
+// QURAN JSON
+    
     const surahSelect = document.getElementById("surah");
     const ayatSelect = document.getElementById("ayat");
 
@@ -616,24 +627,48 @@ const lastAyat = urlParams.get("ayat") || localStorage.getItem("lastAyat");
       if (ayah > 1) return { surah, ayah: ayah - 1 };
       return { surah: surah - 1, ayah: surahAyahCount[surah - 1] };
     }
+    
+// Muat teks Al-Qur'an dari file JSON
+fetch('https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/quran.json')
+  .then(res => res.json())
+  .then(json => {
+    // Gabungkan isi setiap surah ke dalam quranData
+    json.forEach(entry => {
+      Object.keys(entry).forEach(key => {
+        if (key === "juzNumber") return;
+        const surah = entry[key];
+        if (!quranData[key]) quranData[key] = [];
+        surah.text.forEach(verse => {
+          quranData[key].push(verse);
+        });
+      });
+    });
 
-    const apiURL = `https://api.quran.com/api/v4/quran/verses/uthmani?verse_key=${surah}:${ayat}`;
-
+    // Setelah selesai load, lanjutkan tampilkan ayat
+    renderAyah();
+  })
+  .catch(err => {
+    console.error("Gagal memuat quran.json:", err);
+  });
+    
     Promise.all([
-      fetch(apiURL).then(res => res.json()),
-      fetch("indonesian_complex_v1.0.xml").then(res => res.text())
-    ])
-    .then(([arabData, xmlText]) => {
-      const verse = arabData.verses?.[0];
-      let arabicText = verse?.text_uthmani || "(Teks Arab tidak ditemukan)";
-      arabicText += ` \u06dd${toArabicNumber(ayat)}`;
-      arabicText = wrapRasmSymbols(arabicText);
+  fetch("indonesian_complex_v1.0.xml").then(res => res.text())
+])
+.then(([xmlText]) => {
+  let arabicText = getAyahText(surah, ayat);
 
-      const arabDiv = document.createElement('div');
-      arabDiv.className = 'arabic';
-      arabDiv.innerHTML = arabicText;
-      document.getElementById("result").innerHTML = '';
-      document.getElementById("result").appendChild(arabDiv);
+  arabicText += ` \u06dd${toArabicNumber(ayat)}`;
+  arabicText = wrapRasmSymbols(arabicText);
+
+  const arabDiv = document.createElement('div');
+  arabDiv.className = 'arabic';
+  arabDiv.innerHTML = arabicText;
+
+  document.getElementById("result").innerHTML = '';
+  document.getElementById("result").appendChild(arabDiv);
+
+  // Lanjut render tafsir, terjemah, dll.
+});
 
       const parser = new DOMParser();
       const xmlDoc = parser.parseFromString(xmlText, "text/xml");
