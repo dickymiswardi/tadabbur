@@ -1175,7 +1175,7 @@ localStorage.removeItem("fromAutoplay");
   <script>
   let quranData = {};
 
-  fetch('https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/quran.json')
+  fetch('quran.json')
     .then(response => response.json())
     .then(json => {
       quranData = Object.assign({}, ...json);
