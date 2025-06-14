@@ -1202,26 +1202,48 @@ localStorage.removeItem("fromAutoplay");
   }
 
   async function initQuranViewer() {
+  try {
     await loadQuranJson();
+    const xmlRes = await fetch("indonesian_complex_v1.0.xml");
+    const xmlText = await xmlRes.text();
 
     const urlParams = new URLSearchParams(window.location.search);
-    const surahNum = urlParams.get('surah');
-    const ayatNum = urlParams.get('ayat');
+    const surahNum = parseInt(urlParams.get('surah'));
+    const ayatNum = parseInt(urlParams.get('ayat'));
 
-    if (surahNum && ayatNum) {
-      const arabicText = getAyatText(surahNum, ayatNum);
-      if (arabicText) {
-        const outputElement = document.getElementById("output-ayat");
-if (outputElement && arabicText) {
-  outputElement.textContent = arabicText;
-}
-      } else {
-        console.warn("Ayat tidak ditemukan dalam quran.json");
-      }
+    const arabicText = getAyatText(surahNum, ayatNum) || "(Teks Arab tidak ditemukan)";
+    let processedText = wrapRasmSymbols(arabicText + ` \u06dd${toArabicNumber(ayatNum)}`);
+
+    const arabDiv = document.createElement('div');
+    arabDiv.className = 'arabic';
+    arabDiv.innerHTML = processedText;
+    document.getElementById("result").innerHTML = '';
+    document.getElementById("result").appendChild(arabDiv);
+
+    // PROSES XML TERJEMAH DAN TAFSIR (tidak diubah)
+    const parser = new DOMParser();
+    const xmlDoc = parser.parseFromString(xmlText, "text/xml");
+
+    const translationAyah = xmlDoc.querySelector(`sura[number="${surahNum}"] > aya[number="${ayatNum}"]`);
+    let translation = translationAyah?.querySelector("translation")?.textContent || "(Terjemahan tidak ditemukan)";
+    const footnotes = translationAyah?.querySelector("footnotes")?.textContent || "";
+
+    if (footnotes) {
+      translation = translation.replace(/(\d+)/g, '<sup>($1)</sup>');
     }
-  }
 
-  initQuranViewer();
+    const translationDiv = document.createElement("div");
+    translationDiv.className = "translation";
+    translationDiv.innerHTML = translation;
+    document.getElementById("result").appendChild(translationDiv);
+
+    // (lanjutkan dengan tafsirDropdown, footnotes, tombol navigasi, dll...)
+
+  } catch (err) {
+    console.error("Gagal memuat data:", err);
+    document.getElementById("result").textContent = "Gagal memuat data.";
+  }
+}
 </script>
 
   
