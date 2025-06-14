@@ -360,21 +360,21 @@
 
   <!-- BATAS TAMBAHAN -->
   <!-- PILIHAN SURAH & AYAT -->
-<div id="pilihan-container" style="visibility: hidden; margin-bottom: 1em;">
 
 <!-- SEARCH & CATATAN AYAT -->
+
+<!-- Tombol Akses Fitur -->
 <div style="display: flex; justify-content:space-between; margin: 1em 0; gap: 1em; flex-wrap:wrap">
-  <div style="flex:1;">
-    <input type="text" id="search-kata" placeholder="🔍 Cari kosa kata ayat..." style="width: 100%; padding: 0.6em; border-radius: 6px; border: 1px solid #007b8a; font-size: 0.95em;">
-  </div>
-  <div>
-    <button id="catatan-btn" class="copy-button" style="background:#007b8a;">📝 Catatan Ayat</button>
-  </div>
+  <button id="open-search-overlay" class="copy-button" style="background:#006e75;">🔍 Cari Kata</button>
+  <button id="catatan-btn" class="copy-button" style="background:#007b8a;">📝 Catatan Ayat</button>
 </div>
 
-<!-- Overlay Hasil Pencarian -->
+<!-- Overlay Pencarian Kata -->
 <div id="search-overlay" style="display:none; position:fixed; top:5%; left:50%; transform:translateX(-50%); width:90%; max-width:600px; max-height:80vh; overflow:auto; background:white; border:2px solid #007b8a; padding:1em; border-radius:8px; z-index:9999; box-shadow:0 0 20px rgba(0,0,0,0.2);">
   <div style="text-align:right;"><button onclick="document.getElementById('search-overlay').style.display='none'" style="font-size:1.2em; border:none; background:none; color:#007b8a;">✖</button></div>
+  <h3 style="margin-top:0;">🔍 Cari Kosa Kata</h3>
+  <input type="text" id="search-kata" placeholder="Ketik kata Arab..." style="width: 100%; padding: 0.6em; margin-bottom: 1em; border-radius: 6px; border: 1px solid #007b8a; font-size: 1em;">
+  <div id="search-loading" style="display:none; color:#007b8a;">⏳ Mencari...</div>
   <div id="search-results" style="font-size:0.95em; line-height:1.6;"></div>
 </div>
 
@@ -383,11 +383,13 @@
   <div style="text-align:right;"><button onclick="document.getElementById('catatan-overlay').style.display='none'" style="font-size:1.2em; border:none; background:none; color:#007b8a;">✖</button></div>
   <h3>Catatan untuk Surah <span id="catatan-surah"></span> Ayat <span id="catatan-ayat"></span></h3>
   <textarea id="catatan-text" rows="6" style="width:100%; font-size:1em; padding:0.5em; margin-top:0.5em; border-radius:6px; border:1px solid #ccc;"></textarea>
-  <button onclick="saveCatatan()" style="margin-top:1em; padding:0.6em 1em; background:#007b8a; color:white; border:none; border-radius:6px;">💾 Simpan Catatan</button>
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-top:0.8em;">
+    <button onclick="saveCatatan()" style="padding:0.6em 1em; background:#007b8a; color:white; border:none; border-radius:6px;">💾 Simpan</button>
+    <span id="catatan-status" style="font-size:0.9em; color:green;"></span>
+  </div>
 </div>
 
 <script>
-// Pencarian Kata
 let simpleQuran = [];
 fetch("quran-simple.xml")
   .then(res => res.text())
@@ -406,22 +408,39 @@ fetch("quran-simple.xml")
     }
   });
 
+document.getElementById("open-search-overlay").onclick = () => {
+  document.getElementById("search-kata").value = "";
+  document.getElementById("search-results").innerHTML = "";
+  document.getElementById("search-overlay").style.display = "block";
+};
+
+let searchTimeout;
 document.getElementById("search-kata").addEventListener("input", function() {
+  clearTimeout(searchTimeout);
   const term = this.value.trim();
-  const hasil = simpleQuran.filter(e => e.text.includes(term));
-  const container = document.getElementById("search-results");
-  container.innerHTML = hasil.length
-    ? hasil.map(e => `<div style="margin-bottom:0.8em;"><b>${e.surah}:${e.ayah}</b> - <a href="?surah=${e.surah}&ayat=${e.ayah}">${e.text}</a></div>`).join("")
-    : "<i>Tidak ditemukan</i>";
-  document.getElementById("search-overlay").style.display = term ? "block" : "none";
+  const resultsBox = document.getElementById("search-results");
+  const loadingBox = document.getElementById("search-loading");
+  resultsBox.innerHTML = "";
+  if (term === "") {
+    loadingBox.style.display = "none";
+    return;
+  }
+  loadingBox.style.display = "block";
+  searchTimeout = setTimeout(() => {
+    const hasil = simpleQuran.filter(e => e.text.includes(term));
+    loadingBox.style.display = "none";
+    resultsBox.innerHTML = hasil.length
+      ? hasil.map(e => `<div style="margin-bottom:0.8em;"><b>${e.surah}:${e.ayah}</b> - <a href="?surah=${e.surah}&ayat=${e.ayah}">${e.text}</a></div>`).join("")
+      : "<i>Tidak ditemukan</i>";
+  }, 400); // delay agar terasa smooth
 });
 
-// Catatan Ayat
 document.getElementById("catatan-btn").onclick = () => {
   const s = localStorage.getItem("lastSurah") || "1";
   const a = localStorage.getItem("lastAyat") || "1";
   document.getElementById("catatan-surah").textContent = s;
   document.getElementById("catatan-ayat").textContent = a;
+  document.getElementById("catatan-status").textContent = "";
   const saved = localStorage.getItem("catatan_" + s + "_" + a) || "";
   document.getElementById("catatan-text").value = saved;
   document.getElementById("catatan-overlay").style.display = "block";
@@ -432,11 +451,11 @@ function saveCatatan() {
   const a = document.getElementById("catatan-ayat").textContent;
   const isi = document.getElementById("catatan-text").value;
   localStorage.setItem("catatan_" + s + "_" + a, isi);
-  alert("✅ Catatan disimpan (offline)");
-  document.getElementById("catatan-overlay").style.display = "none";
+  document.getElementById("catatan-status").textContent = "✅ Disimpan offline";
 }
 </script>
 
+<div id="pilihan-container" style="visibility: hidden; margin-bottom: 1em;">
   <style>
   #pilihan-container .row {
     display: flex;
