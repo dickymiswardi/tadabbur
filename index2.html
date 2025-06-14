@@ -526,9 +526,9 @@ const lastAyat = urlParams.get("ayat") || localStorage.getItem("lastAyat");
   </script>
 </div>
   <!-- BATAS TAMBAHAN -->
-  
-<div id="hasil-ayat" style="margin-top: 2em;"></div>
 
+  <div id="hasil-ayat" style="margin-top: 2em;"></div>
+  
   <!-- Ganti 'Memuat...' dengan animasi -->
   <div id="result">
     <div class="loader">
@@ -1172,10 +1172,12 @@ localStorage.removeItem("fromAutoplay");
   // Simpan URL terakhir ke localStorage saat halaman ini dibuka
   localStorage.setItem("lastQuranPage", window.location.href);
 </script>
-  <script>
+
+
+<script>
   let quranData = {};
 
-  fetch('quran.json')
+  fetch('https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/quran.json')
     .then(response => response.json())
     .then(json => {
       quranData = Object.assign({}, ...json);
@@ -1194,30 +1196,29 @@ localStorage.removeItem("fromAutoplay");
     .catch(err => console.error("Gagal memuat quran.json:", err));
 
   function tampilkanAyat(surah, ayat) {
-  const container = document.getElementById("hasil-ayat");
-  container.innerHTML = "";
+    const container = document.getElementById("hasil-ayat");
+    container.innerHTML = ""; // kosongkan dulu
 
-  const surahKey = String(surah);
-  const surahObj = quranData[surahKey];
+    const surahObj = quranData[surah];
+    if (!surahObj || !surahObj.text) {
+      container.textContent = "Surah tidak ditemukan.";
+      return;
+    }
 
-  if (!surahObj || !surahObj.text) {
-    container.textContent = "Surah tidak ditemukan.";
-    return;
+    const ayatObj = surahObj.text.find(a => a.verseNumber == ayat);
+    if (!ayatObj) {
+      container.textContent = "Ayat tidak ditemukan.";
+      return;
+    }
+
+    container.innerHTML = `
+      <div class="arabic">${ayatObj.text}</div>
+      <div class="translation">[Surah ${surahObj.titleAr} - Ayat ${ayatObj.verseNumber}]</div>
+    `;
   }
-
-  // Perbaikan di sini (gunakan Number)
-  const ayatObj = surahObj.text.find(a => Number(a.verseNumber) === Number(ayat));
-
-  if (!ayatObj) {
-    container.textContent = "Ayat tidak ditemukan.";
-    return;
-  }
-
-  container.innerHTML = `
-    <div class="arabic">${ayatObj.text}</div>
-    <div class="translation">[Surah ${surahObj.titleAr} - Ayat ${ayatObj.verseNumber}]</div>
-  `;
-}
 </script>
+
+
+  
 </body>
 </html>
