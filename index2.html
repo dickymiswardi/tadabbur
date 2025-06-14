@@ -618,7 +618,6 @@ const lastAyat = urlParams.get("ayat") || localStorage.getItem("lastAyat");
     }
 
     const quranJSONUrl = "https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/quran.json";
-    const apiURL = `https://api.quran.com/api/v4/quran/verses/uthmani?verse_key=${surah}:${ayat}`;
 
     Promise.all([
   fetch(quranJSONUrl).then(res => res.json()),
@@ -1180,8 +1179,5 @@ localStorage.removeItem("fromAutoplay");
   // Simpan URL terakhir ke localStorage saat halaman ini dibuka
   localStorage.setItem("lastQuranPage", window.location.href);
 </script>
-  <script>
-    const quranJSONUrl = "quran.json"; // pakai lokal, atau ganti ke URL raw github-mu jika mau online
-  </script>
 </body>
 </html>
