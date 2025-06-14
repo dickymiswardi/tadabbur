@@ -619,23 +619,21 @@ const lastAyat = urlParams.get("ayat") || localStorage.getItem("lastAyat");
       return { surah: surah - 1, ayah: surahAyahCount[surah - 1] };
     }
 
-    // FUNGSI DINON_AKTIFKAN
-    // const apiURL = `https://api.quran.com/api/v4/quran/verses/uthmani?verse_key=${surah}:${ayat}`;
-    // FUNGSI DINON_AKTIFKAN
 
-    Promise.all([
-      fetch(apiURL).then(res => res.json()),
-      fetch("indonesian_complex_v1.0.xml").then(res => res.text())
-    ])
-    .then(([arabData, xmlText]) => {
-      const verse = arabData.verses?.[0];
-      let arabicText = verse?.text_uthmani || "(Teks Arab tidak ditemukan)";
+
+    fetch("indonesian_complex_v1.0.xml")
+  .then(res => res.text())
+  .then((xmlText) => {
+    const arabicText = getAyatText(surah, ayat) || "(Teks Arab tidak ditemukan)";
+    let processedText = wrapRasmSymbols(arabicText + ` \u06dd${toArabicNumber(ayat)}`);
+
+
       arabicText += ` \u06dd${toArabicNumber(ayat)}`;
       arabicText = wrapRasmSymbols(arabicText);
 
       const arabDiv = document.createElement('div');
       arabDiv.className = 'arabic';
-      arabDiv.innerHTML = arabicText;
+      arabDiv.innerHTML = processedText;
       document.getElementById("result").innerHTML = '';
       document.getElementById("result").appendChild(arabDiv);
 
