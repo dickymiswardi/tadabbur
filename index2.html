@@ -1205,7 +1205,7 @@ localStorage.removeItem("fromAutoplay");
       return;
     }
 
-    const ayatObj = surahObj.text.find(a => a.verseNumber === String(ayat));
+const ayatObj = surahObj.text.find(a => Number(a.verseNumber) === Number(ayat));
     if (!ayatObj) {
       container.textContent = "Ayat tidak ditemukan.";
       return;
