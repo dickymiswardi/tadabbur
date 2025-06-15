@@ -51,6 +51,27 @@
   margin-left: 0.5em;
 }
 
+    #bookmark-notif {
+  display: inline-block;
+  background-color: #fefefe;
+  color: #222;
+  padding: 0.4em 0.8em;
+  font-size: 0.85em;
+  border-radius: 6px;
+  margin-left: 0.8em;
+  border: 1px solid #ccc;
+}
+
+#cancel-bookmark-btn {
+  margin-left: 0.5em;
+  background: none;
+  color: red;
+  font-weight: bold;
+  border: none;
+  cursor: pointer;
+}
+
+
 .tafsir-dropbtn {
   font-size: 0.6em;
   padding: 0.4em 0.8em;
@@ -1106,99 +1127,91 @@ translationDiv.appendChild(noteButton);
         navDiv.appendChild(prevBtn);
       }
 
-// Tombol Bookmark
-const bookmarkBtn = document.createElement("button");
+  const bookmarkBtn = document.createElement("button");
 bookmarkBtn.id = "bookmark-btn";
-bookmarkBtn.title = "Tandai Tadabbur";
-bookmarkBtn.innerHTML = "🔖";
+bookmarkBtn.innerHTML = "🔖"; // default icon
+translationDiv.appendChild(bookmarkBtn);
 
-let doubleClickTimeout = null;
-let isDoubleClick = false;
+// Wrapper notifikasi
+const notifWrap = document.createElement("span");
+notifWrap.id = "bookmark-notif";
+notifWrap.style.display = "none";
+translationDiv.appendChild(notifWrap);
 
-const bookmarkKey = `tadabbur-${surah}-${ayat}`;
-const saved = localStorage.getItem(bookmarkKey);
-if (saved) {
-  bookmarkBtn.classList.add("active");
-  bookmarkBtn.innerHTML = "✔️";
+  const bookmarkKey = "tadabbur-bookmark";
+let bookmarks = [];
+try {
+  bookmarks = JSON.parse(localStorage.getItem(bookmarkKey)) || [];
+} catch {
+  bookmarks = [];
 }
 
+let clickCount = 0;
+let clickTimer = null;
+
+const isAlreadyBookmarked = () => bookmarks.some(b => b.surah === surah && b.ayat === ayat);
+const getBookmarkIndex = () => bookmarks.findIndex(b => b.surah === surah && b.ayat === ayat);
+
+function showBookmarkNotif(text, withCancel = false) {
+  notifWrap.innerHTML = text;
+  notifWrap.style.display = "inline-block";
+
+  if (withCancel) {
+    const cancelBtn = document.createElement("button");
+    cancelBtn.id = "cancel-bookmark-btn";
+    cancelBtn.textContent = "Batalkan Tadabbur";
+    cancelBtn.onclick = () => {
+      const index = getBookmarkIndex();
+      if (index !== -1) {
+        bookmarks.splice(index, 1);
+        localStorage.setItem(bookmarkKey, JSON.stringify(bookmarks));
+        bookmarkBtn.innerHTML = "🔖";
+        notifWrap.textContent = "❌ Tadabbur dibatalkan.";
+        setTimeout(() => notifWrap.style.display = "none", 2000);
+      }
+    };
+    notifWrap.appendChild(cancelBtn);
+  } else {
+    setTimeout(() => notifWrap.style.display = "none", 2000);
+  }
+}
+
+// Atur icon awal
+if (isAlreadyBookmarked()) {
+  bookmarkBtn.innerHTML = "✅";
+}
+
+// Klik handler
 bookmarkBtn.onclick = () => {
-  if (bookmarkBtn.classList.contains("active")) {
-    // Cek klik ganda
-    if (isDoubleClick) {
-      showCancelConfirm();
-      return;
+  clickCount++;
+
+  clearTimeout(clickTimer);
+  clickTimer = setTimeout(() => {
+    if (clickCount === 1) {
+      // Klik 1x
+      if (!isAlreadyBookmarked()) {
+        const now = new Date();
+        const dateStr = now.toLocaleDateString("id-ID", { day: '2-digit', month: 'long', year: 'numeric' });
+        const timeStr = now.toLocaleTimeString("id-ID", { hour: '2-digit', minute: '2-digit' });
+
+        bookmarks.push({ surah, ayat, timestamp: `${dateStr} ${timeStr}` });
+        localStorage.setItem(bookmarkKey, JSON.stringify(bookmarks));
+
+        bookmarkBtn.innerHTML = "✅";
+        showBookmarkNotif(`✅ Telah Ditadabburi Ayat ke-${bookmarks.length} · ${dateStr} · ${timeStr}`);
+      }
+    } else if (clickCount === 2) {
+      // Klik 2x
+      if (isAlreadyBookmarked()) {
+        showBookmarkNotif("⚠️ Ayat ini sudah ditadabburi. Klik Batalkan Tadabbur jika ingin menghapus.", true);
+      }
     }
 
-    isDoubleClick = true;
-    doubleClickTimeout = setTimeout(() => {
-      isDoubleClick = false;
-    }, 400); // <= 400ms toleransi klik ganda
-    return;
-  }
-
-  // Tambahkan bookmark
-  const now = new Date();
-  const dateStr = now.toLocaleDateString("id-ID");
-  const timeStr = now.toLocaleTimeString("id-ID", { hour: '2-digit', minute: '2-digit' });
-  const totalBookmarks = Object.keys(localStorage).filter(k => k.startsWith("tadabbur-")).length + 1;
-
-  localStorage.setItem(bookmarkKey, `${dateStr} ${timeStr}`);
-
-  bookmarkBtn.classList.add("active");
-  bookmarkBtn.innerHTML = "✔️";
-
-  showNotif(`✅ Telah Ditadabburi Ayat ke-${totalBookmarks}<br>${dateStr} ${timeStr}`);
+    clickCount = 0; // reset
+  }, 300); // 300ms window untuk deteksi klik ganda
 };
 
-// Tampilkan notifikasi
-function showNotif(msg) {
-  const notif = document.createElement("div");
-  notif.id = "bookmark-notif";
-  notif.innerHTML = msg;
 
-  const rect = bookmarkBtn.getBoundingClientRect();
-  notif.style.position = "absolute";
-  notif.style.top = (rect.top + window.scrollY + 30) + "px";
-  notif.style.left = (rect.left + window.scrollX + 10) + "px";
-
-  document.body.appendChild(notif);
-  setTimeout(() => notif.remove(), 2000);
-}
-
-// Konfirmasi batalkan
-function showCancelConfirm() {
-  const saved = localStorage.getItem(bookmarkKey);
-  const totalBookmarks = Object.keys(localStorage).filter(k => k.startsWith("tadabbur-")).length;
-
-  const notif = document.createElement("div");
-  notif.id = "bookmark-notif";
-  notif.innerHTML = `
-    ❗ Batalkan tadabbur ayat ini?<br><br>
-    <span style="color: green; font-weight: bold;">✔️ Telah Ditadabburi Ayat ke-${totalBookmarks}<br>${saved}</span><br><br>
-    <button id="cancel-bookmark">Cancel</button>
-  `;
-
-  const rect = bookmarkBtn.getBoundingClientRect();
-  notif.style.position = "absolute";
-  notif.style.top = (rect.top + window.scrollY + 30) + "px";
-  notif.style.left = (rect.left + window.scrollX + 10) + "px";
-
-  document.body.appendChild(notif);
-
-  document.getElementById("cancel-bookmark").onclick = () => {
-    localStorage.removeItem(bookmarkKey);
-    bookmarkBtn.classList.remove("active");
-    bookmarkBtn.innerHTML = "🔖";
-    notif.remove();
-  };
-
-  // Auto hilang setelah 5 detik kalau tidak diklik
-  setTimeout(() => {
-    if (document.body.contains(notif)) notif.remove();
-  }, 5000);
-}
-  
       const playAudioBtn = document.createElement("button");
 playAudioBtn.textContent = "☰ PILIH QARI";
 playAudioBtn.onclick = showQariSelector;
