@@ -300,7 +300,7 @@
   transform: translate(-50%, -50%);
   width: 90%; max-width: 600px;
   background-color: white;
-  border: 2px solid #b37400;
+  border: 2px solid #ffa500;
   border-radius: 12px;
   padding: 1.5em;
   z-index: 9999;
@@ -313,7 +313,7 @@
   right: 0.8em;
   font-size: 1.2em;
   font-weight: bold;
-  color: #b37400;
+  color: #ffa500;
   cursor: pointer;
 }
 
@@ -1421,6 +1421,39 @@ function showNoteOverlay(surah, ayah) {
   document.body.appendChild(overlay);
 }
     // CATATAN TASIR
+</script>
+
+  // CATATAN TADABBUR HARI KE
+
+  <script>
+(function () {
+  const BASE_DATE = new Date("2024-02-11"); // Hari ke-1 dimulai (bebas kamu ubah)
+  const today = new Date();
+
+  // Paksa UTC 00:00 agar stabil
+  const nowUTC = new Date(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate());
+  const baseUTC = new Date(BASE_DATE.getUTCFullYear(), BASE_DATE.getUTCMonth(), BASE_DATE.getUTCDate());
+
+  const dayDiff = Math.floor((nowUTC - baseUTC) / (1000 * 60 * 60 * 24)) + 1;
+  const cacheKey = "tadabbur-day";
+  const saved = localStorage.getItem(cacheKey);
+
+  // Simpan hari saat ini (untuk keperluan pelacakan nanti)
+  localStorage.setItem(cacheKey, dayDiff);
+
+  // Tampilkan setelah elemen .sumber
+  const infoDiv = document.createElement("div");
+  infoDiv.style.textAlign = "center";
+  infoDiv.style.fontSize = "0.95em";
+  infoDiv.style.color = "#444";
+  infoDiv.style.marginTop = "0.5em";
+  infoDiv.textContent = `🕊️ Tadabbur Hari ke-${dayDiff}`;
+
+  const sumberDiv = document.querySelector(".sumber");
+  if (sumberDiv && sumberDiv.parentNode) {
+    sumberDiv.parentNode.insertBefore(infoDiv, sumberDiv.nextSibling);
+  }
+})();
 </script>
 </body>
 </html>
