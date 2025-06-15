@@ -21,6 +21,31 @@
       color: #111;
     }
 
+    #bookmark-btn {
+  margin-left: 0.3em;
+  background: transparent;
+  border: none;
+  font-size: 1.2em;
+  cursor: pointer;
+  vertical-align: middle;
+}
+
+#bookmark-btn.checked {
+  color: green;
+}
+
+#bookmark-notif {
+  display: inline-block;
+  background-color: #f0f0f0;
+  color: #333;
+  padding: 0.4em 0.8em;
+  font-size: 0.85em;
+  border-radius: 6px;
+  margin-left: 0.3em;
+  border: 1px solid #ccc;
+}
+
+
 .tafsir-dropdown {
   position: relative;
   display: inline-block;
@@ -1081,6 +1106,70 @@ translationDiv.appendChild(noteButton);
 };
         navDiv.appendChild(prevBtn);
       }
+
+  const bookmarkBtn = document.createElement("button");
+bookmarkBtn.id = "bookmark-btn";
+bookmarkBtn.innerHTML = "🔖"; // default ikon
+translationDiv.appendChild(bookmarkBtn);
+
+const notifSpan = document.createElement("span");
+notifSpan.id = "bookmark-notif";
+notifSpan.style.display = "none";
+translationDiv.appendChild(notifSpan);
+
+  const bookmarkKey = "tadabbur-bookmark";
+let bookmarks = [];
+
+try {
+  bookmarks = JSON.parse(localStorage.getItem(bookmarkKey)) || [];
+} catch {
+  bookmarks = [];
+}
+
+// Cek apakah ayat ini sudah ditandai
+let existing = bookmarks.find(b => b.surah === surah && b.ayat === ayat);
+if (existing) {
+  bookmarkBtn.classList.add("checked");
+  bookmarkBtn.innerHTML = "✅";
+}
+
+// Event klik tombol bookmark
+bookmarkBtn.onclick = () => {
+  const now = new Date();
+  const dateStr = now.toLocaleDateString("id-ID", { day: '2-digit', month: 'long', year: 'numeric' });
+  const timeStr = now.toLocaleTimeString("id-ID", { hour: '2-digit', minute: '2-digit' });
+
+  let existingIndex = bookmarks.findIndex(b => b.surah === surah && b.ayat === ayat);
+
+  if (existingIndex === -1) {
+    // Tambah ke daftar
+    const newEntry = {
+      surah,
+      ayat,
+      timestamp: `${dateStr} ${timeStr}`
+    };
+    bookmarks.push(newEntry);
+    localStorage.setItem(bookmarkKey, JSON.stringify(bookmarks));
+
+    bookmarkBtn.classList.add("checked");
+    bookmarkBtn.innerHTML = "✅";
+
+    showBookmarkNotif(`✅Ayat ini ditadabburi pada ${dateStr} pukul ${timeStr}. Total tadabbur ${bookmarks.length} ayat.`);
+  } else {
+    // Sudah ditandai, hanya tampilkan notifikasi lagi
+    const order = existingIndex + 1;
+    const stamp = bookmarks[existingIndex].timestamp;
+    showBookmarkNotif(`✅Ayat ini ditadabburi pada ${stamp}. Total tadabbur ${order} ayat.`);
+  }
+};
+
+function showBookmarkNotif(text) {
+  notifSpan.textContent = text;
+  notifSpan.style.display = "inline-block";
+  setTimeout(() => {
+    notifSpan.style.display = "none";
+  }, 5000);
+}
 
       const playAudioBtn = document.createElement("button");
 playAudioBtn.textContent = "☰ PILIH QARI";
