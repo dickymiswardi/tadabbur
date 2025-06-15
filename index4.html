@@ -1391,9 +1391,9 @@ function showNoteOverlay(surah, ayah) {
             localStorage.setItem(key, data[key]);
           }
         });
-        alert("✅ Restore selesai! Silakan muat ulang halaman.");
+        status.textContent = "✅ Restore selesai! Silakan muat ulang halaman.";
       } catch (e) {
-        alert("❌ Gagal memuat file catatan.");
+        status.textContent = "❌ Gagal memuat file catatan.";
       }
     };
     reader.readAsText(file);
