@@ -326,16 +326,20 @@
 }
 
     #note-textarea {
-  width: calc(100% - 2em);   /* Jaga jarak dari sisi kiri & kanan */
-  max-width: 500px;          /* Batas maksimal agar tidak terlalu besar */
+  width: 100%;
+  max-width: 95vw;            /* fleksibel: maksimal 95% dari lebar layar */
+  min-width: 280px;           /* agar tidak terlalu kecil di HP sangat sempit */
   display: block;
   margin: 1em auto;
   font-size: 1em;
-  padding: 0.8em;
+  padding: 1em;
   border-radius: 8px;
   border: 1px solid #ccc;
   resize: vertical;
+  box-sizing: border-box;     /* pastikan padding tidak melebihi batas */
+  height: 180px;              /* bisa kamu ubah sesuai selera */
 }
+
 
 
 
