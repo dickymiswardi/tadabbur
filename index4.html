@@ -695,12 +695,14 @@ const lastAyat = urlParams.get("ayat") || localStorage.getItem("lastAyat");
 
     const apiURL = `quran.json`; // ganti dari versi API lama
 
-    Promise.all([
-  fetch("quran.json").then(res => res.json()),
-  fetch("indonesian_complex_v1.0.xml").then(res => res.text())
-])
-.then(([quranData, xmlText]) => {
-  let arabicText = "(Teks Arab tidak ditemukan)";
+    function loadAyat(surah, ayah) {
+  Promise.all([
+    fetch("quran.json").then(res => res.json()),
+    fetch("indonesian_complex_v1.0.xml").then(res => res.text())
+  ])
+  .then(([quranData, xmlText]) => {
+
+let arabicText = "(Teks Arab tidak ditemukan)";
 
   // Loop ke seluruh entri quranData
   for (const entry of quranData) {
@@ -1313,6 +1315,8 @@ localStorage.removeItem("fromAutoplay");
       console.error(err);
       document.getElementById("result").textContent = "Gagal memuat data.";
     });
+    
+  
 
     document.addEventListener("DOMContentLoaded", function () {
   const params = new URLSearchParams(window.location.search);
