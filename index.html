@@ -21,6 +21,30 @@
       color: #111;
     }
 
+    #bookmark-btn {
+  margin-left: 0.5em;
+  background: transparent;
+  border: none;
+  font-size: 1.2em;
+  cursor: pointer;
+  vertical-align: middle;
+}
+
+#bookmark-btn.marked {
+  color: orange;
+}
+
+#bookmark-notif {
+  display: inline-block;
+  background-color: #f0f0f0;
+  color: #333;
+  padding: 0.4em 0.8em;
+  font-size: 0.85em;
+  border-radius: 6px;
+  margin-left: 0.8em;
+  border: 1px solid #ccc;
+}
+
 .tafsir-dropdown {
   position: relative;
   display: inline-block;
@@ -1082,6 +1106,58 @@ translationDiv.appendChild(noteButton);
         navDiv.appendChild(prevBtn);
       }
 
+const bookmarkBtn = document.createElement("button");
+bookmarkBtn.id = "bookmark-btn";
+bookmarkBtn.innerHTML = "🔖"; // ikon bookmark
+translationDiv.appendChild(bookmarkBtn);
+
+const notifSpan = document.createElement("span");
+notifSpan.id = "bookmark-notif";
+notifSpan.style.display = "none";
+translationDiv.appendChild(notifSpan);
+
+  const bookmarkKey = "tadabbur-bookmark";
+let bookmarks = [];
+
+try {
+  bookmarks = JSON.parse(localStorage.getItem(bookmarkKey)) || [];
+} catch {
+  bookmarks = [];
+}
+
+// Cek apakah sudah ditandai
+const isBookmarked = bookmarks.some(b => b.surah === surah && b.ayat === ayat);
+if (isBookmarked) bookmarkBtn.classList.add("marked");
+
+bookmarkBtn.onclick = () => {
+  const now = new Date();
+  const dateStr = now.toLocaleDateString("id-ID", { day: '2-digit', month: 'long', year: 'numeric' });
+  const timeStr = now.toLocaleTimeString("id-ID", { hour: '2-digit', minute: '2-digit' });
+
+  const index = bookmarks.findIndex(b => b.surah === surah && b.ayat === ayat);
+  if (index !== -1) {
+    // Hapus bookmark
+    bookmarks.splice(index, 1);
+    localStorage.setItem(bookmarkKey, JSON.stringify(bookmarks));
+    bookmarkBtn.classList.remove("marked");
+    showBookmarkNotif("❌ Dihapus dari Tadabbur");
+  } else {
+    // Tambah bookmark
+    bookmarks.push({ surah, ayat, timestamp: `${dateStr} ${timeStr}` });
+    localStorage.setItem(bookmarkKey, JSON.stringify(bookmarks));
+    bookmarkBtn.classList.add("marked");
+    showBookmarkNotif(`✅ Ditadabburi Ayat ke-${bookmarks.length} · ${dateStr} · ${timeStr}`);
+  }
+};
+
+function showBookmarkNotif(text) {
+  notifSpan.textContent = text;
+  notifSpan.style.display = "inline-block";
+  setTimeout(() => {
+    notifSpan.style.display = "none";
+  }, 2000);
+}
+  
       const playAudioBtn = document.createElement("button");
 playAudioBtn.textContent = "☰ PILIH QARI";
 playAudioBtn.onclick = showQariSelector;
