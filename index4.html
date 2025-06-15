@@ -1142,18 +1142,18 @@ translationDiv.appendChild(noteButton);
         navDiv.appendChild(prevBtn);
       }
 
-      const playAudioBtn = document.createElement("button");
-playAudioBtn.textContent = "☰ PILIH QARI";
-playAudioBtn.onclick = showQariSelector;
-navDiv.appendChild(playAudioBtn);
-
-  // SEARCH AYAT
+// SEARCH AYAT
 const searchBtn = document.createElement("button");
 searchBtn.className = "search-btn";
 searchBtn.textContent = "Search Ayat";
 searchBtn.onclick = showSearchOverlay;
 navDiv.appendChild(searchBtn);
   // SEARCH AYAT
+  
+  const playAudioBtn = document.createElement("button");
+playAudioBtn.textContent = "☰ PILIH QARI";
+playAudioBtn.onclick = showQariSelector;
+navDiv.appendChild(playAudioBtn);
 
       function showQariSelector() {
   const backdrop = document.createElement("div");
