@@ -1329,7 +1329,7 @@ function showNoteOverlay(surah, ayah) {
   saveBtn.id = "save-note-btn";
   saveBtn.textContent = "Simpan Catatan";
 
-  const status = document.createElement("span");
+    const status = document.createElement("span");
   status.id = "note-status";
 
   saveBtn.onclick = () => {
@@ -1337,12 +1337,65 @@ function showNoteOverlay(surah, ayah) {
     status.textContent = "✅ Telah Dicatat Offline";
   };
 
-  // Susun elemen
+  // Tombol Backup
+  const backupBtn = document.createElement("button");
+  backupBtn.textContent = "Backup";
+  backupBtn.style.marginLeft = "1em";
+  backupBtn.onclick = () => {
+    const notes = {};
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key.startsWith("note-")) {
+        notes[key] = localStorage.getItem(key);
+      }
+    }
+    const blob = new Blob([JSON.stringify(notes, null, 2)], { type: "application/json" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "catatan-quran.json";
+    a.click();
+  };
+
+  // Tombol Restore
+  const restoreBtn = document.createElement("button");
+  restoreBtn.textContent = "Restore";
+  restoreBtn.style.marginLeft = "0.8em";
+
+  const fileInput = document.createElement("input");
+  fileInput.type = "file";
+  fileInput.accept = ".json";
+  fileInput.style.display = "none";
+  restoreBtn.onclick = () => fileInput.click();
+
+  fileInput.onchange = () => {
+    const file = fileInput.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const data = JSON.parse(reader.result);
+        Object.keys(data).forEach(key => {
+          if (key.startsWith("note-")) {
+            localStorage.setItem(key, data[key]);
+          }
+        });
+        alert("✅ Restore selesai! Silakan muat ulang halaman.");
+      } catch (e) {
+        alert("❌ Gagal memuat file catatan.");
+      }
+    };
+    reader.readAsText(file);
+  };
+
+  // Susun elemen ke overlay
   overlay.appendChild(closeBtn);
   overlay.appendChild(title);
   overlay.appendChild(textarea);
   overlay.appendChild(saveBtn);
   overlay.appendChild(status);
+  overlay.appendChild(backupBtn);
+  overlay.appendChild(restoreBtn);
+  overlay.appendChild(fileInput);
 
   document.body.appendChild(backdrop);
   document.body.appendChild(overlay);
