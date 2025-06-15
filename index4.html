@@ -1373,12 +1373,6 @@ function showNoteOverlay(surah, ayah) {
   restoreBtn.textContent = "Restore";
   restoreBtn.style.marginLeft = "0.8em";
 
-  // ⬇️ TAMBAHKAN INI:
-const restoreStatus = document.createElement("span");
-restoreStatus.style.marginLeft = "1em";
-restoreStatus.style.fontSize = "0.9em";
-restoreStatus.id = "restore-status";  // opsional, kalau ingin ditarget pakai ID
-
   const fileInput = document.createElement("input");
   fileInput.type = "file";
   fileInput.accept = ".json";
@@ -1386,46 +1380,38 @@ restoreStatus.id = "restore-status";  // opsional, kalau ingin ditarget pakai ID
   restoreBtn.onclick = () => fileInput.click();
 
   fileInput.onchange = () => {
-  const file = fileInput.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = () => {
-    try {
-      const data = JSON.parse(reader.result);
-      Object.keys(data).forEach(key => {
-        if (key.startsWith("note-")) {
-          localStorage.setItem(key, data[key]);
-        }
-      });
-      restoreStatus.textContent = "✅ Restore selesai! Silakan muat ulang halaman.";
-      restoreStatus.style.color = "green";
-    } catch (e) {
-      restoreStatus.textContent = "❌ Gagal memuat file catatan.";
-      restoreStatus.style.color = "red";
-    }
+    const file = fileInput.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const data = JSON.parse(reader.result);
+        Object.keys(data).forEach(key => {
+          if (key.startsWith("note-")) {
+            localStorage.setItem(key, data[key]);
+          }
+        });
+        alert("✅ Restore selesai! Silakan muat ulang halaman.");
+      } catch (e) {
+        alert("❌ Gagal memuat file catatan.");
+      }
+    };
+    reader.readAsText(file);
   };
-  reader.readAsText(file);
-};
 
   // Susun elemen akhir
-overlay.appendChild(closeBtn);
-overlay.appendChild(title);
-overlay.appendChild(textarea);
-overlay.appendChild(saveBtn);
-overlay.appendChild(status);
-overlay.appendChild(backupBtn);
-overlay.appendChild(restoreBtn);
+  overlay.appendChild(closeBtn);
+  overlay.appendChild(title);
+  overlay.appendChild(textarea);
+  overlay.appendChild(saveBtn);
+  overlay.appendChild(status);
+  overlay.appendChild(backupBtn);
+  overlay.appendChild(restoreBtn);
+  overlay.appendChild(fileInput);
 
-// ✅ Tambahkan restoreStatus ke overlay
-const restoreStatus = document.createElement("span");
-restoreStatus.style.marginLeft = "1em";
-restoreStatus.style.fontSize = "0.9em";
-overlay.appendChild(restoreStatus);  // <-- Tambah di sini
-
-overlay.appendChild(fileInput);
-
-document.body.appendChild(backdrop);
-document.body.appendChild(overlay);
+  document.body.appendChild(backdrop);
+  document.body.appendChild(overlay);
+}
     // CATATAN TASIR
 </script>
 </body>
