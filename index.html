@@ -1106,57 +1106,59 @@ translationDiv.appendChild(noteButton);
         navDiv.appendChild(prevBtn);
       }
 
-const bookmarkBtn = document.createElement("button");
-bookmarkBtn.id = "bookmark-btn";
-bookmarkBtn.innerHTML = "🔖"; // ikon bookmark
-translationDiv.appendChild(bookmarkBtn);
-
-const notifSpan = document.createElement("span");
-notifSpan.id = "bookmark-notif";
-notifSpan.style.display = "none";
-translationDiv.appendChild(notifSpan);
-
-  const bookmarkKey = "tadabbur-bookmark";
-let bookmarks = [];
-
-try {
-  bookmarks = JSON.parse(localStorage.getItem(bookmarkKey)) || [];
-} catch {
-  bookmarks = [];
+let isBookmarked = bookmarks.some(b => b.surah === surah && b.ayat === ayat);
+if (isBookmarked) {
+  bookmarkBtn.classList.add("marked");
+  bookmarkBtn.innerHTML = "✅";
 }
 
-// Cek apakah sudah ditandai
-const isBookmarked = bookmarks.some(b => b.surah === surah && b.ayat === ayat);
-if (isBookmarked) bookmarkBtn.classList.add("marked");
-
 bookmarkBtn.onclick = () => {
-  const now = new Date();
-  const dateStr = now.toLocaleDateString("id-ID", { day: '2-digit', month: 'long', year: 'numeric' });
-  const timeStr = now.toLocaleTimeString("id-ID", { hour: '2-digit', minute: '2-digit' });
+  const date = new Date();
+  const dateStr = date.toLocaleDateString("id-ID", { day: '2-digit', month: 'long', year: 'numeric' });
+  const timeStr = date.toLocaleTimeString("id-ID", { hour: '2-digit', minute: '2-digit' });
 
-  const index = bookmarks.findIndex(b => b.surah === surah && b.ayat === ayat);
-  if (index !== -1) {
-    // Hapus bookmark
-    bookmarks.splice(index, 1);
-    localStorage.setItem(bookmarkKey, JSON.stringify(bookmarks));
-    bookmarkBtn.classList.remove("marked");
-    showBookmarkNotif("❌ Dihapus dari Tadabbur");
-  } else {
+  if (!isBookmarked) {
     // Tambah bookmark
     bookmarks.push({ surah, ayat, timestamp: `${dateStr} ${timeStr}` });
     localStorage.setItem(bookmarkKey, JSON.stringify(bookmarks));
     bookmarkBtn.classList.add("marked");
-    showBookmarkNotif(`✅ Ditadabburi Ayat ke-${bookmarks.length} · ${dateStr} · ${timeStr}`);
+    bookmarkBtn.innerHTML = "✅";
+    isBookmarked = true;
+
+    showBookmarkNotif(`✅ Telah Ditadabburi Ayat ke-${bookmarks.length} · ${dateStr} ${timeStr}`);
+  } else {
+    // Sudah ditandai → Tawarkan pembatalan
+    showBookmarkNotif("Ingin batalkan tadabbur ini?", true);
   }
 };
 
-function showBookmarkNotif(text) {
-  notifSpan.textContent = text;
+function showBookmarkNotif(text, showCancel = false) {
+  notifSpan.innerHTML = text;
   notifSpan.style.display = "inline-block";
-  setTimeout(() => {
-    notifSpan.style.display = "none";
-  }, 2000);
+
+  if (showCancel) {
+    const cancelBtn = document.createElement("button");
+    cancelBtn.id = "cancel-bookmark";
+    cancelBtn.textContent = "Cancel";
+    cancelBtn.onclick = () => {
+      // Hapus bookmark
+      bookmarks = bookmarks.filter(b => !(b.surah === surah && b.ayat === ayat));
+      localStorage.setItem(bookmarkKey, JSON.stringify(bookmarks));
+      bookmarkBtn.classList.remove("marked");
+      bookmarkBtn.innerHTML = "🔖";
+      isBookmarked = false;
+
+      notifSpan.textContent = "❌ Tadabbur dibatalkan.";
+      setTimeout(() => notifSpan.style.display = "none", 2000);
+    };
+    notifSpan.appendChild(cancelBtn);
+  } else {
+    setTimeout(() => {
+      notifSpan.style.display = "none";
+    }, 2000);
+  }
 }
+
   
       const playAudioBtn = document.createElement("button");
 playAudioBtn.textContent = "☰ PILIH QARI";
