@@ -1423,31 +1423,28 @@ function showNoteOverlay(surah, ayah) {
     // CATATAN TASIR
 </script>
 
-  // CATATAN TADABBUR HARI KE
-
   <script>
 (function () {
-  const BASE_DATE = new Date("2024-02-11"); // Hari ke-1 dimulai (bebas kamu ubah)
   const today = new Date();
+  const todayStr = today.toISOString().slice(0, 10); // contoh: "2025-06-15"
+  const logKey = "tadabbur-log";
 
-  // Paksa UTC 00:00 agar stabil
-  const nowUTC = new Date(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate());
-  const baseUTC = new Date(BASE_DATE.getUTCFullYear(), BASE_DATE.getUTCMonth(), BASE_DATE.getUTCDate());
+  let log = [];
+  try {
+    log = JSON.parse(localStorage.getItem(logKey)) || [];
+  } catch (e) {
+    log = [];
+  }
 
-  const dayDiff = Math.floor((nowUTC - baseUTC) / (1000 * 60 * 60 * 24)) + 1;
-  const cacheKey = "tadabbur-day";
-  const saved = localStorage.getItem(cacheKey);
+  if (!log.includes(todayStr)) {
+    log.push(todayStr);
+    localStorage.setItem(logKey, JSON.stringify(log));
+  }
 
-  // Simpan hari saat ini (untuk keperluan pelacakan nanti)
-  localStorage.setItem(cacheKey, dayDiff);
-
-  // Tampilkan setelah elemen .sumber
+  const hariKe = log.length;
   const infoDiv = document.createElement("div");
-  infoDiv.style.textAlign = "center";
-  infoDiv.style.fontSize = "0.95em";
-  infoDiv.style.color = "#444";
-  infoDiv.style.marginTop = "0.5em";
-  infoDiv.textContent = `🕊️ Tadabbur Hari ke-${dayDiff}`;
+  infoDiv.className = "sumber";
+  infoDiv.textContent = `Tadabbur Hari Ke-${hariKe}`;
 
   const sumberDiv = document.querySelector(".sumber");
   if (sumberDiv && sumberDiv.parentNode) {
