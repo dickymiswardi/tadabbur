@@ -1437,6 +1437,10 @@ function showNoteOverlay(surah, ayah) {
 
     // SEARCH AYAT
 function showSearchOverlay() {
+  // Hapus overlay lama jika ada
+  document.getElementById("search-overlay")?.remove();
+  document.getElementById("search-backdrop")?.remove();
+
   const overlay = document.createElement("div");
   overlay.id = "search-overlay";
 
@@ -1444,8 +1448,8 @@ function showSearchOverlay() {
   closeBtn.id = "search-overlay-close";
   closeBtn.innerHTML = "&times;";
   closeBtn.onclick = () => {
-    document.getElementById("search-overlay")?.remove();
-    document.getElementById("search-backdrop")?.remove();
+    overlay.remove();
+    backdrop.remove();
   };
 
   const title = document.createElement("h3");
@@ -1466,6 +1470,8 @@ function showSearchOverlay() {
     const keyword = input.value.trim();
     if (keyword) {
       runQuranSearch(keyword, resultArea);
+    } else {
+      resultArea.innerHTML = "<p><em>Masukkan kata terlebih dahulu.</em></p>";
     }
   };
 
