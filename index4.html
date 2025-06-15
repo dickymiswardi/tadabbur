@@ -168,6 +168,24 @@
   cursor: pointer;
 }
 
+    #note-overlay {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* posisi horizontal di tengah */
+  justify-content: center;
+}
+
+    #note-textarea {
+  width: 100%;
+  max-width: 500px; /* agar tidak terlalu lebar di layar besar */
+  margin-top: 1em;
+  font-size: 1em;
+  padding: 0.8em;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  resize: vertical;
+}
+
 #tafsir-backdrop {
   position: fixed;
   top: 0; left: 0;
