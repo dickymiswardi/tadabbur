@@ -1460,7 +1460,7 @@ function showSearchOverlay() {
   };
 
   const title = document.createElement("h3");
-  title.textContent = "Cari Kosa Kata Al-Qur'an";
+  title.textContent = "Cari Kosa Kata Al-Qur'an (via API)";
 
   const input = document.createElement("input");
   input.id = "search-input";
@@ -1470,102 +1470,54 @@ function showSearchOverlay() {
   const resultArea = document.createElement("div");
   resultArea.id = "search-results";
 
+  // Fungsi pencarian real-time
   let debounceTimer;
   input.addEventListener("input", () => {
     clearTimeout(debounceTimer);
+    const keyword = input.value.trim();
+    if (!keyword) {
+      resultArea.innerHTML = "<p><em>Ketik kata untuk mencari...</em></p>";
+      return;
+    }
     debounceTimer = setTimeout(() => {
-      const keyword = input.value.trim();
-      if (keyword) {
-        runQuranSearch(keyword, resultArea);
-      } else {
-        resultArea.innerHTML = "<p><em>Ketik kata untuk mencari...</em></p>";
-      }
-    }, 400); // delay ketik
+      searchAyatAPI(keyword, resultArea);
+    }, 400);
   });
 
+  // Susun overlay
   overlay.appendChild(closeBtn);
   overlay.appendChild(title);
   overlay.appendChild(input);
   overlay.appendChild(resultArea);
-
   document.body.appendChild(overlay);
   document.body.appendChild(backdrop);
 }
+
     // BATAS
 
-function normalizeArabic(text) {
-  return text
-    .replace(/[\u064B-\u065F\u0670]/g, '') // harakat & superscript alif
-    .replace(/[ٱإأآ]/g, 'ا')               // variasi alif
-    .replace(/ى/g, 'ي')                    // alif maqsura → ya
-    .replace(/ؤ/g, 'و')
-    .replace(/ئ/g, 'ي')
-    .replace(/ة/g, 'ه')                    // ta marbuta → ha
-    .replace(/[^ءاأإآبتثجحخدذرزسشصضطظعغفقكلمنهويىءa-zA-Z0-9]/g, ''); // hapus spasi & simbol
-}
+    async function searchAyatAPI(keyword, resultArea) {
+  resultArea.innerHTML = "<p>Mencari...</p>";
+  try {
+    const res = await fetch(`https://koran-api.vercel.app/corpus/${encodeURIComponent(keyword)}`);
+    const data = await res.json();
 
-let simpleXMLCache = null;
-
-function runQuranSearch(keyword, resultArea) {
-  resultArea.innerHTML = "<div>Mencari...</div>";
-
-  const cleanedKeyword = normalizeArabic(keyword);
-
-  function process(xmlText) {
-    const parser = new DOMParser();
-    const xmlDoc = parser.parseFromString(xmlText, "text/xml");
-    const results = [];
-    const suraNodes = xmlDoc.querySelectorAll("sura");
-
-    suraNodes.forEach(sura => {
-      const suraNum = sura.getAttribute("index");
-      const ayatList = sura.querySelectorAll("aya");
-
-      ayatList.forEach(aya => {
-        const ayatNum = aya.getAttribute("index");
-        const text = aya.textContent;
-        const normalizedText = normalizeArabic(text);
-
-        if (normalizedText.includes(cleanedKeyword)) {
-          results.push({
-            surah: suraNum,
-            ayat: ayatNum,
-            text: text
-          });
-        }
-      });
-    });
-
-    if (results.length === 0) {
+    if (!Array.isArray(data) || data.length === 0) {
       resultArea.innerHTML = "<p><em>Tidak ditemukan.</em></p>";
       return;
     }
 
-    resultArea.innerHTML = `<p>Ditemukan ${results.length} hasil:</p>`;
-    results.forEach(res => {
+    resultArea.innerHTML = `<p>Ditemukan ${data.length} hasil:</p>`;
+    data.forEach(v => {
       const div = document.createElement("div");
       div.className = "search-result";
-      div.innerHTML = `<a href="?surah=${res.surah}&ayat=${res.ayat}">Surah ${surahNames[res.surah]} Ayat ${res.ayat}</a><br/>
-        <div style="font-family:'Madina', serif; direction:rtl; text-align:right;">${res.text}</div>`;
+      div.innerHTML = `<a href="?surah=${v.surah}&ayat=${v.verse}">Surah ${surahNames[v.surah]} Ayat ${v.verse}</a><br/>
+        <div style="font-family:'Madina', serif; direction:rtl; text-align:right;">${v.arabicText}</div>`;
       resultArea.appendChild(div);
     });
-  }
-
-  if (simpleXMLCache) {
-    process(simpleXMLCache);
-  } else {
-    fetch("https://raw.githubusercontent.com/dickymiswardi/tadabbur/main/quran-simple.xml")
-      .then(res => res.text())
-      .then(xml => {
-        simpleXMLCache = xml;
-        process(xml);
-      })
-      .catch(() => {
-        resultArea.innerHTML = "<p>Gagal memuat data pencarian.</p>";
-      });
+  } catch (e) {
+    resultArea.innerHTML = "<p>Gagal menghubungi API.</p>";
   }
 }
-
     // SEARCH AYAT
 </script>
 </body>
