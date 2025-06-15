@@ -269,19 +269,6 @@
 
     /* CATATAN TAFSIR */
 
-    #note-textarea {
-  width: 100%;
-  max-width: 500px;
-  height: 150px;
-  margin-top: 1em;
-  font-size: 1em;
-  padding: 0.8em;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  resize: vertical;
-  text-align: center; /* INI yang penting */
-}
-
     #note-status {
   display: inline-block;
   margin-left: 1em;
@@ -340,14 +327,17 @@
 
 #note-textarea {
   width: 100%;
-  height: 150px;
-  margin-top: 1em;
+  max-width: 500px;
+  display: block;
+  margin: 1em auto; /* INI yang bikin rata tengah */
   font-size: 1em;
   padding: 0.8em;
   border-radius: 8px;
   border: 1px solid #ccc;
   resize: vertical;
+  text-align: left; /* opsional: jika ingin teks tetap rata kiri */
 }
+
 
 #save-note-btn {
   margin-top: 1em;
