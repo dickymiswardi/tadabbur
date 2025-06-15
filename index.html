@@ -1418,10 +1418,16 @@ function showNoteOverlay(surah, ayah) {
     // CATATAN TASIR
 </script>
 
-  <script>
+<script>
 (function () {
-  const today = new Date();
-  const todayStr = today.toISOString().slice(0, 10); // "YYYY-MM-DD"
+  const now = new Date();
+
+  // Ambil tanggal berdasarkan zona waktu lokal user (misalnya WIB, GMT+7)
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0'); // bulan dimulai dari 0
+  const day = String(now.getDate()).padStart(2, '0');
+
+  const todayStr = `${year}-${month}-${day}`; // format "YYYY-MM-DD"
   const logKey = "tadabbur-log";
 
   let log = [];
@@ -1431,6 +1437,7 @@ function showNoteOverlay(surah, ayah) {
     log = [];
   }
 
+  // Tambahkan hari ini jika belum tercatat
   if (!log.includes(todayStr)) {
     log.push(todayStr);
     localStorage.setItem(logKey, JSON.stringify(log));
