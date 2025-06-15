@@ -21,10 +21,23 @@
       color: #111;
     }
 
-    #bookmark-notif {
+    #bookmark-btn {
+  margin-left: 0.5em;
+  background: transparent;
+  border: none;
+  font-size: 1.2em;
+  cursor: pointer;
+  vertical-align: middle;
+}
+
+#bookmark-btn.checked {
+  color: green;
+}
+
+#bookmark-notif {
   display: inline-block;
-  background-color: #fefefe;
-  color: #222;
+  background-color: #f0f0f0;
+  color: #333;
   padding: 0.4em 0.8em;
   font-size: 0.85em;
   border-radius: 6px;
@@ -32,21 +45,13 @@
   border: 1px solid #ccc;
 }
 
-#cancel-bookmark-btn {
-  margin-left: 0.5em;
-  background: none;
-  color: red;
-  font-weight: bold;
-  border: none;
-  cursor: pointer;
-}
 
 .tafsir-dropdown {
   position: relative;
   display: inline-block;
   margin-left: 0.5em;
 }
-    
+
 .tafsir-dropbtn {
   font-size: 0.6em;
   padding: 0.4em 0.8em;
@@ -1104,88 +1109,67 @@ translationDiv.appendChild(noteButton);
 
   const bookmarkBtn = document.createElement("button");
 bookmarkBtn.id = "bookmark-btn";
-bookmarkBtn.innerHTML = "🔖"; // default icon
+bookmarkBtn.innerHTML = "🔖"; // default ikon
 translationDiv.appendChild(bookmarkBtn);
 
-// Wrapper notifikasi
-const notifWrap = document.createElement("span");
-notifWrap.id = "bookmark-notif";
-notifWrap.style.display = "none";
-translationDiv.appendChild(notifWrap);
+const notifSpan = document.createElement("span");
+notifSpan.id = "bookmark-notif";
+notifSpan.style.display = "none";
+translationDiv.appendChild(notifSpan);
 
   const bookmarkKey = "tadabbur-bookmark";
 let bookmarks = [];
+
 try {
   bookmarks = JSON.parse(localStorage.getItem(bookmarkKey)) || [];
 } catch {
   bookmarks = [];
 }
 
-let clickCount = 0;
-let clickTimer = null;
-
-const isAlreadyBookmarked = () => bookmarks.some(b => b.surah === surah && b.ayat === ayat);
-const getBookmarkIndex = () => bookmarks.findIndex(b => b.surah === surah && b.ayat === ayat);
-
-function showBookmarkNotif(text, withCancel = false) {
-  notifWrap.innerHTML = text;
-  notifWrap.style.display = "inline-block";
-
-  if (withCancel) {
-    const cancelBtn = document.createElement("button");
-    cancelBtn.id = "cancel-bookmark-btn";
-    cancelBtn.textContent = "Batalkan Tadabbur";
-    cancelBtn.onclick = () => {
-      const index = getBookmarkIndex();
-      if (index !== -1) {
-        bookmarks.splice(index, 1);
-        localStorage.setItem(bookmarkKey, JSON.stringify(bookmarks));
-        bookmarkBtn.innerHTML = "🔖";
-        notifWrap.textContent = "❌ Tadabbur dibatalkan.";
-        setTimeout(() => notifWrap.style.display = "none", 2000);
-      }
-    };
-    notifWrap.appendChild(cancelBtn);
-  } else {
-    setTimeout(() => notifWrap.style.display = "none", 2000);
-  }
-}
-
-// Atur icon awal
-if (isAlreadyBookmarked()) {
+// Cek apakah ayat ini sudah ditandai
+let existing = bookmarks.find(b => b.surah === surah && b.ayat === ayat);
+if (existing) {
+  bookmarkBtn.classList.add("checked");
   bookmarkBtn.innerHTML = "✅";
 }
 
-// Klik handler
+// Event klik tombol bookmark
 bookmarkBtn.onclick = () => {
-  clickCount++;
+  const now = new Date();
+  const dateStr = now.toLocaleDateString("id-ID", { day: '2-digit', month: 'long', year: 'numeric' });
+  const timeStr = now.toLocaleTimeString("id-ID", { hour: '2-digit', minute: '2-digit' });
 
-  clearTimeout(clickTimer);
-  clickTimer = setTimeout(() => {
-    if (clickCount === 1) {
-      // Klik 1x
-      if (!isAlreadyBookmarked()) {
-        const now = new Date();
-        const dateStr = now.toLocaleDateString("id-ID", { day: '2-digit', month: 'long', year: 'numeric' });
-        const timeStr = now.toLocaleTimeString("id-ID", { hour: '2-digit', minute: '2-digit' });
+  let existingIndex = bookmarks.findIndex(b => b.surah === surah && b.ayat === ayat);
 
-        bookmarks.push({ surah, ayat, timestamp: `${dateStr} ${timeStr}` });
-        localStorage.setItem(bookmarkKey, JSON.stringify(bookmarks));
+  if (existingIndex === -1) {
+    // Tambah ke daftar
+    const newEntry = {
+      surah,
+      ayat,
+      timestamp: `${dateStr} ${timeStr}`
+    };
+    bookmarks.push(newEntry);
+    localStorage.setItem(bookmarkKey, JSON.stringify(bookmarks));
 
-        bookmarkBtn.innerHTML = "✅";
-        showBookmarkNotif(`✅ Telah Ditadabburi Ayat ke-${bookmarks.length} · ${dateStr} · ${timeStr}`);
-      }
-    } else if (clickCount === 2) {
-      // Klik 2x
-      if (isAlreadyBookmarked()) {
-        showBookmarkNotif("⚠️ Ayat ini sudah ditadabburi. Klik Batalkan Tadabbur jika ingin menghapus.", true);
-      }
-    }
+    bookmarkBtn.classList.add("checked");
+    bookmarkBtn.innerHTML = "✅";
 
-    clickCount = 0; // reset
-  }, 300); // 300ms window untuk deteksi klik ganda
+    showBookmarkNotif(`✅ Telah Ditadabburi Ayat ke-${bookmarks.length} · ${dateStr} · ${timeStr}`);
+  } else {
+    // Sudah ditandai, hanya tampilkan notifikasi lagi
+    const order = existingIndex + 1;
+    const stamp = bookmarks[existingIndex].timestamp;
+    showBookmarkNotif(`✅ Telah Ditadabburi Ayat ke-${order} · ${stamp}`);
+  }
 };
 
+function showBookmarkNotif(text) {
+  notifSpan.textContent = text;
+  notifSpan.style.display = "inline-block";
+  setTimeout(() => {
+    notifSpan.style.display = "none";
+  }, 2000);
+}
 
       const playAudioBtn = document.createElement("button");
 playAudioBtn.textContent = "☰ PILIH QARI";
