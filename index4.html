@@ -1426,13 +1426,13 @@ function showNoteOverlay(surah, ayah) {
   <script>
 (function () {
   const today = new Date();
-  const todayStr = today.toISOString().slice(0, 10); // contoh: "2025-06-15"
+  const todayStr = today.toISOString().slice(0, 10); // "YYYY-MM-DD"
   const logKey = "tadabbur-log";
 
   let log = [];
   try {
     log = JSON.parse(localStorage.getItem(logKey)) || [];
-  } catch (e) {
+  } catch {
     log = [];
   }
 
@@ -1442,8 +1442,12 @@ function showNoteOverlay(surah, ayah) {
   }
 
   const hariKe = log.length;
+
   const infoDiv = document.createElement("div");
-  infoDiv.className = "sumber";
+  infoDiv.style.textAlign = "center";
+  infoDiv.style.fontSize = "0.9em";
+  infoDiv.style.color = "#777";
+  infoDiv.style.marginTop = "0.5em";
   infoDiv.textContent = `Tadabbur Hari Ke-${hariKe}`;
 
   const sumberDiv = document.querySelector(".sumber");
