@@ -1448,6 +1448,9 @@ function showSearchOverlay() {
     document.getElementById("search-backdrop")?.remove();
   };
 
+  const title = document.createElement("h3");
+  title.textContent = "Cari Kosa Kata Al-Qur'an";
+
   const input = document.createElement("input");
   input.id = "search-input";
   input.placeholder = "Ketik kata Arab tanpa harakat...";
@@ -1467,7 +1470,7 @@ function showSearchOverlay() {
   };
 
   overlay.appendChild(closeBtn);
-  overlay.innerHTML += `<h3>Cari Kosa Kata Al-Qur'an</h3>`;
+  overlay.appendChild(title);
   overlay.appendChild(input);
   overlay.appendChild(runBtn);
   overlay.appendChild(resultArea);
@@ -1483,16 +1486,24 @@ function showSearchOverlay() {
   document.body.appendChild(backdrop);
 }
 
-let simpleXMLCache = null;
+    // BATAS
 
-function stripHarakat(text) {
-  return text.replace(/[\u064B-\u0652]/g, ''); // buang harakat
+function normalizeArabic(text) {
+  return text
+    .replace(/[\u064B-\u0652]/g, '') // harakat
+    .replace(/[ٱإأآ]/g, 'ا')         // variasi alif
+    .replace(/ى/g, 'ي')              // alif maqsura → ya
+    .replace(/ؤ/g, 'و')
+    .replace(/ئ/g, 'ي')
+    .replace(/ة/g, 'ه');             // ta marbuta → ha
 }
+
+let simpleXMLCache = null;
 
 function runQuranSearch(keyword, resultArea) {
   resultArea.innerHTML = "<div>Mencari...</div>";
 
-  const cleanedKeyword = stripHarakat(keyword);
+  const cleanedKeyword = normalizeArabic(keyword);
 
   function process(xmlText) {
     const parser = new DOMParser();
@@ -1507,9 +1518,9 @@ function runQuranSearch(keyword, resultArea) {
       ayatList.forEach(aya => {
         const ayatNum = aya.getAttribute("index");
         const text = aya.textContent;
-        const raw = stripHarakat(text);
+        const normalizedText = normalizeArabic(text);
 
-        if (raw.includes(cleanedKeyword)) {
+        if (normalizedText.includes(cleanedKeyword)) {
           results.push({
             surah: suraNum,
             ayat: ayatNum,
@@ -1528,7 +1539,8 @@ function runQuranSearch(keyword, resultArea) {
     results.forEach(res => {
       const div = document.createElement("div");
       div.className = "search-result";
-      div.innerHTML = `<a href="?surah=${res.surah}&ayat=${res.ayat}">Surah ${surahNames[res.surah]} Ayat ${res.ayat}</a><br/><div style="font-family:'Madina', serif; direction:rtl; text-align:right;">${res.text}</div>`;
+      div.innerHTML = `<a href="?surah=${res.surah}&ayat=${res.ayat}">Surah ${surahNames[res.surah]} Ayat ${res.ayat}</a><br/>
+        <div style="font-family:'Madina', serif; direction:rtl; text-align:right;">${res.text}</div>`;
       resultArea.appendChild(div);
     });
   }
@@ -1536,7 +1548,7 @@ function runQuranSearch(keyword, resultArea) {
   if (simpleXMLCache) {
     process(simpleXMLCache);
   } else {
-    fetch("quran-simple.xml")
+    fetch("https://raw.githubusercontent.com/dickymiswardi/tadabbur/main/quran-simple.xml")
       .then(res => res.text())
       .then(xml => {
         simpleXMLCache = xml;
