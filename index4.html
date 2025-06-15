@@ -262,6 +262,84 @@
       background-color: #005f6b;
     }
 
+    /* SEARCH AYAT */
+.search-btn {
+  font-size: 0.8em;
+  padding: 0.4em 0.8em;
+  background-color: #0066cc;
+  color: white;
+  font-size: 0.95em;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.search-btn:hover {
+  background-color: #004b99;
+}
+
+#search-overlay {
+  position: fixed;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 90%; max-width: 700px;
+  background-color: white;
+  border: 2px solid #0066cc;
+  border-radius: 12px;
+  padding: 1.5em;
+  z-index: 9999;
+  box-shadow: 0 0 25px rgba(0, 0, 0, 0.2);
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+#search-overlay-close {
+  position: absolute;
+  top: 0.3em;
+  right: 0.8em;
+  font-size: 1.2em;
+  font-weight: bold;
+  color: #0066cc;
+  cursor: pointer;
+}
+
+#search-backdrop {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.4);
+  z-index: 9998;
+}
+
+#search-input {
+  width: 100%;
+  font-size: 1em;
+  padding: 0.6em;
+  margin-top: 1em;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+
+#search-results {
+  margin-top: 1.5em;
+}
+
+.search-result {
+  margin-bottom: 0.5em;
+}
+
+#run-search-btn {
+  margin-top: 1em;
+  background-color: #28a745;
+  color: white;
+  padding: 0.6em 1.2em;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+    /* SEARCH AYAT*/
+
     /* CATATAN TAFSIR */
 
     .note-dropbtn {
@@ -1069,6 +1147,14 @@ playAudioBtn.textContent = "☰ PILIH QARI";
 playAudioBtn.onclick = showQariSelector;
 navDiv.appendChild(playAudioBtn);
 
+  // SEARCH AYAT
+const searchBtn = document.createElement("button");
+searchBtn.className = "search-btn";
+searchBtn.textContent = "Search Ayat";
+searchBtn.onclick = showSearchOverlay;
+navDiv.appendChild(searchBtn);
+  // SEARCH AYAT
+
       function showQariSelector() {
   const backdrop = document.createElement("div");
   backdrop.className = "audio-qari-backdrop";
@@ -1348,6 +1434,120 @@ function showNoteOverlay(surah, ayah) {
   document.body.appendChild(overlay);
 }
     // CATATAN TASIR
+
+    // SEARCH AYAT
+function showSearchOverlay() {
+  const overlay = document.createElement("div");
+  overlay.id = "search-overlay";
+
+  const closeBtn = document.createElement("div");
+  closeBtn.id = "search-overlay-close";
+  closeBtn.innerHTML = "&times;";
+  closeBtn.onclick = () => {
+    document.getElementById("search-overlay")?.remove();
+    document.getElementById("search-backdrop")?.remove();
+  };
+
+  const input = document.createElement("input");
+  input.id = "search-input";
+  input.placeholder = "Ketik kata Arab tanpa harakat...";
+
+  const runBtn = document.createElement("button");
+  runBtn.id = "run-search-btn";
+  runBtn.textContent = "Cari";
+
+  const resultArea = document.createElement("div");
+  resultArea.id = "search-results";
+
+  runBtn.onclick = () => {
+    const keyword = input.value.trim();
+    if (keyword) {
+      runQuranSearch(keyword, resultArea);
+    }
+  };
+
+  overlay.appendChild(closeBtn);
+  overlay.innerHTML += `<h3>Cari Kosa Kata Al-Qur'an</h3>`;
+  overlay.appendChild(input);
+  overlay.appendChild(runBtn);
+  overlay.appendChild(resultArea);
+
+  const backdrop = document.createElement("div");
+  backdrop.id = "search-backdrop";
+  backdrop.onclick = () => {
+    overlay.remove();
+    backdrop.remove();
+  };
+
+  document.body.appendChild(overlay);
+  document.body.appendChild(backdrop);
+}
+
+let simpleXMLCache = null;
+
+function stripHarakat(text) {
+  return text.replace(/[\u064B-\u0652]/g, ''); // buang harakat
+}
+
+function runQuranSearch(keyword, resultArea) {
+  resultArea.innerHTML = "<div>Mencari...</div>";
+
+  const cleanedKeyword = stripHarakat(keyword);
+
+  function process(xmlText) {
+    const parser = new DOMParser();
+    const xmlDoc = parser.parseFromString(xmlText, "text/xml");
+    const results = [];
+    const suraNodes = xmlDoc.querySelectorAll("sura");
+
+    suraNodes.forEach(sura => {
+      const suraNum = sura.getAttribute("index");
+      const ayatList = sura.querySelectorAll("aya");
+
+      ayatList.forEach(aya => {
+        const ayatNum = aya.getAttribute("index");
+        const text = aya.textContent;
+        const raw = stripHarakat(text);
+
+        if (raw.includes(cleanedKeyword)) {
+          results.push({
+            surah: suraNum,
+            ayat: ayatNum,
+            text: text
+          });
+        }
+      });
+    });
+
+    if (results.length === 0) {
+      resultArea.innerHTML = "<p><em>Tidak ditemukan.</em></p>";
+      return;
+    }
+
+    resultArea.innerHTML = `<p>Ditemukan ${results.length} hasil:</p>`;
+    results.forEach(res => {
+      const div = document.createElement("div");
+      div.className = "search-result";
+      div.innerHTML = `<a href="?surah=${res.surah}&ayat=${res.ayat}">Surah ${surahNames[res.surah]} Ayat ${res.ayat}</a><br/><div style="font-family:'Madina', serif; direction:rtl; text-align:right;">${res.text}</div>`;
+      resultArea.appendChild(div);
+    });
+  }
+
+  if (simpleXMLCache) {
+    process(simpleXMLCache);
+  } else {
+    fetch("quran-simple.xml")
+      .then(res => res.text())
+      .then(xml => {
+        simpleXMLCache = xml;
+        process(xml);
+      })
+      .catch(() => {
+        resultArea.innerHTML = "<p>Gagal memuat data pencarian.</p>";
+      });
+  }
+}
+    // SEARCH AYAT
 </script>
 </body>
 </html>
