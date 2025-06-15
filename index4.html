@@ -262,82 +262,6 @@
       background-color: #005f6b;
     }
 
-    .note-dropbtn {
-  font-size: 0.8em;
-  padding: 0.4em 0.8em;
-  background-color: #ffa500;
-  color: white;
-  font-size: 0.95em;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: all 0.2s;
-  margin-left: 0.5em;
-}
-
-.note-dropbtn:hover {
-  background-color: #e69500;
-}
-
-#note-overlay {
-  position: fixed;
-  top: 50%; left: 50%;
-  transform: translate(-50%, -50%);
-  width: 90%; max-width: 600px;
-  background-color: white;
-  border: 2px solid #ffa500;
-  border-radius: 12px;
-  padding: 1.5em;
-  z-index: 9999;
-  box-shadow: 0 0 25px rgba(0, 0, 0, 0.2);
-}
-
-#note-overlay-close {
-  position: absolute;
-  top: 0.3em;
-  right: 0.8em;
-  font-size: 1.2em;
-  font-weight: bold;
-  color: #ffa500;
-  cursor: pointer;
-}
-
-#note-backdrop {
-  position: fixed;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  background: rgba(0, 0, 0, 0.4);
-  z-index: 9998;
-}
-
-#note-textarea {
-  width: 100%;
-  height: 150px;
-  margin-top: 1em;
-  font-size: 1em;
-  padding: 0.8em;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  resize: vertical;
-}
-
-#save-note-btn {
-  margin-top: 1em;
-  background-color: #28a745;
-  color: white;
-  padding: 0.6em 1em;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-#note-status {
-  display: inline-block;
-  margin-left: 1em;
-  font-size: 0.9em;
-  color: green;
-}
-
 /* Overlay Qari */
 .audio-qari-overlay {
   position: fixed;
@@ -695,14 +619,12 @@ const lastAyat = urlParams.get("ayat") || localStorage.getItem("lastAyat");
 
     const apiURL = `quran.json`; // ganti dari versi API lama
 
-    function loadAyat(surah, ayah) {
-  Promise.all([
-    fetch("quran.json").then(res => res.json()),
-    fetch("indonesian_complex_v1.0.xml").then(res => res.text())
-  ])
-  .then(([quranData, xmlText]) => {
-
-let arabicText = "(Teks Arab tidak ditemukan)";
+    Promise.all([
+  fetch("quran.json").then(res => res.json()),
+  fetch("indonesian_complex_v1.0.xml").then(res => res.text())
+])
+.then(([quranData, xmlText]) => {
+  let arabicText = "(Teks Arab tidak ditemukan)";
 
   // Loop ke seluruh entri quranData
   for (const entry of quranData) {
@@ -858,6 +780,80 @@ async function loadTafsir(sourceKey, surah, ayah) {
 function createTafsirDropdown(surah, ayah) {
   const dropdownContainer = document.createElement("div");
   dropdownContainer.className = "tafsir-dropdown";
+
+  // CATATAN TAFSIR
+// Fungsi untuk buat tombol "Catatan Ayat"
+function createCatatanButton(surah, ayah) {
+  const button = document.createElement("button");
+  button.className = "tafsir-dropbtn";
+  button.textContent = "Catatan Ayat";
+
+  button.onclick = () => {
+    showCatatanOverlay(surah, ayah);
+  };
+
+  return button;
+}
+
+// Tampilkan overlay untuk mencatat
+function showCatatanOverlay(surah, ayah) {
+  const key = `catatan_${surah}_${ayah}`;
+  const existingNote = localStorage.getItem(key) || "";
+
+  // Buat backdrop
+  const backdrop = document.createElement("div");
+  backdrop.id = "tafsir-backdrop";
+  backdrop.onclick = () => {
+    backdrop.remove();
+    overlay.remove();
+  };
+
+  // Buat overlay
+  const overlay = document.createElement("div");
+  overlay.id = "tafsir-overlay";
+
+  const closeBtn = document.createElement("div");
+  closeBtn.id = "tafsir-overlay-close";
+  closeBtn.innerHTML = "&times;";
+  closeBtn.onclick = () => {
+    backdrop.remove();
+    overlay.remove();
+  };
+
+  const title = document.createElement("div");
+  title.className = "tafsir-title-left";
+  title.textContent = `Catatan Surah ${surah} Ayat ${ayah}`;
+
+  const textarea = document.createElement("textarea");
+  textarea.style.width = "100%";
+  textarea.style.height = "150px";
+  textarea.style.padding = "0.8em";
+  textarea.style.fontSize = "1em";
+  textarea.value = existingNote;
+
+  const simpanBtn = document.createElement("button");
+  simpanBtn.className = "copy-button";
+  simpanBtn.textContent = "Simpan Catatan";
+
+  const notif = document.createElement("span");
+  notif.className = "copy-status";
+  notif.style.marginLeft = "0.8em";
+
+  simpanBtn.onclick = () => {
+    localStorage.setItem(key, textarea.value);
+    notif.textContent = "✅ Telah Dicatat Offline";
+  };
+
+  overlay.appendChild(closeBtn);
+  overlay.appendChild(title);
+  overlay.appendChild(textarea);
+  overlay.appendChild(simpanBtn);
+  overlay.appendChild(notif);
+
+  document.body.appendChild(backdrop);
+  document.body.appendChild(overlay);
+}
+  // CATATAN TAFSIR
 
   const dropbtn = document.createElement("button");
   dropbtn.className = "tafsir-dropbtn";
@@ -1022,76 +1018,14 @@ function showTafsir(title, content) {
 const tafsirDropdown = createTafsirDropdown(surah, ayat);
 translationDiv.appendChild(tafsirDropdown);
 
-  const noteButton = document.createElement("button");
-noteButton.className = "note-dropbtn";
-noteButton.textContent = "Catatan Ayat";
-noteButton.onclick = () => {
-  showNoteOverlay(surah, ayat);
-};
-translationDiv.appendChild(noteButton);
-
+  // CATATAN TAFSIR
+const catatanBtn = createCatatanButton(surah, ayat);
+translationDiv.appendChild(catatanBtn);
+  // CATATAN TAFSIR
       
       if (footnotes) {
   const foot = document.createElement("div");
   foot.className = "footnote";
-
-        // CATATAN TAFSIR
-function showNoteOverlay(surah, ayah) {
-  const noteKey = `note-${surah}-${ayah}`;
-  const savedNote = localStorage.getItem(noteKey) || "";
-
-  // Buat backdrop
-  const backdrop = document.createElement("div");
-  backdrop.id = "note-backdrop";
-  backdrop.onclick = () => {
-    backdrop.remove();
-    overlay.remove();
-  };
-
-  // Buat overlay
-  const overlay = document.createElement("div");
-  overlay.id = "note-overlay";
-
-  // Tombol close
-  const closeBtn = document.createElement("div");
-  closeBtn.id = "note-overlay-close";
-  closeBtn.innerHTML = "&times;";
-  closeBtn.onclick = () => {
-    backdrop.remove();
-    overlay.remove();
-  };
-
-  // Konten form
-  const title = document.createElement("h3");
-  title.textContent = `Catatan untuk Surah ${surahNames[surah]} Ayat ${ayah}`;
-
-  const textarea = document.createElement("textarea");
-  textarea.id = "note-textarea";
-  textarea.value = savedNote;
-
-  const saveBtn = document.createElement("button");
-  saveBtn.id = "save-note-btn";
-  saveBtn.textContent = "Simpan Catatan";
-
-  const status = document.createElement("span");
-  status.id = "note-status";
-
-  saveBtn.onclick = () => {
-    localStorage.setItem(noteKey, textarea.value);
-    status.textContent = "✅ Telah Dicatat Offline";
-  };
-
-  // Susun elemen
-  overlay.appendChild(closeBtn);
-  overlay.appendChild(title);
-  overlay.appendChild(textarea);
-  overlay.appendChild(saveBtn);
-  overlay.appendChild(status);
-
-  document.body.appendChild(backdrop);
-  document.body.appendChild(overlay);
-}
-        // CATATAN TAFSIR
 
   // Tambahkan keterangan referensi footnote jika ada
   let modifiedFootnote = footnotes.replace(/Lihat catatan kaki nomor (\d+)/g, (fullMatch, num) => {
@@ -1315,8 +1249,6 @@ localStorage.removeItem("fromAutoplay");
       console.error(err);
       document.getElementById("result").textContent = "Gagal memuat data.";
     });
-    
-  
 
     document.addEventListener("DOMContentLoaded", function () {
   const params = new URLSearchParams(window.location.search);
