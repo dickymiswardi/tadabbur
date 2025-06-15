@@ -1299,14 +1299,16 @@ function showNoteOverlay(surah, ayah) {
   // Buat backdrop
   const backdrop = document.createElement("div");
   backdrop.id = "note-backdrop";
-  backdrop.onclick = () => {
-    backdrop.remove();
-    overlay.remove();
-  };
+  
 
   // Buat overlay
   const overlay = document.createElement("div");
   overlay.id = "note-overlay";
+
+  backdrop.onclick = () => {
+    backdrop.remove();
+    overlay.remove();
+  };
 
   // Tombol close
   const closeBtn = document.createElement("div");
