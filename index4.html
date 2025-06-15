@@ -1496,12 +1496,13 @@ function showSearchOverlay() {
 
 function normalizeArabic(text) {
   return text
-    .replace(/[\u064B-\u0652]/g, '') // harakat
-    .replace(/[ٱإأآ]/g, 'ا')         // variasi alif
-    .replace(/ى/g, 'ي')              // alif maqsura → ya
+    .replace(/[\u064B-\u065F\u0670]/g, '') // harakat & superscript alif
+    .replace(/[ٱإأآ]/g, 'ا')               // variasi alif
+    .replace(/ى/g, 'ي')                    // alif maqsura → ya
     .replace(/ؤ/g, 'و')
     .replace(/ئ/g, 'ي')
-    .replace(/ة/g, 'ه');             // ta marbuta → ha
+    .replace(/ة/g, 'ه')                    // ta marbuta → ha
+    .replace(/[^ءاأإآبتثجحخدذرزسشصضطظعغفقكلمنهويىءa-zA-Z0-9]/g, ''); // hapus spasi & simbol
 }
 
 let simpleXMLCache = null;
@@ -1565,6 +1566,7 @@ function runQuranSearch(keyword, resultArea) {
       });
   }
 }
+
     // SEARCH AYAT
 </script>
 </body>
