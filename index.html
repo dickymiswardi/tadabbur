@@ -1149,7 +1149,7 @@ navDiv.appendChild(playAudioBtn);
   });
 
   const confirmBtn = document.createElement("button");
-  confirmBtn.textContent = "Gunakan Qari Ini";
+  confirmBtn.textContent = "Dengarkan Qari Ini";
   confirmBtn.onclick = () => {
     const qariId = select.value;
     localStorage.setItem("lastQari", qariId);
@@ -1354,7 +1354,7 @@ function showNoteOverlay(surah, ayah) {
 
     // Tombol Backup
   const backupBtn = document.createElement("button");
-  backupBtn.textContent = "Backup";
+  backupBtn.textContent = "Download Seluruhnya";
   backupBtn.style.marginLeft = "1em";
   backupBtn.onclick = () => {
     const notes = {};
@@ -1373,7 +1373,7 @@ function showNoteOverlay(surah, ayah) {
 
   // Tombol Restore
   const restoreBtn = document.createElement("button");
-  restoreBtn.textContent = "Restore";
+  restoreBtn.textContent = "Pulihkan Seluruhnya";
   restoreBtn.style.marginLeft = "0.8em";
 
   const fileInput = document.createElement("input");
