@@ -269,6 +269,14 @@
 
     /* CATATAN TAFSIR */
 
+    #note-status {
+  display: inline-block;
+  margin-left: 1em;
+  font-size: 0.9em;
+  color: green;
+  vertical-align: middle;
+}
+
     .note-dropbtn {
   font-size: 0.8em;
   padding: 0.4em 0.8em;
@@ -1404,9 +1412,9 @@ function showNoteOverlay(surah, ayah) {
   overlay.appendChild(title);
   overlay.appendChild(textarea);
   overlay.appendChild(saveBtn);
-  overlay.appendChild(status);
   overlay.appendChild(backupBtn);
   overlay.appendChild(restoreBtn);
+    overlay.appendChild(status);
   overlay.appendChild(fileInput);
 
   document.body.appendChild(backdrop);
