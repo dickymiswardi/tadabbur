@@ -1439,7 +1439,6 @@ function showNoteOverlay(surah, ayah) {
 
     // SEARCH AYAT
 function showSearchOverlay() {
-  // Hapus overlay sebelumnya jika ada
   document.getElementById("search-overlay")?.remove();
   document.getElementById("search-backdrop")?.remove();
 
@@ -1462,7 +1461,7 @@ function showSearchOverlay() {
   };
 
   const title = document.createElement("h3");
-  title.textContent = "Cari Kosa Kata Al-Qur'an (via API)";
+  title.textContent = "Cari Kosa Kata Al-Qur'an";
 
   const input = document.createElement("input");
   input.id = "search-input";
@@ -1472,7 +1471,6 @@ function showSearchOverlay() {
   const resultArea = document.createElement("div");
   resultArea.id = "search-results";
 
-  // Fungsi pencarian real-time
   let debounceTimer;
   input.addEventListener("input", () => {
     clearTimeout(debounceTimer);
@@ -1482,44 +1480,54 @@ function showSearchOverlay() {
       return;
     }
     debounceTimer = setTimeout(() => {
-      searchAyatAPI(keyword, resultArea);
+      searchQuranJSON(keyword, resultArea);
     }, 400);
   });
 
-  // Susun overlay
-  overlay.appendChild(closeBtn);
-  overlay.appendChild(title);
-  overlay.appendChild(input);
-  overlay.appendChild(resultArea);
-  document.body.appendChild(overlay);
-  document.body.appendChild(backdrop);
+  overlay.append(closeBtn, title, input, resultArea);
+  document.body.append(overlay, backdrop);
 }
 
-    // BATAS
+    let quranData = null;
 
-    async function searchAyatAPI(keyword, resultArea) {
+async function searchQuranJSON(keyword, resultArea) {
+  const cleanedKeyword = normalizeArabic(keyword);
   resultArea.innerHTML = "<p>Mencari...</p>";
-  try {
-    const res = await fetch(`https://koran-api.vercel.app/corpus/${encodeURIComponent(keyword)}`);
-    const data = await res.json();
 
-    if (!Array.isArray(data) || data.length === 0) {
+  try {
+    if (!quranData) {
+      const response = await fetch("https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/quran.json");
+      const json = await response.json();
+      quranData = json.quran;
+    }
+
+    const results = quranData.filter(item =>
+      normalizeArabic(item.text).includes(cleanedKeyword)
+    );
+
+    if (results.length === 0) {
       resultArea.innerHTML = "<p><em>Tidak ditemukan.</em></p>";
       return;
     }
 
-    resultArea.innerHTML = `<p>Ditemukan ${data.length} hasil:</p>`;
-    data.forEach(v => {
+    resultArea.innerHTML = `<p>Ditemukan ${results.length} hasil:</p>`;
+    results.forEach(item => {
       const div = document.createElement("div");
       div.className = "search-result";
-      div.innerHTML = `<a href="?surah=${v.surah}&ayat=${v.verse}">Surah ${surahNames[v.surah]} Ayat ${v.verse}</a><br/>
-        <div style="font-family:'Madina', serif; direction:rtl; text-align:right;">${v.arabicText}</div>`;
+      div.innerHTML = `
+        <a href="?surah=${item.surah}&ayat=${item.ayah}">
+          Surah ${surahNames[item.surah]} Ayat ${item.ayah}
+        </a><br/>
+        <div style="font-family:'Madina', serif; direction:rtl; text-align:right;">
+          ${item.text}
+        </div>`;
       resultArea.appendChild(div);
     });
-  } catch (e) {
-    resultArea.innerHTML = "<p>Gagal menghubungi API.</p>";
+  } catch (err) {
+    resultArea.innerHTML = "<p><em>Gagal memuat quran.json.</em></p>";
   }
 }
+
     // SEARCH AYAT
 </script>
 </body>
