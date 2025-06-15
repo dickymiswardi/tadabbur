@@ -1441,9 +1441,18 @@ function showSearchOverlay() {
   document.getElementById("search-overlay")?.remove();
   document.getElementById("search-backdrop")?.remove();
 
+  // Buat elemen overlay & backdrop
   const overlay = document.createElement("div");
   overlay.id = "search-overlay";
 
+  const backdrop = document.createElement("div");
+  backdrop.id = "search-backdrop";
+  backdrop.onclick = () => {
+    overlay.remove();
+    backdrop.remove();
+  };
+
+  // Tombol close
   const closeBtn = document.createElement("div");
   closeBtn.id = "search-overlay-close";
   closeBtn.innerHTML = "&times;";
@@ -1452,6 +1461,7 @@ function showSearchOverlay() {
     backdrop.remove();
   };
 
+  // Judul & input
   const title = document.createElement("h3");
   title.textContent = "Cari Kosa Kata Al-Qur'an";
 
@@ -1467,6 +1477,7 @@ function showSearchOverlay() {
   const resultArea = document.createElement("div");
   resultArea.id = "search-results";
 
+  // Fungsi pencarian
   runBtn.onclick = () => {
     const keyword = input.value.trim();
     if (keyword) {
@@ -1476,18 +1487,12 @@ function showSearchOverlay() {
     }
   };
 
+  // Susun overlay
   overlay.appendChild(closeBtn);
   overlay.appendChild(title);
   overlay.appendChild(input);
   overlay.appendChild(runBtn);
   overlay.appendChild(resultArea);
-
-  const backdrop = document.createElement("div");
-  backdrop.id = "search-backdrop";
-  backdrop.onclick = () => {
-    overlay.remove();
-    backdrop.remove();
-  };
 
   document.body.appendChild(overlay);
   document.body.appendChild(backdrop);
