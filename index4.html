@@ -1441,7 +1441,6 @@ function showSearchOverlay() {
   document.getElementById("search-overlay")?.remove();
   document.getElementById("search-backdrop")?.remove();
 
-  // Buat elemen overlay & backdrop
   const overlay = document.createElement("div");
   overlay.id = "search-overlay";
 
@@ -1452,7 +1451,6 @@ function showSearchOverlay() {
     backdrop.remove();
   };
 
-  // Tombol close
   const closeBtn = document.createElement("div");
   closeBtn.id = "search-overlay-close";
   closeBtn.innerHTML = "&times;";
@@ -1461,7 +1459,6 @@ function showSearchOverlay() {
     backdrop.remove();
   };
 
-  // Judul & input
   const title = document.createElement("h3");
   title.textContent = "Cari Kosa Kata Al-Qur'an";
 
@@ -1470,28 +1467,25 @@ function showSearchOverlay() {
   input.placeholder = "Ketik kata Arab tanpa harakat...";
   input.style.marginTop = "1em";
 
-  const runBtn = document.createElement("button");
-  runBtn.id = "run-search-btn";
-  runBtn.textContent = "Cari";
-
   const resultArea = document.createElement("div");
   resultArea.id = "search-results";
 
-  // Fungsi pencarian
-  runBtn.onclick = () => {
-    const keyword = input.value.trim();
-    if (keyword) {
-      runQuranSearch(keyword, resultArea);
-    } else {
-      resultArea.innerHTML = "<p><em>Masukkan kata terlebih dahulu.</em></p>";
-    }
-  };
+  let debounceTimer;
+  input.addEventListener("input", () => {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => {
+      const keyword = input.value.trim();
+      if (keyword) {
+        runQuranSearch(keyword, resultArea);
+      } else {
+        resultArea.innerHTML = "<p><em>Ketik kata untuk mencari...</em></p>";
+      }
+    }, 400); // delay ketik
+  });
 
-  // Susun overlay
   overlay.appendChild(closeBtn);
   overlay.appendChild(title);
   overlay.appendChild(input);
-  overlay.appendChild(runBtn);
   overlay.appendChild(resultArea);
 
   document.body.appendChild(overlay);
