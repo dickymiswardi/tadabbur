@@ -1333,73 +1333,78 @@ function showNoteOverlay(surah, ayah) {
   status.id = "note-status";
 
   saveBtn.onclick = () => {
-    localStorage.setItem(noteKey, textarea.value);
-    status.textContent = "✅ Telah Dicatat Offline";
-  };
+  localStorage.setItem(noteKey, textarea.value);
+  status.textContent = "✅ Telah Dicatat Offline";
+};
 
-  // Tombol Backup
-  const backupBtn = document.createElement("button");
-  backupBtn.textContent = "Backup";
-  backupBtn.style.marginLeft = "1em";
-  backupBtn.onclick = () => {
-    const notes = {};
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i);
-      if (key.startsWith("note-")) {
-        notes[key] = localStorage.getItem(key);
-      }
+// Tombol Backup
+const backupBtn = document.createElement("button");
+backupBtn.textContent = "Backup";
+backupBtn.style.marginLeft = "1em";
+backupBtn.onclick = () => {
+  const notes = {};
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (key.startsWith("note-")) {
+      notes[key] = localStorage.getItem(key);
     }
-    const blob = new Blob([JSON.stringify(notes, null, 2)], { type: "application/json" });
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = "catatan-quran.json";
-    a.click();
+  }
+  const blob = new Blob([JSON.stringify(notes, null, 2)], { type: "application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "catatan-quran.json";
+  a.click();
+};
+
+// Tombol Restore
+const restoreBtn = document.createElement("button");
+restoreBtn.textContent = "Restore";
+restoreBtn.style.marginLeft = "0.8em";
+
+const restoreStatus = document.createElement("span");
+restoreStatus.style.marginLeft = "1em";
+restoreStatus.style.fontSize = "0.9em";
+restoreStatus.style.color = "green";
+
+const fileInput = document.createElement("input");
+fileInput.type = "file";
+fileInput.accept = ".json";
+fileInput.style.display = "none";
+restoreBtn.onclick = () => fileInput.click();
+
+fileInput.onchange = () => {
+  const file = fileInput.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const data = JSON.parse(reader.result);
+      Object.keys(data).forEach(key => {
+        if (key.startsWith("note-")) {
+          localStorage.setItem(key, data[key]);
+        }
+      });
+      restoreStatus.textContent = "✅ Restore selesai! Silakan muat ulang halaman.";
+    } catch (e) {
+      restoreStatus.textContent = "❌ Gagal memuat file catatan.";
+    }
   };
+  reader.readAsText(file);
+};
 
-  // Tombol Restore
-  const restoreBtn = document.createElement("button");
-  restoreBtn.textContent = "Restore";
-  restoreBtn.style.marginLeft = "0.8em";
+// Susun ke dalam overlay
+overlay.appendChild(closeBtn);
+overlay.appendChild(title);
+overlay.appendChild(textarea);
+overlay.appendChild(saveBtn);
+overlay.appendChild(status);
+overlay.appendChild(backupBtn);
+overlay.appendChild(restoreBtn);
+overlay.appendChild(restoreStatus);
+overlay.appendChild(fileInput);
 
-  const fileInput = document.createElement("input");
-  fileInput.type = "file";
-  fileInput.accept = ".json";
-  fileInput.style.display = "none";
-  restoreBtn.onclick = () => fileInput.click();
-
-  fileInput.onchange = () => {
-    const file = fileInput.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      try {
-        const data = JSON.parse(reader.result);
-        Object.keys(data).forEach(key => {
-          if (key.startsWith("note-")) {
-            localStorage.setItem(key, data[key]);
-          }
-        });
-        alert("✅ Restore selesai! Silakan muat ulang halaman.");
-      } catch (e) {
-        alert("❌ Gagal memuat file catatan.");
-      }
-    };
-    reader.readAsText(file);
-  };
-
-  // Susun elemen ke overlay
-  overlay.appendChild(closeBtn);
-  overlay.appendChild(title);
-  overlay.appendChild(textarea);
-  overlay.appendChild(saveBtn);
-  overlay.appendChild(status);
-  overlay.appendChild(backupBtn);
-  overlay.appendChild(restoreBtn);
-  overlay.appendChild(fileInput);
-
-  document.body.appendChild(backdrop);
-  document.body.appendChild(overlay);
-}
+document.body.appendChild(backdrop);
+document.body.appendChild(overlay);
     // CATATAN TASIR
 </script>
 </body>
