@@ -1924,5 +1924,55 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 </script>
 
+
+<script>
+// ===== DEFINISI: Fungsi Sinkronisasi via Token =====
+const GITHUB_TOKEN = "GANTI_DENGAN_TOKEN_ANDA"; // ← Ganti dengan token asli Anda
+
+async function syncToGitHubWithToken() {
+  const username = localStorage.getItem("username");
+  const notes = JSON.parse(localStorage.getItem("notes") || "{}");
+  const tadabburBookmark = JSON.parse(localStorage.getItem(`tadabburBookmark-${username}`) || "[]");
+  const content = JSON.stringify({ username, notes, tadabburBookmark }, null, 2);
+  const filePath = `users/${username}.json`;
+  const repo = "dickymiswardi/tadabbur";
+
+  let sha = null;
+  try {
+    const res = await fetch(`https://api.github.com/repos/${repo}/contents/${filePath}`, {
+      headers: {
+        Authorization: `token ${GITHUB_TOKEN}`,
+        Accept: "application/vnd.github+json"
+      }
+    });
+    if (res.ok) {
+      const data = await res.json();
+      sha = data.sha;
+    }
+  } catch (e) {
+    console.log("File belum ada, akan dibuat baru.");
+  }
+
+  const response = await fetch(`https://api.github.com/repos/${repo}/contents/${filePath}`, {
+    method: "PUT",
+    headers: {
+      Authorization: `token ${GITHUB_TOKEN}`,
+      Accept: "application/vnd.github+json"
+    },
+    body: JSON.stringify({
+      message: `Update data ${username}`,
+      content: btoa(unescape(encodeURIComponent(content))),
+      sha: sha
+    })
+  });
+
+  if (response.ok) {
+    alert("✅ Sinkronisasi berhasil dikirim ke GitHub");
+  } else {
+    alert("❌ Gagal sinkronisasi: " + response.statusText);
+  }
+}
+</script>
+
 </body>
 </html>
