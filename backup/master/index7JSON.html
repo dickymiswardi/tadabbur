@@ -1154,12 +1154,12 @@ bookmarkBtn.onclick = () => {
     bookmarkBtn.classList.add("checked");
     bookmarkBtn.innerHTML = "✅";
 
-    showBookmarkNotif(`✅Selesai tadabbur pada ${dateStr} pukul ${timeStr}. Total tadabbur ${bookmarks.length} ayat.`);
+    showBookmarkNotif(`✅ Selesai tadabbur pada ${dateStr} pukul ${timeStr}. Total tadabbur ${bookmarks.length} ayat.`);
   } else {
     // Sudah ditandai, hanya tampilkan notifikasi lagi
     const order = existingIndex + 1;
     const stamp = bookmarks[existingIndex].timestamp;
-    showBookmarkNotif(`✅Selesai tadabbur pada ${dateStr} pukul ${timeStr}. Total tadabbur ${order} ayat.`);
+    showBookmarkNotif(`✅ Selesai tadabbur pada ${dateStr} pukul ${timeStr}. Total tadabbur ${order} ayat.`);
   }
 };
 
