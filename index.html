@@ -481,6 +481,30 @@
       }
     }
   </style>
+
+<!-- Firebase SDK -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAW4oR4KDNPZlnY7pmPNYtUDwICuDZcFSI",
+    authDomain: "tadabburtes.firebaseapp.com",
+    projectId: "tadabburtes",
+    storageBucket: "tadabburtes.firebasestorage.app",
+    messagingSenderId: "938476728663",
+    appId: "1:938476728663:web:94cfcc8017877414c90e12",
+    measurementId: "G-9QRQN4YZX6"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  window.firebaseApp = app;
+  window.db = db;
+  window.firestoreReady = true;
+</script>
+
 </head>
 <body>
 
