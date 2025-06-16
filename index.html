@@ -1881,5 +1881,18 @@ const observer = new MutationObserver(() => {
 observer.observe(document.body, { childList: true, subtree: true });
 </script>
 
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const syncNowBtn = document.getElementById("sync-now-btn");
+  if (syncNowBtn) {
+    syncNowBtn.onclick = () => {
+      syncToGitHubWithToken();
+      alert("🔄 Sinkronisasi manual sedang dijalankan...");
+    };
+  }
+});
+</script>
+
 </body>
 </html>
