@@ -25,7 +25,7 @@
   margin-left: 0.3em;
   background: transparent;
   border: none;
-  font-size: 1.2em;
+  font-size: 1.5em;
   cursor: pointer;
   vertical-align: middle;
 }
@@ -906,7 +906,7 @@ function createTafsirDropdown(surah, ayah) {
 
   const dropbtn = document.createElement("button");
   dropbtn.className = "tafsir-dropbtn";
-  dropbtn.textContent = "Pilih Tafsir";
+  dropbtn.textContent = "Tafsir";
 
   const dropdownContent = document.createElement("div");
   dropdownContent.className = "tafsir-dropdown-content";
@@ -1070,7 +1070,7 @@ translationDiv.appendChild(tafsirDropdown);
   // CATATAN TAFSIR
 const noteButton = document.createElement("button");
 noteButton.className = "note-dropbtn";
-noteButton.textContent = "Catatan Ayat";
+noteButton.textContent = "Catatanku";
 noteButton.onclick = () => {
   showNoteOverlay(surah, ayat);
 };
@@ -1109,7 +1109,7 @@ translationDiv.appendChild(noteButton);
 
   const bookmarkBtn = document.createElement("button");
 bookmarkBtn.id = "bookmark-btn";
-bookmarkBtn.innerHTML = "🔖"; // default ikon
+bookmarkBtn.innerHTML = "🆙"; // default ikon
 translationDiv.appendChild(bookmarkBtn);
 
 const notifSpan = document.createElement("span");
@@ -1550,83 +1550,5 @@ function showNoteOverlay(surah, ayah) {
   }
 })();
 </script>
-
-<hr>
-<div id="sync-panel" style="margin-top: 20px;">
-  <label>👤 Username: <input id="usernameInput" placeholder="cth: ali123" /></label>
-  <button onclick="syncAll()" id="syncButton">🔁 Sinkronisasi</button>
-  <div id="syncStatus" style="margin-top:10px; color: green;"></div>
-</div>
-
-<script>
-  document.addEventListener("DOMContentLoaded", () => {
-    const saved = localStorage.getItem("username");
-    if (saved) document.getElementById("usernameInput").value = saved;
-  });
-
-  function setStatus(msg, color = "green") {
-    const el = document.getElementById("syncStatus");
-    el.innerText = msg;
-    el.style.color = color;
-  }
-
-  async function syncAll() {
-    const username = document.getElementById("usernameInput").value.trim().toLowerCase();
-    if (!username || username.includes(" ")) {
-      alert("❗ Username wajib diisi (tanpa spasi).");
-      return;
-    }
-    localStorage.setItem("username", username);
-
-    const syncBtn = document.getElementById("syncButton");
-    syncBtn.disabled = true;
-    setStatus("🔄 Sinkronisasi berjalan...", "blue");
-
-    const base = "https://raw.githubusercontent.com/dickymiswardi/tadabbur/main/data";
-
-    try {
-      const noteRes = await fetch(`${base}/note-${username}.json`);
-      const noteData = await noteRes.json();
-      for (const key in noteData) {
-        localStorage.setItem(key, noteData[key]);
-      }
-      setStatus("✅ Note dimuat", "green");
-    } catch {
-      setStatus("⚠️ Tidak bisa ambil note dari cloud", "orange");
-    }
-
-    try {
-      const bmRes = await fetch(`${base}/bookmark-${username}.json`);
-      const bmData = await bmRes.json();
-      localStorage.setItem("tadabbur-bookmark", JSON.stringify(bmData));
-    } catch {}
-
-    const notes = {};
-    for (let i = 0; i < localStorage.length; i++) {
-      const k = localStorage.key(i);
-      if (k.startsWith("note-")) {
-        notes[k] = localStorage.getItem(k);
-      }
-    }
-
-    await fetch(`https://tadabbur.netlify.app/.netlify/functions/save-note?username=${username}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(notes)
-    });
-
-    const bookmarks = JSON.parse(localStorage.getItem("tadabbur-bookmark") || "[]");
-
-    await fetch(`https://tadabbur.netlify.app/.netlify/functions/save-bookmark?username=${username}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(bookmarks)
-    });
-
-    setStatus("✅ Sinkronisasi selesai!", "green");
-    syncBtn.disabled = false;
-  }
-</script>
-
 </body>
 </html>
