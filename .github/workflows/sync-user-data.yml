@@ -1,38 +1,25 @@
-name: Sync User Data
+name: Sync User Data (Strong)
 
 on:
   issues:
     types: [opened]
 
 jobs:
-  process-sync:
+  process-issue:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v3
 
-      - name: Extract JSON from issue body
+      - name: Write issue body as JSON
         run: |
-          echo "${{ github.event.issue.body }}" > issue.txt
-          sed -n '/```json/,/```/p' issue.txt | sed '1d;$d' > user.json
-          cat user.json
+          echo '${{ github.event.issue.body }}' > users/last.json
+          cat users/last.json
 
-      - name: Validate user.json exists
-        run: |
-          if [ ! -s user.json ]; then
-            echo "user.json is empty or not created. Exiting."
-            exit 1
-          fi
-
-      - name: Save to users/last.json
-        run: |
-          mkdir -p users
-          cp user.json users/last.json
-
-      - name: Commit user data
+      - name: Commit last.json safely
         run: |
           git config user.name github-actions
           git config user.email actions@github.com
           git add users/last.json
-          git commit -m "Update last.json user data"
+          git commit -m "Save last.json from issue"
           git push
