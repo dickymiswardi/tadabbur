@@ -21,31 +21,6 @@
       color: #111;
     }
 
-    #bookmark-btn {
-  margin-left: 0.3em;
-  background: transparent;
-  border: none;
-  font-size: 1.2em;
-  cursor: pointer;
-  vertical-align: middle;
-}
-
-#bookmark-btn.checked {
-  color: green;
-}
-
-#bookmark-notif {
-  display: inline-block;
-  background-color: #f0f0f0;
-  color: #333;
-  padding: 0.4em 0.8em;
-  font-size: 0.85em;
-  border-radius: 6px;
-  margin-left: 0.3em;
-  border: 1px solid #ccc;
-}
-
-
 .tafsir-dropdown {
   position: relative;
   display: inline-block;
@@ -53,7 +28,7 @@
 }
 
 .tafsir-dropbtn {
-  font-size: 0.6em;
+  font-size: 0.8em;
   padding: 0.4em 0.8em;
   background-color: #007b8a;
   color: white;
@@ -178,11 +153,6 @@
   box-shadow: 0 0 25px rgba(0, 0, 0, 0.2);
 }
 
-    #note-overlay button {
-  margin-top: 1em;
-}
-
-
 #tafsir-overlay-close {
   position: absolute;
   top: 0.3em;
@@ -284,7 +254,7 @@
       color: white;
       border-radius: 6px;
       cursor: pointer;
-      font-size: 0.85em;
+      font-size: 0.95em;
       transition: background-color 0.2s ease;
     }
 
@@ -294,18 +264,10 @@
 
     /* CATATAN TAFSIR */
 
-    #note-status {
-  display: inline-block;
-  margin-left: 1em;
-  font-size: 0.9em;
-  color: green;
-  vertical-align: middle;
-}
-
     .note-dropbtn {
-  font-size: 0.6em;
+  font-size: 0.8em;
   padding: 0.4em 0.8em;
-  background-color: #b37400;
+  background-color: #ffa500;
   color: white;
   font-size: 0.95em;
   border: 1px solid #ccc;
@@ -350,23 +312,16 @@
   z-index: 9998;
 }
 
-    #note-textarea {
+#note-textarea {
   width: 100%;
-  max-width: 95vw;            /* fleksibel: maksimal 95% dari lebar layar */
-  min-width: 280px;           /* agar tidak terlalu kecil di HP sangat sempit */
-  display: block;
-  margin: 1em auto;
+  height: 150px;
+  margin-top: 1em;
   font-size: 1em;
-  padding: 1em;
+  padding: 0.8em;
   border-radius: 8px;
   border: 1px solid #ccc;
   resize: vertical;
-  box-sizing: border-box;     /* pastikan padding tidak melebihi batas */
-  height: 180px;              /* bisa kamu ubah sesuai selera */
 }
-
-
-
 
 #save-note-btn {
   margin-top: 1em;
@@ -421,7 +376,6 @@
   border-radius: 6px;
   cursor: pointer;
   width: 100%;
-  font-size: 1em;
 }
 
 .audio-qari-backdrop {
@@ -658,7 +612,10 @@ const lastAyat = urlParams.get("ayat") || localStorage.getItem("lastAyat");
     </div>
   </div>
 <div id="audio-player-container" style="display: none;"></div>
-  <div class="sumber"></div>
+  <div class="sumber">
+    © Aplikasi Jariyah Untuk Kaum Muslimin
+  </div>
+
   <script>
     const surah = parseInt(new URLSearchParams(window.location.search).get("surah") || "1");
     const ayat = parseInt(new URLSearchParams(window.location.search).get("ayat") || "1");
@@ -1107,70 +1064,6 @@ translationDiv.appendChild(noteButton);
         navDiv.appendChild(prevBtn);
       }
 
-  const bookmarkBtn = document.createElement("button");
-bookmarkBtn.id = "bookmark-btn";
-bookmarkBtn.innerHTML = "🔖"; // default ikon
-translationDiv.appendChild(bookmarkBtn);
-
-const notifSpan = document.createElement("span");
-notifSpan.id = "bookmark-notif";
-notifSpan.style.display = "none";
-translationDiv.appendChild(notifSpan);
-
-  const bookmarkKey = "tadabbur-bookmark";
-let bookmarks = [];
-
-try {
-  bookmarks = JSON.parse(localStorage.getItem(bookmarkKey)) || [];
-} catch {
-  bookmarks = [];
-}
-
-// Cek apakah ayat ini sudah ditandai
-let existing = bookmarks.find(b => b.surah === surah && b.ayat === ayat);
-if (existing) {
-  bookmarkBtn.classList.add("checked");
-  bookmarkBtn.innerHTML = "✅";
-}
-
-// Event klik tombol bookmark
-bookmarkBtn.onclick = () => {
-  const now = new Date();
-  const dateStr = now.toLocaleDateString("id-ID", { day: '2-digit', month: 'long', year: 'numeric' });
-  const timeStr = now.toLocaleTimeString("id-ID", { hour: '2-digit', minute: '2-digit' });
-
-  let existingIndex = bookmarks.findIndex(b => b.surah === surah && b.ayat === ayat);
-
-  if (existingIndex === -1) {
-    // Tambah ke daftar
-    const newEntry = {
-      surah,
-      ayat,
-      timestamp: `${dateStr} ${timeStr}`
-    };
-    bookmarks.push(newEntry);
-    localStorage.setItem(bookmarkKey, JSON.stringify(bookmarks));
-
-    bookmarkBtn.classList.add("checked");
-    bookmarkBtn.innerHTML = "✅";
-
-    showBookmarkNotif(`✅Ayat ini ditadabburi pada ${dateStr} pukul ${timeStr}. Total tadabbur ${bookmarks.length} ayat.`);
-  } else {
-    // Sudah ditandai, hanya tampilkan notifikasi lagi
-    const order = existingIndex + 1;
-    const stamp = bookmarks[existingIndex].timestamp;
-    showBookmarkNotif(`✅Ayat ini ditadabburi pada ${stamp}. Total tadabbur ${order} ayat.`);
-  }
-};
-
-function showBookmarkNotif(text) {
-  notifSpan.textContent = text;
-  notifSpan.style.display = "inline-block";
-  setTimeout(() => {
-    notifSpan.style.display = "none";
-  }, 5000);
-}
-
       const playAudioBtn = document.createElement("button");
 playAudioBtn.textContent = "☰ PILIH QARI";
 playAudioBtn.onclick = showQariSelector;
@@ -1189,46 +1082,53 @@ navDiv.appendChild(playAudioBtn);
 
   const select = document.createElement("select");
   const qaris = [
-    { name: "Al-Husary", id: "Husary_64kbps" },
-    { name: "Al-Husary Mujawwad", id: "Husary_Mujawwad_64kbps" },
+    { name: "Husary (64kbps)", id: "Husary_64kbps" },
+    { name: "Husary Mujawwad", id: "Husary_Mujawwad_64kbps" },
     { name: "Ali Jaber", id: "Ali_Jaber_64kbps" },
     { name: "Abdurrahman As-Sudais", id: "Abdurrahmaan_As-Sudais_64kbps" },
-    { name: "Al-Minshawy Murattal", id: "Minshawy_Murattal_128kbps" },
-    { name: "Al-Minshawy Teacher", id: "Minshawy_Teacher_128kbps" },
+    { name: "Minshawy Murattal", id: "Minshawy_Murattal_128kbps" },
+    { name: "Minshawy Teacher", id: "Minshawy_Teacher_128kbps" },
     { name: "Yaser Salamah", id: "Yaser_Salamah_128kbps" },
-    { name: "Sa'ad Al-Ghamidi", id: "Ghamadi_40kbps" },
-    { name: "Yaser Ad-Dausary", id: "Yasser_Ad-Dussary_128kbps" },
-    { name: "Abu Bakar Ash-Shaatree", id: "Abu_Bakr_Ash-Shaatree_64kbps" },
-    { name: "Misyari Alafasy", id: "Alafasy_64kbps" },
+    { name: "Ghamadi", id: "Ghamadi_40kbps" },
+    { name: "Yasser Ad-Dussary", id: "Yasser_Ad-Dussary_128kbps" },
+    { name: "Abu Bakr Ash-Shaatree", id: "Abu_Bakr_Ash-Shaatree_64kbps" },
+    { name: "Alafasy", id: "Alafasy_64kbps" },
     { name: "Mostafa Ismail", id: "Mostafa_Ismail_128kbps" },
-    { name: "Abdul Basith", id: "AbdulSamad_64kbps" },
+    { name: "Abdul Samad", id: "AbdulSamad_64kbps" },
     { name: "Muhammad Ayyoub", id: "Muhammad_Ayyoub_64kbps" },
+    { name: "Al-Juhaynee", id: "Abdullaah_3awwaad_Al-Juhaynee_128kbps" },
     { name: "Al-Tablaway", id: "Mohammad_al_Tablaway_64kbps" },
-    { name: "Khaleefa AtTunaiji", id: "tunaiji_64kbps" },
-    { name: "Al-Banna", id: "Banna_32kbps" },
+    { name: "Khaleefa", id: "khaleefa_96kbps" },
+    { name: "Warsh Dossary", id: "warsh_dossary_128kbps" },
+    { name: "Husary (40kbps)", id: "Husary_40kbps" },
+    { name: "Banna", id: "Banna_32kbps" },
+    { name: "Minshawy Murattal (48kbps)", id: "Minshawy_Murattal_48kbps" },
+    { name: "Basfar", id: "Abdullah_Basfar_32kbps" },
     { name: "Ibrahim Akhdar", id: "Ibrahim_Akhdar_32kbps" },
     { name: "English Walk", id: "English_Walk" },
     { name: "Bosnian Korkut", id: "Bosnian_Korkut_128kbps" },
     { name: "Khan Urdu", id: "ur.khan_46kbs" },
-    { name: "Al-Husary Qasr", id: "husary_qasr_64kbps" },
-    { name: "Al-Hussary Teacher", id: "Hussary.teacher_64kbps" },
-    { name: "Ali Hudhaify", id: "Hudhaify_64kbps" },
-    { name: "Su'ud As-Syuraim", id: "Saood_ash-Shuraym_64kbps" },
-    { name: "Al-Minshawy Mujawwad", id: "Minshawy_Mujawwad_64kbps" },
+    { name: "Husary Qasr", id: "husary_qasr_64kbps" },
+    { name: "Hussary Teacher", id: "Hussary.teacher_64kbps" },
+    { name: "Hudhaify", id: "Hudhaify_64kbps" },
+    { name: "Saood Shuraym", id: "Saood_ash-Shuraym_64kbps" },
+    { name: "Minshawy Mujawwad", id: "Minshawy_Mujawwad_64kbps" },
     { name: "Ayman Sowaid", id: "Ayman_Sowaid_64kbps" },
     { name: "Maher Al-Muaiqly", id: "Maher_AlMuaiqly_64kbps" },
-    { name: "Naser Al-Qatami", id: "Nasser_Alqatami_128kbps" },
+    { name: "Nasser Alqatami", id: "Nasser_Alqatami_128kbps" },
     { name: "Muhammad Jibreel", id: "Muhammad_Jibreel_64kbps" },
     { name: "Ahmed Al-Ajamy", id: "Ahmed_ibn_Ali_al-Ajamy_64kbps" },
-    { name: "Ali Basfar", id: "Abdullah_Basfar_64kbps" },
-    { name: "Abdul Basith Murattal", id: "Abdul_Basit_Murattal_64kbps" },
-    { name: "Hani Ar-Rifai", id: "Hani_Rifai_192kbps" },
-    { name: "Abdul Muhsin Al-Qasim", id: "Muhsin_Al_Qasim_192kbps" },
+    { name: "Basfar (64kbps)", id: "Abdullah_Basfar_64kbps" },
+    { name: "Abdul Basit Murattal", id: "Abdul_Basit_Murattal_64kbps" },
     { name: "Fares Abbad", id: "Fares_Abbad_64kbps" },
-    { name: "Al-Juhani", id: "Abdullaah_3awwaad_Al-Juhaynee_128kbps" },
-    { name: "Ad-Dousary Warsh", id: "warsh_dossary_128kbps" },
-    { name: "Al-Husary Warsh", id: "warsh_husary_64kbps" },
-    { name: "Yasin Warsh", id: "warsh_yassin_64kbps" }
+    { name: "Hani Rifai", id: "Hani_Rifai_192kbps" },
+    { name: "Muhsin Al Qasim", id: "Muhsin_Al_Qasim_192kbps" },
+    { name: "Tunaiji", id: "tunaiji_64kbps" },
+    { name: "Hussary Teacher (32kbps)", id: "Hussary.teacher_32kbps" },
+    { name: "Abdul Basit Murattal (40kbps)", id: "Abdul_Basit_Murattal_40kbps" },
+    { name: "Hudhaify (32kbps)", id: "Hudhaify_32kbps" },
+    { name: "Warsh Husary", id: "warsh_husary_64kbps" },
+    { name: "Warsh Yassin", id: "warsh_yassin_64kbps" }
   ];
 
   const savedQari = localStorage.getItem("lastQari") || "";
@@ -1241,7 +1141,7 @@ navDiv.appendChild(playAudioBtn);
   });
 
   const confirmBtn = document.createElement("button");
-  confirmBtn.textContent = "Dengarkan Qari Ini";
+  confirmBtn.textContent = "Gunakan Qari Ini";
   confirmBtn.onclick = () => {
     const qariId = select.value;
     localStorage.setItem("lastQari", qariId);
@@ -1429,498 +1329,83 @@ function showNoteOverlay(surah, ayah) {
   saveBtn.id = "save-note-btn";
   saveBtn.textContent = "Simpan Catatan";
 
-  const status = document.createElement("span");
+    const status = document.createElement("span");
   status.id = "note-status";
 
   saveBtn.onclick = () => {
-    localStorage.setItem(noteKey, textarea.value);
-    status.textContent = "✅ Telah Dicatat Offline";
-  };
+  localStorage.setItem(noteKey, textarea.value);
+  status.textContent = "✅ Telah Dicatat Offline";
+};
 
-  // Susun elemen
-  overlay.appendChild(closeBtn);
-  overlay.appendChild(title);
-  overlay.appendChild(textarea);
-  overlay.appendChild(saveBtn);
-  overlay.appendChild(status);
-
-    // Tombol Backup
-  const backupBtn = document.createElement("button");
-  backupBtn.textContent = "Download All";
-  backupBtn.style.marginLeft = "1em";
-  backupBtn.onclick = () => {
-    const notes = {};
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i);
-      if (key.startsWith("note-")) {
-        notes[key] = localStorage.getItem(key);
-      }
+// Tombol Backup
+const backupBtn = document.createElement("button");
+backupBtn.textContent = "Backup";
+backupBtn.style.marginLeft = "1em";
+backupBtn.onclick = () => {
+  const notes = {};
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (key.startsWith("note-")) {
+      notes[key] = localStorage.getItem(key);
     }
-    const blob = new Blob([JSON.stringify(notes, null, 2)], { type: "application/json" });
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = "catatan-quran.json";
-    a.click();
+  }
+  const blob = new Blob([JSON.stringify(notes, null, 2)], { type: "application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "catatan-quran.json";
+  a.click();
+};
+
+// Tombol Restore
+const restoreBtn = document.createElement("button");
+restoreBtn.textContent = "Restore";
+restoreBtn.style.marginLeft = "0.8em";
+
+const restoreStatus = document.createElement("span");
+restoreStatus.style.marginLeft = "1em";
+restoreStatus.style.fontSize = "0.9em";
+restoreStatus.style.color = "green";
+
+const fileInput = document.createElement("input");
+fileInput.type = "file";
+fileInput.accept = ".json";
+fileInput.style.display = "none";
+restoreBtn.onclick = () => fileInput.click();
+
+fileInput.onchange = () => {
+  const file = fileInput.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const data = JSON.parse(reader.result);
+      Object.keys(data).forEach(key => {
+        if (key.startsWith("note-")) {
+          localStorage.setItem(key, data[key]);
+        }
+      });
+      restoreStatus.textContent = "✅ Restore selesai! Silakan muat ulang halaman.";
+    } catch (e) {
+      restoreStatus.textContent = "❌ Gagal memuat file catatan.";
+    }
   };
+  reader.readAsText(file);
+};
 
-  // Tombol Restore
-  const restoreBtn = document.createElement("button");
-  restoreBtn.textContent = "Pulihkan All";
-  restoreBtn.style.marginLeft = "0.8em";
+// Susun ke dalam overlay
+overlay.appendChild(closeBtn);
+overlay.appendChild(title);
+overlay.appendChild(textarea);
+overlay.appendChild(saveBtn);
+overlay.appendChild(status);
+overlay.appendChild(backupBtn);
+overlay.appendChild(restoreBtn);
+overlay.appendChild(restoreStatus);
+overlay.appendChild(fileInput);
 
-  const fileInput = document.createElement("input");
-  fileInput.type = "file";
-  fileInput.accept = ".json";
-  fileInput.style.display = "none";
-  restoreBtn.onclick = () => fileInput.click();
-
-  fileInput.onchange = () => {
-    const file = fileInput.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      try {
-        const data = JSON.parse(reader.result);
-        Object.keys(data).forEach(key => {
-          if (key.startsWith("note-")) {
-            localStorage.setItem(key, data[key]);
-          }
-        });
-        status.textContent = "✅ Restore selesai! Silakan muat ulang halaman.";
-      } catch (e) {
-        status.textContent = "❌ Gagal memuat file catatan.";
-      }
-    };
-    reader.readAsText(file);
-  };
-
-  // Susun elemen akhir
-  overlay.appendChild(closeBtn);
-  overlay.appendChild(title);
-  overlay.appendChild(textarea);
-  overlay.appendChild(saveBtn);
-  overlay.appendChild(backupBtn);
-  overlay.appendChild(restoreBtn);
-    overlay.appendChild(status);
-  overlay.appendChild(fileInput);
-
-  document.body.appendChild(backdrop);
-  document.body.appendChild(overlay);
-}
+document.body.appendChild(backdrop);
+document.body.appendChild(overlay);
     // CATATAN TASIR
 </script>
-
-<script>
-
-// ==== Username Prompt & Sync ====
-(async () => {
-  if (!localStorage.getItem("username")) {
-    let inputUsername = "";
-    while (!inputUsername) {
-      inputUsername = prompt("Masukkan username (huruf kecil, tanpa spasi):");
-      if (inputUsername) {
-        inputUsername = inputUsername.toLowerCase().replace(/\s+/g, '');
-        localStorage.setItem("username", inputUsername);
-      }
-    }
-  }
-
-  await loadDataFromGitHub(localStorage.getItem("username"));
-})();
-
-// ==== Sync ke GitHub ====
-async function syncToGitHub() {
-  const username = localStorage.getItem("username");
-  const notes = JSON.parse(localStorage.getItem("notes") || "{}");
-  const tadabburBookmark = JSON.parse(localStorage.getItem(`tadabburBookmark-${username}`) || "[]");
-
-  const data = {
-    username,
-    notes,
-    tadabburBookmark
-  };
-
-  const issueTitle = `sync-${username}-${Date.now()}`;
-  const issueBody = "```json\n" + JSON.stringify(data, null, 2) + "\n```";
-
-  await fetch("https://api.github.com/repos/dickymiswardi/quran-data/issues", {
-    method: "POST",
-    headers: {
-      "Authorization": "Bearer YOUR_GITHUB_TOKEN_HERE",  // Ganti token Anda di sini
-      "Accept": "application/vnd.github+json"
-    },
-    body: JSON.stringify({
-      title: issueTitle,
-      body: issueBody
-    })
-  });
-}
-
-// ==== Load data dari GitHub ====
-async function loadDataFromGitHub(username) {
-  try {
-    const response = await fetch(`https://raw.githubusercontent.com/dickymiswardi/quran-data/main/users/${username}.json`);
-    if (!response.ok) return;
-
-    const data = await response.json();
-
-    // Gabungkan notes
-    const localNotes = JSON.parse(localStorage.getItem("notes") || "{}");
-    const mergedNotes = { ...data.notes, ...localNotes };
-    localStorage.setItem("notes", JSON.stringify(mergedNotes));
-
-    // Gabungkan tadabburBookmark
-    const key = `tadabburBookmark-${username}`;
-    const localTadabbur = JSON.parse(localStorage.getItem(key) || "[]");
-    const combined = [...localTadabbur];
-
-    for (const item of data.tadabburBookmark || []) {
-      if (!combined.find(e => e.surah === item.surah && e.ayat === item.ayat)) {
-        combined.push(item);
-      }
-    }
-
-    localStorage.setItem(key, JSON.stringify(combined));
-  } catch (e) {
-    console.error("Gagal ambil data dari GitHub:", e);
-  }
-}
-
-</script>
-
-<script>
-// ==== Prompt Username & Load GitHub JSON ====
-(async () => {
-  if (!localStorage.getItem("username")) {
-    let inputUsername = "";
-    while (!inputUsername) {
-      inputUsername = prompt("Masukkan username (huruf kecil, tanpa spasi):");
-      if (inputUsername) {
-        inputUsername = inputUsername.toLowerCase().replace(/\s+/g, '');
-        localStorage.setItem("username", inputUsername);
-      }
-    }
-  }
-
-  await loadDataFromGitHub(localStorage.getItem("username"));
-})();
-
-// ==== Fungsi Kirim Issue ke GitHub ====
-async function syncToGitHub() {
-  const username = localStorage.getItem("username");
-  const notes = JSON.parse(localStorage.getItem("notes") || "{}");
-  const tadabburBookmark = JSON.parse(localStorage.getItem(`tadabburBookmark-${username}`) || "[]");
-
-  const data = {
-    username,
-    notes,
-    tadabburBookmark
-  };
-
-  const issueTitle = `sync-${username}-${Date.now()}`;
-  const issueBody = "```json\n" + JSON.stringify(data, null, 2) + "\n```";
-
-  await fetch("https://api.github.com/repos/dickymiswardi/tadabbur/issues", {
-    method: "POST",
-    headers: {
-      "Accept": "application/vnd.github+json"
-    },
-    body: JSON.stringify({
-      title: issueTitle,
-      body: issueBody
-    })
-  });
-}
-
-// ==== Fungsi Ambil File dari users/USERNAME.json ====
-async function loadDataFromGitHub(username) {
-  try {
-    const res = await fetch(`https://raw.githubusercontent.com/dickymiswardi/tadabbur/main/users/${username}.json`);
-    if (!res.ok) return;
-    const data = await res.json();
-
-    const localNotes = JSON.parse(localStorage.getItem("notes") || "{}");
-    const mergedNotes = { ...data.notes, ...localNotes };
-    localStorage.setItem("notes", JSON.stringify(mergedNotes));
-
-    const key = `tadabburBookmark-${username}`;
-    const localTadabbur = JSON.parse(localStorage.getItem(key) || "[]");
-    const combined = [...localTadabbur];
-
-    for (const item of data.tadabburBookmark || []) {
-      if (!combined.find(e => e.surah === item.surah && e.ayat === item.ayat)) {
-        combined.push(item);
-      }
-    }
-
-    localStorage.setItem(key, JSON.stringify(combined));
-  } catch (e) {
-    console.error("Gagal ambil data dari GitHub:", e);
-  }
-}
-</script>
-
-<script>
-(function () {
-  const now = new Date();
-
-  // Ambil tanggal berdasarkan zona waktu lokal user (misalnya WIB, GMT+7)
-  const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, '0'); // bulan dimulai dari 0
-  const day = String(now.getDate()).padStart(2, '0');
-
-  const todayStr = `${year}-${month}-${day}`; // format "YYYY-MM-DD"
-  const logKey = "tadabbur-log";
-
-  let log = [];
-  try {
-    log = JSON.parse(localStorage.getItem(logKey)) || [];
-  } catch {
-    log = [];
-  }
-
-  // Tambahkan hari ini jika belum tercatat
-  if (!log.includes(todayStr)) {
-    log.push(todayStr);
-    localStorage.setItem(logKey, JSON.stringify(log));
-  }
-
-  const hariKe = log.length;
-
-  const infoDiv = document.createElement("div");
-  infoDiv.style.textAlign = "center";
-  infoDiv.style.fontSize = "1em";
-  infoDiv.style.color = "#454545";
-  infoDiv.style.marginTop = "0.1em";
-  infoDiv.textContent = `Total Waktu Tadabbur: ${hariKe} Hari`;
-
-  const sumberDiv = document.querySelector(".sumber");
-  if (sumberDiv && sumberDiv.parentNode) {
-    sumberDiv.parentNode.insertBefore(infoDiv, sumberDiv.nextSibling);
-  }
-})();
-</script>
-
-<script>
-// ========== USERNAME + LOAD DATA ==========
-(async () => {
-  if (!localStorage.getItem("username")) {
-    let inputUsername = "";
-    while (!inputUsername) {
-      inputUsername = prompt("Masukkan username (huruf kecil, tanpa spasi):");
-      if (inputUsername) {
-        inputUsername = inputUsername.toLowerCase().replace(/\s+/g, '');
-        localStorage.setItem("username", inputUsername);
-      }
-    }
-  }
-
-  await loadDataFromGitHub(localStorage.getItem("username"));
-})();
-
-async function loadDataFromGitHub(username) {
-  try {
-    const res = await fetch(`https://raw.githubusercontent.com/dickymiswardi/tadabbur/main/users/${username}.json`);
-    if (!res.ok) return;
-    const data = await res.json();
-
-    const localNotes = JSON.parse(localStorage.getItem("notes") || "{}");
-    const mergedNotes = { ...data.notes, ...localNotes };
-    localStorage.setItem("notes", JSON.stringify(mergedNotes));
-
-    const key = `tadabburBookmark-${username}`;
-    const localTadabbur = JSON.parse(localStorage.getItem(key) || "[]");
-    const combined = [...localTadabbur];
-
-    for (const item of data.tadabburBookmark || []) {
-      if (!combined.find(e => e.surah === item.surah && e.ayat === item.ayat)) {
-        combined.push(item);
-      }
-    }
-
-    localStorage.setItem(key, JSON.stringify(combined));
-  } catch (e) {
-    console.error("Gagal ambil data dari GitHub:", e);
-  }
-}
-
-// ========== SYNC TO GITHUB ==========
-async function syncToGitHub() {
-  const username = localStorage.getItem("username");
-  const notes = JSON.parse(localStorage.getItem("notes") || "{}");
-  const tadabburBookmark = JSON.parse(localStorage.getItem(`tadabburBookmark-${username}`) || "[]");
-
-  const data = {
-    username,
-    notes,
-    tadabburBookmark
-  };
-
-  const issueTitle = `sync-${username}-${Date.now()}`;
-  const issueBody = JSON.stringify(data, null, 2);
-
-  await fetch("https://api.github.com/repos/dickymiswardi/tadabbur/issues", {
-    method: "POST",
-    headers: {
-      "Accept": "application/vnd.github+json"
-    },
-    body: JSON.stringify({
-      title: issueTitle,
-      body: issueBody
-    })
-  });
-}
-
-// ========== PENGAYAAN showNoteOverlay dan bookmark ==========
-const originalShowNoteOverlay = window.showNoteOverlay;
-window.showNoteOverlay = function(surah, ayat) {
-  originalShowNoteOverlay(surah, ayat);
-  setTimeout(() => {
-    const saveBtn = document.getElementById("save-note-btn");
-    if (saveBtn) {
-      const originalSave = saveBtn.onclick;
-      saveBtn.onclick = async () => {
-        originalSave();
-        await syncToGitHub();
-      };
-    }
-  }, 100);
-};
-
-const observer = new MutationObserver(() => {
-  document.querySelectorAll("button.tadabbur-bookmark").forEach(btn => {
-    if (!btn.dataset.synced) {
-      btn.dataset.synced = "true";
-      const originalClick = btn.onclick;
-      btn.onclick = async () => {
-        if (originalClick) originalClick();
-        await syncToGitHub();
-      };
-    }
-  });
-});
-observer.observe(document.body, { childList: true, subtree: true });
-</script>
-
-
-<script>
-// ========== TOKEN GITHUB ANDA DI SINI ==========
-const GITHUB_TOKEN = "GANTI_DENGAN_TOKEN_ANDA"; // Contoh: "ghp_XXXXXXXXXXXXXXXXXXXX"
-
-// ========== SYNC TO GITHUB (VIA TOKEN) ==========
-async function syncToGitHubWithToken() {
-  const username = localStorage.getItem("username");
-  const notes = JSON.parse(localStorage.getItem("notes") || "{}");
-  const tadabburBookmark = JSON.parse(localStorage.getItem(`tadabburBookmark-${username}`) || "[]");
-  const content = JSON.stringify({ username, notes, tadabburBookmark }, null, 2);
-  const filePath = `users/${username}.json`;
-  const repo = "dickymiswardi/tadabbur";
-
-  // Ambil SHA file lama (jika ada)
-  let sha = null;
-  const res = await fetch(`https://api.github.com/repos/${repo}/contents/${filePath}`, {
-    headers: {
-      Authorization: `token ${GITHUB_TOKEN}`,
-      Accept: "application/vnd.github+json"
-    }
-  });
-  if (res.ok) {
-    const data = await res.json();
-    sha = data.sha;
-  }
-
-  const response = await fetch(`https://api.github.com/repos/${repo}/contents/${filePath}`, {
-    method: "PUT",
-    headers: {
-      Authorization: `token ${GITHUB_TOKEN}`,
-      Accept: "application/vnd.github+json"
-    },
-    body: JSON.stringify({
-      message: `Update data ${username}`,
-      content: btoa(unescape(encodeURIComponent(content))),
-      sha: sha
-    })
-  });
-
-  if (response.ok) {
-    console.log("✅ Sinkronisasi berhasil");
-  } else {
-    console.error("❌ Gagal sinkronisasi:", await response.text());
-  }
-}
-
-// ========== TAMBAHKAN KE CATATAN & BOOKMARK ==========
-const originalShowNoteOverlay = window.showNoteOverlay;
-window.showNoteOverlay = function(surah, ayat) {
-  originalShowNoteOverlay(surah, ayat);
-  setTimeout(() => {
-    const saveBtn = document.getElementById("save-note-btn");
-    if (saveBtn && !saveBtn.dataset.synced) {
-      saveBtn.dataset.synced = "true";
-      const originalSave = saveBtn.onclick;
-      saveBtn.onclick = async () => {
-        originalSave();
-        await syncToGitHubWithToken();
-      };
-    }
-  }, 100);
-};
-
-const observer = new MutationObserver(() => {
-  document.querySelectorAll("button.tadabbur-bookmark").forEach(btn => {
-    if (!btn.dataset.synced) {
-      btn.dataset.synced = "true";
-      const originalClick = btn.onclick;
-      btn.onclick = async () => {
-        if (originalClick) originalClick();
-        await syncToGitHubWithToken();
-      };
-    }
-  });
-});
-observer.observe(document.body, { childList: true, subtree: true });
-</script>
-
-
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-  const syncNowBtn = document.getElementById("sync-now-btn");
-  if (syncNowBtn) {
-    syncNowBtn.onclick = () => {
-      syncToGitHubWithToken();
-      alert("🔄 Sinkronisasi manual sedang dijalankan...");
-    };
-  }
-});
-</script>
-
-
-<style>
-#sync-now-fixed {
-  position: fixed;
-  top: 10px;
-  right: 10px;
-  background: #0d6efd;
-  color: white;
-  border: none;
-  padding: 6px 12px;
-  border-radius: 5px;
-  cursor: pointer;
-  z-index: 9999;
-}
-</style>
-<button id="sync-now-fixed">🔄 Sync Sekarang</button>
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-  const syncNowBtn = document.getElementById("sync-now-fixed");
-  if (syncNowBtn) {
-    syncNowBtn.onclick = () => {
-      syncToGitHubWithToken();
-      alert("🔄 Sinkronisasi manual sedang dijalankan...");
-    };
-  }
-});
-</script>
-
 </body>
 </html>
