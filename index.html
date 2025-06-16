@@ -1804,34 +1804,52 @@ observer.observe(document.body, { childList: true, subtree: true });
 
 
 <script>
-// ========== SYNC KE GITHUB ==========
-async function syncToGitHub() {
+// ========== TOKEN GITHUB ANDA DI SINI ==========
+const GITHUB_TOKEN = "GANTI_DENGAN_TOKEN_ANDA"; // Contoh: "ghp_XXXXXXXXXXXXXXXXXXXX"
+
+// ========== SYNC TO GITHUB (VIA TOKEN) ==========
+async function syncToGitHubWithToken() {
   const username = localStorage.getItem("username");
   const notes = JSON.parse(localStorage.getItem("notes") || "{}");
   const tadabburBookmark = JSON.parse(localStorage.getItem(`tadabburBookmark-${username}`) || "[]");
+  const content = JSON.stringify({ username, notes, tadabburBookmark }, null, 2);
+  const filePath = `users/${username}.json`;
+  const repo = "dickymiswardi/tadabbur";
 
-  const data = {
-    username,
-    notes,
-    tadabburBookmark
-  };
-
-  const issueTitle = `sync-${username}-${Date.now()}`;
-  const issueBody = JSON.stringify(data, null, 2);
-
-  await fetch("https://api.github.com/repos/dickymiswardi/tadabbur/issues", {
-    method: "POST",
+  // Ambil SHA file lama (jika ada)
+  let sha = null;
+  const res = await fetch(`https://api.github.com/repos/${repo}/contents/${filePath}`, {
     headers: {
-      "Accept": "application/vnd.github+json"
+      Authorization: `token ${GITHUB_TOKEN}`,
+      Accept: "application/vnd.github+json"
+    }
+  });
+  if (res.ok) {
+    const data = await res.json();
+    sha = data.sha;
+  }
+
+  const response = await fetch(`https://api.github.com/repos/${repo}/contents/${filePath}`, {
+    method: "PUT",
+    headers: {
+      Authorization: `token ${GITHUB_TOKEN}`,
+      Accept: "application/vnd.github+json"
     },
     body: JSON.stringify({
-      title: issueTitle,
-      body: issueBody
+      message: `Update data ${username}`,
+      content: btoa(unescape(encodeURIComponent(content))),
+      sha: sha
     })
   });
+
+  if (response.ok) {
+    console.log("✅ Sinkronisasi berhasil");
+  } else {
+    console.error("❌ Gagal sinkronisasi:", await response.text());
+  }
 }
 
-// ========== INTEGRASI: CATATAN ==========
+// ========== TAMBAHKAN KE CATATAN & BOOKMARK ==========
 const originalShowNoteOverlay = window.showNoteOverlay;
 window.showNoteOverlay = function(surah, ayat) {
   originalShowNoteOverlay(surah, ayat);
@@ -1842,13 +1860,12 @@ window.showNoteOverlay = function(surah, ayat) {
       const originalSave = saveBtn.onclick;
       saveBtn.onclick = async () => {
         originalSave();
-        await syncToGitHub();
+        await syncToGitHubWithToken();
       };
     }
   }, 100);
 };
 
-// ========== INTEGRASI: BOOKMARK ==========
 const observer = new MutationObserver(() => {
   document.querySelectorAll("button.tadabbur-bookmark").forEach(btn => {
     if (!btn.dataset.synced) {
@@ -1856,7 +1873,7 @@ const observer = new MutationObserver(() => {
       const originalClick = btn.onclick;
       btn.onclick = async () => {
         if (originalClick) originalClick();
-        await syncToGitHub();
+        await syncToGitHubWithToken();
       };
     }
   });
