@@ -1511,6 +1511,156 @@ function showNoteOverlay(surah, ayah) {
 </script>
 
 <script>
+
+// ==== Username Prompt & Sync ====
+(async () => {
+  if (!localStorage.getItem("username")) {
+    let inputUsername = "";
+    while (!inputUsername) {
+      inputUsername = prompt("Masukkan username (huruf kecil, tanpa spasi):");
+      if (inputUsername) {
+        inputUsername = inputUsername.toLowerCase().replace(/\s+/g, '');
+        localStorage.setItem("username", inputUsername);
+      }
+    }
+  }
+
+  await loadDataFromGitHub(localStorage.getItem("username"));
+})();
+
+// ==== Sync ke GitHub ====
+async function syncToGitHub() {
+  const username = localStorage.getItem("username");
+  const notes = JSON.parse(localStorage.getItem("notes") || "{}");
+  const tadabburBookmark = JSON.parse(localStorage.getItem(`tadabburBookmark-${username}`) || "[]");
+
+  const data = {
+    username,
+    notes,
+    tadabburBookmark
+  };
+
+  const issueTitle = `sync-${username}-${Date.now()}`;
+  const issueBody = "```json\n" + JSON.stringify(data, null, 2) + "\n```";
+
+  await fetch("https://api.github.com/repos/dickymiswardi/quran-data/issues", {
+    method: "POST",
+    headers: {
+      "Authorization": "Bearer YOUR_GITHUB_TOKEN_HERE",  // Ganti token Anda di sini
+      "Accept": "application/vnd.github+json"
+    },
+    body: JSON.stringify({
+      title: issueTitle,
+      body: issueBody
+    })
+  });
+}
+
+// ==== Load data dari GitHub ====
+async function loadDataFromGitHub(username) {
+  try {
+    const response = await fetch(`https://raw.githubusercontent.com/dickymiswardi/quran-data/main/users/${username}.json`);
+    if (!response.ok) return;
+
+    const data = await response.json();
+
+    // Gabungkan notes
+    const localNotes = JSON.parse(localStorage.getItem("notes") || "{}");
+    const mergedNotes = { ...data.notes, ...localNotes };
+    localStorage.setItem("notes", JSON.stringify(mergedNotes));
+
+    // Gabungkan tadabburBookmark
+    const key = `tadabburBookmark-${username}`;
+    const localTadabbur = JSON.parse(localStorage.getItem(key) || "[]");
+    const combined = [...localTadabbur];
+
+    for (const item of data.tadabburBookmark || []) {
+      if (!combined.find(e => e.surah === item.surah && e.ayat === item.ayat)) {
+        combined.push(item);
+      }
+    }
+
+    localStorage.setItem(key, JSON.stringify(combined));
+  } catch (e) {
+    console.error("Gagal ambil data dari GitHub:", e);
+  }
+}
+
+</script>
+
+<script>
+// ==== Prompt Username & Load GitHub JSON ====
+(async () => {
+  if (!localStorage.getItem("username")) {
+    let inputUsername = "";
+    while (!inputUsername) {
+      inputUsername = prompt("Masukkan username (huruf kecil, tanpa spasi):");
+      if (inputUsername) {
+        inputUsername = inputUsername.toLowerCase().replace(/\s+/g, '');
+        localStorage.setItem("username", inputUsername);
+      }
+    }
+  }
+
+  await loadDataFromGitHub(localStorage.getItem("username"));
+})();
+
+// ==== Fungsi Kirim Issue ke GitHub ====
+async function syncToGitHub() {
+  const username = localStorage.getItem("username");
+  const notes = JSON.parse(localStorage.getItem("notes") || "{}");
+  const tadabburBookmark = JSON.parse(localStorage.getItem(`tadabburBookmark-${username}`) || "[]");
+
+  const data = {
+    username,
+    notes,
+    tadabburBookmark
+  };
+
+  const issueTitle = `sync-${username}-${Date.now()}`;
+  const issueBody = "```json\n" + JSON.stringify(data, null, 2) + "\n```";
+
+  await fetch("https://api.github.com/repos/dickymiswardi/tadabbur/issues", {
+    method: "POST",
+    headers: {
+      "Accept": "application/vnd.github+json"
+    },
+    body: JSON.stringify({
+      title: issueTitle,
+      body: issueBody
+    })
+  });
+}
+
+// ==== Fungsi Ambil File dari users/USERNAME.json ====
+async function loadDataFromGitHub(username) {
+  try {
+    const res = await fetch(`https://raw.githubusercontent.com/dickymiswardi/tadabbur/main/users/${username}.json`);
+    if (!res.ok) return;
+    const data = await res.json();
+
+    const localNotes = JSON.parse(localStorage.getItem("notes") || "{}");
+    const mergedNotes = { ...data.notes, ...localNotes };
+    localStorage.setItem("notes", JSON.stringify(mergedNotes));
+
+    const key = `tadabburBookmark-${username}`;
+    const localTadabbur = JSON.parse(localStorage.getItem(key) || "[]");
+    const combined = [...localTadabbur];
+
+    for (const item of data.tadabburBookmark || []) {
+      if (!combined.find(e => e.surah === item.surah && e.ayat === item.ayat)) {
+        combined.push(item);
+      }
+    }
+
+    localStorage.setItem(key, JSON.stringify(combined));
+  } catch (e) {
+    console.error("Gagal ambil data dari GitHub:", e);
+  }
+}
+</script>
+
+<script>
 (function () {
   const now = new Date();
 
@@ -1550,5 +1700,227 @@ function showNoteOverlay(surah, ayah) {
   }
 })();
 </script>
+
+<script>
+// ========== USERNAME + LOAD DATA ==========
+(async () => {
+  if (!localStorage.getItem("username")) {
+    let inputUsername = "";
+    while (!inputUsername) {
+      inputUsername = prompt("Masukkan username (huruf kecil, tanpa spasi):");
+      if (inputUsername) {
+        inputUsername = inputUsername.toLowerCase().replace(/\s+/g, '');
+        localStorage.setItem("username", inputUsername);
+      }
+    }
+  }
+
+  await loadDataFromGitHub(localStorage.getItem("username"));
+})();
+
+async function loadDataFromGitHub(username) {
+  try {
+    const res = await fetch(`https://raw.githubusercontent.com/dickymiswardi/tadabbur/main/users/${username}.json`);
+    if (!res.ok) return;
+    const data = await res.json();
+
+    const localNotes = JSON.parse(localStorage.getItem("notes") || "{}");
+    const mergedNotes = { ...data.notes, ...localNotes };
+    localStorage.setItem("notes", JSON.stringify(mergedNotes));
+
+    const key = `tadabburBookmark-${username}`;
+    const localTadabbur = JSON.parse(localStorage.getItem(key) || "[]");
+    const combined = [...localTadabbur];
+
+    for (const item of data.tadabburBookmark || []) {
+      if (!combined.find(e => e.surah === item.surah && e.ayat === item.ayat)) {
+        combined.push(item);
+      }
+    }
+
+    localStorage.setItem(key, JSON.stringify(combined));
+  } catch (e) {
+    console.error("Gagal ambil data dari GitHub:", e);
+  }
+}
+
+// ========== SYNC TO GITHUB ==========
+async function syncToGitHub() {
+  const username = localStorage.getItem("username");
+  const notes = JSON.parse(localStorage.getItem("notes") || "{}");
+  const tadabburBookmark = JSON.parse(localStorage.getItem(`tadabburBookmark-${username}`) || "[]");
+
+  const data = {
+    username,
+    notes,
+    tadabburBookmark
+  };
+
+  const issueTitle = `sync-${username}-${Date.now()}`;
+  const issueBody = JSON.stringify(data, null, 2);
+
+  await fetch("https://api.github.com/repos/dickymiswardi/tadabbur/issues", {
+    method: "POST",
+    headers: {
+      "Accept": "application/vnd.github+json"
+    },
+    body: JSON.stringify({
+      title: issueTitle,
+      body: issueBody
+    })
+  });
+}
+
+// ========== PENGAYAAN showNoteOverlay dan bookmark ==========
+const originalShowNoteOverlay = window.showNoteOverlay;
+window.showNoteOverlay = function(surah, ayat) {
+  originalShowNoteOverlay(surah, ayat);
+  setTimeout(() => {
+    const saveBtn = document.getElementById("save-note-btn");
+    if (saveBtn) {
+      const originalSave = saveBtn.onclick;
+      saveBtn.onclick = async () => {
+        originalSave();
+        await syncToGitHub();
+      };
+    }
+  }, 100);
+};
+
+const observer = new MutationObserver(() => {
+  document.querySelectorAll("button.tadabbur-bookmark").forEach(btn => {
+    if (!btn.dataset.synced) {
+      btn.dataset.synced = "true";
+      const originalClick = btn.onclick;
+      btn.onclick = async () => {
+        if (originalClick) originalClick();
+        await syncToGitHub();
+      };
+    }
+  });
+});
+observer.observe(document.body, { childList: true, subtree: true });
+</script>
+
+
+<script>
+// ========== TOKEN GITHUB ANDA DI SINI ==========
+const GITHUB_TOKEN = "GANTI_DENGAN_TOKEN_ANDA"; // Contoh: "ghp_XXXXXXXXXXXXXXXXXXXX"
+
+// ========== SYNC TO GITHUB (VIA TOKEN) ==========
+async function syncToGitHubWithToken() {
+  const username = localStorage.getItem("username");
+  const notes = JSON.parse(localStorage.getItem("notes") || "{}");
+  const tadabburBookmark = JSON.parse(localStorage.getItem(`tadabburBookmark-${username}`) || "[]");
+  const content = JSON.stringify({ username, notes, tadabburBookmark }, null, 2);
+  const filePath = `users/${username}.json`;
+  const repo = "dickymiswardi/tadabbur";
+
+  // Ambil SHA file lama (jika ada)
+  let sha = null;
+  const res = await fetch(`https://api.github.com/repos/${repo}/contents/${filePath}`, {
+    headers: {
+      Authorization: `token ${GITHUB_TOKEN}`,
+      Accept: "application/vnd.github+json"
+    }
+  });
+  if (res.ok) {
+    const data = await res.json();
+    sha = data.sha;
+  }
+
+  const response = await fetch(`https://api.github.com/repos/${repo}/contents/${filePath}`, {
+    method: "PUT",
+    headers: {
+      Authorization: `token ${GITHUB_TOKEN}`,
+      Accept: "application/vnd.github+json"
+    },
+    body: JSON.stringify({
+      message: `Update data ${username}`,
+      content: btoa(unescape(encodeURIComponent(content))),
+      sha: sha
+    })
+  });
+
+  if (response.ok) {
+    console.log("✅ Sinkronisasi berhasil");
+  } else {
+    console.error("❌ Gagal sinkronisasi:", await response.text());
+  }
+}
+
+// ========== TAMBAHKAN KE CATATAN & BOOKMARK ==========
+const originalShowNoteOverlay = window.showNoteOverlay;
+window.showNoteOverlay = function(surah, ayat) {
+  originalShowNoteOverlay(surah, ayat);
+  setTimeout(() => {
+    const saveBtn = document.getElementById("save-note-btn");
+    if (saveBtn && !saveBtn.dataset.synced) {
+      saveBtn.dataset.synced = "true";
+      const originalSave = saveBtn.onclick;
+      saveBtn.onclick = async () => {
+        originalSave();
+        await syncToGitHubWithToken();
+      };
+    }
+  }, 100);
+};
+
+const observer = new MutationObserver(() => {
+  document.querySelectorAll("button.tadabbur-bookmark").forEach(btn => {
+    if (!btn.dataset.synced) {
+      btn.dataset.synced = "true";
+      const originalClick = btn.onclick;
+      btn.onclick = async () => {
+        if (originalClick) originalClick();
+        await syncToGitHubWithToken();
+      };
+    }
+  });
+});
+observer.observe(document.body, { childList: true, subtree: true });
+</script>
+
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const syncNowBtn = document.getElementById("sync-now-btn");
+  if (syncNowBtn) {
+    syncNowBtn.onclick = () => {
+      syncToGitHubWithToken();
+      alert("🔄 Sinkronisasi manual sedang dijalankan...");
+    };
+  }
+});
+</script>
+
+
+<style>
+#sync-now-fixed {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  background: #0d6efd;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+  z-index: 9999;
+}
+</style>
+<button id="sync-now-fixed">🔄 Sync Sekarang</button>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const syncNowBtn = document.getElementById("sync-now-fixed");
+  if (syncNowBtn) {
+    syncNowBtn.onclick = () => {
+      syncToGitHubWithToken();
+      alert("🔄 Sinkronisasi manual sedang dijalankan...");
+    };
+  }
+});
+</script>
+
 </body>
 </html>
