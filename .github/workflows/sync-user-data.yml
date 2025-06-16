@@ -18,17 +18,15 @@ jobs:
 
       - name: Get username
         id: user
-        run: echo "username=$(jq -r .username user.json)" >> $GITHUB_OUTPUT
+        run: |
+          echo "USERNAME=$(jq -r .username user.json)" >> $GITHUB_ENV
 
-      - name: Save user JSON
+      - name: Commit user data
         run: |
           mkdir -p users
-          cp user.json users/${{ steps.user.outputs.username }}.json
-
-      - name: Commit & Push
-        run: |
+          cp user.json users/$USERNAME.json
           git config user.name github-actions
           git config user.email actions@github.com
           git add users/
-          git commit -m "Update user data for ${{ steps.user.outputs.username }}"
+          git commit -m "Update user data for $USERNAME"
           git push
