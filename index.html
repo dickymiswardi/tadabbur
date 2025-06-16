@@ -1802,5 +1802,67 @@ const observer = new MutationObserver(() => {
 observer.observe(document.body, { childList: true, subtree: true });
 </script>
 
+
+<script>
+// ========== SYNC KE GITHUB ==========
+async function syncToGitHub() {
+  const username = localStorage.getItem("username");
+  const notes = JSON.parse(localStorage.getItem("notes") || "{}");
+  const tadabburBookmark = JSON.parse(localStorage.getItem(`tadabburBookmark-${username}`) || "[]");
+
+  const data = {
+    username,
+    notes,
+    tadabburBookmark
+  };
+
+  const issueTitle = `sync-${username}-${Date.now()}`;
+  const issueBody = JSON.stringify(data, null, 2);
+
+  await fetch("https://api.github.com/repos/dickymiswardi/tadabbur/issues", {
+    method: "POST",
+    headers: {
+      "Accept": "application/vnd.github+json"
+    },
+    body: JSON.stringify({
+      title: issueTitle,
+      body: issueBody
+    })
+  });
+}
+
+// ========== INTEGRASI: CATATAN ==========
+const originalShowNoteOverlay = window.showNoteOverlay;
+window.showNoteOverlay = function(surah, ayat) {
+  originalShowNoteOverlay(surah, ayat);
+  setTimeout(() => {
+    const saveBtn = document.getElementById("save-note-btn");
+    if (saveBtn && !saveBtn.dataset.synced) {
+      saveBtn.dataset.synced = "true";
+      const originalSave = saveBtn.onclick;
+      saveBtn.onclick = async () => {
+        originalSave();
+        await syncToGitHub();
+      };
+    }
+  }, 100);
+};
+
+// ========== INTEGRASI: BOOKMARK ==========
+const observer = new MutationObserver(() => {
+  document.querySelectorAll("button.tadabbur-bookmark").forEach(btn => {
+    if (!btn.dataset.synced) {
+      btn.dataset.synced = "true";
+      const originalClick = btn.onclick;
+      btn.onclick = async () => {
+        if (originalClick) originalClick();
+        await syncToGitHub();
+      };
+    }
+  });
+});
+observer.observe(document.body, { childList: true, subtree: true });
+</script>
+
 </body>
 </html>
