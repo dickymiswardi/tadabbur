@@ -1,0 +1,35 @@
+name: Sync User Data (Per User)
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  process-issue:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v3
+
+      - name: Extract JSON from issue body
+        run: |
+          echo '${{ github.event.issue.body }}' > user.json
+
+      - name: Get username from JSON
+        id: username_step
+        run: |
+          USERNAME=$(jq -r .username user.json)
+          echo "USERNAME=$USERNAME" >> $GITHUB_ENV
+
+      - name: Save to users/USERNAME.json
+        run: |
+          mkdir -p users
+          cp user.json users/$USERNAME.json
+
+      - name: Commit user data
+        run: |
+          git config user.name github-actions
+          git config user.email actions@github.com
+          git add users/*.json
+          git commit -m "Sync data for $USERNAME"
+          git push
