@@ -1974,5 +1974,40 @@ async function syncToGitHubWithToken() {
 }
 </script>
 
+
+<script>
+// 🔁 Tambahkan sinkronisasi ke tombol "Simpan Catatan"
+const originalShowNoteOverlay = window.showNoteOverlay;
+window.showNoteOverlay = function(surah, ayat) {
+  originalShowNoteOverlay(surah, ayat);
+  setTimeout(() => {
+    const saveBtn = document.getElementById("save-note-btn");
+    if (saveBtn && !saveBtn.dataset.synced) {
+      saveBtn.dataset.synced = "true";
+      const originalSave = saveBtn.onclick;
+      saveBtn.onclick = async () => {
+        originalSave();
+        await syncToGitHubWithToken();
+      };
+    }
+  }, 100);
+};
+
+// 🔁 Tambahkan sinkronisasi ke tombol Bookmark
+const observer = new MutationObserver(() => {
+  document.querySelectorAll("button.tadabbur-bookmark").forEach(btn => {
+    if (!btn.dataset.synced) {
+      btn.dataset.synced = "true";
+      const originalClick = btn.onclick;
+      btn.onclick = async () => {
+        if (originalClick) originalClick();
+        await syncToGitHubWithToken();
+      };
+    }
+  });
+});
+observer.observe(document.body, { childList: true, subtree: true });
+</script>
+
 </body>
 </html>
