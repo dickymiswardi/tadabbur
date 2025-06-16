@@ -17,16 +17,18 @@ jobs:
           sed -n '/```json/,/```/p' issue.txt | sed '1d;$d' > user.json
 
       - name: Get username
-        id: user
-        run: |
-          echo "USERNAME=$(jq -r .username user.json)" >> $GITHUB_ENV
+  id: user
+  run: |
+    echo "USERNAME=$(jq -r .username user.json)" >> $GITHUB_ENV
+
 
       - name: Commit user data
-        run: |
-          mkdir -p users
-          cp user.json users/$USERNAME.json
-          git config user.name github-actions
-          git config user.email actions@github.com
-          git add users/
-          git commit -m "Update user data for $USERNAME"
-          git push
+  run: |
+    mkdir -p users
+    cp user.json users/$USERNAME.json
+    git config user.name github-actions
+    git config user.email actions@github.com
+    git add users/
+    git commit -m "Update user data for $USERNAME"
+    git push
+
