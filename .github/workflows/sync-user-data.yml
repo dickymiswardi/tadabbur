@@ -15,11 +15,22 @@ jobs:
         run: |
           echo "${{ github.event.issue.body }}" > issue.txt
           sed -n '/```json/,/```/p' issue.txt | sed '1d;$d' > user.json
+          cat user.json
 
-      - name: Commit static user file (no username logic)
+      - name: Validate user.json exists
+        run: |
+          if [ ! -s user.json ]; then
+            echo "user.json is empty or not created. Exiting."
+            exit 1
+          fi
+
+      - name: Save to users/last.json
         run: |
           mkdir -p users
           cp user.json users/last.json
+
+      - name: Commit user data
+        run: |
           git config user.name github-actions
           git config user.email actions@github.com
           git add users/last.json
