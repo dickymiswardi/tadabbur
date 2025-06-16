@@ -1574,5 +1574,25 @@ function showNoteOverlay(surah, ayah) {
   }
 })();
 </script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", async function () {
+    let username = localStorage.getItem("username");
+    if (!username) {
+      while (true) {
+        username = prompt("Masukkan username Anda (tanpa spasi, huruf kecil semua):", "");
+        if (username && /^[a-z0-9_]+$/.test(username)) {
+          localStorage.setItem("username", username);
+          alert("Halo, " + username + "! Data akan disimpan di cloud.");
+          break;
+        } else {
+          alert("Username hanya boleh huruf kecil, angka, atau underscore tanpa spasi.");
+        }
+      }
+    }
+    window.loggedInUsername = username;
+  });
+</script>
+
 </body>
 </html>
