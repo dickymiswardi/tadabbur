@@ -1594,5 +1594,55 @@ function showNoteOverlay(surah, ayah) {
   });
 </script>
 
+
+<script type="module">
+  import { getFirestore, doc, setDoc, getDoc, getDocs, collection } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAW4oR4KDNPZlnY7pmPNYtUDwICuDZcFSI",
+    authDomain: "tadabburtes.firebaseapp.com",
+    projectId: "tadabburtes",
+    storageBucket: "tadabburtes.firebasestorage.app",
+    messagingSenderId: "938476728663",
+    appId: "1:938476728663:web:94cfcc8017877414c90e12",
+    measurementId: "G-9QRQN4YZX6"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  window.db = db;
+
+  // Bookmark logic Firestore
+  window.loadBookmarksFromCloud = async function(username) {
+    const snapshot = await getDocs(collection(db, "users", username, "bookmarks"));
+    const bookmarks = [];
+    snapshot.forEach(doc => {
+      bookmarks.push(doc.data());
+    });
+    localStorage.setItem("tadabbur-bookmark", JSON.stringify(bookmarks));
+  };
+
+  window.saveBookmarkToCloud = async function(username, surah, ayat, timestamp) {
+    await setDoc(doc(db, "users", username, "bookmarks", `${surah}-${ayat}`), {
+      surah, ayat, timestamp
+    });
+  };
+
+  // Notes logic Firestore
+  window.loadNoteFromCloud = async function(username, surah, ayat) {
+    const ref = doc(db, "users", username, "notes", `${surah}-${ayat}`);
+    const snap = await getDoc(ref);
+    return snap.exists() ? snap.data().text : "";
+  };
+
+  window.saveNoteToCloud = async function(username, surah, ayat, text) {
+    await setDoc(doc(db, "users", username, "notes", `${surah}-${ayat}`), {
+      text
+    });
+  };
+</script>
+
 </body>
 </html>
