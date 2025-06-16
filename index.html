@@ -531,7 +531,7 @@
     <h3>Masukkan Username</h3>
     <input id="username-input" type="text" placeholder="misal: salimsantoso" />
     <br>
-    <button onclick="setUsername()">Lanjutkan</button>
+    <button id="lanjut-username">Lanjutkan</button>
   </div>
 </div>
   
@@ -1168,15 +1168,6 @@ notifSpan.id = "bookmark-notif";
 notifSpan.style.display = "none";
 translationDiv.appendChild(notifSpan);
 
-  const bookmarkKey = "tadabbur-bookmark";
-let bookmarks = [];
-
-try {
-  bookmarks = JSON.parse(localStorage.getItem(bookmarkKey)) || [];
-} catch {
-  bookmarks = [];
-}
-
 // Cek apakah ayat ini sudah ditandai
 let existing = bookmarks.find(b => b.surah === surah && b.ayat === ayat);
 if (existing) {
@@ -1435,8 +1426,8 @@ localStorage.removeItem("fromAutoplay");
 
     // CATATAN TAFSIR
 function showNoteOverlay(surah, ayah) {
-  const noteKey = `note-${surah}-${ayah}`;
-  const savedNote = localStorage.getItem(noteKey) || "";
+  const key = `${surah}-${ayah}`;
+const savedNote = userData.notes[key] || "";
 
   // Buat backdrop
   const backdrop = document.createElement("div");
@@ -1653,6 +1644,27 @@ function showNoteOverlay(surah, ayah) {
     }
   });
 </script>
-  
+
+  <script>
+document.addEventListener("DOMContentLoaded", () => {
+  const lanjutBtn = document.getElementById("lanjut-username");
+  if (lanjutBtn) {
+    lanjutBtn.addEventListener("click", setUsername);
+  }
+
+  const savedUser = localStorage.getItem("quran-username");
+  if (savedUser) {
+    currentUsername = savedUser;
+    document.getElementById("username-overlay").style.display = "none";
+    db.ref("users/" + currentUsername).once("value").then(snapshot => {
+      const data = snapshot.val();
+      if (data) {
+        userData = data;
+      }
+    });
+  }
+});
+</script>
+
 </body>
 </html>
