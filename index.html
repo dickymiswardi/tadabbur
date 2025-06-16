@@ -79,7 +79,8 @@
   let currentUsername = null;
   let userData = { bookmarks: [], notes: {} };
 
-  window.setUsername = function () {
+  function setUsername() {
+  window.setUsername = setUsername;
     const input = document.getElementById("username-input").value.trim().toLowerCase();
     if (!/^[a-z0-9]+$/.test(input)) {
       alert("❌ Username hanya huruf kecil tanpa spasi.");
