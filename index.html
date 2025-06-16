@@ -1171,86 +1171,6 @@ function showBookmarkNotif(text) {
   }, 5000);
 }
 
-
-<script>
-  // ... fungsi-fungsi sebelumnya
-
-  // 🔽 Tempel di sini:
-  async function syncToGitHub() {
-    const username = localStorage.getItem("username");
-    const notes = JSON.parse(localStorage.getItem("notes") || "{}");
-    const tadabburBookmark = JSON.parse(localStorage.getItem(`tadabburBookmark-${username}`) || "[]");
-
-    const data = {
-      username,
-      notes,
-      tadabburBookmark
-    };
-
-    const issueTitle = `sync-${username}-${Date.now()}`;
-    const issueBody = "```json\n" + JSON.stringify(data, null, 2) + "\n```";
-
-    await fetch("https://api.github.com/repos/dickymiswardi/quran-data/issues", {
-      method: "POST",
-      headers: {
-        "Authorization": "Bearer GH_TOKEN",  // Ganti dengan token Anda
-        "Accept": "application/vnd.github+json"
-      },
-      body: JSON.stringify({
-        title: issueTitle,
-        body: issueBody
-      })
-    });
-  }
-
-  async function loadDataFromGitHub(username) {
-    try {
-      const response = await fetch(`https://raw.githubusercontent.com/dickymiswardi/quran-data/main/users/${username}.json`);
-      if (!response.ok) return;
-
-      const data = await response.json();
-
-      // Merge notes
-      const localNotes = JSON.parse(localStorage.getItem("notes") || "{}");
-      const mergedNotes = { ...data.notes, ...localNotes };
-      localStorage.setItem("notes", JSON.stringify(mergedNotes));
-
-      // Merge tadabburBookmark
-      const key = `tadabburBookmark-${username}`;
-      const localTadabbur = JSON.parse(localStorage.getItem(key) || "[]");
-      const combined = [...localTadabbur];
-
-      for (const item of data.tadabburBookmark || []) {
-        if (!combined.find(e => e.surah === item.surah && e.ayat === item.ayat)) {
-          combined.push(item);
-        }
-      }
-
-      localStorage.setItem(key, JSON.stringify(combined));
-    } catch (e) {
-      console.error("Gagal ambil data dari GitHub:", e);
-    }
-  }
-
-    (async () => {
-  if (!localStorage.getItem("username")) {
-    let inputUsername = "";
-    while (!inputUsername) {
-      inputUsername = prompt("Masukkan username (huruf kecil, tanpa spasi):");
-      if (inputUsername) {
-        inputUsername = inputUsername.toLowerCase().replace(/\s+/g, '');
-        localStorage.setItem("username", inputUsername);
-      }
-    }
-  }
-
-  // Setelah username ada, load data dari GitHub
-  await loadDataFromGitHub(localStorage.getItem("username"));
-})();
-</script>
-
-  
-
       const playAudioBtn = document.createElement("button");
 playAudioBtn.textContent = "☰ PILIH QARI";
 playAudioBtn.onclick = showQariSelector;
@@ -1590,6 +1510,83 @@ function showNoteOverlay(surah, ayah) {
     // CATATAN TASIR
 </script>
 
+<script>
+
+// ==== Username Prompt & Sync ====
+(async () => {
+  if (!localStorage.getItem("username")) {
+    let inputUsername = "";
+    while (!inputUsername) {
+      inputUsername = prompt("Masukkan username (huruf kecil, tanpa spasi):");
+      if (inputUsername) {
+        inputUsername = inputUsername.toLowerCase().replace(/\s+/g, '');
+        localStorage.setItem("username", inputUsername);
+      }
+    }
+  }
+
+  await loadDataFromGitHub(localStorage.getItem("username"));
+})();
+
+// ==== Sync ke GitHub ====
+async function syncToGitHub() {
+  const username = localStorage.getItem("username");
+  const notes = JSON.parse(localStorage.getItem("notes") || "{}");
+  const tadabburBookmark = JSON.parse(localStorage.getItem(`tadabburBookmark-${username}`) || "[]");
+
+  const data = {
+    username,
+    notes,
+    tadabburBookmark
+  };
+
+  const issueTitle = `sync-${username}-${Date.now()}`;
+  const issueBody = "```json\n" + JSON.stringify(data, null, 2) + "\n```";
+
+  await fetch("https://api.github.com/repos/dickymiswardi/quran-data/issues", {
+    method: "POST",
+    headers: {
+      "Authorization": "Bearer GH_TOKEN",  // Ganti token Anda di sini
+      "Accept": "application/vnd.github+json"
+    },
+    body: JSON.stringify({
+      title: issueTitle,
+      body: issueBody
+    })
+  });
+}
+
+// ==== Load data dari GitHub ====
+async function loadDataFromGitHub(username) {
+  try {
+    const response = await fetch(`https://raw.githubusercontent.com/dickymiswardi/quran-data/main/users/${username}.json`);
+    if (!response.ok) return;
+
+    const data = await response.json();
+
+    // Gabungkan notes
+    const localNotes = JSON.parse(localStorage.getItem("notes") || "{}");
+    const mergedNotes = { ...data.notes, ...localNotes };
+    localStorage.setItem("notes", JSON.stringify(mergedNotes));
+
+    // Gabungkan tadabburBookmark
+    const key = `tadabburBookmark-${username}`;
+    const localTadabbur = JSON.parse(localStorage.getItem(key) || "[]");
+    const combined = [...localTadabbur];
+
+    for (const item of data.tadabburBookmark || []) {
+      if (!combined.find(e => e.surah === item.surah && e.ayat === item.ayat)) {
+        combined.push(item);
+      }
+    }
+
+    localStorage.setItem(key, JSON.stringify(combined));
+  } catch (e) {
+    console.error("Gagal ambil data dari GitHub:", e);
+  }
+}
+
+</script>
 <script>
 (function () {
   const now = new Date();
