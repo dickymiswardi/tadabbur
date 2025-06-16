@@ -1552,13 +1552,10 @@ function showNoteOverlay(surah, ayah) {
 </script>
 
 <hr>
-<div style="margin-top:20px;">
-  <h3>🔐 Sinkronisasi Data</h3>
-  <label>Username: <input id="usernameInput" placeholder="cth: ali123" /></label>
-  <button onclick="saveUsername()">Simpan Username</button>
-  <br><br>
-  <button onclick="syncFromCloud()">🔄 Ambil dari Cloud</button>
-  <button onclick="syncToCloud()">⏫ Simpan ke Cloud</button>
+<div id="sync-panel" style="margin-top: 20px;">
+  <label>👤 Username: <input id="usernameInput" placeholder="cth: ali123" /></label>
+  <button onclick="syncAll()" id="syncButton">🔁 Sinkronisasi</button>
+  <div id="syncStatus" style="margin-top:10px; color: green;"></div>
 </div>
 
 <script>
@@ -1567,19 +1564,23 @@ function showNoteOverlay(surah, ayah) {
     if (saved) document.getElementById("usernameInput").value = saved;
   });
 
-  function saveUsername() {
-    const username = document.getElementById("usernameInput").value.toLowerCase().trim();
+  function setStatus(msg, color = "green") {
+    const el = document.getElementById("syncStatus");
+    el.innerText = msg;
+    el.style.color = color;
+  }
+
+  async function syncAll() {
+    const username = document.getElementById("usernameInput").value.trim().toLowerCase();
     if (!username || username.includes(" ")) {
-      alert("Username wajib diisi, tanpa spasi.");
+      alert("❗ Username wajib diisi (tanpa spasi).");
       return;
     }
     localStorage.setItem("username", username);
-    alert("✅ Username disimpan.");
-  }
 
-  async function syncFromCloud() {
-    const username = localStorage.getItem("username");
-    if (!username) return alert("❗ Silakan isi username dahulu.");
+    const syncBtn = document.getElementById("syncButton");
+    syncBtn.disabled = true;
+    setStatus("🔄 Sinkronisasi berjalan...", "blue");
 
     const base = "https://raw.githubusercontent.com/dickymiswardi/tadabbur/main/data";
 
@@ -1589,26 +1590,16 @@ function showNoteOverlay(surah, ayah) {
       for (const key in noteData) {
         localStorage.setItem(key, noteData[key]);
       }
-      console.log("✅ Note disinkron dari cloud");
+      setStatus("✅ Note dimuat", "green");
     } catch {
-      console.warn("⚠️ Tidak bisa ambil note dari cloud");
+      setStatus("⚠️ Tidak bisa ambil note dari cloud", "orange");
     }
 
     try {
       const bmRes = await fetch(`${base}/bookmark-${username}.json`);
       const bmData = await bmRes.json();
       localStorage.setItem("tadabbur-bookmark", JSON.stringify(bmData));
-      console.log("✅ Bookmark disinkron dari cloud");
-    } catch {
-      console.warn("⚠️ Tidak bisa ambil bookmark dari cloud");
-    }
-
-    alert("✅ Data dari cloud telah dimuat ke browser ini.");
-  }
-
-  function syncToCloud() {
-    const username = localStorage.getItem("username");
-    if (!username) return alert("❗ Username belum disimpan.");
+    } catch {}
 
     const notes = {};
     for (let i = 0; i < localStorage.length; i++) {
@@ -1618,20 +1609,22 @@ function showNoteOverlay(surah, ayah) {
       }
     }
 
-    fetch(`https://tadabbur.netlify.app/.netlify/functions/save-note?username=${username}`, {
+    await fetch(`https://tadabbur.netlify.app/.netlify/functions/save-note?username=${username}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(notes)
     });
 
     const bookmarks = JSON.parse(localStorage.getItem("tadabbur-bookmark") || "[]");
-    fetch(`https://tadabbur.netlify.app/.netlify/functions/save-bookmark?username=${username}`, {
+
+    await fetch(`https://tadabbur.netlify.app/.netlify/functions/save-bookmark?username=${username}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(bookmarks)
     });
 
-    alert("✅ Semua data telah dikirim ke cloud.");
+    setStatus("✅ Sinkronisasi selesai!", "green");
+    syncBtn.disabled = false;
   }
 </script>
 
