@@ -21,46 +21,6 @@
       color: #111;
     }
 
-#username-overlay {
-  position: fixed;
-  top: 0; left: 0;
-  width: 100vw; height: 100vh;
-  background: rgba(0,0,0,0.75);
-  z-index: 9999;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-#username-box {
-  background: white;
-  padding: 2em;
-  border-radius: 10px;
-  text-align: center;
-  max-width: 400px;
-  width: 90%;
-  font-family: sans-serif;
-}
-
-#username-box input {
-  padding: 0.8em;
-  width: 80%;
-  margin-bottom: 1em;
-  font-size: 1em;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  text-align: center;
-}
-
-#username-box button {
-  padding: 0.6em 1.2em;
-  background: #007b8a;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-}
-    
     #bookmark-btn {
   margin-left: 0.3em;
   background: transparent;
@@ -524,17 +484,6 @@
 </head>
 <body>
 
-   <!-- FIRE BASE -->
-
-<div id="username-overlay">
-  <div id="username-box">
-    <h3>Masukkan Username</h3>
-    <input id="username-input" type="text" placeholder="misal: salimsantoso" />
-    <br>
-    <button id="lanjut-username">Lanjutkan</button>
-  </div>
-</div>
-  
   <!-- BATAS TAMBAHAN -->
   <!-- PILIHAN SURAH & AYAT -->
 <div id="pilihan-container" style="visibility: hidden; margin-bottom: 1em;">
@@ -1168,6 +1117,15 @@ notifSpan.id = "bookmark-notif";
 notifSpan.style.display = "none";
 translationDiv.appendChild(notifSpan);
 
+  const bookmarkKey = "tadabbur-bookmark";
+let bookmarks = [];
+
+try {
+  bookmarks = JSON.parse(localStorage.getItem(bookmarkKey)) || [];
+} catch {
+  bookmarks = [];
+}
+
 // Cek apakah ayat ini sudah ditandai
 let existing = bookmarks.find(b => b.surah === surah && b.ayat === ayat);
 if (existing) {
@@ -1177,22 +1135,31 @@ if (existing) {
 
 // Event klik tombol bookmark
 bookmarkBtn.onclick = () => {
-  const key = `${surah}-${ayat}`;
-  const isBookmarked = userData.bookmarks.some(b => b.surah === surah && b.ayat === ayat);
   const now = new Date();
-  const tanggal = now.toLocaleDateString("id-ID", { day: '2-digit', month: 'long', year: 'numeric' });
-  const waktu = now.toLocaleTimeString("id-ID", { hour: '2-digit', minute: '2-digit' });
+  const dateStr = now.toLocaleDateString("id-ID", { day: '2-digit', month: 'long', year: 'numeric' });
+  const timeStr = now.toLocaleTimeString("id-ID", { hour: '2-digit', minute: '2-digit' });
 
-  if (!isBookmarked) {
-    const entry = { surah, ayat, timestamp: `${tanggal} ${waktu}` };
-    userData.bookmarks.push(entry);
-    db.ref(`users/${currentUsername}/bookmarks`).set(userData.bookmarks);
-    showBookmarkNotif(`✅ Ditandai sebagai ayat ke-${userData.bookmarks.length} · ${entry.timestamp}`);
+  let existingIndex = bookmarks.findIndex(b => b.surah === surah && b.ayat === ayat);
+
+  if (existingIndex === -1) {
+    // Tambah ke daftar
+    const newEntry = {
+      surah,
+      ayat,
+      timestamp: `${dateStr} ${timeStr}`
+    };
+    bookmarks.push(newEntry);
+    localStorage.setItem(bookmarkKey, JSON.stringify(bookmarks));
+
+    bookmarkBtn.classList.add("checked");
     bookmarkBtn.innerHTML = "✅";
+
+    showBookmarkNotif(`✅Ayat ini ditadabburi pada ${dateStr} pukul ${timeStr}. Total tadabbur ${bookmarks.length} ayat.`);
   } else {
-    const idx = userData.bookmarks.findIndex(b => b.surah === surah && b.ayat === ayat);
-    const entry = userData.bookmarks[idx];
-    showBookmarkNotif(`✅ Telah Ditadabburi Ayat ke-${idx + 1} · ${entry.timestamp}`);
+    // Sudah ditandai, hanya tampilkan notifikasi lagi
+    const order = existingIndex + 1;
+    const stamp = bookmarks[existingIndex].timestamp;
+    showBookmarkNotif(`✅Ayat ini ditadabburi pada ${stamp}. Total tadabbur ${order} ayat.`);
   }
 };
 
@@ -1426,8 +1393,8 @@ localStorage.removeItem("fromAutoplay");
 
     // CATATAN TAFSIR
 function showNoteOverlay(surah, ayah) {
-  const key = `${surah}-${ayah}`;
-const savedNote = userData.notes[key] || "";
+  const noteKey = `note-${surah}-${ayah}`;
+  const savedNote = localStorage.getItem(noteKey) || "";
 
   // Buat backdrop
   const backdrop = document.createElement("div");
@@ -1466,11 +1433,9 @@ const savedNote = userData.notes[key] || "";
   status.id = "note-status";
 
   saveBtn.onclick = () => {
-  const key = `${surah}-${ayah}`;
-  userData.notes[key] = textarea.value;
-  db.ref(`users/${currentUsername}/notes`).set(userData.notes);
-  status.textContent = "✅ Telah Dicatat dan Disimpan Online";
-};
+    localStorage.setItem(noteKey, textarea.value);
+    status.textContent = "✅ Telah Dicatat Offline";
+  };
 
   // Susun elemen
   overlay.appendChild(closeBtn);
@@ -1585,86 +1550,5 @@ const savedNote = userData.notes[key] || "";
   }
 })();
 </script>
-
-<!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js"></script>
-
-<script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyDONemryws3TCIcratpZOUJJ3-p82BOvxk",
-    authDomain: "yuk-tadabbur.firebaseapp.com",
-    projectId: "yuk-tadabbur",
-    storageBucket: "yuk-tadabbur.firebasestorage.app",
-    messagingSenderId: "85225211006",
-    appId: "1:85225211006:web:9c30722b33ff76c4f2842f"
-  };
-
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.database();
-
-  let currentUsername = null;
-  let userData = {
-    bookmarks: [],
-    notes: {}
-  };
-
-  function setUsername() {
-    const input = document.getElementById("username-input").value.trim().toLowerCase();
-    if (!/^[a-z0-9]+$/.test(input)) {
-      alert("❌ Username hanya boleh huruf kecil tanpa spasi.");
-      return;
-    }
-
-    currentUsername = input;
-    localStorage.setItem("quran-username", currentUsername);
-    document.getElementById("username-overlay").style.display = "none";
-
-    // Ambil data dari Firebase jika ada
-    db.ref("users/" + currentUsername).once("value").then(snapshot => {
-      const data = snapshot.val();
-      if (data) {
-        userData = data;
-      }
-    });
-  }
-
-  // Cek saat halaman pertama dibuka
-  window.addEventListener("DOMContentLoaded", () => {
-    const savedUser = localStorage.getItem("quran-username");
-    if (savedUser) {
-      currentUsername = savedUser;
-      document.getElementById("username-overlay").style.display = "none";
-      db.ref("users/" + currentUsername).once("value").then(snapshot => {
-        const data = snapshot.val();
-        if (data) {
-          userData = data;
-        }
-      });
-    }
-  });
-</script>
-
-  <script>
-document.addEventListener("DOMContentLoaded", () => {
-  const lanjutBtn = document.getElementById("lanjut-username");
-  if (lanjutBtn) {
-    lanjutBtn.addEventListener("click", setUsername);
-  }
-
-  const savedUser = localStorage.getItem("quran-username");
-  if (savedUser) {
-    currentUsername = savedUser;
-    document.getElementById("username-overlay").style.display = "none";
-    db.ref("users/" + currentUsername).once("value").then(snapshot => {
-      const data = snapshot.val();
-      if (data) {
-        userData = data;
-      }
-    });
-  }
-});
-</script>
-
 </body>
 </html>
