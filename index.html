@@ -1587,6 +1587,79 @@ async function loadDataFromGitHub(username) {
 }
 
 </script>
+
+<script>
+// ==== Prompt Username & Load GitHub JSON ====
+(async () => {
+  if (!localStorage.getItem("username")) {
+    let inputUsername = "";
+    while (!inputUsername) {
+      inputUsername = prompt("Masukkan username (huruf kecil, tanpa spasi):");
+      if (inputUsername) {
+        inputUsername = inputUsername.toLowerCase().replace(/\s+/g, '');
+        localStorage.setItem("username", inputUsername);
+      }
+    }
+  }
+
+  await loadDataFromGitHub(localStorage.getItem("username"));
+})();
+
+// ==== Fungsi Kirim Issue ke GitHub ====
+async function syncToGitHub() {
+  const username = localStorage.getItem("username");
+  const notes = JSON.parse(localStorage.getItem("notes") || "{}");
+  const tadabburBookmark = JSON.parse(localStorage.getItem(`tadabburBookmark-${username}`) || "[]");
+
+  const data = {
+    username,
+    notes,
+    tadabburBookmark
+  };
+
+  const issueTitle = `sync-${username}-${Date.now()}`;
+  const issueBody = "```json\n" + JSON.stringify(data, null, 2) + "\n```";
+
+  await fetch("https://api.github.com/repos/dickymiswardi/tadabbur/issues", {
+    method: "POST",
+    headers: {
+      "Accept": "application/vnd.github+json"
+    },
+    body: JSON.stringify({
+      title: issueTitle,
+      body: issueBody
+    })
+  });
+}
+
+// ==== Fungsi Ambil File dari users/USERNAME.json ====
+async function loadDataFromGitHub(username) {
+  try {
+    const res = await fetch(`https://raw.githubusercontent.com/dickymiswardi/tadabbur/main/users/${username}.json`);
+    if (!res.ok) return;
+    const data = await res.json();
+
+    const localNotes = JSON.parse(localStorage.getItem("notes") || "{}");
+    const mergedNotes = { ...data.notes, ...localNotes };
+    localStorage.setItem("notes", JSON.stringify(mergedNotes));
+
+    const key = `tadabburBookmark-${username}`;
+    const localTadabbur = JSON.parse(localStorage.getItem(key) || "[]");
+    const combined = [...localTadabbur];
+
+    for (const item of data.tadabburBookmark || []) {
+      if (!combined.find(e => e.surah === item.surah && e.ayat === item.ayat)) {
+        combined.push(item);
+      }
+    }
+
+    localStorage.setItem(key, JSON.stringify(combined));
+  } catch (e) {
+    console.error("Gagal ambil data dari GitHub:", e);
+  }
+}
+</script>
+
 <script>
 (function () {
   const now = new Date();
