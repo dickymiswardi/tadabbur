@@ -1618,7 +1618,7 @@ function showNoteOverlay(surah, ayah) {
     notes: {}
   };
 
-  function setUsername() {
+  window.setUsername = function () {
     const input = document.getElementById("username-input").value.trim().toLowerCase();
     if (!/^[a-z0-9]+$/.test(input)) {
       alert("❌ Username hanya boleh huruf kecil tanpa spasi.");
