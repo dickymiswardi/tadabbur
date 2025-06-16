@@ -22,6 +22,7 @@
     }
 
 #username-overlay {
+  z-index: 99999;
   position: fixed;
   top: 0; left: 0;
   width: 100vw; height: 100vh;
@@ -33,6 +34,8 @@
 }
 
 #username-box {
+  position: relative;
+  z-index: 10000;
   background: white;
   padding: 2em;
   border-radius: 10px;
@@ -1619,6 +1622,7 @@ function showNoteOverlay(surah, ayah) {
   };
 
   window.setUsername = function () {
+  console.log('Username button clicked');
     const input = document.getElementById("username-input").value.trim().toLowerCase();
     if (!/^[a-z0-9]+$/.test(input)) {
       alert("❌ Username hanya boleh huruf kecil tanpa spasi.");
