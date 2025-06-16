@@ -1700,5 +1700,107 @@ async function loadDataFromGitHub(username) {
   }
 })();
 </script>
+
+<script>
+// ========== USERNAME + LOAD DATA ==========
+(async () => {
+  if (!localStorage.getItem("username")) {
+    let inputUsername = "";
+    while (!inputUsername) {
+      inputUsername = prompt("Masukkan username (huruf kecil, tanpa spasi):");
+      if (inputUsername) {
+        inputUsername = inputUsername.toLowerCase().replace(/\s+/g, '');
+        localStorage.setItem("username", inputUsername);
+      }
+    }
+  }
+
+  await loadDataFromGitHub(localStorage.getItem("username"));
+})();
+
+async function loadDataFromGitHub(username) {
+  try {
+    const res = await fetch(`https://raw.githubusercontent.com/dickymiswardi/tadabbur/main/users/${username}.json`);
+    if (!res.ok) return;
+    const data = await res.json();
+
+    const localNotes = JSON.parse(localStorage.getItem("notes") || "{}");
+    const mergedNotes = { ...data.notes, ...localNotes };
+    localStorage.setItem("notes", JSON.stringify(mergedNotes));
+
+    const key = `tadabburBookmark-${username}`;
+    const localTadabbur = JSON.parse(localStorage.getItem(key) || "[]");
+    const combined = [...localTadabbur];
+
+    for (const item of data.tadabburBookmark || []) {
+      if (!combined.find(e => e.surah === item.surah && e.ayat === item.ayat)) {
+        combined.push(item);
+      }
+    }
+
+    localStorage.setItem(key, JSON.stringify(combined));
+  } catch (e) {
+    console.error("Gagal ambil data dari GitHub:", e);
+  }
+}
+
+// ========== SYNC TO GITHUB ==========
+async function syncToGitHub() {
+  const username = localStorage.getItem("username");
+  const notes = JSON.parse(localStorage.getItem("notes") || "{}");
+  const tadabburBookmark = JSON.parse(localStorage.getItem(`tadabburBookmark-${username}`) || "[]");
+
+  const data = {
+    username,
+    notes,
+    tadabburBookmark
+  };
+
+  const issueTitle = `sync-${username}-${Date.now()}`;
+  const issueBody = JSON.stringify(data, null, 2);
+
+  await fetch("https://api.github.com/repos/dickymiswardi/tadabbur/issues", {
+    method: "POST",
+    headers: {
+      "Accept": "application/vnd.github+json"
+    },
+    body: JSON.stringify({
+      title: issueTitle,
+      body: issueBody
+    })
+  });
+}
+
+// ========== PENGAYAAN showNoteOverlay dan bookmark ==========
+const originalShowNoteOverlay = window.showNoteOverlay;
+window.showNoteOverlay = function(surah, ayat) {
+  originalShowNoteOverlay(surah, ayat);
+  setTimeout(() => {
+    const saveBtn = document.getElementById("save-note-btn");
+    if (saveBtn) {
+      const originalSave = saveBtn.onclick;
+      saveBtn.onclick = async () => {
+        originalSave();
+        await syncToGitHub();
+      };
+    }
+  }, 100);
+};
+
+const observer = new MutationObserver(() => {
+  document.querySelectorAll("button.tadabbur-bookmark").forEach(btn => {
+    if (!btn.dataset.synced) {
+      btn.dataset.synced = "true";
+      const originalClick = btn.onclick;
+      btn.onclick = async () => {
+        if (originalClick) originalClick();
+        await syncToGitHub();
+      };
+    }
+  });
+});
+observer.observe(document.body, { childList: true, subtree: true });
+</script>
+
 </body>
 </html>
