@@ -24,10 +24,9 @@ jobs:
       - name: Commit user data
         run: |
           mkdir -p users
-          USERNAME="${{ steps.get_user.outputs.username }}"
-          cp user.json "users/$USERNAME.json"
+          cp user.json users/${{ steps.get_user.outputs.username }}.json
           git config user.name github-actions
           git config user.email actions@github.com
-          git add users/
-          git commit -m "Update user data for $USERNAME"
+          git add users/*.json
+          git commit -m "Update user data for ${{ steps.get_user.outputs.username }}"
           git push
