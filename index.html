@@ -622,7 +622,7 @@
     </div>
   </div>
 
-  <script>
+  <script defer>
     const surahSelect = document.getElementById("surah");
     const ayatSelect = document.getElementById("ayat");
 
@@ -713,7 +713,7 @@ const lastAyat = urlParams.get("ayat") || localStorage.getItem("lastAyat");
   </div>
 <div id="audio-player-container" style="display: none;"></div>
   <div class="sumber"></div>
-  <script>
+  <script defer>
     const surah = parseInt(new URLSearchParams(window.location.search).get("surah") || "1");
     const ayat = parseInt(new URLSearchParams(window.location.search).get("ayat") || "1");
 
@@ -1484,7 +1484,7 @@ localStorage.removeItem("fromAutoplay");
     // CATATAN TASIR
 </script>
 
-<script>
+<script defer>
 (function () {
   const now = new Date();
 
@@ -1529,7 +1529,7 @@ localStorage.removeItem("fromAutoplay");
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js"></script>
 
-<script>
+<script defer>
   const firebaseConfig = {
     apiKey: "AIzaSyDONemryws3TCIcratpZOUJJ3-p82BOvxk",
     authDomain: "yuk-tadabbur.firebaseapp.com",
