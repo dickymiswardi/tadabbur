@@ -906,7 +906,7 @@ function createTafsirDropdown(surah, ayah) {
 
   const dropbtn = document.createElement("button");
   dropbtn.className = "tafsir-dropbtn";
-  dropbtn.textContent = "Pilih Tafsir";
+  dropbtn.textContent = "Tafsir";
 
   const dropdownContent = document.createElement("div");
   dropdownContent.className = "tafsir-dropdown-content";
@@ -1070,7 +1070,7 @@ translationDiv.appendChild(tafsirDropdown);
   // CATATAN TAFSIR
 const noteButton = document.createElement("button");
 noteButton.className = "note-dropbtn";
-noteButton.textContent = "Catatan Ayat";
+noteButton.textContent = "Catatan";
 noteButton.onclick = () => {
   showNoteOverlay(surah, ayat);
 };
