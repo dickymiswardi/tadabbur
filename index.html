@@ -1546,7 +1546,7 @@ async function syncToGitHub() {
   await fetch("https://api.github.com/repos/dickymiswardi/quran-data/issues", {
     method: "POST",
     headers: {
-      "Authorization": "Bearer GH_TOKEN",  // Ganti token Anda di sini
+      "Authorization": "Bearer YOUR_GITHUB_TOKEN_HERE",  // Ganti token Anda di sini
       "Accept": "application/vnd.github+json"
     },
     body: JSON.stringify({
