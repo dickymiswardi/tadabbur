@@ -25,7 +25,7 @@
   margin-left: 0.3em;
   background: transparent;
   border: none;
-  font-size: 1.5em;
+  font-size: 1.2em;
   cursor: pointer;
   vertical-align: middle;
 }
@@ -906,7 +906,7 @@ function createTafsirDropdown(surah, ayah) {
 
   const dropbtn = document.createElement("button");
   dropbtn.className = "tafsir-dropbtn";
-  dropbtn.textContent = "Tafsir";
+  dropbtn.textContent = "Pilih Tafsir";
 
   const dropdownContent = document.createElement("div");
   dropdownContent.className = "tafsir-dropdown-content";
@@ -1070,7 +1070,7 @@ translationDiv.appendChild(tafsirDropdown);
   // CATATAN TAFSIR
 const noteButton = document.createElement("button");
 noteButton.className = "note-dropbtn";
-noteButton.textContent = "Catatanku";
+noteButton.textContent = "Catatan Ayat";
 noteButton.onclick = () => {
   showNoteOverlay(surah, ayat);
 };
@@ -1109,7 +1109,7 @@ translationDiv.appendChild(noteButton);
 
   const bookmarkBtn = document.createElement("button");
 bookmarkBtn.id = "bookmark-btn";
-bookmarkBtn.innerHTML = "🆙"; // default ikon
+bookmarkBtn.innerHTML = "🔖"; // default ikon
 translationDiv.appendChild(bookmarkBtn);
 
 const notifSpan = document.createElement("span");
@@ -1550,5 +1550,90 @@ function showNoteOverlay(surah, ayah) {
   }
 })();
 </script>
+
+<hr>
+<div style="margin-top:20px;">
+  <h3>🔐 Sinkronisasi Data</h3>
+  <label>Username: <input id="usernameInput" placeholder="cth: ali123" /></label>
+  <button onclick="saveUsername()">Simpan Username</button>
+  <br><br>
+  <button onclick="syncFromCloud()">🔄 Ambil dari Cloud</button>
+  <button onclick="syncToCloud()">⏫ Simpan ke Cloud</button>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const saved = localStorage.getItem("username");
+    if (saved) document.getElementById("usernameInput").value = saved;
+  });
+
+  function saveUsername() {
+    const username = document.getElementById("usernameInput").value.toLowerCase().trim();
+    if (!username || username.includes(" ")) {
+      alert("Username wajib diisi, tanpa spasi.");
+      return;
+    }
+    localStorage.setItem("username", username);
+    alert("✅ Username disimpan.");
+  }
+
+  async function syncFromCloud() {
+    const username = localStorage.getItem("username");
+    if (!username) return alert("❗ Silakan isi username dahulu.");
+
+    const base = "https://raw.githubusercontent.com/dickymiswardi/tadabbur/main/data";
+
+    try {
+      const noteRes = await fetch(`${base}/note-${username}.json`);
+      const noteData = await noteRes.json();
+      for (const key in noteData) {
+        localStorage.setItem(key, noteData[key]);
+      }
+      console.log("✅ Note disinkron dari cloud");
+    } catch {
+      console.warn("⚠️ Tidak bisa ambil note dari cloud");
+    }
+
+    try {
+      const bmRes = await fetch(`${base}/bookmark-${username}.json`);
+      const bmData = await bmRes.json();
+      localStorage.setItem("tadabbur-bookmark", JSON.stringify(bmData));
+      console.log("✅ Bookmark disinkron dari cloud");
+    } catch {
+      console.warn("⚠️ Tidak bisa ambil bookmark dari cloud");
+    }
+
+    alert("✅ Data dari cloud telah dimuat ke browser ini.");
+  }
+
+  function syncToCloud() {
+    const username = localStorage.getItem("username");
+    if (!username) return alert("❗ Username belum disimpan.");
+
+    const notes = {};
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k.startsWith("note-")) {
+        notes[k] = localStorage.getItem(k);
+      }
+    }
+
+    fetch(`https://tadabbur.netlify.app/.netlify/functions/save-note?username=${username}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(notes)
+    });
+
+    const bookmarks = JSON.parse(localStorage.getItem("tadabbur-bookmark") || "[]");
+    fetch(`https://tadabbur.netlify.app/.netlify/functions/save-bookmark?username=${username}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(bookmarks)
+    });
+
+    alert("✅ Semua data telah dikirim ke cloud.");
+  }
+</script>
+
 </body>
 </html>
