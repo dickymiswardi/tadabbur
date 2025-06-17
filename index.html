@@ -1603,15 +1603,18 @@ async function checkUsername() {
 
 function confirmUsername(ok) {
   const status = document.getElementById('check-result');
+  const username = document.getElementById('sync-username').value.trim().toLowerCase();
   if (ok) {
     usernameConfirmed = true;
-    status.innerHTML = '<span style=\"color:green\">✅ Username dikonfirmasi</span>';
+    localStorage.setItem("username", username); // ⬅ Tambahkan baris ini
+    status.innerHTML = '<span style="color:green">✅ Username dikonfirmasi</span>';
   } else {
     document.getElementById('sync-username').value = '';
     usernameConfirmed = false;
-    status.innerHTML = '<span style=\"color:gray\">Silakan isi username baru</span>';
+    status.innerHTML = '<span style="color:gray">Silakan isi username baru</span>';
   }
 }
+
 
 
 async function syncData() {
@@ -1681,5 +1684,28 @@ if (cloudLog) localStorage.setItem('tadabbur-log', JSON.stringify(cloudLog));
     </div>
   </div>
 </div>
+  <script>
+document.addEventListener("DOMContentLoaded", () => {
+  const savedUser = localStorage.getItem("username");
+  if (savedUser) {
+    const input = document.getElementById("sync-username");
+    if (input) input.value = savedUser;
+    usernameConfirmed = true;
+    document.getElementById('check-result').innerHTML = `<span style="color:green">✅ Username dikonfirmasi (${savedUser})</span>`;
+  }
+
+  // Tambahkan tombol GANTI USER jika sudah login
+  const nav = document.querySelector(".nav-buttons");
+  if (savedUser && nav) {
+    const gantiBtn = document.createElement("button");
+    gantiBtn.innerText = "GANTI USER";
+    gantiBtn.onclick = () => {
+      localStorage.removeItem("username");
+      location.reload();
+    };
+    nav.appendChild(gantiBtn);
+  }
+});
+</script>
 </body>
 </html>
