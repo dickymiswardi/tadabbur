@@ -1396,6 +1396,17 @@ navDiv.appendChild(syncBtn);
 
   loadAyat(surah, ayat);
 });
+
+window.addEventListener('load', () => {
+  const usernameInput = document.getElementById('sync-username');
+  const username = usernameInput?.value?.trim().toLowerCase();
+
+  if (username && /^[a-z0-9_-]+$/.test(username)) {
+    console.log('[SYNC] Menjalankan sync otomatis pertama...');
+    syncData();
+  }
+});
+    
   </script>
   <script>
   // Simpan URL terakhir ke localStorage saat halaman ini dibuka
@@ -1733,6 +1744,17 @@ async function syncData() {
   };
 }
 
+  // 🔁 SYNC OTOMATIS SETIAP 15 MENIT
+setInterval(() => {
+  const usernameInput = document.getElementById('sync-username');
+  const username = usernameInput?.value?.trim().toLowerCase();
+
+  // Hanya sync otomatis jika username sudah diisi dan dikonfirmasi
+  if (username && /^[a-z0-9_-]+$/.test(username) && usernameConfirmed) {
+    console.log('[SYNC] Menjalankan sync otomatis...');
+    syncData();
+  }
+}, 15 * 60 * 1000); // 15 menit
   
 </script>
 
