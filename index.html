@@ -484,6 +484,76 @@
 </head>
 <body>
 
+  <script>
+let username = "";  // Nama akun aktif
+
+let cloudBookmark = [];   // Bookmark dari cloud
+let cloudNotes = {};      // Catatan dari cloud
+let totalDays = 0;        // Hari tadabbur dari cloud
+
+let unsyncedChanges = {   // Penampung perubahan saat offline
+  bookmark: [],
+  notes: {},
+  newDay: false
+};
+
+    username = sessionStorage.getItem("tadabbur-username") || "";
+
+    function showUsernameOverlay() {
+  const overlay = document.createElement("div");
+  overlay.id = "username-overlay";
+  overlay.style = `
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  `;
+
+  overlay.innerHTML = `
+    <div style="
+      background: white;
+      padding: 2em;
+      border-radius: 12px;
+      max-width: 360px;
+      width: 90%;
+      text-align: center;
+      box-shadow: 0 0 20px rgba(0,0,0,0.2);">
+      
+      <h2 style="margin-bottom: 1em;">👤 Masukkan Username</h2>
+      <input id="username-input" placeholder="mis. ahmad123" 
+        style="padding: 0.7em; width: 100%; border-radius: 8px; border: 1px solid #ccc;" />
+      
+      <button onclick="submitUsername()" 
+        style="margin-top: 1em; padding: 0.6em 1.2em; border-radius: 8px; background: #007b8a; color: white; border: none;">
+        Masuk
+      </button>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+}
+
+    function submitUsername() {
+  const input = document.getElementById("username-input");
+  const name = input.value.trim().toLowerCase();
+
+  if (!/^[a-z0-9_-]+$/.test(name)) {
+    input.style.border = "2px solid red";
+    input.placeholder = "Gunakan huruf kecil, tanpa spasi";
+    return;
+  }
+
+  username = name;
+  sessionStorage.setItem("tadabbur-username", name);
+  document.getElementById("username-overlay")?.remove();
+  showMainUI();              // ➡️ Akan dibuat di STEP 3
+  autoSyncEvery15Min();      // ➡️ Akan dibuat di STEP 5
+}
+
+</script>
+
   <!-- BATAS TAMBAHAN -->
   <!-- PILIHAN SURAH & AYAT -->
 <div id="pilihan-container" style="visibility: hidden; margin-bottom: 1em;">
@@ -647,6 +717,17 @@ const lastAyat = urlParams.get("ayat") || localStorage.getItem("lastAyat");
       }
       document.getElementById("pilihan-container").style.visibility = 'visible';
     });
+
+    document.addEventListener("DOMContentLoaded", () => {
+  username = sessionStorage.getItem("tadabbur-username") || "";
+
+  if (!username) {
+    showUsernameOverlay();  // tampilkan overlay input username
+  } else {
+    showMainUI();           // tampilkan halaman utama
+    autoSyncEvery15Min();   // sinkronisasi otomatis
+  }
+});
   </script>
 </div>
   <!-- BATAS TAMBAHAN -->
