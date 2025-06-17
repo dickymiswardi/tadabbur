@@ -1336,14 +1336,17 @@ syncBtn.onclick = () => {
   const inputEl = document.getElementById("sync-username");
   const section = document.getElementById("username-section");
   const result = document.getElementById("check-result");
+  const logoutBtn = document.getElementById("logout-btn");
 
   if (saved) {
     inputEl.value = saved;
     inputEl.style.display = "none";
     section.querySelector("button").style.display = "none";
     result.innerHTML = `<span style="color:green">👤 Login sebagai <b>${saved}</b></span>`;
-
+    logoutBtn.style.display = "inline-block"; // ✅ tampilkan tombol Ganti User
     usernameConfirmed = true;
+  } else {
+    logoutBtn.style.display = "none"; // ❌ sembunyikan jika belum login
   }
 };
 
@@ -1779,7 +1782,7 @@ async function syncData() {
 
     <div style="margin-top: 1em;">
       <button onclick="syncData()">🔁 Sync data ke Cloud</button>
-      <button onclick="logoutUser()" style="margin-left: 1em;">🚪 Ganti User</button>
+        <button id="logout-btn" onclick="logoutUser()" style="display:none; margin-left: 1em;">🚪 Ganti User</button>
       <div id="sync-status" style="margin-top: 1em;"></div>
     </div>
   </div>
