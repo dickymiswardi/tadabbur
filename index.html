@@ -1603,15 +1603,13 @@ async function checkUsername() {
 
 function confirmUsername(ok) {
   const status = document.getElementById('check-result');
-  const username = document.getElementById('sync-username').value.trim().toLowerCase();
   if (ok) {
     usernameConfirmed = true;
-    localStorage.setItem("username", username); // ⬅ disimpan
-    status.innerHTML = '<span style="color:green">✅ Username dikonfirmasi</span>';
+    status.innerHTML = '<span style=\"color:green\">✅ Username dikonfirmasi</span>';
   } else {
     document.getElementById('sync-username').value = '';
     usernameConfirmed = false;
-    status.innerHTML = '<span style="color:gray">Silakan isi username baru</span>';
+    status.innerHTML = '<span style=\"color:gray\">Silakan isi username baru</span>';
   }
 }
 
@@ -1664,6 +1662,45 @@ if (cloudLog) localStorage.setItem('tadabbur-log', JSON.stringify(cloudLog));
 
   status.innerHTML = '<span style=\"color:green\">✅ Berhasil! Silakan refresh halaman.</span>';
 }
+
+  function tampilkanFormInputUsername() {
+  document.getElementById('username-overlay').style.display = 'flex';
+}
+
+function tampilkanTombolSyncSaja() {
+  document.getElementById('sync-ui').style.display = 'block';
+}
+
+function konfirmasiUsername() {
+  const input = document.getElementById('username-input').value.trim().toLowerCase();
+  const error = document.getElementById('username-error');
+
+  if (!/^[a-z0-9_-]+$/.test(input)) {
+    error.innerText = "❌ Username hanya huruf kecil tanpa spasi";
+    return;
+  }
+
+  // Simpan username ke localStorage
+  localStorage.setItem("usernameAktif", input);
+  location.reload();
+}
+
+function gantiUser() {
+  localStorage.removeItem("usernameAktif");
+  location.reload();
+}
+
+// Saat halaman dibuka
+window.addEventListener("DOMContentLoaded", () => {
+  const user = localStorage.getItem("usernameAktif");
+  if (user) {
+    tampilkanTombolSyncSaja();
+    window.usernameAktif = user; // bisa dipakai di syncData()
+  } else {
+    tampilkanFormInputUsername();
+  }
+});
+
   
 </script>
 
@@ -1684,55 +1721,21 @@ if (cloudLog) localStorage.setItem('tadabbur-log', JSON.stringify(cloudLog));
     </div>
   </div>
 </div>
-  <script>
-document.addEventListener("DOMContentLoaded", () => {
-  const savedUser = localStorage.getItem("username");
-  if (savedUser) {
-    const input = document.getElementById("sync-username");
-    if (input) input.value = savedUser;
-    usernameConfirmed = true;
-    document.getElementById('check-result').innerHTML = `<span style="color:green">✅ Username dikonfirmasi (${savedUser})</span>`;
-  }
+  <!-- Overlay Username Awal -->
+<div id="username-overlay" style="display: none; position:fixed; inset:0; background:#000000cc; justify-content:center; align-items:center; z-index:9999;">
+  <div style="background:white; padding:2em; border-radius:12px; text-align:center; max-width:400px; width:90%;">
+    <h3>🔐 Masukkan Username</h3>
+    <input id="username-input" placeholder="contoh: fatimah888" style="padding:0.6em; width:80%; max-width:250px;" />
+    <br><br>
+    <button onclick="konfirmasiUsername()">✅ Lanjutkan</button>
+    <div id="username-error" style="color:red; margin-top:10px;"></div>
+  </div>
+</div>
 
-  // Tambahkan tombol GANTI USER jika sudah login
-  const nav = document.querySelector(".nav-buttons");
-  if (savedUser && nav) {
-    const gantiBtn = document.createElement("button");
-    gantiBtn.innerText = "GANTI USER";
-    gantiBtn.onclick = () => {
-      localStorage.removeItem("username");
-      location.reload();
-    };
-    nav.appendChild(gantiBtn);
-  }
-});
-</script>
-  <script>
-document.addEventListener("DOMContentLoaded", () => {
-  const savedUser = localStorage.getItem("username");
-  if (savedUser) {
-    const input = document.getElementById("sync-username");
-    if (input) {
-      input.value = savedUser;
-      usernameConfirmed = true;
-      document.getElementById('check-result').innerHTML =
-        `<span style="color:green">✅ Username dikonfirmasi (${savedUser})</span>`;
-    }
-
-    // Tambahkan tombol GANTI USER di nav jika belum ada
-    const nav = document.querySelector(".nav-buttons");
-    if (nav && !document.getElementById("ganti-user-btn")) {
-      const gantiBtn = document.createElement("button");
-      gantiBtn.id = "ganti-user-btn";
-      gantiBtn.innerText = "GANTI USER";
-      gantiBtn.onclick = () => {
-        localStorage.removeItem("username");
-        location.reload();
-      };
-      nav.appendChild(gantiBtn);
-    }
-  }
-});
-</script>
+<!-- Tombol Sync dan Ganti User -->
+<div id="sync-ui" style="display:none; text-align:center; margin:2em 0;">
+  <button onclick="syncData()">🔄 Sync</button>
+  <button onclick="gantiUser()">👤 Ganti User</button>
+</div>
 </body>
 </html>
