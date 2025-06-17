@@ -1586,7 +1586,7 @@ async function checkUsername() {
     return;
   }
 
-  status.innerHTML = '<img src="https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/FadingFountain.gif" width="24" />';
+  status.innerHTML = '<img src="https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/FadingFountain.gif" width="28" />';
   const taken = await isUsernameTaken(username);
 
   if (taken) {
@@ -1637,7 +1637,7 @@ async function syncData() {
   }
 
   // upload ke Netlify
-  status.innerHTML = '<img src="https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/FadingFountain.gif" width="24" style="vertical-align:middle;" /> Mengirim...';
+  status.innerHTML = 'Mengirim <img src="https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/FadingFountain.gif" width="28" style="vertical-align:middle;" />';
   await fetch('/.netlify/functions/sync', {
     method: 'POST',
     body: JSON.stringify({ username, data: { bookmark, notes } })
