@@ -647,6 +647,11 @@ const lastAyat = urlParams.get("ayat") || localStorage.getItem("lastAyat");
       }
       document.getElementById("pilihan-container").style.visibility = 'visible';
     });
+
+    document.addEventListener("DOMContentLoaded", () => {
+  tampilkanTotalTadabbur();
+});
+
   </script>
 </div>
   <!-- BATAS TAMBAHAN -->
@@ -659,6 +664,9 @@ const lastAyat = urlParams.get("ayat") || localStorage.getItem("lastAyat");
   </div>
 <div id="audio-player-container" style="display: none;"></div>
   <div class="sumber"></div>
+  <div id="total-waktu" style="text-align: center; font-size: 1em; color: #454545; margin-top: 0.1em;">
+  Total Waktu Tadabbur: 0 Hari
+</div>
   <script>
     const surah = parseInt(new URLSearchParams(window.location.search).get("surah") || "1");
     const ayat = parseInt(new URLSearchParams(window.location.search).get("ayat") || "1");
@@ -1536,48 +1544,10 @@ function showNoteOverlay(surah, ayah) {
   document.body.appendChild(backdrop);
   document.body.appendChild(overlay);
 }
-    // CATATAN TASIR
+    // CATATAN TAFSIR
 </script>
 
 <script>
-(function () {
-  const now = new Date();
-
-  // Ambil tanggal berdasarkan zona waktu lokal user (misalnya WIB, GMT+7)
-  const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, '0'); // bulan dimulai dari 0
-  const day = String(now.getDate()).padStart(2, '0');
-
-  const todayStr = `${year}-${month}-${day}`; // format "YYYY-MM-DD"
-  const logKey = "tadabbur-log";
-
-  let log = [];
-  try {
-    log = JSON.parse(localStorage.getItem(logKey)) || [];
-  } catch {
-    log = [];
-  }
-
-  // Tambahkan hari ini jika belum tercatat
-  if (!log.includes(todayStr)) {
-    log.push(todayStr);
-    localStorage.setItem(logKey, JSON.stringify(log));
-  }
-
-  const hariKe = log.length;
-
-  const infoDiv = document.createElement("div");
-  infoDiv.style.textAlign = "center";
-  infoDiv.style.fontSize = "1em";
-  infoDiv.style.color = "#454545";
-  infoDiv.style.marginTop = "0.1em";
-  infoDiv.textContent = `Total Waktu Tadabbur: ${hariKe} Hari`;
-
-  const sumberDiv = document.querySelector(".sumber");
-  if (sumberDiv && sumberDiv.parentNode) {
-    sumberDiv.parentNode.insertBefore(infoDiv, sumberDiv.nextSibling);
-  }
-})();
 
 // SCRIPT SYNC TOMBOL OVERLAY
 
@@ -1717,6 +1687,7 @@ async function syncData() {
   });
 
   status.innerHTML = '✅ Berhasil sinkronisasi!';
+    tampilkanTotalTadabbur();
 }
 
 
@@ -1762,6 +1733,15 @@ async function syncData() {
   localStorage.removeItem("alreadySynced_" + document.getElementById("sync-username").value);
   localStorage.removeItem("deviceId");
   location.reload(); // refresh agar input username muncul lagi
+}
+
+  function tampilkanTotalTadabbur() {
+  const log = JSON.parse(localStorage.getItem('tadabbur-log') || '[]');
+  const jumlahHari = Array.isArray(log) ? log.length : 0;
+  const elemen = document.getElementById('total-waktu');
+  if (elemen) {
+    elemen.innerText = `Total Waktu Tadabbur: ${jumlahHari} Hari`;
+  }
 }
   
 </script>
