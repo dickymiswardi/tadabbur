@@ -1627,9 +1627,11 @@ async function syncData() {
 
   const res = await fetch(url);
   if (!res.ok) {
-    status.innerHTML = '❌ Gagal ambil data cloud.';
-    return;
-  }
+  // Ini user baru → tidak apa-apa jika file belum ada
+  console.log('🔍 Tidak ada file cloud — dianggap user baru.');
+  proceedSync({}, username, deviceId, false);
+  return;
+}
 
   const json = await res.json();
   const activeDevice = json.activeDevice;
