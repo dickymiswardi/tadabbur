@@ -1604,14 +1604,12 @@ async function checkUsername() {
 function confirmUsername(ok) {
   const status = document.getElementById('check-result');
   if (ok) {
-    const username = document.getElementById('sync-username').value.trim().toLowerCase();
     usernameConfirmed = true;
-    localStorage.setItem("tadabbur-username", username);
-    status.innerHTML = '<span style="color:green">✅ Username dikonfirmasi</span>';
+    status.innerHTML = '<span style=\"color:green\">✅ Username dikonfirmasi</span>';
   } else {
     document.getElementById('sync-username').value = '';
     usernameConfirmed = false;
-    status.innerHTML = '<span style="color:gray">Silakan isi username baru</span>';
+    status.innerHTML = '<span style=\"color:gray\">Silakan isi username baru</span>';
   }
 }
 
@@ -1683,48 +1681,5 @@ if (cloudLog) localStorage.setItem('tadabbur-log', JSON.stringify(cloudLog));
     </div>
   </div>
 </div>
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-  const savedUser = localStorage.getItem("tadabbur-username");
-  const overlay = document.getElementById("sync-overlay");
-
-  if (savedUser) {
-    // 1. Tandai username telah dikonfirmasi
-    usernameConfirmed = true;
-
-    // 2. Isi otomatis field username (kalau masih ada inputnya)
-    const usernameInput = document.getElementById("sync-username");
-    if (usernameInput) usernameInput.value = savedUser;
-
-    // 3. Sembunyikan overlay
-    if (overlay) overlay.style.display = "none";
-
-    // 4. Tambahkan tombol “Ganti User” dan info username
-    const container = document.querySelector(".nav-buttons");
-    if (container && !document.getElementById("ganti-user-btn")) {
-      // Tombol Ganti User
-      const gantiBtn = document.createElement("button");
-      gantiBtn.id = "ganti-user-btn";
-      gantiBtn.innerText = "👤 Ganti User";
-      gantiBtn.onclick = () => {
-        localStorage.removeItem("tadabbur-username");
-        localStorage.removeItem("tadabbur-bookmark");
-        localStorage.removeItem("tadabbur-log");
-        location.reload(); // Kembali ke layar login username
-      };
-      container.appendChild(gantiBtn);
-
-      // Info Username
-      const info = document.createElement("div");
-      info.textContent = `👤 User: ${savedUser}`;
-      info.style.marginTop = "0.5em";
-      info.style.textAlign = "center";
-      info.style.fontSize = "0.9em";
-      info.style.color = "#333";
-      container.appendChild(info);
-    }
-  }
-});
-</script>
 </body>
 </html>
