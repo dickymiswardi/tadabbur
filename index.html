@@ -1552,6 +1552,19 @@ function showNoteOverlay(surah, ayah) {
 </script>
 
   <script>
+    
+    // SYNC TEKNOLOGI NETLIFY
+    async function isUsernameTaken(username) {
+  const url = `https://raw.githubusercontent.com/dickymiswardi/tadabbur/main/data/${username}.json`;
+  const res = await fetch(url);
+  return res.ok;
+}
+
+    if (await isUsernameTaken(username)) {
+  const lanjut = confirm("⚠️ Username sudah ada. Apakah ini milikmu?");
+  if (!lanjut) return;
+}
+
 async function syncToCloud() {
   const username = document.getElementById("sync-username").value.trim().toLowerCase();
   if (!username) return alert("Masukkan username!");
