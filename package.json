@@ -1,8 +1,0 @@
-{
-  "name": "tadabbur-functions",
-  "version": "1.0.0",
-  "type": "module",
-  "dependencies": {
-    "@octokit/core": "^5.0.0"
-  }
-}
