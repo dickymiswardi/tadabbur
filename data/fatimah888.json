@@ -11,7 +11,9 @@
       "timestamp": "17 Juni 2025 21.30"
     }
   ],
-  "notes": {},
+  "notes": {
+    "note-1-3": "Foto-foto"
+  },
   "log": [],
   "activeDevice": "8186f437-0dc1-4a5c-ae5c-d75755bf8a45"
 }
