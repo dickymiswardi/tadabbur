@@ -1,4 +1,23 @@
 {
-  "bookmark": [],
-  "notes": {}
+  "bookmark": [
+    {
+      "surah": 1,
+      "ayat": 5,
+      "timestamp": "17 Juni 2025 15.54"
+    },
+    {
+      "surah": 19,
+      "ayat": 1,
+      "timestamp": "17 Juni 2025 15.57"
+    },
+    {
+      "surah": 19,
+      "ayat": 2,
+      "timestamp": "17 Juni 2025 15.58"
+    }
+  ],
+  "notes": {
+    "note-1-5": "Alhamdu123",
+    "note-19-2": "Kukuh"
+  }
 }
