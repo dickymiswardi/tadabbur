@@ -1561,39 +1561,13 @@ function showNoteOverlay(surah, ayah) {
 })();
 
 // SCRIPT SYNC TOMBOL OVERLAY
-let usernameConfirmed = false;
 
-function showSyncOverlay() {
-  const username = localStorage.getItem("usernameAktif");
-  const input = document.getElementById("sync-username");
-  const overlay = document.getElementById("sync-overlay");
-  const check = document.getElementById("check-result");
-  const status = document.getElementById("sync-status");
-
-  if (username) {
-    input.value = username;
-    input.disabled = true;
-    usernameConfirmed = true;
-  } else {
-    input.value = '';
-    input.disabled = false;
-    usernameConfirmed = false;
-  }
-
-  overlay.style.display = 'flex';
-  status.innerHTML = '';
-  check.innerHTML = '';
-}
-
-function logoutUser() {
-  localStorage.removeItem("usernameAktif");
-  location.reload();
-}
+  let usernameConfirmed = false;
 
 function resetCheckResult() {
-  document.getElementById("check-result").innerHTML = '';
-  document.getElementById("sync-status").innerHTML = '';
   usernameConfirmed = false;
+  document.getElementById('check-result').innerHTML = '';
+  document.getElementById('sync-status').innerHTML = '';
 }
 
 async function isUsernameTaken(username) {
@@ -1603,42 +1577,53 @@ async function isUsernameTaken(username) {
 }
 
 async function checkUsername() {
-  const el = document.getElementById("sync-username");
-  const status = document.getElementById("check-result");
+  const el = document.getElementById('sync-username');
+  const status = document.getElementById('check-result');
   const username = el.value.trim().toLowerCase();
 
   if (!/^[a-z0-9_-]+$/.test(username)) {
-    status.innerHTML = '<span style="color:red">❌ hanya huruf kecil, angka, - _</span>';
+    status.innerHTML = '<span style=\"color:red\">❌ username harus huruf kecil tanpa spasi</span>';
     return;
   }
 
-  status.innerHTML = '<span>⏳ Memeriksa...</span>';
+  status.innerHTML = '<img src="https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/FadingFountain.gif" width="28" />';
   const taken = await isUsernameTaken(username);
 
   if (taken) {
     status.innerHTML = `
-      <div style="color:orange">⚠️ Username sudah ada. Apakah ini milikmu?</div>
-      <button onclick="konfirmasiUser(true)">✅ Lanjut</button>
-      <button onclick="konfirmasiUser(false)">❌ Batal</button>
+      <div style=\"color:orange\">⚠️ Username sudah ada. Apakah ini milikmu?</div>
+      <button onclick=\"confirmUsername(true)\">✅ Lanjutkan</button>
+      <button onclick=\"confirmUsername(false)\">❌ Ganti</button>
     `;
   } else {
-    status.innerHTML = '<span style="color:green">✅ Tersedia</span>';
+    status.innerHTML = '<span style=\"color:green\">✅ Username tersedia</span>';
     usernameConfirmed = true;
-    localStorage.setItem("usernameAktif", username);
   }
 }
 
-function konfirmasiUser(ok) {
-  const el = document.getElementById("sync-username");
-  const status = document.getElementById("check-result");
+function confirmUsername(ok) {
+  const status = document.getElementById('check-result');
+  const username = document.getElementById('sync-username').value.trim().toLowerCase();
   if (ok) {
-    localStorage.setItem("usernameAktif", el.value.trim().toLowerCase());
     usernameConfirmed = true;
-    status.innerHTML = '<span style="color:green;">✅ Siap disinkronkan</span>';
+    localStorage.setItem("username", username);
+
+    // Sembunyikan input & ganti dengan teks
+    const input = document.getElementById('sync-username');
+    const inputContainer = input.parentElement;
+    input.style.display = 'none';
+
+    const label = document.createElement("div");
+    label.id = "username-label";
+    label.style.marginTop = "0.5em";
+    label.innerHTML = `👤 Username: <strong>${username}</strong>`;
+    inputContainer.insertBefore(label, input.nextSibling);
+
+    status.innerHTML = '<span style="color:green">✅ Username dikonfirmasi</span>';
   } else {
-    el.value = '';
+    document.getElementById('sync-username').value = '';
     usernameConfirmed = false;
-    status.innerHTML = '<span style="color:gray;">Silakan masukkan ulang</span>';
+    status.innerHTML = '<span style="color:gray">Silakan isi username baru</span>';
   }
 }
 
@@ -1729,8 +1714,10 @@ window.addEventListener("DOMContentLoaded", () => {
     tampilkanFormInputUsername();
   }
 });
+
   
 </script>
+
   <!-- 🔒 SYNC OVERLAY -->
 <div id="sync-overlay" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); justify-content: center; align-items: center; z-index: 9999;">
   <div style="background: white; padding: 2em; border-radius: 12px; max-width: 400px; width: 90%; text-align: center; position: relative;">
@@ -1747,27 +1734,38 @@ window.addEventListener("DOMContentLoaded", () => {
     </div>
   </div>
 </div>
-  <!-- OVERLAY SINKRONISASI USERNAME -->
-<div id="sync-overlay" style="display:none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); justify-content: center; align-items: center; z-index: 9999;">
-  <div style="background: white; padding: 2em; border-radius: 12px; max-width: 400px; width: 90%; text-align: center; position: relative;">
-    <div onclick="document.getElementById('sync-overlay').style.display='none'" style="position: absolute; top: 10px; right: 15px; cursor: pointer; font-weight: bold;">✖</div>
-    <h3>🔐 Masukkan Username</h3>
-    <input id="sync-username" placeholder="contoh: fatimah888" oninput="resetCheckResult()" style="padding: 0.5em; width: 80%; max-width: 250px;" />
-    <br><br>
-    <button onclick="checkUsername()">Check</button>
-    <span id="check-result" style="display:inline-block; margin-left:10px;"></span>
+  <script>
+document.addEventListener("DOMContentLoaded", () => {
+  const savedUser = localStorage.getItem("username");
+  const input = document.getElementById("sync-username");
 
-    <div style="margin-top: 1em;">
-      <button onclick="syncData()">🔁 Sync data ke Cloud</button>
-      <div id="sync-status" style="margin-top: 1em;"></div>
-    </div>
-  </div>
-</div>
+  if (savedUser && input) {
+    usernameConfirmed = true;
 
-<!-- TOMBOL DI TENGAH -->
-<div class="nav-buttons" style="text-align: center; margin: 2em 0;">
-  <button onclick="showSyncOverlay()">🔄 SYNC</button>
-  <button onclick="logoutUser()">👤 Ganti User</button>
-</div>
+    // Sembunyikan input & tampilkan label username
+    input.style.display = 'none';
+    const label = document.createElement("div");
+    label.id = "username-label";
+    label.style.marginTop = "0.5em";
+    label.innerHTML = `👤 Username: <strong>${savedUser}</strong>`;
+    input.parentElement.insertBefore(label, input.nextSibling);
+
+    document.getElementById('check-result').innerHTML = `<span style="color:green">✅ Username dikonfirmasi</span>`;
+  }
+
+  // Tambah tombol Ganti User di bawah tombol SYNC
+  const nav = document.querySelector(".nav-buttons");
+  if (savedUser && nav && !document.getElementById("ganti-user-btn")) {
+    const gantiBtn = document.createElement("button");
+    gantiBtn.id = "ganti-user-btn";
+    gantiBtn.innerText = "GANTI USER";
+    gantiBtn.onclick = () => {
+      localStorage.removeItem("username");
+      location.reload();
+    };
+    nav.appendChild(gantiBtn);
+  }
+});
+</script>
 </body>
 </html>
