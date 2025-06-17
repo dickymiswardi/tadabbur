@@ -1689,25 +1689,39 @@ document.addEventListener("DOMContentLoaded", () => {
   const overlay = document.getElementById("sync-overlay");
 
   if (savedUser) {
-    // Otomatis konfirmasi username
+    // 1. Tandai username telah dikonfirmasi
     usernameConfirmed = true;
-    document.getElementById("sync-username").value = savedUser;
 
-    // Sembunyikan overlay jika muncul otomatis
+    // 2. Isi otomatis field username (kalau masih ada inputnya)
+    const usernameInput = document.getElementById("sync-username");
+    if (usernameInput) usernameInput.value = savedUser;
+
+    // 3. Sembunyikan overlay
     if (overlay) overlay.style.display = "none";
 
-    // Tambahkan tombol ganti user
-    const gantiBtn = document.createElement("button");
-    gantiBtn.innerText = "👤 Ganti User";
-    gantiBtn.onclick = () => {
-      localStorage.removeItem("tadabbur-username");
-      location.reload(); // Refresh untuk ulang input username
-    };
-
+    // 4. Tambahkan tombol “Ganti User” dan info username
     const container = document.querySelector(".nav-buttons");
     if (container && !document.getElementById("ganti-user-btn")) {
+      // Tombol Ganti User
+      const gantiBtn = document.createElement("button");
       gantiBtn.id = "ganti-user-btn";
+      gantiBtn.innerText = "👤 Ganti User";
+      gantiBtn.onclick = () => {
+        localStorage.removeItem("tadabbur-username");
+        localStorage.removeItem("tadabbur-bookmark");
+        localStorage.removeItem("tadabbur-log");
+        location.reload(); // Kembali ke layar login username
+      };
       container.appendChild(gantiBtn);
+
+      // Info Username
+      const info = document.createElement("div");
+      info.textContent = `👤 User: ${savedUser}`;
+      info.style.marginTop = "0.5em";
+      info.style.textAlign = "center";
+      info.style.fontSize = "0.9em";
+      info.style.color = "#333";
+      container.appendChild(info);
     }
   }
 });
