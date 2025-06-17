@@ -1606,7 +1606,7 @@ function confirmUsername(ok) {
   const username = document.getElementById('sync-username').value.trim().toLowerCase();
   if (ok) {
     usernameConfirmed = true;
-    localStorage.setItem("username", username); // ⬅ Tambahkan baris ini
+    localStorage.setItem("username", username); // ⬅ disimpan
     status.innerHTML = '<span style="color:green">✅ Username dikonfirmasi</span>';
   } else {
     document.getElementById('sync-username').value = '';
@@ -1704,6 +1704,33 @@ document.addEventListener("DOMContentLoaded", () => {
       location.reload();
     };
     nav.appendChild(gantiBtn);
+  }
+});
+</script>
+  <script>
+document.addEventListener("DOMContentLoaded", () => {
+  const savedUser = localStorage.getItem("username");
+  if (savedUser) {
+    const input = document.getElementById("sync-username");
+    if (input) {
+      input.value = savedUser;
+      usernameConfirmed = true;
+      document.getElementById('check-result').innerHTML =
+        `<span style="color:green">✅ Username dikonfirmasi (${savedUser})</span>`;
+    }
+
+    // Tambahkan tombol GANTI USER di nav jika belum ada
+    const nav = document.querySelector(".nav-buttons");
+    if (nav && !document.getElementById("ganti-user-btn")) {
+      const gantiBtn = document.createElement("button");
+      gantiBtn.id = "ganti-user-btn";
+      gantiBtn.innerText = "GANTI USER";
+      gantiBtn.onclick = () => {
+        localStorage.removeItem("username");
+        location.reload();
+      };
+      nav.appendChild(gantiBtn);
+    }
   }
 });
 </script>
