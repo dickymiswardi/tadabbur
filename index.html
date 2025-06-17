@@ -1331,7 +1331,22 @@ syncBtn.innerText = "🔄 SYNC";
 syncBtn.onclick = () => {
   document.getElementById("sync-overlay").style.display = "flex";
   document.getElementById("sync-status").innerHTML = '';
+
+  const saved = localStorage.getItem("savedUsername");
+  const inputEl = document.getElementById("sync-username");
+  const section = document.getElementById("username-section");
+  const result = document.getElementById("check-result");
+
+  if (saved) {
+    inputEl.value = saved;
+    inputEl.style.display = "none";
+    section.querySelector("button").style.display = "none";
+    result.innerHTML = `<span style="color:green">👤 Login sebagai <b>${saved}</b></span>`;
+
+    usernameConfirmed = true;
+  }
 };
+
 navDiv.appendChild(syncBtn);
 
       if (next) {
@@ -1395,16 +1410,6 @@ navDiv.appendChild(syncBtn);
   localStorage.setItem("lastAyat", ayat);
 
   loadAyat(surah, ayat);
-});
-
-window.addEventListener('load', () => {
-  const usernameInput = document.getElementById('sync-username');
-  const username = usernameInput?.value?.trim().toLowerCase();
-
-  if (username && /^[a-z0-9_-]+$/.test(username)) {
-    console.log('[SYNC] Menjalankan sync otomatis pertama...');
-    syncData();
-  }
 });
     
   </script>
@@ -1614,15 +1619,20 @@ async function checkUsername() {
 
 function confirmUsername(ok) {
   const status = document.getElementById('check-result');
+  const el = document.getElementById('sync-username');
+  const username = el.value.trim().toLowerCase();
+
   if (ok) {
     usernameConfirmed = true;
-    status.innerHTML = '<span style=\"color:green\">✅ Username dikonfirmasi</span>';
+    status.innerHTML = '<span style="color:green">✅ Username dikonfirmasi</span>';
+    localStorage.setItem('savedUsername', username); // ✅ SIMPAN
   } else {
-    document.getElementById('sync-username').value = '';
+    el.value = '';
     usernameConfirmed = false;
-    status.innerHTML = '<span style=\"color:gray\">Silakan isi username baru</span>';
+    status.innerHTML = '<span style="color:gray">Silakan isi username baru</span>';
   }
 }
+
 
 async function syncData() {
   const username = document.getElementById('sync-username').value.trim().toLowerCase();
@@ -1744,17 +1754,12 @@ async function syncData() {
   };
 }
 
-  // 🔁 SYNC OTOMATIS SETIAP 15 MENIT
-setInterval(() => {
-  const usernameInput = document.getElementById('sync-username');
-  const username = usernameInput?.value?.trim().toLowerCase();
-
-  // Hanya sync otomatis jika username sudah diisi dan dikonfirmasi
-  if (username && /^[a-z0-9_-]+$/.test(username) && usernameConfirmed) {
-    console.log('[SYNC] Menjalankan sync otomatis...');
-    syncData();
-  }
-}, 15 * 60 * 1000); // 15 menit
+  function logoutUser() {
+  localStorage.removeItem("savedUsername");
+  localStorage.removeItem("alreadySynced_" + document.getElementById("sync-username").value);
+  localStorage.removeItem("deviceId");
+  location.reload(); // refresh agar input username muncul lagi
+}
   
 </script>
 
@@ -1765,12 +1770,16 @@ setInterval(() => {
     <div onclick="document.getElementById('sync-overlay').style.display='none'" style="position: absolute; top: 10px; right: 15px; cursor: pointer; font-weight: bold;">✖</div>
     <h3>🔒 Sinkronisasi Data</h3>
 
-    <input id="sync-username" placeholder="username..." oninput="resetCheckResult()" style="padding: 0.5em; width: 80%; max-width: 250px;" />
-    <button onclick="checkUsername()">Check</button>
-    <span id="check-result" style="display:inline-block; margin-left:10px;"></span>
+    <div id="username-section">
+  <input id="sync-username" placeholder="username..." oninput="resetCheckResult()" style="padding: 0.5em; width: 80%; max-width: 250px;" />
+  <button onclick="checkUsername()">Check</button>
+  <span id="check-result" style="display:inline-block; margin-left:10px;"></span>
+</div>
+
 
     <div style="margin-top: 1em;">
       <button onclick="syncData()">🔁 Sync data ke Cloud</button>
+      <button onclick="logoutUser()" style="margin-left: 1em;">🚪 Ganti User</button>
       <div id="sync-status" style="margin-top: 1em;"></div>
     </div>
   </div>
