@@ -1660,12 +1660,12 @@ function confirmUsername(ok) {
 
 
 async function syncData() {
-  const username = document.getElementById('sync-username').value.trim().toLowerCase();
+  const username = localStorage.getItem('usernameAktif');
   const status = document.getElementById('sync-status');
   status.innerHTML = '';
 
   if (!username || !/^[a-z0-9_-]+$/.test(username)) {
-    status.innerHTML = '<span style=\"color:red\">❌ Username tidak valid.</span>';
+    status.innerHTML = '<span style="color:red">❌ Username tidak valid.</span>';
     return;
   }
 
