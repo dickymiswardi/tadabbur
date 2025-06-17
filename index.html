@@ -1596,29 +1596,41 @@ async function checkUsername() {
 
 function confirmUsername(ok) {
   const status = document.getElementById('check-result');
-  const username = document.getElementById('sync-username').value.trim().toLowerCase();
+  const input = document.getElementById('sync-username');
+  const username = input.value.trim().toLowerCase();
+
   if (ok) {
     usernameConfirmed = true;
-    localStorage.setItem("username", username);
+    localStorage.setItem("usernameAktif", username);
+    status.innerHTML = '<span style="color:green">✅ Username dikonfirmasi</span>';
 
-    // Sembunyikan input & ganti dengan teks
-    const input = document.getElementById('sync-username');
-    const inputContainer = input.parentElement;
-    input.style.display = 'none';
-
+    // Ganti input dengan label
+    input.style.display = "none";
     const label = document.createElement("div");
     label.id = "username-label";
-    label.style.marginTop = "0.5em";
     label.innerHTML = `👤 Username: <strong>${username}</strong>`;
-    inputContainer.insertBefore(label, input.nextSibling);
+    input.parentElement.insertBefore(label, input.nextSibling);
 
-    status.innerHTML = '<span style="color:green">✅ Username dikonfirmasi</span>';
+    // Tambahkan tombol GANTI USER
+    if (!document.getElementById("btn-ganti-user")) {
+      const gantiBtn = document.createElement("button");
+      gantiBtn.id = "btn-ganti-user";
+      gantiBtn.style.marginTop = "1em";
+      gantiBtn.textContent = "🔁 Ganti User";
+      gantiBtn.onclick = () => {
+        localStorage.removeItem("usernameAktif");
+        location.reload();
+      };
+      input.parentElement.appendChild(gantiBtn);
+    }
+
   } else {
-    document.getElementById('sync-username').value = '';
+    input.value = '';
     usernameConfirmed = false;
     status.innerHTML = '<span style="color:gray">Silakan isi username baru</span>';
   }
 }
+
 
 
 
@@ -1757,6 +1769,38 @@ document.addEventListener("DOMContentLoaded", () => {
       location.reload();
     };
     nav.appendChild(gantiBtn);
+  }
+});
+</script>
+  <script>
+document.addEventListener("DOMContentLoaded", () => {
+  const saved = localStorage.getItem("usernameAktif");
+  const input = document.getElementById("sync-username");
+  const status = document.getElementById("check-result");
+
+  if (saved && input && status) {
+    usernameConfirmed = true;
+    input.style.display = "none";
+
+    const label = document.createElement("div");
+    label.id = "username-label";
+    label.innerHTML = `👤 Username: <strong>${saved}</strong>`;
+    input.parentElement.insertBefore(label, input.nextSibling);
+
+    status.innerHTML = '<span style="color:green">✅ Username dikonfirmasi</span>';
+
+    // Tambahkan tombol GANTI USER
+    if (!document.getElementById("btn-ganti-user")) {
+      const gantiBtn = document.createElement("button");
+      gantiBtn.id = "btn-ganti-user";
+      gantiBtn.style.marginTop = "1em";
+      gantiBtn.textContent = "🔁 Ganti User";
+      gantiBtn.onclick = () => {
+        localStorage.removeItem("usernameAktif");
+        location.reload();
+      };
+      input.parentElement.appendChild(gantiBtn);
+    }
   }
 });
 </script>
