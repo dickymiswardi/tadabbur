@@ -1346,6 +1346,7 @@ localStorage.removeItem("fromAutoplay");
 syncBtn.innerText = "🔄 SYNC";
 syncBtn.onclick = () => {
   document.getElementById("sync-overlay").style.display = "flex";
+  document.getElementById("sync-status").innerHTML = '';
 };
 navDiv.appendChild(syncBtn);
 
@@ -1574,11 +1575,15 @@ function showNoteOverlay(surah, ayah) {
     sumberDiv.parentNode.insertBefore(infoDiv, sumberDiv.nextSibling);
   }
 })();
-</script>
 
-  <script>
+// SCRIPT SYNC TOMBOL OVERLAY
+
+  let usernameConfirmed = false;
+
 function resetCheckResult() {
+  usernameConfirmed = false;
   document.getElementById('check-result').innerHTML = '';
+  document.getElementById('sync-status').innerHTML = '';
 }
 
 async function isUsernameTaken(username) {
@@ -1591,33 +1596,55 @@ async function checkUsername() {
   const el = document.getElementById('sync-username');
   const status = document.getElementById('check-result');
   const username = el.value.trim().toLowerCase();
+
   if (!/^[a-z0-9_-]+$/.test(username)) {
-    status.innerHTML = '<span style="color:red">❌ username harus huruf kecil semua tanpa spasi</span>';
+    status.innerHTML = '<span style=\"color:red\">❌ username harus huruf kecil tanpa spasi</span>';
     return;
   }
-  status.innerHTML = '<span class="loader"></span>';
+
+  status.innerHTML = '<span class=\"loader\"></span>';
   const taken = await isUsernameTaken(username);
+
   if (taken) {
-    status.innerHTML = '<span style="color:orange">⚠️ Username sudah ada. Apakah ini milikmu?</span>';
+    status.innerHTML = `
+      <div style=\"color:orange\">⚠️ Username sudah ada. Apakah ini milikmu?</div>
+      <button onclick=\"confirmUsername(true)\">✅ Lanjutkan</button>
+      <button onclick=\"confirmUsername(false)\">❌ Ganti</button>
+    `;
   } else {
-    status.innerHTML = '<span style="color:green">✅ Valid</span>';
+    status.innerHTML = '<span style=\"color:green\">✅ Username tersedia</span>';
+    usernameConfirmed = true;
+  }
+}
+
+function confirmUsername(ok) {
+  const status = document.getElementById('check-result');
+  if (ok) {
+    usernameConfirmed = true;
+    status.innerHTML = '<span style=\"color:green\">✅ Username dikonfirmasi</span>';
+  } else {
+    document.getElementById('sync-username').value = '';
+    usernameConfirmed = false;
+    status.innerHTML = '<span style=\"color:gray\">Silakan isi username baru</span>';
   }
 }
 
 async function syncData() {
   const username = document.getElementById('sync-username').value.trim().toLowerCase();
   const status = document.getElementById('sync-status');
+  status.innerHTML = '';
+
   if (!username || !/^[a-z0-9_-]+$/.test(username)) {
-    return alert('❗ Username tidak valid.');
+    status.innerHTML = '<span style=\"color:red\">❌ Username tidak valid.</span>';
+    return;
   }
 
-  // Konfirmasi jika sudah ada
-  if (await isUsernameTaken(username)) {
-    const lanjut = confirm('⚠️ Username sudah ada. Apakah ini milikmu?');
-    if (!lanjut) return;
+  if (!usernameConfirmed) {
+    status.innerHTML = '<span style=\"color:orange\">⚠️ Konfirmasi username dulu.</span>';
+    return;
   }
 
-  // Ambil data dari localStorage
+  // ambil data lokal
   const bookmark = JSON.parse(localStorage.getItem('tadabbur-bookmark') || '[]');
   const notes = {};
   for (let i = 0; i < localStorage.length; i++) {
@@ -1625,41 +1652,47 @@ async function syncData() {
     if (k.startsWith('note-')) notes[k] = localStorage.getItem(k);
   }
 
-  // Simpan ke cloud
+  // upload ke Netlify
+  status.innerHTML = '<span class=\"loader\"></span> Mengirim...';
   await fetch('/.netlify/functions/sync', {
     method: 'POST',
     body: JSON.stringify({ username, data: { bookmark, notes } })
   });
 
-  // Ambil lagi dan simpan ke localStorage
+  // fetch ulang dari cloud
   const url = `https://raw.githubusercontent.com/dickymiswardi/tadabbur/main/data/${username}.json`;
   const res = await fetch(url);
-  if (!res.ok) return alert('Data tidak ditemukan.');
+  if (!res.ok) {
+    status.innerHTML = '<span style=\"color:red\">❌ Gagal mengambil data dari cloud.</span>';
+    return;
+  }
+
   const { bookmark: bm, notes: nts } = await res.json();
   if (bm) localStorage.setItem('tadabbur-bookmark', JSON.stringify(bm));
   if (nts) Object.keys(nts).forEach(k => localStorage.setItem(k, nts[k]));
 
-  status.innerHTML = '<span style="color:green;">✅ berhasil, silahkan refresh halaman</span>';
+  status.innerHTML = '<span style=\"color:green\">✅ Berhasil! Silakan refresh halaman.</span>';
 }
+  
 </script>
 
 
-<!-- OVERLAY SYNC -->
-<div id="sync-overlay" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 9999;">
+  <!-- 🔒 SYNC OVERLAY -->
+<div id="sync-overlay" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); justify-content: center; align-items: center; z-index: 9999;">
   <div style="background: white; padding: 2em; border-radius: 12px; max-width: 400px; width: 90%; text-align: center; position: relative;">
     <div onclick="document.getElementById('sync-overlay').style.display='none'" style="position: absolute; top: 10px; right: 15px; cursor: pointer; font-weight: bold;">✖</div>
     <h3>🔒 Sinkronisasi Data</h3>
 
     <input id="sync-username" placeholder="username..." oninput="resetCheckResult()" style="padding: 0.5em; width: 80%; max-width: 250px;" />
     <button onclick="checkUsername()">Check</button>
-    <span id="check-result" style="margin-left: 10px;"></span>
+    <span id="check-result" style="display:inline-block; margin-left:10px;"></span>
 
     <div style="margin-top: 1em;">
       <button onclick="syncData()">🔁 Sync data ke Cloud</button>
-      <span id="sync-status"></span>
+      <div id="sync-status" style="margin-top: 1em;"></div>
     </div>
   </div>
 </div>
-  
+
 </body>
 </html>
