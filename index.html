@@ -21,7 +21,21 @@
       color: #111;
     }
     
-    
+    #sync-overlay button {
+  font-size: 1.4em !important;
+  padding: 0.6em 1.2em !important;
+  margin-top: 0.6em;
+}
+
+     #bookmark-btn {
+  margin-left: 0.3em;
+  background: transparent;
+  border: none;
+  font-size: 1.5em;
+  cursor: pointer;
+  vertical-align: middle;
+}
+
 
 #bookmark-btn.checked {
   color: green;
@@ -1589,9 +1603,8 @@ async function checkUsername() {
       <button onclick=\"confirmUsername(false)\">❌ Ganti</button>
     `;
   } else {
-    status.innerHTML = '<span style=\"color:green\">✅ Username tersedia</span>';
-    usernameConfirmed = true;
-  }
+  confirmUsername(true); // langsung konfirmasi otomatis
+}
 }
 
 function confirmUsername(ok) {
