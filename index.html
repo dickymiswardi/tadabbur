@@ -647,35 +647,6 @@ const lastAyat = urlParams.get("ayat") || localStorage.getItem("lastAyat");
       }
       document.getElementById("pilihan-container").style.visibility = 'visible';
     });
-
-    document.addEventListener("DOMContentLoaded", () => {
-  const savedUser = localStorage.getItem("tadabbur-username");
-  const overlay = document.getElementById("sync-overlay");
-
-  if (savedUser) {
-    // Otomatis konfirmasi username
-    usernameConfirmed = true;
-    document.getElementById("sync-username").value = savedUser;
-
-    // Sembunyikan overlay jika muncul otomatis
-    if (overlay) overlay.style.display = "none";
-
-    // Tambahkan tombol ganti user
-    const gantiBtn = document.createElement("button");
-    gantiBtn.innerText = "👤 Ganti User";
-    gantiBtn.onclick = () => {
-      localStorage.removeItem("tadabbur-username");
-      location.reload(); // Refresh untuk ulang input username
-    };
-
-    const container = document.querySelector(".nav-buttons");
-    if (container && !document.getElementById("ganti-user-btn")) {
-      gantiBtn.id = "ganti-user-btn";
-      container.appendChild(gantiBtn);
-    }
-  }
-});
-    
   </script>
 </div>
   <!-- BATAS TAMBAHAN -->
@@ -1712,6 +1683,34 @@ if (cloudLog) localStorage.setItem('tadabbur-log', JSON.stringify(cloudLog));
     </div>
   </div>
 </div>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const savedUser = localStorage.getItem("tadabbur-username");
+  const overlay = document.getElementById("sync-overlay");
 
+  if (savedUser) {
+    // Otomatis konfirmasi username
+    usernameConfirmed = true;
+    document.getElementById("sync-username").value = savedUser;
+
+    // Sembunyikan overlay jika muncul otomatis
+    if (overlay) overlay.style.display = "none";
+
+    // Tambahkan tombol ganti user
+    const gantiBtn = document.createElement("button");
+    gantiBtn.innerText = "👤 Ganti User";
+    gantiBtn.onclick = () => {
+      localStorage.removeItem("tadabbur-username");
+      location.reload(); // Refresh untuk ulang input username
+    };
+
+    const container = document.querySelector(".nav-buttons");
+    if (container && !document.getElementById("ganti-user-btn")) {
+      gantiBtn.id = "ganti-user-btn";
+      container.appendChild(gantiBtn);
+    }
+  }
+});
+</script>
 </body>
 </html>
