@@ -1551,65 +1551,122 @@ function showNoteOverlay(surah, ayah) {
 })();
 </script>
 
-  <script>
-    
-    // SYNC TEKNOLOGI NETLIFY
-    async function isUsernameTaken(username) {
+<!-- ✅ CSS Tambahan dan Overlay SYNC -->
+<style>
+  #sync-overlay {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+  }
+  #sync-box {
+    background: white;
+    padding: 2em;
+    border-radius: 12px;
+    max-width: 400px;
+    width: 90%;
+    text-align: center;
+    position: relative;
+  }
+  #sync-close {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 1.2em;
+  }
+  .loader {
+    border: 3px solid #ccc;
+    border-top: 3px solid #333;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    animation: spin 1s linear infinite;
+    display: inline-block;
+    margin-left: 10px;
+  }
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+</style>
+
+<div id="sync-overlay">
+  <div id="sync-box">
+    <div id="sync-close" onclick="document.getElementById('sync-overlay').style.display='none'">✖</div>
+    <h3>🔒 Sinkronisasi Data</h3>
+    <input id="sync-username" placeholder="username..." style="padding: 0.5em; width: 80%; max-width: 250px;" oninput="resetCheckResult()" />
+    <button onclick="checkUsername()">Check</button>
+    <span id="check-result" style="margin-left: 10px;"></span>
+    <div style="margin-top: 1em;">
+      <button onclick="syncData()">🔁 Sync data ke Cloud</button>
+      <span id="sync-status"></span>
+    </div>
+  </div>
+</div>
+
+<script>
+function resetCheckResult() {
+  document.getElementById('check-result').innerHTML = '';
+}
+
+async function isUsernameTaken(username) {
   const url = `https://raw.githubusercontent.com/dickymiswardi/tadabbur/main/data/${username}.json`;
   const res = await fetch(url);
   return res.ok;
 }
 
-    if (await isUsernameTaken(username)) {
-  const lanjut = confirm("⚠️ Username sudah ada. Apakah ini milikmu?");
-  if (!lanjut) return;
+async function checkUsername() {
+  const el = document.getElementById('sync-username');
+  const status = document.getElementById('check-result');
+  const username = el.value.trim().toLowerCase();
+  if (!/^[a-z0-9_-]+$/.test(username)) {
+    status.innerHTML = '<span style="color:red">❌ username harus huruf kecil semua tanpa spasi</span>';
+    return;
+  }
+  status.innerHTML = '<span class="loader"></span>';
+  const taken = await isUsernameTaken(username);
+  if (taken) {
+    status.innerHTML = '<span style="color:orange">⚠️ Username sudah ada. Apakah ini milikmu?</span>';
+  } else {
+    status.innerHTML = '<span style="color:green">✅ Valid</span>';
+  }
 }
 
-async function syncToCloud() {
-  const username = document.getElementById("sync-username").value.trim().toLowerCase();
-  if (!username) return alert("Masukkan username!");
-
-  const bookmark = JSON.parse(localStorage.getItem("tadabbur-bookmark") || "[]");
-
+async function syncData() {
+  const username = document.getElementById('sync-username').value.trim().toLowerCase();
+  const status = document.getElementById('sync-status');
+  if (!username || !/^[a-z0-9_-]+$/.test(username)) {
+    return alert('❗ Username tidak valid.');
+  }
+  if (await isUsernameTaken(username)) {
+    const lanjut = confirm('⚠️ Username sudah ada. Apakah ini milikmu?');
+    if (!lanjut) return;
+  }
+  const bookmark = JSON.parse(localStorage.getItem('tadabbur-bookmark') || '[]');
   const notes = {};
   for (let i = 0; i < localStorage.length; i++) {
     const k = localStorage.key(i);
-    if (k.startsWith("note-")) notes[k] = localStorage.getItem(k);
+    if (k.startsWith('note-')) notes[k] = localStorage.getItem(k);
   }
-
-  const res = await fetch("/.netlify/functions/sync", {
-    method: "POST",
-    body: JSON.stringify({ username, data: { bookmark, notes } }),
+  await fetch('/.netlify/functions/sync', {
+    method: 'POST',
+    body: JSON.stringify({ username, data: { bookmark, notes } })
   });
-
-  alert(await res.text());
-}
-
-async function syncFromCloud() {
-  const username = document.getElementById("sync-username").value.trim().toLowerCase();
-  if (!username) return alert("Masukkan username!");
-
   const url = `https://raw.githubusercontent.com/dickymiswardi/tadabbur/main/data/${username}.json`;
-
   const res = await fetch(url);
-  if (!res.ok) return alert("Data tidak ditemukan di cloud");
-
-  const { bookmark, notes } = await res.json();
-  if (bookmark) localStorage.setItem("tadabbur-bookmark", JSON.stringify(bookmark));
-  if (notes) Object.keys(notes).forEach(k => localStorage.setItem(k, notes[k]));
-
-  alert("✅ Sinkronisasi selesai. Muat ulang halaman.");
+  if (!res.ok) return alert('Data tidak ditemukan.');
+  const { bookmark: bm, notes: nts } = await res.json();
+  if (bm) localStorage.setItem('tadabbur-bookmark', JSON.stringify(bm));
+  if (nts) Object.keys(nts).forEach(k => localStorage.setItem(k, nts[k]));
+  status.innerHTML = '<span style="color:green;">✅ berhasil, silahkan refresh halaman</span>';
 }
 </script>
 
-
-
-<div style="margin-top: 2em; text-align: center;">
-  <input id="sync-username" placeholder="username..." style="padding: 0.4em;" />
-  <button onclick="syncToCloud()">⏫ Simpan ke Cloud</button>
-  <button onclick="syncFromCloud()">🔄 Ambil dari Cloud</button>
-</div>
-
-  
 </body>
 </html>
