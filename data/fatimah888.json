@@ -1,4 +1,12 @@
 {
-  "bookmark": [],
-  "notes": {}
+  "bookmark": [
+    {
+      "surah": 2,
+      "ayat": 3,
+      "timestamp": "17 Juni 2025 11.49"
+    }
+  ],
+  "notes": {
+    "note-2-3": "heheh"
+  }
 }
