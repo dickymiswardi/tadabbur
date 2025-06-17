@@ -1,6 +1,14 @@
 {
-  "bookmark": [],
-  "notes": {},
+  "bookmark": [
+    {
+      "surah": 1,
+      "ayat": 2,
+      "timestamp": "17 Juni 2025 21.11"
+    }
+  ],
+  "notes": {
+    "note-1-2": "Best!!! Good"
+  },
   "log": [],
-  "activeDevice": "dd5454e6-7dfa-4bcc-bd86-96dcde96aecf"
+  "activeDevice": "98ac0c46-648b-4b25-8587-d9c010528c1c"
 }
