@@ -1646,10 +1646,10 @@ async function syncData() {
   // fetch ulang dari cloud
   const url = `https://raw.githubusercontent.com/dickymiswardi/tadabbur/main/data/${username}.json`;
   const res = await fetch(url);
-  if (!res.ok) {
-    status.innerHTML = '<span style=\"color:red\">❌ Gagal mengambil data dari cloud.</span>';
-    return;
-  }
+if (!res.ok) {
+  status.innerHTML = '<span style="color:orange;">⚠️ Data berhasil disimpan, tapi belum ada catatan sebelumnya.</span>';
+  return;
+}
 
   const { bookmark: bm, notes: nts } = await res.json();
   if (bm) localStorage.setItem('tadabbur-bookmark', JSON.stringify(bm));
