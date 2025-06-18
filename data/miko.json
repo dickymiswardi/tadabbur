@@ -1,5 +1,11 @@
 {
-  "bookmark": [],
+  "bookmark": [
+    {
+      "surah": 1,
+      "ayat": 2,
+      "timestamp": "18 Juni 2025 09.23"
+    }
+  ],
   "notes": {},
   "log": [
     "2025-06-18"
