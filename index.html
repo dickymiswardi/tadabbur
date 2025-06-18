@@ -565,6 +565,11 @@
           <option value="">-- Pilih Surah --</option>
         </select>
       </div>
+<div id="search-container" style="margin-top: 1em;">
+  <input type="text" id="search-input" placeholder="Cari kata dalam Al-Qur'an (Arab tanpa harokat)" style="width: 100%; padding: 0.6em; font-size: 1em; border-radius: 6px; border: 1px solid #007b8a;">
+  <ul id="search-results" style="list-style: none; padding: 0; margin-top: 0.5em;"></ul>
+</div>
+
     </div>
     <div class="col">
       <div class="select-wrapper">
@@ -1891,5 +1896,64 @@ document.addEventListener('touchend', e => {
 </script>
 
   
+
+<script>
+// Fungsi menghapus harokat dari teks Arab
+function removeHarokat(text) {
+  return text.normalize("NFD").replace(/[ً-ْ]/g, "");
+}
+
+// Ambil data dari GitHub (versi RAW JSON)
+let quranData = [];
+fetch('https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/quran.json')
+  .then(res => res.json())
+  .then(json => {
+    quranData = json.flatMap(obj => {
+      const keys = Object.keys(obj);
+      return keys.map(key => {
+        const surah = obj[key];
+        return surah.text.map(verse => ({
+          surah: `${surah.titleAr} (${surah.titleEn})`,
+          surahNum: surah.chapterNumber,
+          verseNum: verse.verseNumber,
+          text: verse.text,
+          textNoHarokat: removeHarokat(verse.text)
+        }));
+      });
+    }).flat();
+  });
+
+const input = document.getElementById("search-input");
+const resultList = document.getElementById("search-results");
+
+input.addEventListener("input", function () {
+  const query = removeHarokat(input.value.trim());
+  resultList.innerHTML = "";
+
+  if (query.length < 2) return;
+
+  const results = quranData.filter(entry =>
+    entry.textNoHarokat.includes(query)
+  ).slice(0, 30); // Batasi 30 hasil
+
+  if (results.length === 0) {
+    resultList.innerHTML = "<li style='padding: 0.5em 0;'>Tidak ditemukan.</li>";
+    return;
+  }
+
+  results.forEach(result => {
+    const li = document.createElement("li");
+    li.innerHTML = `
+      <strong>${result.surah} - Ayat ${result.verseNum}</strong><br>
+      <div style="font-family: 'Madina', serif; font-size: 1.5em; direction: rtl;">${result.text}</div>`;
+    li.style.padding = "0.5em 0";
+    li.style.borderBottom = "1px solid #ccc";
+    li.style.cursor = "pointer";
+    li.onclick = () => alert(`Surah ${result.surah}, Ayat ${result.verseNum}`);
+    resultList.appendChild(li);
+  });
+});
+</script>
+
 </body>
 </html>
