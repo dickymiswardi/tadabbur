@@ -1179,7 +1179,7 @@ function showBookmarkNotif(text) {
 }
 
       const playAudioBtn = document.createElement("button");
-playAudioBtn.textContent = "♪ AUDIO";
+playAudioBtn.textContent = "♬ AUDIO";
 playAudioBtn.onclick = showQariSelector;
 navDiv.appendChild(playAudioBtn);
 
@@ -1334,7 +1334,7 @@ localStorage.removeItem("fromAutoplay");
   // TOMBOL SYNC
 
   const syncBtn = document.createElement("button");
-syncBtn.innerText = "LOG IN";
+syncBtn.innerText = "🔒 USER";
 syncBtn.onclick = () => {
   document.getElementById("sync-overlay").style.display = "flex";
   document.getElementById("sync-status").innerHTML = '';
