@@ -1,20 +1,6 @@
 {
-  "bookmark": [
-    {
-      "surah": 6,
-      "ayat": 6,
-      "timestamp": "17 Juni 2025 22.07"
-    },
-    {
-      "surah": 6,
-      "ayat": 7,
-      "timestamp": "18 Juni 2025 08.24"
-    }
-  ],
-  "notes": {
-    "note-6-6": "Alhamdulillah, kelar, sisa rapih-rapih dan tombol search berteknologi",
-    "note-6-7": "Enam 7"
-  },
+  "bookmark": [],
+  "notes": {},
   "log": [
     "2025-06-17",
     "2025-06-18"
