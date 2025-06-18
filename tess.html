@@ -2,10 +2,10 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <title>Pencarian Kata Qur'an</title>
+  <title>Pencarian Al-Qur'an</title>
   <style>
-    body { font-family:sans-serif; max-width: 700px; margin: auto; padding: 2em; }
-    input, button { padding: 0.5em; font-size: 1em; }
+    body { font-family:sans-serif; max-width:700px; margin:auto; padding:2em; }
+    input, button { padding:0.5em; font-size:1em; }
     .result { margin-top: 1em; padding: 1em; background: #f9f9f9; border-radius: 8px; }
     .ayah { direction: rtl; font-size: 1.5em; margin-top: 0.5em; }
     .meta { font-size: 0.95em; color: #444; }
@@ -21,6 +21,11 @@
   <div id="results"></div>
 
   <script>
+    // Tentukan base URL otomatis
+    const base = window.location.hostname.includes("netlify")
+      ? "https://tadabbur.netlify.app"
+      : "https://dickymiswardi.github.io/tadabbur";
+
     async function searchQuran() {
       const q = document.getElementById('query').value.trim();
       const resDiv = document.getElementById('results');
@@ -39,7 +44,6 @@
           return;
         }
 
-        // Hapus duplikat ayat
         const seen = new Set();
         const output = json.data.matches.filter(m => {
           const key = `${m.surah.number}:${m.numberInSurah}`;
@@ -52,10 +56,10 @@
           const surah = match.surah.number;
           const name = match.surah.name;
           const ayat = match.numberInSurah;
-          const link = `https://dickymiswardi.github.io/tadabbur/?surah=${surah}&ayat=${ayat}`;
+          const url = `${base}/?surah=${surah}&ayat=${ayat}`;
           return `
             <div class="result">
-              <div class="meta">📖 <a href="${link}" target="_blank">${name} (${surah}:${ayat})</a></div>
+              <div class="meta">📖 <a href="${url}" target="_blank">${name} (${surah}:${ayat})</a></div>
               <div class="ayah">${match.text}</div>
             </div>
           `;
