@@ -20,6 +20,16 @@
       background-color: #fff;
       color: #111;
     }
+
+    @font-face {
+  font-family: "AmiriBold";
+  src: url("https://raw.githubusercontent.com/dickymiswardi/tadabbur/main/Amiri-Bold.ttf") format("truetype");
+}
+.highlight-word {
+  font-family: "AmiriBold";
+  font-size: 1.3em;
+}
+
     
     #sync-overlay button {
   font-size: 0.9em !important;
@@ -1858,6 +1868,42 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 </script>
 
+  <script>
+function highlightSpecificWord(quranData, { surah, ayat, kata }) {
+  const container = document.getElementById("quran-container");
+  container.innerHTML = '';
+
+  quranData.forEach(({ surah: s, ayat: a, text }) => {
+    const div = document.createElement("div");
+    div.className = "ayah";
+    div.dataset.surah = s;
+    div.dataset.ayat = a;
+
+    let rendered = text;
+
+    if (s === surah && a === ayat) {
+      const regex = new RegExp(`\\b${kata}\\b`, 'g');
+      rendered = text.replace(regex, `<span class="highlight-word">${kata}</span>`);
+    }
+
+    div.innerHTML = rendered;
+    container.appendChild(div);
+  });
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  fetch("https://raw.githubusercontent.com/dickymiswardi/tadabbur/main/quran.json")
+    .then(res => res.json())
+    .then(data => {
+      // Ganti bagian ini sesuai target Anda
+      highlightSpecificWord(data, {
+        surah: 2,
+        ayat: 245,
+        kata: "وَيَبْصُۜطُ"
+      });
+    });
+});
+</script>
 
 </body>
 </html>
