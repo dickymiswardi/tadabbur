@@ -823,6 +823,12 @@ const tafsirSources = {
     path: "id.jalalayn.xml",
     query: (s, a) => `sura[index="${s}"] > aya[index="${a}"]`
   },
+    KemenagID: {
+    name: "Kemenag RI",
+    path: (s, a) =>
+      `https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/KemenagID/${s}/${a}.txt`,
+    query: (s, a) => null // tidak dipakai untuk .txt per ayat
+  },
   al_muyassar: {
   name: "Al-Muyassar Arabic",
   path: "ar.muyassar.txt",
