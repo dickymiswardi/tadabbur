@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pencarian Kata Al-Qur'an</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 2em;
+      max-width: 700px;
+      margin: auto;
+      background-color: #fdfdfd;
+      color: #111;
+    }
+
+    input[type="text"] {
+      padding: 0.6em;
+      width: 80%;
+      max-width: 300px;
+      font-size: 1em;
+    }
+
+    button {
+      padding: 0.6em 1em;
+      font-size: 1em;
+      cursor: pointer;
+      background-color: #007b8a;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      margin-left: 0.5em;
+    }
+
+    button:hover {
+      background-color: #005f6b;
+    }
+
+    #search-results {
+      margin-top: 2em;
+      padding: 1em;
+      background: #f9f9f9;
+      border-radius: 8px;
+    }
+
+    .loading-icon {
+      width: 48px;
+      display: block;
+      margin: auto;
+    }
+
+    .ayah-result {
+      margin-bottom: 1.5em;
+      padding-bottom: 1em;
+      border-bottom: 1px solid #ccc;
+    }
+
+    .ayah-arabic {
+      font-size: 1.8em;
+      direction: rtl;
+      margin: 0.5em 0;
+    }
+
+    .ayah-translation {
+      color: #444;
+      font-size: 0.95em;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Pencarian Kata dalam Al-Qur'an</h2>
+  <p>Masukkan kata/frasa Arab atau Indonesia, contoh: <code>rahman</code>, <code>kasih sayang</code></p>
+
+  <input type="text" id="quran-search" placeholder="Contoh: rahman, kasih sayang" 
+         onkeydown="if(event.key==='Enter'){searchQuran()}" />
+  <button onclick="searchQuran()">Cari</button>
+
+  <div id="search-results"></div>
+
+  <script>
+    async function searchQuran() {
+      const query = document.getElementById("quran-search").value.trim();
+      const resultsContainer = document.getElementById("search-results");
+
+      if (!query) {
+        resultsContainer.innerHTML = "❗ Masukkan kata atau frasa untuk mencari.";
+        return;
+      }
+
+      resultsContainer.innerHTML = "<img src='https://raw.githubusercontent.com/dickymiswardi/tadabbur/aa160525691e67e5d0b7aab1e7e9f37657d0ed45/AnimatedBook.gif' class='loading-icon' />";
+
+      try {
+        const res = await fetch(`https://api.quran.com/v4/search?q=${encodeURIComponent(query)}&language=id&size=10&page=1`);
+        const data = await res.json();
+
+        if (!data.results || data.results.length === 0) {
+          resultsContainer.innerHTML = "🚫 Tidak ditemukan hasil untuk kata tersebut.";
+          return;
+        }
+
+        resultsContainer.innerHTML = data.results.map(r => `
+          <div class="ayah-result">
+            <div><strong>📖 Surah ${r.verse_key}</strong></div>
+            <div class="ayah-arabic">${r.text}</div>
+            <div class="ayah-translation">${r.translations[0]?.text || '(Terjemahan tidak tersedia)'}</div>
+          </div>
+        `).join("");
+      } catch (e) {
+        console.error(e);
+        resultsContainer.innerHTML = "❌ Terjadi kesalahan saat memuat hasil.";
+      }
+    }
+  </script>
+
+</body>
+</html>
