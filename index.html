@@ -30,7 +30,6 @@
       direction: rtl;
     }
 
-    /* Overlay Pencarian */
     #search-overlay {
       position: fixed;
       top: 0; left: 0;
@@ -105,7 +104,7 @@ function removeHarokat(text) {
 
 let quranData = [];
 
-fetch('https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/quran.json')
+fetch('quran.json') // MENGGUNAKAN FILE LOKAL
   .then(res => res.json())
   .then(json => {
     quranData = json.flatMap(obj => {
