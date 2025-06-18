@@ -439,25 +439,17 @@
   z-index: 9998;
 }
 
+/* Audio Player */
 #audio-player-container {
-  position: relative;
-  margin: 100px 5% auto 5%;
-  width: 90%;
-  max-width: 500px;
-  height: 80px;
-  background: #fff;
-}
-#audio-player-container::before {
-  position: absolute;
-  content: '';
-  width: calc(100% + 4px);
-  height: calc(100% + 4px);
-  left: -2px;
-  top: -2px;
-  background: linear-gradient(to left, #007db5, #ff8a00);
-  z-index: -1;
+  margin-top: 2em;
+  text-align: center;
 }
 
+.audio-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
 
 .autoplay-toggle {
   margin-top: 0.5em;
@@ -672,15 +664,7 @@ const lastAyat = urlParams.get("ayat") || localStorage.getItem("lastAyat");
       <img src="https://raw.githubusercontent.com/dickymiswardi/tadabbur/aa160525691e67e5d0b7aab1e7e9f37657d0ed45/AnimatedBook.gif" class="loading-icon" />
     </div>
   </div>
-
-<div id="audio-player-container">
-  <button id="play-icon"></button>
-  <audio id="audio-quran" preload="auto">
-    <source src="" type="audio/mpeg" />
-  </audio>
-</div>
-
-  
+<div id="audio-player-container" style="display: none;"></div>
   <div class="sumber"></div>
   <script>
     const surah = parseInt(new URLSearchParams(window.location.search).get("surah") || "1");
@@ -1904,84 +1888,6 @@ document.addEventListener('touchend', e => {
   touchEndX = e.changedTouches[0].screenX;
   handleSwipeGesture();
 });
-
-
-// TITIP AUDIO PLAYER
-
-function playAudioForAyah(qariId) {
-  const surahStr = String(surah).padStart(3, '0');
-  const ayahStr = String(ayat).padStart(3, '0');
-  const url = `https://quran.ksu.edu.sa/ayat/mp3/${qariId}/${surahStr}${ayahStr}.mp3`;
-
-  const audio = document.getElementById("audio-quran");
-  const source = audio.querySelector('source');
-  source.src = url;
-  audio.load();
-
-  // reset tombol ke "play"
-  animation.goToAndStop(14, true);
-  state = 'play';
-}
-  
-</script>
-
-  <script type="module">
-  import lottieWeb from 'https://cdn.skypack.dev/lottie-web';
-
-  const playIconContainer = document.getElementById('play-icon');
-  const audio = document.getElementById('audio-quran');
-  let state = 'play';
-
-  const animation = lottieWeb.loadAnimation({
-    container: playIconContainer,
-    path: 'https://maxst.icons8.com/vue-static/landings/animated-icons/icons/pause/pause.json',
-    renderer: 'svg',
-    loop: false,
-    autoplay: false,
-    name: "PlayPauseBtn",
-  });
-
-  animation.goToAndStop(14, true);
-
-  playIconContainer.addEventListener('click', () => {
-    if(state === 'play') {
-      animation.playSegments([14, 27], true);
-      audio.play();
-      state = 'pause';
-    } else {
-      animation.playSegments([0, 14], true);
-      audio.pause();
-      state = 'play';
-    }
-  });
-
-  audio.onended = () => {
-    const autoNext = localStorage.getItem("autoplay") === "true";
-    if (autoNext) {
-      const next = getNextAyah(surah, ayat);
-      if (next) {
-        localStorage.setItem("fromAutoplay", "true");
-        window.location.href = `?surah=${next.surah}&ayat=${next.ayah}`;
-      }
-    }
-    animation.playSegments([0, 14], true);
-    state = 'play';
-  };
-
-  function playAudioForAyah(qariId) {
-    const surahStr = String(surah).padStart(3, '0');
-    const ayahStr = String(ayat).padStart(3, '0');
-    const url = `https://quran.ksu.edu.sa/ayat/mp3/${qariId}/${surahStr}${ayahStr}.mp3`;
-
-    const source = audio.querySelector('source');
-    source.src = url;
-    audio.load();
-
-    animation.goToAndStop(14, true);
-    state = 'play';
-  }
-
-  window.playAudioForAyah = playAudioForAyah;
 </script>
 
   
