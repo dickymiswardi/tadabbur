@@ -2,161 +2,68 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pencarian Kata Al-Qur'an</title>
+  <title>Pencarian Offline Al-Qur'an</title>
   <style>
-    body {
-      font-family: sans-serif;
-      padding: 2em;
-      max-width: 700px;
-      margin: auto;
-      background-color: #fdfdfd;
-      color: #111;
-    }
-
-    input[type="text"] {
-      padding: 0.6em;
-      width: 80%;
-      max-width: 300px;
-      font-size: 1em;
-    }
-
-    button {
-      padding: 0.6em 1em;
-      font-size: 1em;
-      cursor: pointer;
-      background-color: #007b8a;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      margin-left: 0.5em;
-    }
-
-    button:hover {
-      background-color: #005f6b;
-    }
-
-    #search-results {
-      margin-top: 2em;
-      padding: 1em;
-      background: #f9f9f9;
-      border-radius: 8px;
-    }
-
-    .loading-icon {
-      width: 48px;
-      display: block;
-      margin: auto;
-    }
-
-    .ayah-result {
-      margin-bottom: 1.5em;
-      padding-bottom: 1em;
-      border-bottom: 1px solid #ccc;
-    }
-
-    .ayah-arabic {
-      font-size: 1.8em;
-      direction: rtl;
-      margin: 0.5em 0;
-    }
-
-    .ayah-translation {
-      color: #444;
-      font-size: 0.95em;
-    }
+    body { font-family: sans-serif; padding: 2em; max-width: 700px; margin: auto; }
+    input, button { padding: 0.5em; font-size: 1em; }
+    .result { margin-top: 1em; padding: 1em; background: #f5f5f5; border-radius: 8px; }
+    .ayat { direction: rtl; font-size: 1.4em; margin-bottom: 0.5em; }
+    .label { font-weight: bold; margin-top: 1em; }
   </style>
 </head>
 <body>
 
-  <h2>Pencarian Kata dalam Al-Qur'an</h2>
-  <p>Masukkan kata/frasa Arab atau Indonesia, contoh: <code>الرحمن</code>, <code>kasih sayang</code></p>
-
-  <input type="text" id="quran-search" placeholder="Contoh: الرحمن, kasih sayang" 
-         onkeydown="if(event.key==='Enter'){searchQuran()}" />
+  <h2>Pencarian Offline Ayat Al-Qur'an</h2>
+  <input type="text" id="query" placeholder="Contoh: ٱلرَّحْمَـٰنِ" />
   <button onclick="searchQuran()">Cari</button>
 
-  <div id="search-results"></div>
+  <div id="results"></div>
 
   <script>
-    async function searchQuran() {
-      const query = document.getElementById("quran-search").value.trim();
-      const resultsContainer = document.getElementById("search-results");
+    let quranData = {};
 
-      if (!query) {
-        resultsContainer.innerHTML = "❗ Masukkan kata atau frasa untuk mencari.";
+    // Load quran.json
+    fetch('quran.json')
+      .then(res => res.json())
+      .then(data => { quranData = data; });
+
+    function searchQuran() {
+      const q = document.getElementById('query').value.trim();
+      const results = document.getElementById('results');
+      results.innerHTML = '';
+
+      if (!q) return results.innerHTML = 'Masukkan kata pencarian.';
+
+      let found = [];
+
+      for (const surahKey in quranData) {
+        const surah = quranData[surahKey];
+        const surahName = surah.titleAr + ' (' + surah.titleEn + ')';
+
+        surah.text.forEach(ayat => {
+          if (ayat.text.includes(q)) {
+            found.push({
+              surah: surahName,
+              verseNumber: ayat.verseNumber,
+              text: ayat.text
+            });
+          }
+        });
+      }
+
+      if (found.length === 0) {
+        results.innerHTML = '❌ Tidak ditemukan hasil.';
         return;
       }
 
-      resultsContainer.innerHTML = "<img src='https://raw.githubusercontent.com/dickymiswardi/tadabbur/aa160525691e67e5d0b7aab1e7e9f37657d0ed45/AnimatedBook.gif' class='loading-icon' />";
-
-      try {
-        const searchRes = await fetch(`https://api.alquran.cloud/v1/search/${encodeURIComponent(query)}/10/ar`);
-        const searchData = await searchRes.json();
-
-        if (!searchData.data || !searchData.data.matches || searchData.data.matches.length === 0) {
-          resultsContainer.innerHTML = "🚫 Tidak ditemukan hasil untuk kata tersebut.";
-          return;
-        }
-
-        const uniqueAyatKeys = new Set();
-        const ayatPromises = searchData.data.matches.map(match => {
-          const key = `${match.surah.number}:${match.numberInSurah}`;
-          if (uniqueAyatKeys.has(key)) return null; // Hindari duplikat
-          uniqueAyatKeys.add(key);
-          return fetch(`https://api.alquran.cloud/v1/ayah/${key}/ar`).then(res => res.json());
-        }).filter(Boolean);
-
-        const ayatResults = await Promise.all(ayatPromises);
-
-        resultsContainer.innerHTML = ayatResults.map(result => {
-          const ayah = result.data;
-          return `
-            <div class="ayah-result">
-              <div><strong>📖 Surah ${ayah.surah.englishName} (${ayah.surah.number}:${ayah.numberInSurah})</strong></div>
-              <div class="ayah-arabic">${ayah.text}</div>
-            </div>
-          `;
-        }).join("");
-
-      } catch (e) {
-        console.error(e);
-        resultsContainer.innerHTML = "❌ Terjadi kesalahan saat memuat hasil.";
-      }
+      results.innerHTML = found.map(r => `
+        <div class="result">
+          <div class="label">📖 ${r.surah} — Ayat ${r.verseNumber}</div>
+          <div class="ayat">${r.text}</div>
+        </div>
+      `).join('');
     }
   </script>
 
-<input type="text" id="kata" placeholder="Cari kata Arab atau Indonesia" />
-<button onclick="cari()">Cari</button>
-<div id="hasil"></div>
-
-<script>
-let quranData = [];
-
-fetch('quran.json')
-  .then(res => res.json())
-  .then(data => { quranData = data; });
-
-function cari() {
-  const q = document.getElementById('kata').value.trim();
-  const hasilDiv = document.getElementById('hasil');
-
-  if (!q) return hasilDiv.innerHTML = 'Masukkan kata pencarian.';
-
-  const hasil = quranData.filter(ayat =>
-    ayat.arabic.includes(q) || ayat.indonesian.toLowerCase().includes(q.toLowerCase())
-  );
-
-  hasilDiv.innerHTML = hasil.map(a => `
-    <div style="margin-bottom:1em;">
-      <strong>Surah ${a.surah}:${a.ayat}</strong><br/>
-      <div style="direction: rtl; font-size: 1.5em;">${a.arabic}</div>
-      <div>${a.indonesian}</div>
-    </div>
-  `).join('');
-}
-</script>
-
-  
 </body>
 </html>
