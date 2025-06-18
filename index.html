@@ -2,11 +2,11 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <title>Qur'an Digital - Pencarian</title>
+  <title>Pencarian Al-Qur'an</title>
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
-      background-color: #f7f7f7;
+      background-color: #f9f9f9;
       margin: 0;
       padding: 1em;
     }
@@ -16,18 +16,30 @@
     }
     #search-box {
       width: 100%;
-      max-width: 500px;
+      max-width: 600px;
       margin: 1em auto;
       display: flex;
-      justify-content: center;
+      gap: 0.5em;
     }
     #search-input {
       font-size: 1.2em;
       padding: 0.5em 1em;
-      width: 100%;
+      flex: 1;
       border-radius: 6px;
       border: 1px solid #ccc;
       direction: rtl;
+    }
+    #search-button {
+      font-size: 1em;
+      padding: 0.6em 1.2em;
+      background-color: #007b8a;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    #search-button:hover {
+      background-color: #005f6b;
     }
 
     #search-overlay {
@@ -45,7 +57,7 @@
     #search-result-box {
       background-color: #fff;
       width: 90%;
-      max-width: 600px;
+      max-width: 650px;
       max-height: 80vh;
       overflow-y: auto;
       border-radius: 8px;
@@ -79,15 +91,23 @@
       border: none;
       border-radius: 4px;
       padding: 0.4em 0.8em;
-      float: left;
+      margin-bottom: 1em;
       cursor: pointer;
+    }
+
+    .no-results {
+      text-align: center;
+      font-size: 1em;
+      color: #777;
+      padding-top: 2em;
     }
   </style>
 </head>
 <body>
   <h1>Pencarian Al-Qur'an</h1>
   <div id="search-box">
-    <input type="text" id="search-input" placeholder="Ketik kata Arab tanpa harokat...">
+    <input type="text" id="search-input" placeholder="Tulis kata Arab tanpa harokat...">
+    <button id="search-button">Cari</button>
   </div>
 
   <div id="search-overlay">
@@ -104,7 +124,7 @@ function removeHarokat(text) {
 
 let quranData = [];
 
-fetch('quran.json') // MENGGUNAKAN FILE LOKAL
+fetch('quran.json') // PASTIKAN FILE INI ADA DI LOKASI YANG SAMA
   .then(res => res.json())
   .then(json => {
     quranData = json.flatMap(obj => {
@@ -124,17 +144,27 @@ fetch('quran.json') // MENGGUNAKAN FILE LOKAL
   });
 
 const input = document.getElementById("search-input");
+const button = document.getElementById("search-button");
 const overlay = document.getElementById("search-overlay");
 const resultsBox = document.getElementById("search-results");
 const closeBtn = document.getElementById("close-btn");
 
-input.addEventListener("input", function () {
+function performSearch() {
   const query = removeHarokat(input.value.trim());
   resultsBox.innerHTML = "";
-  if (query.length < 2) return overlay.style.display = "none";
+  overlay.style.display = "flex";
+
+  if (query.length < 2) {
+    resultsBox.innerHTML = "<div class='no-results'>Tulis minimal 2 huruf Arab tanpa harokat...</div>";
+    return;
+  }
 
   const results = quranData.filter(q => q.textClean.includes(query)).slice(0, 50);
-  if (results.length > 0) overlay.style.display = "flex";
+
+  if (results.length === 0) {
+    resultsBox.innerHTML = "<div class='no-results'>Tidak ditemukan.</div>";
+    return;
+  }
 
   results.forEach(res => {
     const div = document.createElement("div");
@@ -145,8 +175,12 @@ input.addEventListener("input", function () {
     `;
     resultsBox.appendChild(div);
   });
-});
+}
 
+button.addEventListener("click", performSearch);
+input.addEventListener("keydown", function (e) {
+  if (e.key === "Enter") performSearch();
+});
 closeBtn.addEventListener("click", () => {
   overlay.style.display = "none";
   resultsBox.innerHTML = "";
