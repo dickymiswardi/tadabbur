@@ -1,19 +1,7 @@
 {
-  "bookmark": [
-    {
-      "surah": 1,
-      "ayat": 2,
-      "timestamp": "17 Juni 2025 21.19"
-    },
-    {
-      "surah": 1,
-      "ayat": 3,
-      "timestamp": "17 Juni 2025 21.42"
-    }
-  ],
-  "notes": {
-    "note-1-3": "Foto-foto"
-  },
-  "log": [],
-  "activeDevice": "670a1586-6607-4988-a42d-5754029d623b"
+  "bookmark": [],
+  "notes": {},
+  "log": [
+    "2025-06-18"
+  ]
 }
