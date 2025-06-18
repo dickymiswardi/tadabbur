@@ -70,9 +70,9 @@
 <body>
 
   <h2>Pencarian Kata dalam Al-Qur'an</h2>
-  <p>Masukkan kata/frasa Arab atau Indonesia, contoh: <code>rahman</code>, <code>kasih sayang</code></p>
+  <p>Masukkan kata/frasa Arab atau Indonesia, contoh: <code>الرحمن</code>, <code>kasih sayang</code></p>
 
-  <input type="text" id="quran-search" placeholder="Contoh: rahman, kasih sayang" 
+  <input type="text" id="quran-search" placeholder="Contoh: الرحمن, kasih sayang" 
          onkeydown="if(event.key==='Enter'){searchQuran()}" />
   <button onclick="searchQuran()">Cari</button>
 
@@ -91,19 +91,18 @@
       resultsContainer.innerHTML = "<img src='https://raw.githubusercontent.com/dickymiswardi/tadabbur/aa160525691e67e5d0b7aab1e7e9f37657d0ed45/AnimatedBook.gif' class='loading-icon' />";
 
       try {
-        const res = await fetch(`https://api.quran.com/v4/search?q=${encodeURIComponent(query)}&language=id&size=10&page=1`);
+        const res = await fetch(`https://api.alquran.cloud/v1/search/${encodeURIComponent(query)}/all/ar`);
         const data = await res.json();
 
-        if (!data.results || data.results.length === 0) {
+        if (!data.data || !data.data.matches || data.data.matches.length === 0) {
           resultsContainer.innerHTML = "🚫 Tidak ditemukan hasil untuk kata tersebut.";
           return;
         }
 
-        resultsContainer.innerHTML = data.results.map(r => `
+        resultsContainer.innerHTML = data.data.matches.map(match => `
           <div class="ayah-result">
-            <div><strong>📖 Surah ${r.verse_key}</strong></div>
-            <div class="ayah-arabic">${r.text}</div>
-            <div class="ayah-translation">${r.translations[0]?.text || '(Terjemahan tidak tersedia)'}</div>
+            <div><strong>📖 Surah ${match.surah.name} (${match.surah.number}:${match.numberInSurah})</strong></div>
+            <div class="ayah-arabic">${match.text}</div>
           </div>
         `).join("");
       } catch (e) {
