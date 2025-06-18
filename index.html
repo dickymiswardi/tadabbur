@@ -1869,11 +1869,11 @@ function handleSwipeGesture() {
 
   if (deltaX > threshold) {
     // Swipe kanan = PREV
-    const prevBtn = [...document.querySelectorAll("button")].find(btn => btn.textContent.trim() === "PREV ▶");
+    const prevBtn = [...document.querySelectorAll("button")].find(btn => btn.textContent.trim() === "◀ NEXT");
     if (prevBtn) prevBtn.click();
   } else if (deltaX < -threshold) {
     // Swipe kiri = NEXT
-    const nextBtn = [...document.querySelectorAll("button")].find(btn => btn.textContent.trim() === "◀ NEXT");
+    const nextBtn = [...document.querySelectorAll("button")].find(btn => btn.textContent.trim() === "PREV ▶");
     if (nextBtn) nextBtn.click();
   }
 }
