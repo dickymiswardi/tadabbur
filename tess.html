@@ -1,67 +1,58 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <title>Pencarian Offline Al-Qur'an</title>
+  <meta charset="UTF-8" />
+  <title>Cari Ayat – alquran-api.pages.dev</title>
   <style>
-    body { font-family: sans-serif; padding: 2em; max-width: 700px; margin: auto; }
+    body { font-family: sans-serif; max-width: 800px; margin: auto; padding: 2em; }
     input, button { padding: 0.5em; font-size: 1em; }
     .result { margin-top: 1em; padding: 1em; background: #f5f5f5; border-radius: 8px; }
-    .ayat { direction: rtl; font-size: 1.4em; margin-bottom: 0.5em; }
-    .label { font-weight: bold; margin-top: 1em; }
+    .ayah-ar { direction: rtl; font-size: 1.5em; margin-top: 0.5em; }
+    .ayah-id { font-size: 1em; color: #444; }
   </style>
 </head>
 <body>
 
-  <h2>Pencarian Offline Ayat Al-Qur'an</h2>
-  <input type="text" id="query" placeholder="Contoh: ٱلرَّحْمَـٰنِ" />
+  <h2>Cari Ayat Al-Qur'an (alquran-api.pages.dev)</h2>
+  <input type="text" id="keyword" placeholder="Contoh: mercy, الرحمن, kasih" />
   <button onclick="searchQuran()">Cari</button>
-
   <div id="results"></div>
 
   <script>
-    let quranData = {};
+    async function searchQuran() {
+      const q = document.getElementById('keyword').value.trim();
+      const resDiv = document.getElementById('results');
+      resDiv.innerHTML = '';
+      if (!q) return resDiv.textContent = '⚠️ Masukkan kata pencarian.';
 
-    // Load quran.json
-    fetch('quran.json')
-      .then(res => res.json())
-      .then(data => { quranData = data; });
+      resDiv.innerHTML = '🔍 Sedang mencari...';
 
-    function searchQuran() {
-      const q = document.getElementById('query').value.trim();
-      const results = document.getElementById('results');
-      results.innerHTML = '';
+      try {
+        const resp = await fetch(`https://alquran-api.pages.dev/api/quran/search?q=${encodeURIComponent(q)}&lang=id`);
+        const json = await resp.json();
 
-      if (!q) return results.innerHTML = 'Masukkan kata pencarian.';
+        if (!json.results || json.results.length === 0) {
+          resDiv.innerHTML = '❌ Tidak ditemukan.';
+          return;
+        }
 
-      let found = [];
+        const output = json.results.map(entry => {
+          const surah = entry.surah;
+          return entry.verses.map(verse => `
+            <div class="result">
+              <div><strong>📖 ${surah.transliteration} (${surah.name}) — Ayat ${verse.id}</strong></div>
+              <div class="ayah-ar">${verse.text}</div>
+              <div class="ayah-id">${verse.translation}</div>
+            </div>
+          `).join('');
+        }).join('');
 
-      for (const surahKey in quranData) {
-        const surah = quranData[surahKey];
-        const surahName = surah.titleAr + ' (' + surah.titleEn + ')';
+        resDiv.innerHTML = output;
 
-        surah.text.forEach(ayat => {
-          if (ayat.text.includes(q)) {
-            found.push({
-              surah: surahName,
-              verseNumber: ayat.verseNumber,
-              text: ayat.text
-            });
-          }
-        });
+      } catch (err) {
+        console.error(err);
+        resDiv.innerHTML = '❌ Terjadi kesalahan.';
       }
-
-      if (found.length === 0) {
-        results.innerHTML = '❌ Tidak ditemukan hasil.';
-        return;
-      }
-
-      results.innerHTML = found.map(r => `
-        <div class="result">
-          <div class="label">📖 ${r.surah} — Ayat ${r.verseNumber}</div>
-          <div class="ayat">${r.text}</div>
-        </div>
-      `).join('');
     }
   </script>
 
