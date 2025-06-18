@@ -125,7 +125,7 @@ function removeHarokat(text) {
 
 let quranData = [];
 
-fetch('https://tadabbur.netlify.app/quran.json')
+fetch('quran.json') // PASTIKAN FILE INI ADA DI LOKASI YANG SAMA
   .then(res => res.json())
   .then(json => {
     quranData = json.flatMap(obj => {
