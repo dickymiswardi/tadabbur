@@ -1116,7 +1116,7 @@ translationDiv.appendChild(noteButton);
 
   const bookmarkBtn = document.createElement("button");
 bookmarkBtn.id = "bookmark-btn";
-bookmarkBtn.innerHTML = "📋"; // default ikon
+bookmarkBtn.innerHTML = "🔰"; // default ikon
 translationDiv.appendChild(bookmarkBtn);
 
 const notifSpan = document.createElement("span");
@@ -1334,7 +1334,7 @@ localStorage.removeItem("fromAutoplay");
   // TOMBOL SYNC
 
   const syncBtn = document.createElement("button");
-syncBtn.innerText = "👤";
+syncBtn.innerText = "LOG IN";
 syncBtn.onclick = () => {
   document.getElementById("sync-overlay").style.display = "flex";
   document.getElementById("sync-status").innerHTML = '';
