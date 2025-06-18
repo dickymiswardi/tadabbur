@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <title>Pencarian Al-Qur'an</title>
+  <title>Pencarian Al-Qur'an Akurat</title>
   <style>
     body { font-family:sans-serif; max-width:700px; margin:auto; padding:2em; }
     input, button { padding:0.5em; font-size:1em; }
@@ -21,7 +21,6 @@
   <div id="results"></div>
 
   <script>
-    // Tentukan base URL otomatis
     const base = window.location.hostname.includes("netlify")
       ? "https://tadabbur.netlify.app"
       : "https://dickymiswardi.github.io/tadabbur";
@@ -45,22 +44,35 @@
         }
 
         const seen = new Set();
-        const output = json.data.matches.filter(m => {
+        const filteredMatches = json.data.matches.filter(m => {
           const key = `${m.surah.number}:${m.numberInSurah}`;
           if (seen.has(key)) return false;
           seen.add(key);
           return true;
         });
 
-        resDiv.innerHTML = output.slice(0, 20).map(match => {
+        const fetchAyahs = filteredMatches.slice(0, 20).map(async match => {
           const surah = match.surah.number;
-          const name = match.surah.name;
           const ayat = match.numberInSurah;
-          const url = `${base}/?surah=${surah}&ayat=${ayat}`;
+          const url = `https://api.alquran.cloud/v1/ayah/${surah}:${ayat}/ar`;
+          const response = await fetch(url);
+          const data = await response.json();
+          return {
+            text: data.data.text,
+            surahName: data.data.surah.name,
+            surahNumber: data.data.surah.number,
+            ayatNumber: data.data.numberInSurah
+          };
+        });
+
+        const ayahs = await Promise.all(fetchAyahs);
+
+        resDiv.innerHTML = ayahs.map(a => {
+          const link = `${base}/?surah=${a.surahNumber}&ayat=${a.ayatNumber}`;
           return `
             <div class="result">
-              <div class="meta">📖 <a href="${url}" target="_blank">${name} (${surah}:${ayat})</a></div>
-              <div class="ayah">${match.text}</div>
+              <div class="meta">📖 <a href="${link}" target="_blank">${a.surahName} (${a.surahNumber}:${a.ayatNumber})</a></div>
+              <div class="ayah">${a.text}</div>
             </div>
           `;
         }).join('');
