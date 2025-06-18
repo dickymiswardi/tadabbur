@@ -1859,22 +1859,24 @@ document.addEventListener("DOMContentLoaded", () => {
 </script>
 
 <script>
-// Deteksi swipe ke kiri/kanan
+// Deteksi swipe kiri dan kanan untuk menggantikan tombol NEXT dan PREV
 let touchStartX = 0;
 let touchEndX = 0;
 
 function handleSwipeGesture() {
-  const threshold = 50; // pixel minimal untuk dianggap swipe
+  const threshold = 50; // jarak minimal swipe agar dianggap geser
   const deltaX = touchEndX - touchStartX;
 
   if (deltaX > threshold) {
-    // Swipe kanan = PREV
-    const prevBtn = [...document.querySelectorAll("button")].find(btn => btn.textContent.trim() === "◀ NEXT");
-    if (prevBtn) prevBtn.click();
-  } else if (deltaX < -threshold) {
-    // Swipe kiri = NEXT
-    const nextBtn = [...document.querySelectorAll("button")].find(btn => btn.textContent.trim() === "PREV ▶");
+    // Geser kanan = tombol NEXT (maju ke ayat berikutnya)
+    const nextBtn = [...document.querySelectorAll("button")]
+      .find(btn => btn.textContent.trim() === "◀ NEXT");
     if (nextBtn) nextBtn.click();
+  } else if (deltaX < -threshold) {
+    // Geser kiri = tombol PREV (kembali ke ayat sebelumnya)
+    const prevBtn = [...document.querySelectorAll("button")]
+      .find(btn => btn.textContent.trim() === "PREV ▶");
+    if (prevBtn) prevBtn.click();
   }
 }
 
