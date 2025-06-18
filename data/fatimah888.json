@@ -1,0 +1,30 @@
+{
+  "bookmark": [
+    {
+      "surah": 1,
+      "ayat": 1,
+      "timestamp": "18 Juni 2025 09.14"
+    },
+    {
+      "surah": 1,
+      "ayat": 1,
+      "timestamp": "18 Juni 2025 09.14"
+    },
+    {
+      "surah": 4,
+      "ayat": 5,
+      "timestamp": "18 Juni 2025 09.59"
+    },
+    {
+      "surah": 4,
+      "ayat": 6,
+      "timestamp": "18 Juni 2025 09.59"
+    }
+  ],
+  "notes": {
+    "note-1-3": "Foto-foto"
+  },
+  "log": [
+    "2025-06-18"
+  ]
+}

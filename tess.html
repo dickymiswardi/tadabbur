@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <title>Cari Kata - Hanya Surah & Ayat</title>
+  <style>
+    body { font-family: sans-serif; max-width: 700px; margin: auto; padding: 2em; }
+    input, button { font-size: 1em; padding: 0.5em; }
+    .result { margin-top: 1em; }
+  </style>
+</head>
+<body>
+
+  <h2>Cari Ayat Berdasarkan Kata</h2>
+  <input type="text" id="query" placeholder="Contoh: الرحمن, kasih sayang" />
+  <button onclick="searchQuran()">Cari</button>
+
+  <div id="results"></div>
+
+  <script>
+    async function searchQuran() {
+      const q = document.getElementById('query').value.trim();
+      const resDiv = document.getElementById('results');
+      resDiv.innerHTML = '';
+
+      if (!q) return resDiv.textContent = '❗ Masukkan kata kunci.';
+
+      resDiv.innerHTML = '🔍 Mencari...';
+
+      try {
+        const res = await fetch(`https://api.alquran.cloud/v1/search/${encodeURIComponent(q)}/all/ar`);
+        const json = await res.json();
+
+        if (!json.data?.matches || json.data.matches.length === 0) {
+          resDiv.innerHTML = '❌ Tidak ditemukan.';
+          return;
+        }
+
+        const uniqueLinks = new Set(); // Hindari duplikat
+
+        resDiv.innerHTML = json.data.matches
+          .filter(match => {
+            const key = `${match.surah.number}:${match.numberInSurah}`;
+            if (uniqueLinks.has(key)) return false;
+            uniqueLinks.add(key);
+            return true;
+          })
+          .slice(0, 20)
+          .map(match => {
+            const surah = match.surah.number;
+            const ayat = match.numberInSurah;
+            const url = `https://dickymiswardi.github.io/tadabbur/?surah=${surah}&ayat=${ayat}`;
+            return `<div class="result"><a href="${url}" target="_blank">📖 Surah ${surah}, Ayat ${ayat}</a></div>`;
+          })
+          .join('');
+
+      } catch (err) {
+        console.error(err);
+        resDiv.innerHTML = '❌ Gagal memuat data.';
+      }
+    }
+  </script>
+
+</body>
+</html>
