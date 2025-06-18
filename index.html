@@ -21,7 +21,10 @@
       color: #111;
     }
 
-    
+.highlight-word {
+  font-family: 'Times New Roman', Times, serif;
+  font-size: 1.3em;
+}
     #sync-overlay button {
   font-size: 0.9em !important;
   padding: 0.6em 1.2em !important;
@@ -1859,5 +1862,53 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 </script>
 
+<script>
+function highlightSpecificWord(quranData, { surah, ayat, kata }) {
+  const container = document.getElementById("quran-container");
+  container.innerHTML = '';
+
+  quranData.forEach(({ surah: s, ayat: a, text }) => {
+    const div = document.createElement("div");
+    div.className = "ayah";
+    div.dataset.surah = s;
+    div.dataset.ayat = a;
+
+    let rendered = text;
+
+    if (s === surah && a === ayat) {
+      const normalizedText = text.normalize("NFD");
+      const plainWords = normalizedText.split(' ');
+      const originalWords = text.split(' ');
+
+      const normalizedTargetWords = kata.map(k => k.normalize("NFD").replace(/[\u064B-\u0652]/g, ''));
+
+      const mapped = originalWords.map((originalWord, i) => {
+        const plain = plainWords[i].replace(/[\u064B-\u0652]/g, '');
+        return normalizedTargetWords.includes(plain)
+          ? `<span class="highlight-word">${originalWord}</span>`
+          : originalWord;
+      });
+
+      rendered = mapped.join(' ');
+    }
+
+    div.innerHTML = rendered;
+    container.appendChild(div);
+  });
+}
+
+  document.addEventListener("DOMContentLoaded", () => {
+  fetch("https://raw.githubusercontent.com/dickymiswardi/tadabbur/main/quran.json")
+    .then(res => res.json())
+    .then(data => {
+      highlightSpecificWord(data, {
+        surah: 2,
+        ayat: 10,
+        kata: ["وَيَبْصُۜطُ", "بَصْۜطَةً"]
+      });
+    });
+});
+</script>
+  
 </body>
 </html>
