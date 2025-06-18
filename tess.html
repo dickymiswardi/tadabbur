@@ -91,20 +91,34 @@
       resultsContainer.innerHTML = "<img src='https://raw.githubusercontent.com/dickymiswardi/tadabbur/aa160525691e67e5d0b7aab1e7e9f37657d0ed45/AnimatedBook.gif' class='loading-icon' />";
 
       try {
-        const res = await fetch(`https://api.alquran.cloud/v1/search/${encodeURIComponent(query)}/all/ar`);
-        const data = await res.json();
+        const searchRes = await fetch(`https://api.alquran.cloud/v1/search/${encodeURIComponent(query)}/10/ar`);
+        const searchData = await searchRes.json();
 
-        if (!data.data || !data.data.matches || data.data.matches.length === 0) {
+        if (!searchData.data || !searchData.data.matches || searchData.data.matches.length === 0) {
           resultsContainer.innerHTML = "🚫 Tidak ditemukan hasil untuk kata tersebut.";
           return;
         }
 
-        resultsContainer.innerHTML = data.data.matches.map(match => `
-          <div class="ayah-result">
-            <div><strong>📖 Surah ${match.surah.name} (${match.surah.number}:${match.numberInSurah})</strong></div>
-            <div class="ayah-arabic">${match.text}</div>
-          </div>
-        `).join("");
+        const uniqueAyatKeys = new Set();
+        const ayatPromises = searchData.data.matches.map(match => {
+          const key = `${match.surah.number}:${match.numberInSurah}`;
+          if (uniqueAyatKeys.has(key)) return null; // Hindari duplikat
+          uniqueAyatKeys.add(key);
+          return fetch(`https://api.alquran.cloud/v1/ayah/${key}/ar`).then(res => res.json());
+        }).filter(Boolean);
+
+        const ayatResults = await Promise.all(ayatPromises);
+
+        resultsContainer.innerHTML = ayatResults.map(result => {
+          const ayah = result.data;
+          return `
+            <div class="ayah-result">
+              <div><strong>📖 Surah ${ayah.surah.englishName} (${ayah.surah.number}:${ayah.numberInSurah})</strong></div>
+              <div class="ayah-arabic">${ayah.text}</div>
+            </div>
+          `;
+        }).join("");
+
       } catch (e) {
         console.error(e);
         resultsContainer.innerHTML = "❌ Terjadi kesalahan saat memuat hasil.";
