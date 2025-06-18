@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Preview Badge</title>
+  <style>
+    body { font-family: sans-serif; display: flex; justify-content: center; margin-top: 80px; background: #f0f4f4; }
+    #badge-tadabbur {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6em;
+      background: linear-gradient(135deg, #009688, #4db6ac);
+      color: #ffffff;
+      padding: 0.8em 1.6em;
+      font-size: 1.2em;
+      font-weight: bold;
+      font-family: "Segoe UI", sans-serif;
+      border-radius: 50px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      user-select: none;
+      pointer-events: none;
+      text-align: center;
+      white-space: nowrap;
+      transition: transform 0.3s;
+    }
+    #badge-tadabbur:hover {
+      transform: scale(1.04);
+    }
+    #badge-tadabbur .icon {
+      background: rgba(255, 255, 255, 0.2);
+      padding: 0.4em;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  </style>
+</head>
+<body>
+  <div id="badge-tadabbur">
+    <div class="icon">📖</div>
+    <div>Total Waktu Tadabbur: <span id="hari-tadabbur">3 Hari</span></div>
+  </div>
+</body>
+</html>
