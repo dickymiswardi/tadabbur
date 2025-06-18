@@ -56,5 +56,20 @@
     }
   </script>
 
+<script>
+fetch('https://raw.githubusercontent.com/rioastamal/quran-json/refs/heads/master/surah/10.json')
+  .then(res => res.json())
+  .then(data => {
+    // Loop isi ayat
+    for (const no in data.text) {
+      const ayat = data.text[no];
+      const arti = data.translation[no];
+      console.log(`Ayat ${no}: ${ayat}`);
+      console.log(`Terjemah: ${arti}`);
+    }
+  });
+</script>
+
+  
 </body>
 </html>
