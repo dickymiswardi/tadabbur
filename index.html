@@ -21,10 +21,12 @@
       color: #111;
     }
 
-.highlight-word {
-  font-family: 'Times New Roman', Times, serif;
-  font-size: 1.3em;
+.inline-img-word {
+  display: inline;
+  height: 1em;
+  vertical-align: middle;
 }
+
     #sync-overlay button {
   font-size: 0.9em !important;
   padding: 0.6em 1.2em !important;
@@ -1863,34 +1865,28 @@ document.addEventListener("DOMContentLoaded", () => {
 </script>
 
 <script>
-function highlightSpecificWord(quranData, { surah, ayat, kata }) {
+function replaceWordsWithImages(quranData, daftarPengganti) {
   const container = document.getElementById("quran-container");
   container.innerHTML = '';
 
-  quranData.forEach(({ surah: s, ayat: a, text }) => {
+  quranData.forEach(({ surah, ayat, text }) => {
     const div = document.createElement("div");
     div.className = "ayah";
-    div.dataset.surah = s;
-    div.dataset.ayat = a;
+    div.dataset.surah = surah;
+    div.dataset.ayat = ayat;
 
     let rendered = text;
 
-    if (s === surah && a === ayat) {
-      const normalizedText = text.normalize("NFD");
-      const plainWords = normalizedText.split(' ');
-      const originalWords = text.split(' ');
+    // Ambil semua pengganti untuk ayat ini
+    const targetKata = daftarPengganti.filter(k =>
+      k.surah === surah && k.ayat === ayat
+    );
 
-      const normalizedTargetWords = kata.map(k => k.normalize("NFD").replace(/[\u064B-\u0652]/g, ''));
-
-      const mapped = originalWords.map((originalWord, i) => {
-        const plain = plainWords[i].replace(/[\u064B-\u0652]/g, '');
-        return normalizedTargetWords.includes(plain)
-          ? `<span class="highlight-word">${originalWord}</span>`
-          : originalWord;
-      });
-
-      rendered = mapped.join(' ');
-    }
+    targetKata.forEach(({ kata, img }) => {
+      const regex = new RegExp(`\\b${kata}\\b`, 'g');
+      const imgTag = `<img src="${img}" alt="${kata}" class="inline-img-word" />`;
+      rendered = rendered.replace(regex, imgTag);
+    });
 
     div.innerHTML = rendered;
     container.appendChild(div);
@@ -1901,13 +1897,14 @@ function highlightSpecificWord(quranData, { surah, ayat, kata }) {
   fetch("https://raw.githubusercontent.com/dickymiswardi/tadabbur/main/quran.json")
     .then(res => res.json())
     .then(data => {
-      highlightSpecificWord(data, {
-        surah: 2,
-        ayat: 10,
-        kata: ["وَيَبْصُۜطُ", "بَصْۜطَةً"]
-      });
+      replaceWordsWithImages(data, [
+        { surah: 2, ayat: 245, kata: "وَيَبْصُۜطُ", img: "https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/Screenshot%202025-06-18%20105718.png" },
+        { surah: 2, ayat: 10, kata: "عَذَابٌ", img: "img/azab.png" },
+        { surah: 1, ayat: 2, kata: "الرحمن", img: "img/rahman.png" }
+      ]);
     });
 });
+
 </script>
   
 </body>
