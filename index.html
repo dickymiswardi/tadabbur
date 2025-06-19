@@ -1190,18 +1190,20 @@ function showBookmarkNotif(text) {
   }, 5000);
 }
 
-      const playAudioBtn = document.createElement("button");
-playAudioBtn.textContent = "♬ MP3";
-playAudioBtn.onclick = showQariSelector;
-navDiv.appendChild(playAudioBtn);
-
-      function showQariSelector() {
+  function showQariSelector() {
   const backdrop = document.createElement("div");
   backdrop.className = "audio-qari-backdrop";
   backdrop.onclick = () => {
     backdrop.remove();
     overlay.remove();
   };
+
+      const playAudioBtn = document.createElement("button");
+playAudioBtn.textContent = "♬ MP3";
+playAudioBtn.onclick = showQariSelector;
+navDiv.appendChild(playAudioBtn);
+
+      
 
   const overlay = document.createElement("div");
   overlay.className = "audio-qari-overlay";
