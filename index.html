@@ -1388,6 +1388,18 @@ navDiv.appendChild(syncBtn);
       document.getElementById("result").textContent = "Gagal memuat data.";
     });
 
+    document.addEventListener("DOMContentLoaded", function () {
+  const params = new URLSearchParams(window.location.search);
+  const hasParams = params.has("surah") && params.has("ayat");
+
+  if (!hasParams) {
+    // Tidak ada parameter, ambil dari localStorage
+    const lastSurah = localStorage.getItem("lastSurah") || "1";
+    const lastAyat = localStorage.getItem("lastAyat") || "1";
+    window.location.href = `?surah=${lastSurah}&ayat=${lastAyat}`;
+    return;
+  }
+
   // Jika ada parameter, tampilkan seperti biasa
   const surah = parseInt(params.get("surah") || "1");
   const ayat = parseInt(params.get("ayat") || "1");
