@@ -747,7 +747,7 @@ const lastAyat = urlParams.get("ayat") || localStorage.getItem("lastAyat");
       return { surah: surah - 1, ayah: surahAyahCount[surah - 1] };
     }
 
-    const apiURL = `quran3.json`; // ganti dari versi API lama
+    const apiURL = `quran.json`; // ganti dari versi API lama
 
     Promise.all([
   fetch("quran.json").then(res => res.json()),
