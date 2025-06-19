@@ -26,7 +26,7 @@
       resultsDiv.innerHTML = "⏳ Mencari...";
 
       try {
-        const response = await fetch("/.netlify/functions/search-quran", {
+        const response = await fetch("/.netlify/functions/searc-quran", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ query })
