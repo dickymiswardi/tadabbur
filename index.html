@@ -2124,6 +2124,20 @@ function searchAyat() {
   <div id="search-results" style="margin-top:1.5em; max-height:300px; overflow-y:auto; font-size:0.95em;"></div>
 </div>
 
+  <script>
+function openSearchOverlay() {
+  document.getElementById("search-overlay").style.display = "block";
+  document.getElementById("search-backdrop").style.display = "block";
+  document.getElementById("search-input").focus();
+}
+
+function closeSearchOverlay() {
+  document.getElementById("search-overlay").style.display = "none";
+  document.getElementById("search-backdrop").style.display = "none";
+  document.getElementById("search-results").innerHTML = "";
+}
+</script>
+
   
 </body>
 </html>
