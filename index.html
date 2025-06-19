@@ -1725,7 +1725,7 @@ async function uploadDataToCloud() {
       log: localLog
     };
 
-    status.innerHTML = '⬆️ Upload... <img src="https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/FadingFountain.gif" width="50" />';
+    status.innerHTML = '⬆️ Upload <img src="https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/FadingFountain.gif" width="50" />';
     await fetch('/.netlify/functions/sync', {
       method: 'POST',
       body: JSON.stringify({ username, data: payload })
@@ -1751,6 +1751,7 @@ async function uploadDataToCloud() {
   }
 
   try {
+    status.innerHTML = '⬇️ Downloading <img src="https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/FadingFountain.gif" width="50" style="vertical-align:middle; display:inline;" />';
     const url = `https://raw.githubusercontent.com/dickymiswardi/tadabbur/main/data/${username}.json`;
     const response = await fetch(url);
     if (!response.ok) throw new Error("Gagal ambil data");
@@ -1769,7 +1770,7 @@ async function uploadDataToCloud() {
       Object.keys(cloudData.notes).forEach(k => localStorage.setItem(k, cloudData.notes[k]));
     }
 
-    status.innerHTML = '<span style="color:green">✅ Download berhasil! <img src="https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/FadingFountain.gif" width="50" style="vertical-align:middle;" /></span>';
+    status.innerHTML = '<span style="color:green">✅ Download berhasil!</span>';
   } catch (err) {
     console.error(err);
     status.innerHTML = '<span style="color:red">❌ Download gagal.</span>';
