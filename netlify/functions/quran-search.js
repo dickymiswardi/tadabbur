@@ -1,22 +1,7 @@
 const fetch = require("node-fetch");
 
-// Ambil client ID dan secret dari environment variable Netlify
-const clientId = process.env.QURAN_CLIENT_ID;
-const clientSecret = process.env.QURAN_CLIENT_SECRET;
-
-// Fungsi timeout untuk fetch
-function timeoutFetch(url, options = {}, timeout = 5000) {
-  return Promise.race([
-    fetch(url, options),
-    new Promise((_, reject) =>
-      setTimeout(() => reject(new Error("Timeout")), timeout)
-    )
-  ]);
-}
-
 exports.handler = async function (event) {
   const query = event.queryStringParameters.q;
-
   if (!query) {
     return {
       statusCode: 400,
@@ -24,18 +9,20 @@ exports.handler = async function (event) {
     };
   }
 
+  const clientId = "f4836330-bed3-44ef-b802-7331be98c3af";
+  const clientSecret = "PTUkgf37QbFO9O-ccRIPTYjZwO";
   const credentials = Buffer.from(`${clientId}:${clientSecret}`).toString("base64");
 
   try {
-    // 1. Ambil access token dari API production
-    const tokenRes = await timeoutFetch("https://oauth2.quran.foundation/oauth2/token", {
+    // Ambil access token
+    const tokenRes = await fetch("https://oauth2.quran.foundation/oauth2/token", {
       method: "POST",
       headers: {
-        Authorization: `Basic ${credentials}`,
-        "Content-Type": "application/x-www-form-urlencoded",
+        "Authorization": `Basic ${credentials}`,
+        "Content-Type": "application/x-www-form-urlencoded"
       },
-      body: "grant_type=client_credentials",
-    }, 5000);
+      body: "grant_type=client_credentials"
+    });
 
     const tokenData = await tokenRes.json();
     const token = tokenData.access_token;
@@ -47,29 +34,22 @@ exports.handler = async function (event) {
       };
     }
 
-    // 2. Kirim pencarian ke endpoint content production
-    const searchRes = await timeoutFetch(
-      `https://apis.quran.foundation/content/api/v4/search?q=${encodeURIComponent(query)}&size=10`,
-      {
-        method: "GET",
-        headers: {
-          "x-auth-token": token,
-          "x-client-id": clientId,
-        },
-      },
-      5000
-    );
+    // Panggil API search
+    const searchRes = await fetch(`https://api.quran.com/v4/search?q=${encodeURIComponent(query)}&size=10&language=id`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
 
     const result = await searchRes.json();
     return {
       statusCode: 200,
-      body: JSON.stringify(result),
+      body: JSON.stringify(result)
     };
   } catch (err) {
-    console.error("❌ Error:", err.message);
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: err.message }),
+      body: JSON.stringify({ error: err.message })
     };
   }
 };
