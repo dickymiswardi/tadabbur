@@ -2020,66 +2020,69 @@ document.addEventListener('touchend', e => {
 
 
 <!-- Overlay Pencarian Ayat Al-Qur'an -->
+<!-- Overlay Pencarian Al-Qur'an (versi mirip TAFSIR) -->
 <div id="searchOverlay" style="
-  display:none;
-  position:fixed;
-  top:0; left:0;
-  width:100%; height:100%;
-  background:#00000088;
-  z-index:9999;
-  overflow:auto;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 9999;
+  display: none;
 ">
   <div style="
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  min-height:100vh;
-  padding:1rem;
-">
-    <div style="
-      background:white;
-      padding:2rem;
-      border-radius:12px;
-      width:100%;
-      max-width:600px;
-      box-shadow:0 0 10px rgba(0,0,0,0.3);
-    ">
-      <div style="text-align:right;">
-        <button onclick="closeSearch()" style="
-          background:none;
-          border:none;
-          font-size:1.5rem;
-          color:#555;
-          cursor:pointer;
-        ">&times;</button>
+    background: #fff;
+    width: 90%;
+    max-width: 600px;
+    margin: 10% auto;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.3);
+    position: relative;
+  ">
+    <!-- Tombol tutup -->
+    <button onclick="closeSearch()" style="
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+    ">&times;</button>
+
+    <!-- Form pencarian -->
+    <form onsubmit="doSearch(); return false;" style="margin-bottom: 1rem;">
+      <div style="display: flex; gap: 0.5rem;">
+        <input type="text" id="searchInput" placeholder="Cari ayat..." style="
+          flex: 1;
+          padding: 0.75rem;
+          font-size: 1rem;
+          border: 1px solid #ccc;
+          border-radius: 8px;
+        ">
+        <button type="submit" style="
+          padding: 0.75rem 1.2rem;
+          font-size: 1rem;
+          background-color: #007BFF;
+          color: white;
+          border: none;
+          border-radius: 8px;
+          cursor: pointer;
+        ">Cari</button>
       </div>
+    </form>
 
-      <form onsubmit="doSearch(); return false;">
-        <div style="display:flex; gap:0.5rem; margin-bottom:1rem;">
-          <input type="text" id="searchInput" placeholder="Cari ayat..." style="
-            flex:1;
-            padding:0.8rem 1rem;
-            font-size:1rem;
-            border-radius:8px;
-            border:1px solid #ccc;
-          ">
-          <button type="submit" style="
-            padding:0.8rem 1.2rem;
-            font-size:1rem;
-            background:#007BFF;
-            color:white;
-            border:none;
-            border-radius:8px;
-            cursor:pointer;
-          ">Cari</button>
-        </div>
-      </form>
-
-      <div id="searchResults"></div>
-    </div>
+    <!-- Hasil pencarian -->
+    <div id="searchResults" style="
+  max-height: 60vh;
+  overflow-y: auto;
+  margin-top: 1rem;
+  padding-right: 0.5rem;
+">
   </div>
 </div>
 
+  
 <script>
 const allowedPrefixes = ['أ', 'ب', 'س', 'ف', 'ل', 'و'];
 const currentHost = location.hostname.includes("netlify")
@@ -2152,6 +2155,16 @@ function doSearch() {
 function closeSearch() {
   document.getElementById("searchOverlay").style.display = "none";
 }
+
+  document.getElementById("openSearch").addEventListener("click", function () {
+  document.getElementById("searchOverlay").style.display = "block";
+  document.getElementById("searchInput").focus();
+});
+
+function closeSearch() {
+  document.getElementById("searchOverlay").style.display = "none";
+}
+
 
 // Tambahkan ketika tombol diklik
 const searchBtn = document.getElementById("openSearch");
