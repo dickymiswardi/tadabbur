@@ -2,42 +2,90 @@
 <html lang="ar">
 <head>
   <meta charset="UTF-8">
-  <title>Search Ayat Lokal</title>
+  <title>Pencarian Ayat Al-Qur'an (Lokal)</title>
   <style>
-    body { font-family: sans-serif; padding: 2rem; background: #f0f0f0; }
-    input { width: 100%; padding: 1rem; font-size: 1.2rem; margin-bottom: 1rem; }
-    .result { background: white; padding: 1rem; margin-bottom: 1rem; border-radius: 8px; box-shadow: 0 0 5px #ccc; direction: rtl; text-align: right; }
-    .meta { font-size: 0.9rem; color: #666; margin-bottom: 0.3rem; }
+    body { font-family: sans-serif; padding: 2rem; background: #f9f9f9; }
+    .search-box {
+      max-width: 600px;
+      margin: 0 auto;
+      text-align: center;
+    }
+    input, button {
+      padding: 1rem;
+      font-size: 1.2rem;
+      margin: 0.3rem;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+    input {
+      width: 70%;
+    }
+    button {
+      background: #28a745;
+      color: white;
+      cursor: pointer;
+    }
+    .result {
+      background: white;
+      padding: 1rem;
+      margin: 1rem auto;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      direction: rtl;
+      text-align: right;
+      max-width: 600px;
+    }
+    .meta {
+      font-size: 0.9rem;
+      color: #555;
+      margin-bottom: 0.3rem;
+    }
   </style>
 </head>
 <body>
 
-<h2>🔍 Pencarian Ayat (Lokal - Quran JSON)</h2>
-<input type="text" id="searchInput" placeholder="Ketik kata Arab, contoh: اللَّهِ">
-<div id="results"></div>
+<div class="search-box">
+  <h2>🔍 Pencarian Ayat Al-Qur'an (Lokal)</h2>
+  <input type="text" id="searchInput" placeholder="Tulis kata Arab, contoh: اللَّهِ">
+  <button onclick="doSearch()">Search</button>
+  <div id="results"></div>
+</div>
 
 <script>
 let quranText = [];
 
+// Ambil data dari Quran JSON
 fetch('https://unpkg.com/quran-json@1.0.1/json/quran/text.json')
   .then(res => res.json())
   .then(data => {
     quranText = data;
+  })
+  .catch(err => {
+    alert("Gagal memuat data Al-Qur'an.");
+    console.error(err);
   });
 
-document.getElementById('searchInput').addEventListener('input', function () {
-  const keyword = this.value.trim();
+function doSearch() {
+  const keyword = document.getElementById('searchInput').value.trim();
   const container = document.getElementById('results');
   container.innerHTML = '';
 
-  if (keyword.length < 2) return;
+  if (quranText.length === 0) {
+    container.innerHTML = '<p>🔄 Sedang memuat data, coba sebentar lagi...</p>';
+    return;
+  }
+
+  if (keyword.length < 2) {
+    container.innerHTML = '<p>❗ Masukkan minimal 2 huruf Arab.</p>';
+    return;
+  }
 
   const results = quranText.filter(ayat =>
     ayat.text.split(' ').some(kata => kata.includes(keyword))
   );
 
   if (results.length === 0) {
-    container.innerHTML = '<p>Tidak ditemukan.</p>';
+    container.innerHTML = '<p>❌ Tidak ditemukan.</p>';
     return;
   }
 
@@ -47,7 +95,7 @@ document.getElementById('searchInput').addEventListener('input', function () {
       <div class="text">${r.text}</div>
     </div>
   `).join('');
-});
+}
 </script>
 
 </body>
