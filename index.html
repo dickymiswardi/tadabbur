@@ -2020,7 +2020,7 @@ document.addEventListener('touchend', e => {
 
 
 <!-- Overlay Pencarian Ayat Al-Qur'an -->
-<!-- Overlay Pencarian Al-Qur'an (versi mirip TAFSIR) -->
+<!-- Overlay Pencarian Ayat Al-Qur'an (fix tengah responsif dan stabil) -->
 <div id="searchOverlay" style="
   position: fixed;
   top: 0; left: 0;
@@ -2028,61 +2028,65 @@ document.addEventListener('touchend', e => {
   background: rgba(0, 0, 0, 0.7);
   z-index: 9999;
   display: none;
+  overflow-y: auto;
 ">
   <div style="
-    background: #fff;
-    width: 90%;
-    max-width: 600px;
-    margin: 10% auto;
-    padding: 1.5rem;
-    border-radius: 12px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.3);
-    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 1rem;
   ">
-    <!-- Tombol tutup -->
-    <button onclick="closeSearch()" style="
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      background: none;
-      border: none;
-      font-size: 1.5rem;
-      cursor: pointer;
-    ">&times;</button>
+    <div style="
+      background: #fff;
+      width: 100%;
+      max-width: 600px;
+      padding: 1.5rem;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.3);
+      position: relative;
+    ">
+      <!-- Tombol tutup -->
+      <button onclick="closeSearch()" style="
+        position: absolute;
+        top: 12px;
+        right: 16px;
+        background: none;
+        border: none;
+        font-size: 1.8rem;
+        color: #555;
+        cursor: pointer;
+        line-height: 1;
+      ">&times;</button>
 
-    <!-- Form pencarian -->
-    <form onsubmit="doSearch(); return false;" style="margin-bottom: 1rem;">
-      <div style="display: flex; gap: 0.5rem;">
-        <input type="text" id="searchInput" placeholder="Cari ayat..." style="
-          flex: 1;
-          padding: 0.75rem;
-          font-size: 1rem;
-          border: 1px solid #ccc;
-          border-radius: 8px;
-        ">
-        <button type="submit" style="
-          padding: 0.75rem 1.2rem;
-          font-size: 1rem;
-          background-color: #007BFF;
-          color: white;
-          border: none;
-          border-radius: 8px;
-          cursor: pointer;
-        ">Cari</button>
-      </div>
-    </form>
+      <!-- Form pencarian -->
+      <form onsubmit="doSearch(); return false;" style="margin-bottom: 1rem;">
+        <div style="display: flex; gap: 0.5rem;">
+          <input type="text" id="searchInput" placeholder="Cari ayat..." style="
+            flex: 1;
+            padding: 0.75rem;
+            font-size: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+          ">
+          <button type="submit" style="
+            padding: 0.75rem 1.2rem;
+            font-size: 1rem;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+          ">Cari</button>
+        </div>
+      </form>
 
-    <!-- Hasil pencarian -->
-    <div id="searchResults" style="
-  max-height: 60vh;
-  overflow-y: auto;
-  margin-top: 1rem;
-  padding-right: 0.5rem;
-">
+      <!-- Hasil pencarian -->
+      <div id="searchResults"></div>
+    </div>
   </div>
 </div>
 
-  
 <script>
 const allowedPrefixes = ['أ', 'ب', 'س', 'ف', 'ل', 'و'];
 const currentHost = location.hostname.includes("netlify")
@@ -2129,18 +2133,18 @@ function doSearch() {
   container.innerHTML = results.map(r => `
     <div style="margin-bottom:1rem; padding:1rem; background:#f1f1f1; border-radius:8px;">
       <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap; margin-bottom:5px;">
-  <a href="${currentHost}/?surah=${r.surah}&ayat=${r.ayah}" class="meta" style="text-decoration:none; color:inherit; font-weight:bold;">
-    Surah ${r.surah} (${r.nama}) • Ayat ${r.ayah}
-  </a>
-  <a href="${currentHost}/?surah=${r.surah}&ayat=${r.ayah}" style="
-    padding: 0.3rem 0.8rem;
-    font-size: 0.85rem;
-    background-color: #28a745;
-    color: white;
-    border-radius: 6px;
-    text-decoration: none;
-  ">Lihat</a>
-</div>
+        <a href="${currentHost}/?surah=${r.surah}&ayat=${r.ayah}" class="meta" style="text-decoration:none; color:inherit; font-weight:bold;">
+          Surah ${r.surah} (${r.nama}) • Ayat ${r.ayah}
+        </a>
+        <a href="${currentHost}/?surah=${r.surah}&ayat=${r.ayah}" style="
+          padding: 0.3rem 0.8rem;
+          font-size: 0.85rem;
+          background-color: #28a745;
+          color: white;
+          border-radius: 6px;
+          text-decoration: none;
+        ">Yuk Tadabbur</a>
+      </div>
       ${isAr ? `
         <div style="font-size:1.2rem; direction:rtl; text-align:right;">${highlight(r.arab, input)}</div>
         <div style="font-size:1rem; margin-top:0.3rem;">${r.terjemah}</div>
@@ -2156,17 +2160,6 @@ function closeSearch() {
   document.getElementById("searchOverlay").style.display = "none";
 }
 
-  document.getElementById("openSearch").addEventListener("click", function () {
-  document.getElementById("searchOverlay").style.display = "block";
-  document.getElementById("searchInput").focus();
-});
-
-function closeSearch() {
-  document.getElementById("searchOverlay").style.display = "none";
-}
-
-
-// Tambahkan ketika tombol diklik
 const searchBtn = document.getElementById("openSearch");
 if (searchBtn) {
   searchBtn.addEventListener("click", () => {
@@ -2175,6 +2168,7 @@ if (searchBtn) {
   });
 }
 </script>
+
 
 <script>
 let searchData = [];
