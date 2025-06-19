@@ -5,13 +5,17 @@ exports.handler = async function (event) {
 
   const tokenRes = await fetch("https://prelive-oauth2.quran.foundation/oauth/token", {
   method: "POST",
-  headers: { "Content-Type": "application/x-www-form-urlencoded" },
+  headers: {
+    "Content-Type": "application/x-www-form-urlencoded",
+    "Accept": "application/json" // <<< TAMBAHKAN INI!
+  },
   body: new URLSearchParams({
     grant_type: "client_credentials",
     client_id: process.env.CLIENT_ID,
     client_secret: process.env.CLIENT_SECRET
   })
 });
+
 
 
   const tokenData = await tokenRes.json();
