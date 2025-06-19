@@ -1385,6 +1385,24 @@ audio.onended = () => {
 
 
   audioWrapper.appendChild(audio);
+
+// === Checkbox "Pertahankan Player" ===
+const keepPlayerWrap = document.createElement("label");
+keepPlayerWrap.className = "autoplay-toggle";
+
+const keepCheckbox = document.createElement("input");
+keepCheckbox.type = "checkbox";
+keepCheckbox.checked = localStorage.getItem("keepPlayer") === "true";
+keepCheckbox.onchange = () => {
+  localStorage.setItem("keepPlayer", keepCheckbox.checked);
+};
+
+keepPlayerWrap.appendChild(keepCheckbox);
+keepPlayerWrap.appendChild(document.createTextNode("Pertahankan player"));
+
+audioWrapper.appendChild(keepPlayerWrap);
+
+        
   audioWrapper.appendChild(toggleWrap);
   container.appendChild(audioWrapper);
   audioWrapper.appendChild(repeatLabel);
@@ -1403,9 +1421,13 @@ audio.onended = () => {
       const savedQari = localStorage.getItem("lastQari");
 const fromAutoplay = localStorage.getItem("fromAutoplay") === "true";
 
-if (savedQari && fromAutoplay) {
+const autoplayChecked = localStorage.getItem("autoplay") === "true";
+const keepPlayer = localStorage.getItem("keepPlayer") === "true";
+
+if (savedQari && (fromAutoplay || keepPlayer || autoplayChecked)) {
   playAudioForAyah(savedQari);
 }
+
 
 // setelah dicek, hapus flag agar tidak autoplay lagi tanpa sengaja
 localStorage.removeItem("fromAutoplay");
