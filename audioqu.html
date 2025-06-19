@@ -14,7 +14,7 @@
 <body>
   <h2>🔎 Pencarian Kata dalam Al-Qur'an</h2>
 
-  <input id="search-input" placeholder="Masukkan kata, contoh: الرحمن" />
+  <input id="search-input" placeholder="Masukkan kata, contoh: الحمد" />
   <button onclick="searchQuran()">Cari</button>
 
   <div id="results" class="result"></div>
@@ -26,7 +26,12 @@
       resultsDiv.innerHTML = "⏳ Mencari...";
 
       try {
-        const response = await fetch(`https://api.quran.com/v4/search?q=${encodeURIComponent(query)}&language=id&size=50&source=translation`);
+        const response = await fetch("/.netlify/functions/search-quran", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ query })
+        });
+
         const data = await response.json();
 
         if (!data.results.length) {
@@ -43,7 +48,7 @@
             <strong>QS ${item.verse_key}</strong><br>
             <span style="font-size: 1.2em;">${item.text}</span><br>
             <em>${item.translations?.[0]?.text || ''}</em><br>
-            <a href="${tautan}" target="_blank">➡️ Buka ayat di situsmu</a>
+            <a href="${tautan}" target="_blank">➡️ Buka di situsmu</a>
           `;
           resultsDiv.appendChild(div);
         });
