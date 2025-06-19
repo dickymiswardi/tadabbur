@@ -1119,8 +1119,14 @@ translationDiv.appendChild(noteButton);
         prevBtn.textContent = "PREV ▶";
         prevBtn.onclick = () => {
   localStorage.setItem("fromAutoplay", "false");
+  if (document.getElementById("audio-player-container").style.display === "block") {
+    localStorage.setItem("audioPlayerVisible", "true");
+  } else {
+    localStorage.removeItem("audioPlayerVisible");
+  }
   window.location.search = `?surah=${prev.surah}&ayat=${prev.ayah}`;
 };
+
         navDiv.appendChild(prevBtn);
       }
 
@@ -1361,8 +1367,14 @@ navDiv.appendChild(syncBtn);
         nextBtn.textContent = "◀ NEXT";
         nextBtn.onclick = () => {
   localStorage.setItem("fromAutoplay", "false");
+  if (document.getElementById("audio-player-container").style.display === "block") {
+    localStorage.setItem("audioPlayerVisible", "true");
+  } else {
+    localStorage.removeItem("audioPlayerVisible");
+  }
   window.location.search = `?surah=${next.surah}&ayat=${next.ayah}`;
 };
+
         navDiv.appendChild(nextBtn);
       }
 
