@@ -21,6 +21,78 @@
       color: #111;
     }
 
+
+    #search-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+  }
+
+  #search-box {
+    background: #fff;
+    padding: 1.5em;
+    border-radius: 12px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.3);
+    width: 90%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow-y: auto;
+    text-align: center;
+  }
+
+  #search-box h2 {
+    margin-top: 0;
+    color: #007b8a;
+    font-size: 1.4em;
+  }
+
+  #search-box input[type="text"] {
+    width: 100%;
+    padding: 0.7em;
+    font-size: 1.1em;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    margin-bottom: 1em;
+  }
+
+  #search-box button {
+    padding: 0.6em 1.2em;
+    background-color: #007b8a;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 1em;
+    cursor: pointer;
+    width: 100%;
+  }
+
+  #search-results {
+    margin-top: 1em;
+    text-align: right;
+    direction: rtl;
+  }
+
+  #search-results .result-item {
+    padding: 0.6em;
+    border-bottom: 1px solid #eee;
+  }
+
+  #search-results .result-link {
+    display: block;
+    font-size: 0.9em;
+    text-align: left;
+    direction: ltr;
+    color: #007b8a;
+  }
+    
+
     #sync-overlay button {
   font-size: 0.9em !important;
   padding: 0.6em 1.2em !important;
@@ -2008,92 +2080,63 @@ document.addEventListener('touchend', e => {
 });
 </script>
 
-  <a href="javascript:void(0)" onclick="openSearchOverlay()" style="display:inline-block; margin:1em 0; color:#007b8a; font-size:1.1em; text-decoration:underline; cursor:pointer;">
-  🔍 Search
-</a>
+<!-- Trigger link -->
+<a href="#" onclick="document.getElementById('search-overlay').style.display = 'flex'">🔍 Search</a>
 
-
-  <div id="search-backdrop" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9998;"></div>
-
-<div id="search-overlay" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:white; padding:2em; border-radius:12px; max-width:500px; width:90%; box-shadow:0 0 25px rgba(0,0,0,0.2); z-index:9999;">
-  <div style="text-align:right; margin-top:-1em; margin-right:-1em;">
-    <button onclick="closeSearchOverlay()" style="font-size:1.2em; background:none; border:none; cursor:pointer;">&times;</button>
+<!-- Search Overlay -->
+<div id="search-overlay">
+  <div id="search-box">
+    <h2>Cari Ayat Al-Qur'an</h2>
+    <input type="text" id="search-query" placeholder="Ketik kata atau teks...">
+    <button onclick="doSearch()">Cari</button>
+    <div id="search-results"></div>
   </div>
-  <h2 style="text-align:center; color:#007b8a;">Cari Ayat</h2>
-  <input id="search-input" type="text" placeholder="Ketik kata atau arab: cahaya, الرحمن ..." style="width:100%; padding:0.8em; font-size:1em; border:1px solid #ccc; border-radius:6px; margin-bottom:1em;" onkeydown="if(event.key==='Enter')searchAyat()">
-  <button onclick="searchAyat()" style="width:100%; background:#007b8a; color:white; font-size:1em; padding:0.8em; border:none; border-radius:6px; cursor:pointer;">Search Ayat</button>
-  <div id="search-results" style="margin-top:1.5em; max-height:300px; overflow-y:auto; font-size:0.95em;"></div>
 </div>
 
-
 <script>
-function openSearchOverlay() {
-  document.getElementById("search-overlay").style.display = "block";
-  document.getElementById("search-backdrop").style.display = "block";
-  document.getElementById("search-input").focus();
-}
+  async function doSearch() {
+    const query = document.getElementById('search-query').value.trim();
+    const resultsContainer = document.getElementById('search-results');
+    resultsContainer.innerHTML = '🔍 Mencari...';
 
-function closeSearchOverlay() {
-  document.getElementById("search-overlay").style.display = "none";
-  document.getElementById("search-backdrop").style.display = "none";
-  document.getElementById("search-results").innerHTML = "";
-}
+    const removeHarakat = text => text.replace(/[\u064B-\u065F\u0610-\u061A\u06D6-\u06ED]/g, "");
 
-function searchAyat() {
-  const query = document.getElementById("search-input").value.trim();
-  if (!query) {
-    document.getElementById("search-results").innerHTML = "<p>❗ Masukkan kata pencarian.</p>";
-    return;
-  }
-  searchAyatWithApiQuran(query);
-}
+    const data = await fetch("https://raw.githubusercontent.com/dickymiswardi/tadabbur/main/quran.json").then(res => res.json());
+    const flat = [];
+    for (let i = 1; i < data.length; i++) {
+      const surahObj = data[i];
+      const key = Object.keys(surahObj)[0];
+      const surah = surahObj[key];
+      surah.text.forEach(ayat => {
+        flat.push({
+          surah: parseInt(surah.chapterNumber),
+          surahName: surah.titleEn,
+          ayah: parseInt(ayat.verseNumber),
+          text: ayat.text
+        });
+      });
+    }
 
-async function searchAyatWithApiQuran(query) {
-  const resultsDiv = document.getElementById("search-results");
-  resultsDiv.innerHTML = `<div style="text-align:center;"><img src="https://raw.githubusercontent.com/dickymiswardi/tadabbur/main/FadingFountain.gif" width="32"/></div>`;
+    const gQuery = removeHarakat(query);
+    const matches = flat.filter(item => removeHarakat(item.text).includes(gQuery) || item.text.includes(query));
 
-  try {
-    const res = await fetch(`/.netlify/functions/quran-search?q=${encodeURIComponent(query)}`);
-    const data = await res.json();
-
-    if (!data.matches || data.matches.length === 0) {
-      resultsDiv.innerHTML = "<p>⚠️ Tidak ditemukan ayat yang cocok.</p>";
+    if (!matches.length) {
+      resultsContainer.innerHTML = '❌ Tidak ditemukan';
       return;
     }
 
-    const baseURL = location.hostname.includes("netlify.app")
-      ? "https://tadabbur.netlify.app"
-      : "https://dickymiswardi.github.io/tadabbur";
-
-    resultsDiv.innerHTML = "";
-    data.matches.forEach(match => {
-      const div = document.createElement("a");
-      div.href = `${baseURL}/?surah=${match.surah_id}&ayat=${match.verse_number}`;
-      div.target = "_blank";
-      div.style.display = "block";
-      div.style.marginBottom = "1.2em";
-      div.style.padding = "0.8em";
-      div.style.border = "1px solid #ddd";
-      div.style.borderRadius = "8px";
-      div.style.textDecoration = "none";
-      div.style.color = "#111";
-      div.style.background = "#f9f9f9";
-
+    resultsContainer.innerHTML = '';
+    matches.slice(0, 10).forEach(item => {
+      const div = document.createElement('div');
+      div.className = 'result-item';
       div.innerHTML = `
-        <div style="font-size:0.9em; color:#007b8a; margin-bottom:0.4em;"><strong>${match.surah_name}</strong> — Ayat ${match.verse_number}</div>
-        <div style="font-family:'Scheherazade', serif; font-size:1.5em; direction:rtl; text-align:right;">${match.text}</div>
+        <div>${item.text}</div>
+        <a class="result-link" href="https://tadabbur.netlify.app/?surah=${item.surah}&ayat=${item.ayah}" target="_blank">${item.surahName} (${item.surah}):${item.ayah}</a>
       `;
-
-      resultsDiv.appendChild(div);
+      resultsContainer.appendChild(div);
     });
-
-  } catch (err) {
-    resultsDiv.innerHTML = `<p style="color:red">❌ Gagal menghubungi server proxy</p>`;
-    console.error(err);
   }
-}
 </script>
-
   
 </body>
 </html>
