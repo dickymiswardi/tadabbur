@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>Cari Ayat dari TXT</title>
+  <style>
+    body { font-family: sans-serif; padding: 2rem; background: #f9f9f9; }
+    .search-box { text-align: center; margin-bottom: 1rem; }
+    input, button {
+      padding: 1rem;
+      font-size: 1.2rem;
+      margin: 0.3rem;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+    input { width: 70%; }
+    button { background: #007bff; color: white; cursor: pointer; }
+    .result {
+      background: white;
+      padding: 1rem;
+      margin: 1rem auto;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      max-width: 600px;
+      direction: rtl;
+      text-align: right;
+    }
+    .meta {
+      font-size: 0.9rem;
+      color: #555;
+      margin-bottom: 0.3rem;
+      text-align: left;
+      direction: ltr;
+    }
+  </style>
+</head>
+<body>
+
+<div class="search-box">
+  <h2>🔍 Cari Ayat Al-Qur'an dari File TXT</h2>
+  <input type="text" id="searchInput" placeholder="Contoh: الحمد">
+  <button onclick="doSearch()">Search</button>
+</div>
+
+<div id="results"></div>
+
+<script>
+let quran = [];
+
+// Ganti dengan URL file txt kamu
+fetch("https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/quran-simple-clean.txt")
+  .then(res => res.text())
+  .then(data => {
+    const lines = data.split('\n');
+    quran = lines.map(line => {
+      const [surah, ayat, text] = line.split('|');
+      return { surah: Number(surah), ayat: Number(ayat), text: text?.trim() };
+    });
+    console.log("✅ Data berhasil dimuat:", quran.length, "ayat");
+  })
+  .catch(err => {
+    alert("❌ Gagal memuat file teks.");
+    console.error(err);
+  });
+
+function doSearch() {
+  const keyword = document.getElementById('searchInput').value.trim();
+  const container = document.getElementById('results');
+  container.innerHTML = '';
+
+  if (!keyword || keyword.length < 2) {
+    container.innerHTML = '<p>❗ Masukkan minimal 2 huruf Arab</p>';
+    return;
+  }
+
+  const results = quran.filter(item => item.text.includes(keyword));
+
+  if (results.length === 0) {
+    container.innerHTML = '<p>❌ Tidak ditemukan.</p>';
+    return;
+  }
+
+  container.innerHTML = results.map(item => `
+    <div class="result">
+      <div class="meta">Surah ${item.surah}, Ayat ${item.ayat}</div>
+      <div class="text">${item.text}</div>
+    </div>
+  `).join('');
+}
+</script>
+
+</body>
+</html>
