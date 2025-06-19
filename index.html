@@ -1764,26 +1764,14 @@ async function downloadDataFromCloud() {
     <!-- Tombol upload & download -->
     <button onclick="uploadDataToCloud()">⬆️ Upload data ke Cloud</button>
     <button onclick="downloadDataFromCloud()">⬇️ Download data dari Cloud</button>
-
     <br><br>
     <button onclick="document.getElementById('sync-overlay').style.display='none'">❌ Tutup</button>
 
     <div id="sync-status" style="margin-top: 1em;"></div>
   </div>
 </div>
-
-    <button onclick="uploadDataToCloud()">⬆️ Upload data ke Cloud</button>
-    <button onclick="downloadDataFromCloud()">⬇️ Download data dari Cloud</button>
-    <br><br>
-    <button onclick="document.getElementById('sync-overlay').style.display='none'">❌ Tutup</button>
-    <div id="sync-status" style="margin-top: 1em;"></div>
-  </div>
-</div>
-
-  
-  
-
-  <script>
+   <script>
+     
 document.addEventListener("DOMContentLoaded", () => {
   const saved = localStorage.getItem("usernameAktif");
   const input = document.getElementById("sync-username");
