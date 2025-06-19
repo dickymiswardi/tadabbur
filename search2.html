@@ -2,13 +2,13 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>Pencarian Ayat Al-Qur’an</title>
+  <title>Pencarian Ayat Al-Qur’an + Terjemah</title>
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
       background: #f4f6f8;
       color: #333;
-      margin: 1;
+      margin: 0;
       padding: 2rem;
     }
     .container {
@@ -45,7 +45,10 @@
       color: white;
       cursor: pointer;
     }
-    button:hover { background-color: #0056b3; }
+    button:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
     .result {
       background: #f9f9f9;
       padding: 1rem;
@@ -68,6 +71,12 @@
       font-size: 1rem;
       margin-top: 0.5rem;
     }
+    .arab {
+      direction: rtl;
+      text-align: right;
+      font-size: 1.2rem;
+      margin-top: 0.5rem;
+    }
     mark {
       background-color: yellow;
       padding: 0 2px;
@@ -84,16 +93,16 @@
 <div class="container">
   <h2>🔍 Pencarian Ayat Al-Qur’an + Terjemah</h2>
   <div class="search-box">
-    <input type="text" id="searchInput" placeholder="Cari kata Arab atau Indonesia...">
-    <button onclick="doSearch()">Cari</button>
+    <input type="text" id="searchInput" placeholder="Ketik kata Arab atau Indonesia...">
+    <button id="searchBtn" onclick="doSearch()" disabled>Cari</button>
   </div>
   <div id="results"></div>
 </div>
 
 <script>
 let arabList = [];
-let idMap = {}; // { "1:1": "terjemahan" }
-
+let idMap = {};
+let dataReady = false;
 const allowedPrefixes = ['أ', 'ب', 'س', 'ف', 'ل', 'و'];
 
 function isArabic(text) {
@@ -119,6 +128,11 @@ function matchAwalKataArab(content, keyword) {
 }
 
 function doSearch() {
+  if (!dataReady) {
+    alert("⏳ Data masih dimuat, mohon tunggu sebentar...");
+    return;
+  }
+
   const input = document.getElementById("searchInput").value.trim();
   const container = document.getElementById("results");
   container.innerHTML = "";
@@ -140,23 +154,21 @@ function doSearch() {
   }
 
   container.innerHTML = results.map(r => `
-  <div class="result">
-    <div class="meta">Surah ${r.surah} (${r.name}) • Ayat ${r.ayah}</div>
-
-    ${isAr ? `
-      <div class="arab">${highlight(r.arab, input)}</div>
-      <div class="terjemah">${r.id}</div>
-    ` : `
-      <div class="terjemah">${highlight(r.id, input)}</div>
-      <div class="arab">${r.arab}</div>
-    `}
-    
-  </div>
-`).join('');
-
+    <div class="result">
+      <div class="meta">Surah ${r.surah} (${r.name}) • Ayat ${r.ayah}</div>
+      ${isAr ? `
+        <div class="arab">${highlight(r.arab, input)}</div>
+        <div class="terjemah">${r.id}</div>
+      ` : `
+        <div class="terjemah">${highlight(r.id, input)}</div>
+        <div class="arab">${r.arab}</div>
+      `}
+    </div>
+  `).join('');
+}
 
 // Load Quran Arab
-fetch('https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/quran.xml')
+fetch('quran.xml')
   .then(res => res.text())
   .then(txt => new DOMParser().parseFromString(txt, "text/xml"))
   .then(xml => {
@@ -171,16 +183,16 @@ fetch('https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/
           ayah,
           name,
           arab: text,
-          id: "(menunggu terjemahan)"
+          id: "(terjemahan tidak ditemukan)"
         });
       });
     });
     loadTranslation();
   });
 
-// Load Terjemahan
+// Load Terjemah
 function loadTranslation() {
-  fetch('https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/TerjemahID.xml')
+  fetch('TerjemahID.xml')
     .then(res => res.text())
     .then(txt => new DOMParser().parseFromString(txt, "text/xml"))
     .then(xml => {
@@ -193,13 +205,15 @@ function loadTranslation() {
         });
       });
 
-      // Inject terjemahan ke arabList
+      // Inject terjemahan
       arabList = arabList.map(a => {
         const key = `${a.surah}:${a.ayah}`;
         return { ...a, id: idMap[key] || '(terjemahan tidak ditemukan)' };
       });
 
-      console.log("✅ Data lengkap dan siap.");
+      dataReady = true;
+      document.getElementById("searchBtn").disabled = false;
+      console.log("✅ Data lengkap dan tombol aktif.");
     });
 }
 </script>
