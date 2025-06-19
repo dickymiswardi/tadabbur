@@ -46,7 +46,7 @@ exports.handler = async function (event) {
 
     // 2. Cari ayat
     const searchRes = await timeoutFetch(
-      `https://apis-prelive.quran.foundation/content/api/v4/search?q=${encodeURIComponent(query)}&size=10`,
+      `https://apis.quran.foundation/content/api/v4/search?q=${encodeURIComponent(query)}&size=10`,
       {
         method: "GET",
         headers: {
