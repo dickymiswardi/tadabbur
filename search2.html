@@ -2,7 +2,7 @@
 <html lang="ar">
 <head>
   <meta charset="UTF-8">
-  <title>🔍 Pencarian Ayat Al-Qur'an (XML)</title>
+  <title>🔍 Pencarian Ayat Awal Kata Arab</title>
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
@@ -85,10 +85,10 @@
 <body>
 
 <div class="container">
-  <h2>🔍 Cari Ayat Al-Qur'an dari File XML</h2>
+  <h2>🔍 Pencarian Awal Kata Ayat (XML Qur'an)</h2>
 
   <div class="search-box">
-    <input type="text" id="searchInput" placeholder="Contoh: الحمد">
+    <input type="text" id="searchInput" placeholder="Contoh: عين">
     <button onclick="doSearch()">Search</button>
   </div>
 
@@ -98,7 +98,8 @@
 <script>
 let ayatList = [];
 
-fetch('https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/quran.xml') // Ganti path sesuai lokasi file XML kamu
+// Load XML file
+fetch('quran.xml') // Ganti ke path lokal/file kamu jika perlu
   .then(res => res.text())
   .then(xmlText => new window.DOMParser().parseFromString(xmlText, "text/xml"))
   .then(xml => {
@@ -123,6 +124,24 @@ fetch('https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/
     console.error(err);
   });
 
+// Pencocokan hanya di awal kata (dengan pengecualian huruf sambung)
+function matchAwalKataArab(content, keyword) {
+  const allowedPrefixes = ['أ', 'ب', 'س', 'ف', 'ل', 'و'];
+  const words = content.trim().split(/\s+/);
+
+  return words.some(word => {
+    if (word.startsWith(keyword)) return true;
+    if (word.length > keyword.length + 1) {
+      const prefix = word[0];
+      const rest = word.slice(1);
+      if (allowedPrefixes.includes(prefix) && rest.startsWith(keyword)) {
+        return true;
+      }
+    }
+    return false;
+  });
+}
+
 function doSearch() {
   const keyword = document.getElementById("searchInput").value.trim();
   const container = document.getElementById("results");
@@ -134,11 +153,11 @@ function doSearch() {
   }
 
   const results = ayatList.filter(item =>
-    item.content.includes(keyword)
+    matchAwalKataArab(item.content, keyword)
   );
 
   if (results.length === 0) {
-    container.innerHTML = `<p class="no-result">🚫 Tidak ditemukan ayat yang mengandung: <strong>${keyword}</strong></p>`;
+    container.innerHTML = `<p class="no-result">🚫 Tidak ditemukan ayat yang mengandung awal kata: <strong>${keyword}</strong></p>`;
     return;
   }
 
