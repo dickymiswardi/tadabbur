@@ -41,11 +41,13 @@ exports.handler = async function (event) {
     const token = tokenData.access_token;
 
     if (!token) {
-      return {
-        statusCode: 500,
-        body: JSON.stringify({ error: "Gagal mendapatkan token" }),
-      };
-    }
+  console.log("Respon token:", tokenData);
+  return {
+    statusCode: 500,
+    body: JSON.stringify({ error: "Gagal mendapatkan token", detail: tokenData }),
+  };
+}
+
 
     // 2. Kirim pencarian ke endpoint content production
     const searchRes = await timeoutFetch(
