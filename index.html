@@ -645,7 +645,6 @@
 
     document.addEventListener("DOMContentLoaded", () => {
       populateSurahs();
-      getQuranApiToken();
       const urlParams = new URLSearchParams(window.location.search);
 const lastSurah = urlParams.get("surah") || localStorage.getItem("lastSurah");
 const lastAyat = urlParams.get("ayat") || localStorage.getItem("lastAyat");
@@ -2009,56 +2008,54 @@ document.addEventListener('touchend', e => {
 });
 </script>
 
- <script>
-async function getQuranApiToken() {
-  const clientId = "4032fd79-ed9a-4416-966f-8be347967401";
-  const clientSecret = "dgjsFbkqFNx9EycbbvS2zaxvKk";
+  <a href="javascript:void(0)" onclick="openSearchOverlay()" style="display:inline-block; margin:1em 0; color:#007b8a; font-size:1.1em; text-decoration:underline; cursor:pointer;">
+  🔍 Search
+</a>
 
-  const credentials = btoa(`${clientId}:${clientSecret}`);
 
-  try {
-    const response = await fetch("https://prelive-oauth2.quran.foundation/oauth2/token", {
-      method: "POST",
-      headers: {
-        "Authorization": `Basic ${credentials}`,
-        "Content-Type": "application/x-www-form-urlencoded"
-      },
-      body: "grant_type=client_credentials"
-    });
+  <div id="search-backdrop" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9998;"></div>
 
-    const data = await response.json();
-    if (data.access_token) {
-      localStorage.setItem("quran_api_token", data.access_token);
-      console.log("✅ Token berhasil disimpan");
-    } else {
-      console.error("❌ Gagal mendapatkan token", data);
-    }
-  } catch (err) {
-    console.error("❌ Error koneksi", err);
-  }
-}
-</script>
+<div id="search-overlay" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:white; padding:2em; border-radius:12px; max-width:500px; width:90%; box-shadow:0 0 25px rgba(0,0,0,0.2); z-index:9999;">
+  <div style="text-align:right; margin-top:-1em; margin-right:-1em;">
+    <button onclick="closeSearchOverlay()" style="font-size:1.2em; background:none; border:none; cursor:pointer;">&times;</button>
+  </div>
+  <h2 style="text-align:center; color:#007b8a;">Cari Ayat</h2>
+  <input id="search-input" type="text" placeholder="Ketik kata atau arab: cahaya, الرحمن ..." style="width:100%; padding:0.8em; font-size:1em; border:1px solid #ccc; border-radius:6px; margin-bottom:1em;" onkeydown="if(event.key==='Enter')searchAyat()">
+  <button onclick="searchAyat()" style="width:100%; background:#007b8a; color:white; font-size:1em; padding:0.8em; border:none; border-radius:6px; cursor:pointer;">Search Ayat</button>
+  <div id="search-results" style="margin-top:1.5em; max-height:300px; overflow-y:auto; font-size:0.95em;"></div>
+</div>
+
 
 <script>
-async function searchAyatWithApiQuran(query) {
-  const token = localStorage.getItem("quran_api_token");
-  const resultsDiv = document.getElementById("search-results");
+function openSearchOverlay() {
+  document.getElementById("search-overlay").style.display = "block";
+  document.getElementById("search-backdrop").style.display = "block";
+  document.getElementById("search-input").focus();
+}
 
-  if (!token) {
-    resultsDiv.innerHTML = "<p style='color:red'>❌ Token tidak ditemukan. Coba reload halaman.</p>";
+function closeSearchOverlay() {
+  document.getElementById("search-overlay").style.display = "none";
+  document.getElementById("search-backdrop").style.display = "none";
+  document.getElementById("search-results").innerHTML = "";
+}
+
+function searchAyat() {
+  const query = document.getElementById("search-input").value.trim();
+  if (!query) {
+    document.getElementById("search-results").innerHTML = "<p>❗ Masukkan kata pencarian.</p>";
     return;
   }
+  searchAyatWithApiQuran(query);
+}
 
+async function searchAyatWithApiQuran(query) {
+  const resultsDiv = document.getElementById("search-results");
   resultsDiv.innerHTML = `<div style="text-align:center;"><img src="https://raw.githubusercontent.com/dickymiswardi/tadabbur/main/FadingFountain.gif" width="32"/></div>`;
 
   try {
-    const res = await fetch(`https://api.quran.com/v4/search?q=${encodeURIComponent(query)}&size=10&language=id`, {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    });
-
+    const res = await fetch(`/.netlify/functions/quran-search?q=${encodeURIComponent(query)}`);
     const data = await res.json();
+
     if (!data.matches || data.matches.length === 0) {
       resultsDiv.innerHTML = "<p>⚠️ Tidak ditemukan ayat yang cocok.</p>";
       return;
@@ -2091,50 +2088,9 @@ async function searchAyatWithApiQuran(query) {
     });
 
   } catch (err) {
-    resultsDiv.innerHTML = `<p style="color:red">❌ Error menghubungi API Quran.com</p>`;
+    resultsDiv.innerHTML = `<p style="color:red">❌ Gagal menghubungi server proxy</p>`;
     console.error(err);
   }
-}
-</script>
-
-<script>
-function searchAyat() {
-  const query = document.getElementById("search-input").value.trim();
-  if (!query) {
-    document.getElementById("search-results").innerHTML = "<p>❗ Masukkan kata pencarian.</p>";
-    return;
-  }
-  searchAyatWithApiQuran(query);
-}
-</script>
-
-<a href="javascript:void(0)" onclick="openSearchOverlay()" style="display:inline-block; margin:1em 0; color:#007b8a; font-size:1.1em; text-decoration:underline; cursor:pointer;">
-  🔍 Search
-</a>
-
-<div id="search-backdrop" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9998;"></div>
-
-<div id="search-overlay" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:white; padding:2em; border-radius:12px; max-width:500px; width:90%; box-shadow:0 0 25px rgba(0,0,0,0.2); z-index:9999;">
-  <div style="text-align:right; margin-top:-1em; margin-right:-1em;">
-    <button onclick="closeSearchOverlay()" style="font-size:1.2em; background:none; border:none; cursor:pointer;">&times;</button>
-  </div>
-  <h2 style="text-align:center; color:#007b8a;">Cari Ayat</h2>
-  <input id="search-input" type="text" placeholder="Ketik kata..." style="width:100%; padding:0.8em; font-size:1em; border:1px solid #ccc; border-radius:6px; margin-bottom:1em;" onkeydown="if(event.key==='Enter')searchAyat()">
-  <button onclick="searchAyat()" style="width:100%; background:#007b8a; color:white; font-size:1em; padding:0.8em; border:none; border-radius:6px; cursor:pointer;">Search Ayat</button>
-  <div id="search-results" style="margin-top:1.5em; max-height:300px; overflow-y:auto; font-size:0.95em;"></div>
-</div>
-
-  <script>
-function openSearchOverlay() {
-  document.getElementById("search-overlay").style.display = "block";
-  document.getElementById("search-backdrop").style.display = "block";
-  document.getElementById("search-input").focus();
-}
-
-function closeSearchOverlay() {
-  document.getElementById("search-overlay").style.display = "none";
-  document.getElementById("search-backdrop").style.display = "none";
-  document.getElementById("search-results").innerHTML = "";
 }
 </script>
 
