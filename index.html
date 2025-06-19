@@ -1179,8 +1179,15 @@ function showBookmarkNotif(text) {
   }, 5000);
 }
 
-// LINK SEARCH
-  <span id="search-link" style="margin-left: 1em; cursor: pointer; color: #007b8a; font-weight: bold;">Search</span>
+// Tambah link Search
+const searchLink = document.createElement("span");
+searchLink.id = "search-link";
+searchLink.innerText = "Search";
+searchLink.style.marginLeft = "1em";
+searchLink.style.cursor = "pointer";
+searchLink.style.color = "#007b8a";
+searchLink.style.fontWeight = "bold";
+translationDiv.appendChild(searchLink);
   
 
       const playAudioBtn = document.createElement("button");
