@@ -104,7 +104,7 @@
 <script>
 let ayatList = [];
 
-fetch('quran.xml') // Ganti ke lokasi file XML kamu
+fetch('https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/quran.xml') // Ganti ke lokasi file XML kamu
   .then(res => res.text())
   .then(xmlText => new window.DOMParser().parseFromString(xmlText, "text/xml"))
   .then(xml => {
