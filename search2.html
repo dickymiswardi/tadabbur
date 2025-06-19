@@ -89,8 +89,6 @@
   </div>
   <div id="results"></div>
 </div>
-<div class="arab"> ... </div>
-<div class="terjemah"> ... </div>
 
 <script>
 let arabList = [];
@@ -144,6 +142,7 @@ function doSearch() {
   container.innerHTML = results.map(r => `
   <div class="result">
     <div class="meta">Surah ${r.surah} (${r.name}) • Ayat ${r.ayah}</div>
+
     ${isAr ? `
       <div class="arab">${highlight(r.arab, input)}</div>
       <div class="terjemah">${r.id}</div>
@@ -151,6 +150,7 @@ function doSearch() {
       <div class="terjemah">${highlight(r.id, input)}</div>
       <div class="arab">${r.arab}</div>
     `}
+    
   </div>
 `).join('');
 
