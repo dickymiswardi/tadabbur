@@ -1292,6 +1292,16 @@ const url = `https://quran.ksu.edu.sa/ayat/mp3/${qariId}/${surahStr}${ayahStr}.m
   audio.controls = true;
   audio.src = url;
   audio.autoplay = true;
+        // Paksa play ulang otomatis jika repeat > 1
+const repeat = parseInt(localStorage.getItem("repeatCount") || "1");
+if (repeat > 1) {
+  // Tunggu sedikit agar DOM siap, lalu play ulang
+  setTimeout(() => {
+    audio.play().catch(() => {
+      console.warn("Autoplay dicegah oleh browser");
+    });
+  }, 300);
+}
 
   // Autoplay toggle
   const toggleWrap = document.createElement("label");
