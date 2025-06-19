@@ -2041,7 +2041,16 @@ document.addEventListener('touchend', e => {
 
 <!-- SCRIPT AKTIFKAN SEARCH LINK & OVERLAY -->
 <script>
-  document.getElementById("search-link").onclick = function () {
+  setTimeout(() => {
+  const searchBtn = document.getElementById("search-link");
+  if (searchBtn) {
+    searchBtn.onclick = function () {
+      document.getElementById("search-overlay").style.display = "block";
+      document.getElementById("search-overlay-backdrop").style.display = "block";
+    };
+  }
+}, 300); // beri waktu 300ms sampai tombol muncul
+
     document.getElementById("search-overlay").style.display = "block";
     document.getElementById("search-overlay-backdrop").style.display = "block";
   }
