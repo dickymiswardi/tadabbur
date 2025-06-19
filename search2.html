@@ -2,7 +2,7 @@
 <html lang="ar">
 <head>
   <meta charset="UTF-8">
-  <title>🔍 Pencarian Ayat Awal Kata Arab</title>
+  <title>🔍 Pencarian Ayat + Highlight</title>
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
@@ -80,12 +80,18 @@
       color: #888;
       margin-top: 1rem;
     }
+
+    mark {
+      background-color: yellow;
+      padding: 0 2px;
+      border-radius: 4px;
+    }
   </style>
 </head>
 <body>
 
 <div class="container">
-  <h2>🔍 Pencarian Awal Kata Ayat (XML Qur'an)</h2>
+  <h2>🔍 Pencarian Awal Kata Ayat + Highlight</h2>
 
   <div class="search-box">
     <input type="text" id="searchInput" placeholder="Contoh: عين">
@@ -98,8 +104,7 @@
 <script>
 let ayatList = [];
 
-// Load XML file
-fetch('quran.xml') // Ganti ke path lokal/file kamu jika perlu
+fetch('quran.xml') // Ganti ke lokasi file XML kamu
   .then(res => res.text())
   .then(xmlText => new window.DOMParser().parseFromString(xmlText, "text/xml"))
   .then(xml => {
@@ -117,18 +122,35 @@ fetch('quran.xml') // Ganti ke path lokal/file kamu jika perlu
         });
       });
     });
-    console.log("✅ XML Quran loaded:", ayatList.length, "ayat");
+    console.log("✅ Quran XML loaded:", ayatList.length, "ayat");
   })
   .catch(err => {
     document.getElementById("results").innerHTML = `<p class="no-result">❌ Gagal memuat file XML.</p>`;
     console.error(err);
   });
 
-// Pencocokan hanya di awal kata (dengan pengecualian huruf sambung)
-function matchAwalKataArab(content, keyword) {
-  const allowedPrefixes = ['أ', 'ب', 'س', 'ف', 'ل', 'و'];
-  const words = content.trim().split(/\s+/);
+const allowedPrefixes = ['أ', 'ب', 'س', 'ف', 'ل', 'و'];
 
+function highlightContent(content, keyword) {
+  const words = content.trim().split(/\s+/);
+  const highlighted = words.map(word => {
+    if (word.startsWith(keyword)) {
+      return `<mark>${word}</mark>`;
+    }
+    if (word.length > keyword.length + 1) {
+      const prefix = word[0];
+      const rest = word.slice(1);
+      if (allowedPrefixes.includes(prefix) && rest.startsWith(keyword)) {
+        return `<mark>${word}</mark>`;
+      }
+    }
+    return word;
+  });
+  return highlighted.join(" ");
+}
+
+function matchAwalKataArab(content, keyword) {
+  const words = content.trim().split(/\s+/);
   return words.some(word => {
     if (word.startsWith(keyword)) return true;
     if (word.length > keyword.length + 1) {
@@ -164,7 +186,7 @@ function doSearch() {
   container.innerHTML = results.map(r => `
     <div class="result">
       <div class="meta">Surah ${r.surah_number} (${r.surah_name}) • Ayat ${r.verse_number}</div>
-      <div class="text">${r.content}</div>
+      <div class="text">${highlightContent(r.content, keyword)}</div>
     </div>
   `).join('');
 }
