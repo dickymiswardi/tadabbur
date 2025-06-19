@@ -1725,7 +1725,7 @@ async function uploadDataToCloud() {
       log: localLog
     };
 
-    status.innerHTML = '⬆️ Upload... <img src="https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/FadingFountain.gif" width="28" />';
+    status.innerHTML = '⬆️ Upload... <img src="https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/FadingFountain.gif" width="50" />';
     await fetch('/.netlify/functions/sync', {
       method: 'POST',
       body: JSON.stringify({ username, data: payload })
@@ -1769,6 +1769,7 @@ async function uploadDataToCloud() {
       Object.keys(cloudData.notes).forEach(k => localStorage.setItem(k, cloudData.notes[k]));
     }
 
+    status.innerHTML = '⬆️ Download... <img src="https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/FadingFountain.gif" width="28" />';
     status.innerHTML = '<span style="color:green">✅ Download berhasil!</span>';
   } catch (err) {
     console.error(err);
