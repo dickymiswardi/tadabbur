@@ -1,19 +1,4 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<!DOCTYPE HolyQuran [
-	<!ATTLIST HolyQuran TranslationID CDATA #REQUIRED>
-	<!ATTLIST HolyQuran Writer CDATA #REQUIRED>
-	<!ATTLIST HolyQuran Language CDATA #REQUIRED>
-	<!ATTLIST HolyQuran LanguageIsoCode CDATA #REQUIRED>
-	<!ATTLIST HolyQuran Direction (rtl|ltr) #REQUIRED>
-	<!ELEMENT HolyQuran (Chapter+)>
-	<!ATTLIST Chapter ChapterID CDATA #REQUIRED>
-	<!ATTLIST Chapter ChapterName CDATA #REQUIRED>
-	<!ELEMENT Chapter (Verse+)>
-	<!ATTLIST Verse VerseID CDATA #REQUIRED>
-	<!ELEMENT Verse (#PCDATA)>
-]>
-<!-- This SQL Query Generated at 31 July 2014 10:52 (UTC) from www.qurandatabase.org -->
-<HolyQuran TranslationID="68" Writer="Bahasa Indonesia" Language="Indonesian" LanguageIsoCode="ind" Direction="ltr">
 	<Chapter ChapterID="1" ChapterName="AL-FAATIHAH">
 		<Verse VerseID="1"><![CDATA[Dengan menyebut nama Allah Yang Maha Pemurah lagi Maha Penyayang.]]></Verse>
 		<Verse VerseID="2"><![CDATA[Segala puji bagi Allah, Tuhan semesta alam.]]></Verse>
@@ -6478,4 +6463,3 @@
 		<Verse VerseID="5"><![CDATA[yang membisikkan (kejahatan) ke dalam dada manusia,]]></Verse>
 		<Verse VerseID="6"><![CDATA[dari (golongan) jin dan manusia.]]></Verse>
 	</Chapter>
-</HolyQuran>
