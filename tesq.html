@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>Pencarian Al-Qur'an (Alfanous API)</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f9f9f9;
+      margin: 0;
+      padding: 2rem;
+    }
+    .search-box {
+      max-width: 500px;
+      margin: 0 auto;
+      text-align: center;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 1rem;
+      font-size: 1.2rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+    .result {
+      background: white;
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      direction: rtl;
+      text-align: right;
+    }
+    .result .meta {
+      font-size: 0.9rem;
+      color: #666;
+      margin-bottom: 0.3rem;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="search-box">
+    <h2>🔍 Pencarian Ayat Al-Qur'an (Alfanous)</h2>
+    <input type="text" id="searchInput" placeholder="Ketik kata Arab, misal: الرحمن">
+    <div id="results"></div>
+  </div>
+
+  <script>
+    const input = document.getElementById('searchInput');
+    const resultsDiv = document.getElementById('results');
+
+    input.addEventListener('keyup', async function (e) {
+      const query = e.target.value.trim();
+      if (query.length < 2) {
+        resultsDiv.innerHTML = '';
+        return;
+      }
+
+      resultsDiv.innerHTML = '<p>🔄 Mencari...</p>';
+
+      try {
+        const res = await fetch(`https://api.alfanous.org/v1/search?q=${encodeURIComponent(query)}`);
+        const data = await res.json();
+
+        if (!data.results || data.results.length === 0) {
+          resultsDiv.innerHTML = '<p>Tidak ditemukan.</p>';
+          return;
+        }
+
+        resultsDiv.innerHTML = data.results.map(item => `
+          <div class="result">
+            <div class="meta">Surah ${item.sura} • Ayat ${item.aya}</div>
+            <div class="text">${item.text}</div>
+          </div>
+        `).join('');
+      } catch (err) {
+        resultsDiv.innerHTML = '<p>❌ Gagal mengambil data dari API Alfanous.</p>';
+        console.error(err);
+      }
+    });
+  </script>
+
+</body>
+</html>
