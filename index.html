@@ -1751,7 +1751,27 @@ async function downloadDataFromCloud() {
 <div id="sync-overlay" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); justify-content: center; align-items: center; z-index: 9999;">
   <div style="background: white; padding: 2em; border-radius: 12px; max-width: 400px; text-align: center;">
     <h3>Sinkronisasi</h3>
-    <p>Kamu login sebagai: <strong><span id="username-label-display"></span></strong></p>
+
+    <!-- ✅ Tambahkan input username jika belum ada -->
+    <input type="text" id="sync-username" placeholder="username kamu" style="padding: 0.5em; width: 90%;" />
+    <button onclick="checkUsername()">🔍 Cek</button>
+
+    <div id="check-result" style="margin-top: 0.8em;"></div>
+
+    <!-- Label username aktif -->
+    <p style="margin-top: 1em;">Kamu login sebagai: <strong><span id="username-label-display"></span></strong></p>
+
+    <!-- Tombol upload & download -->
+    <button onclick="uploadDataToCloud()">⬆️ Upload data ke Cloud</button>
+    <button onclick="downloadDataFromCloud()">⬇️ Download data dari Cloud</button>
+
+    <br><br>
+    <button onclick="document.getElementById('sync-overlay').style.display='none'">❌ Tutup</button>
+
+    <div id="sync-status" style="margin-top: 1em;"></div>
+  </div>
+</div>
+
     <button onclick="uploadDataToCloud()">⬆️ Upload data ke Cloud</button>
     <button onclick="downloadDataFromCloud()">⬇️ Download data dari Cloud</button>
     <br><br>
