@@ -757,17 +757,10 @@ const lastAyat = urlParams.get("ayat") || localStorage.getItem("lastAyat");
   let arabicText = "(Teks Arab tidak ditemukan)";
 
   // Loop ke seluruh entri quranData
-  for (const entry of quranData) {
-    for (const key in entry) {
-      const surahObj = entry[key];
-      if (parseInt(surahObj.chapterNumber) === surah) {
-        const verseObj = surahObj.text.find(v => parseInt(v.verseNumber) === ayat);
-        if (verseObj) {
-          arabicText = verseObj.text;
-        }
-      }
-    }
-  }
+  // Versi quran.json
+const match = quranData.find(item => item.surah_number === surah && item.verse_number === ayat);
+let arabicText = match ? match.content : "(Teks Arab tidak ditemukan)";
+
       // Tambahkan simbol ayat
   arabicText += ` \u06dd${toArabicNumber(ayat)}`;
   arabicText = wrapRasmSymbols(arabicText);
