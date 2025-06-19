@@ -1134,6 +1134,10 @@ searchBtn.style.backgroundColor = "#007BFF";
 searchBtn.style.color = "white";
 searchBtn.style.boxShadow = "0 2px 5px rgba(0,0,0,0.1)";
 translationDiv.appendChild(searchBtn);
+  searchBtn.addEventListener("click", () => {
+  document.getElementById("searchOverlay").style.display = "block";
+});
+
 
 
 const notifSpan = document.createElement("span");
