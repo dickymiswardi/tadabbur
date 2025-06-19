@@ -2030,12 +2030,12 @@ document.addEventListener('touchend', e => {
   overflow:auto;
 ">
   <div style="
-    display:flex;
-    justify-content:center;
-    align-items:flex-start;
-    min-height:100vh;
-    padding:5vh 1rem;
-  ">
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  min-height:100vh;
+  padding:1rem;
+">
     <div style="
       background:white;
       padding:2rem;
@@ -2125,9 +2125,19 @@ function doSearch() {
 
   container.innerHTML = results.map(r => `
     <div style="margin-bottom:1rem; padding:1rem; background:#f1f1f1; border-radius:8px;">
-      <a href="${currentHost}/?surah=${r.surah}&ayat=${r.ayah}" class="meta" style="display:block; text-decoration:none; color:inherit; font-weight:bold; margin-bottom:5px;">
-        Surah ${r.surah} (${r.nama}) • Ayat ${r.ayah}
-      </a>
+      <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap; margin-bottom:5px;">
+  <a href="${currentHost}/?surah=${r.surah}&ayat=${r.ayah}" class="meta" style="text-decoration:none; color:inherit; font-weight:bold;">
+    Surah ${r.surah} (${r.nama}) • Ayat ${r.ayah}
+  </a>
+  <a href="${currentHost}/?surah=${r.surah}&ayat=${r.ayah}" style="
+    padding: 0.3rem 0.8rem;
+    font-size: 0.85rem;
+    background-color: #28a745;
+    color: white;
+    border-radius: 6px;
+    text-decoration: none;
+  ">Lihat</a>
+</div>
       ${isAr ? `
         <div style="font-size:1.2rem; direction:rtl; text-align:right;">${highlight(r.arab, input)}</div>
         <div style="font-size:1rem; margin-top:0.3rem;">${r.terjemah}</div>
