@@ -1120,6 +1120,22 @@ bookmarkBtn.id = "bookmark-btn";
 bookmarkBtn.innerHTML = "🔰"; // default ikon
 translationDiv.appendChild(bookmarkBtn);
 
+  // TOMBOL SEARCH
+  const searchBtn = document.createElement("button");
+searchBtn.id = "openSearch";
+searchBtn.innerHTML = "🔍 Search";
+searchBtn.style.marginLeft = "10px";
+searchBtn.style.padding = "0.5rem 1rem";
+searchBtn.style.fontSize = "0.9rem";
+searchBtn.style.borderRadius = "6px";
+searchBtn.style.border = "none";
+searchBtn.style.cursor = "pointer";
+searchBtn.style.backgroundColor = "#007BFF";
+searchBtn.style.color = "white";
+searchBtn.style.boxShadow = "0 2px 5px rgba(0,0,0,0.1)";
+translationDiv.appendChild(searchBtn);
+
+
 const notifSpan = document.createElement("span");
 notifSpan.id = "bookmark-notif";
 notifSpan.style.display = "none";
@@ -1996,6 +2012,118 @@ document.addEventListener('touchend', e => {
   touchEndX = e.changedTouches[0].screenX;
   handleSwipeGesture();
 });
+</script>
+
+
+<div id="searchOverlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:#000000aa; z-index:9999;">
+  <div onclick="closeSearch()" style="position:absolute; top:10px; right:20px; font-size:28px; color:white; cursor:pointer;">×</div>
+  <div style="max-width:600px; margin:80px auto; background:white; padding:2rem; border-radius:12px; box-shadow:0 0 10px rgba(0,0,0,0.3);">
+    <input type="text" id="searchInput" placeholder="Cari ayat Arab / Indonesia..." style="width:100%; padding:1rem; font-size:1rem; margin-bottom:1rem; border:1px solid #ccc; border-radius:8px;">
+    <button onclick="doSearch()" style="padding:0.7rem 1.5rem; font-size:1rem; background:#007BFF; color:white; border:none; border-radius:8px;">Cari</button>
+    <div id="searchResults" style="margin-top:1rem;"></div>
+  </div>
+</div>
+
+  <script>
+let arabList = [], idMap = {}, searchReady = false;
+
+document.getElementById('openSearch').onclick = function(e) {
+  e.preventDefault();
+  document.getElementById('searchOverlay').style.display = 'block';
+};
+
+function closeSearch() {
+  document.getElementById('searchOverlay').style.display = 'none';
+}
+
+function isArabic(text) {
+  return /[\u0600-\u06FF]/.test(text);
+}
+
+function highlight(text, keyword) {
+  const reg = new RegExp('(' + keyword + ')', 'gi');
+  return text.replace(reg, '<mark>$1</mark>');
+}
+
+function doSearch() {
+  const q = document.getElementById('searchInput').value.trim();
+  const resultsDiv = document.getElementById('searchResults');
+  resultsDiv.innerHTML = '';
+  if (!q) return;
+
+  const isAr = isArabic(q);
+  const results = arabList.filter(item => {
+    return isAr
+      ? item.arab.includes(q)
+      : item.id.toLowerCase().includes(q.toLowerCase());
+  });
+
+  if (results.length === 0) {
+    resultsDiv.innerHTML = '<p style="text-align:center; color:#888;">Tidak ditemukan.</p>';
+    return;
+  }
+
+  resultsDiv.innerHTML = results.map(r => `
+    <div style="margin-bottom:1rem; padding:1rem; background:#f1f1f1; border-radius:8px;">
+      <div style="margin-bottom:0.5rem; font-size:0.9rem; color:#555;">
+        Surah ${r.surah} (${r.name}) • Ayat ${r.ayah}
+      </div>
+      ${isAr ? `
+        <div style="font-size:1.2rem; direction:rtl; text-align:right;">${highlight(r.arab, q)}</div>
+        <div style="font-size:0.95rem; margin-top:0.3rem;">${r.id}</div>
+      ` : `
+        <div style="font-size:1rem;">${highlight(r.id, q)}</div>
+        <div style="font-size:1.2rem; direction:rtl; text-align:right; margin-top:0.3rem;">${r.arab}</div>
+      `}
+      <div style="margin-top:0.5rem;">
+        <a href="https://dickymiswardi.github.io/tadabbur/?surah=${r.surah}&ayat=${r.ayah}" target="_blank">GitHub</a> |
+        <a href="https://tadabbur.netlify.app/?surah=${r.surah}&ayat=${r.ayah}" target="_blank">Netlify</a>
+      </div>
+    </div>
+  `).join('');
+}
+</script>
+
+  <script>
+fetch('quran.xml')
+  .then(res => res.text())
+  .then(txt => new DOMParser().parseFromString(txt, 'text/xml'))
+  .then(xml => {
+    Array.from(xml.querySelectorAll('sura')).forEach(sura => {
+      const surah = parseInt(sura.getAttribute('index'));
+      const name = sura.getAttribute('name');
+      Array.from(sura.querySelectorAll('aya')).forEach(aya => {
+        const ayah = parseInt(aya.getAttribute('index'));
+        const arab = aya.getAttribute('text');
+        arabList.push({ surah, ayah, name, arab, id: '(loading...)' });
+      });
+    });
+  });
+
+fetch('TerjemahID.xml')
+  .then(res => res.text())
+  .then(txt => new DOMParser().parseFromString(txt, 'text/xml'))
+  .then(xml => {
+    const idMap = {};
+    Array.from(xml.querySelectorAll('Chapter')).forEach(ch => {
+      const surah = parseInt(ch.getAttribute('ChapterID'));
+      Array.from(ch.querySelectorAll('Verse')).forEach(verse => {
+        const ayah = parseInt(verse.getAttribute('VerseID'));
+        idMap[`${surah}:${ayah}`] = verse.textContent.trim();
+      });
+    });
+    arabList = arabList.map(item => {
+      const key = `${item.surah}:${item.ayah}`;
+      return { ...item, id: idMap[key] || '(terjemah tidak ditemukan)' };
+    });
+    searchReady = true;
+    console.log("✅ Search siap digunakan");
+  });
+
+    document.getElementById("openSearch").onclick = function () {
+  document.getElementById("searchOverlay").style.display = "block";
+};
+
 </script>
 
   
