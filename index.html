@@ -1667,7 +1667,7 @@ function confirmUsername(ok) {
 
 
 
-async function syncData() {
+async function uploadDataToCloud() {
   const username = localStorage.getItem('usernameAktif');
   const status = document.getElementById('sync-status');
   status.innerHTML = '';
@@ -1678,7 +1678,6 @@ async function syncData() {
   }
 
   try {
-    // Ambil data lokal
     const localBookmark = JSON.parse(localStorage.getItem('tadabbur-bookmark') || '[]');
     const localLog = JSON.parse(localStorage.getItem('tadabbur-log') || '[]');
     const localNotes = {};
@@ -1687,146 +1686,82 @@ async function syncData() {
       if (k.startsWith('note-')) localNotes[k] = localStorage.getItem(k);
     }
 
-    // Ambil data cloud
-    const url = `https://raw.githubusercontent.com/dickymiswardi/tadabbur/main/data/${username}.json`;
-    let cloudData = {};
-    const response = await fetch(url);
-    if (response.ok) {
-      cloudData = await response.json();
-    }
-
-    // Gabungkan data
-    const cloudBookmark = new Set(cloudData.bookmark || []);
-    const localBookmarkSet = new Set(localBookmark);
-    const mergedBookmark = Array.from(new Set([...cloudBookmark, ...localBookmarkSet]));
-
-    const finalNotes = { ...cloudData.notes, ...localNotes };
-    const finalLog = Array.isArray(cloudData.log) ? cloudData.log : [];
-    localLog.forEach(item => {
-      if (!finalLog.find(x => x.tanggal === item.tanggal)) {
-        finalLog.push(item);
-      }
-    });
-
     const payload = {
-      bookmark: mergedBookmark,
-      notes: finalNotes,
-      log: finalLog
+      bookmark: localBookmark,
+      notes: localNotes,
+      log: localLog
     };
 
-    // Upload ke GitHub (via Netlify Function)
-    status.innerHTML = 'Mengirim <img src="https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/FadingFountain.gif" width="28" style="vertical-align:middle;" />';
+    status.innerHTML = 'Mengirim <img src="https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/FadingFountain.gif" width="28" />';
     await fetch('/.netlify/functions/sync', {
       method: 'POST',
       body: JSON.stringify({ username, data: payload })
     });
 
-    // Tampilkan sukses
-    localStorage.setItem('tadabbur-bookmark', JSON.stringify(mergedBookmark));
-    localStorage.setItem('tadabbur-log', JSON.stringify(finalLog));
-    Object.keys(finalNotes).forEach(k => localStorage.setItem(k, finalNotes[k]));
-
-    status.innerHTML = '<span style="color:green">✅ Berhasil! Silakan refresh halaman.</span>';
-
+    status.innerHTML = '<span style="color:green">✅ Upload berhasil!</span>';
   } catch (err) {
     console.error(err);
-    status.innerHTML = '<span style="color:red">❌ Terjadi kesalahan saat sinkronisasi.</span>';
+    status.innerHTML = '<span style="color:red">❌ Upload gagal.</span>';
   }
 }
 
+async function downloadDataFromCloud() {
+  const username = localStorage.getItem('usernameAktif');
+  const status = document.getElementById('sync-status');
+  status.innerHTML = '';
 
-
-
-  function tampilkanFormInputUsername() {
-  document.getElementById('username-overlay').style.display = 'flex';
-}
-
-function tampilkanTombolSyncSaja() {
-  document.getElementById('sync-ui').style.display = 'block';
-}
-
-function konfirmasiUsername() {
-  const input = document.getElementById('username-input').value.trim().toLowerCase();
-  const error = document.getElementById('username-error');
-
-  if (!/^[a-z0-9_-]+$/.test(input)) {
-    error.innerText = "❌ Username hanya huruf kecil tanpa spasi";
+  if (!username || !/^[a-z0-9_-]+$/.test(username)) {
+    status.innerHTML = '<span style="color:red">❌ Username tidak valid.</span>';
     return;
   }
 
-  // Simpan username ke localStorage
-  localStorage.setItem("usernameAktif", input);
-  location.reload();
-}
+  try {
+    const url = `https://raw.githubusercontent.com/dickymiswardi/tadabbur/main/data/${username}.json`;
+    const response = await fetch(url);
+    if (!response.ok) throw new Error("Gagal ambil data cloud");
 
-function gantiUser() {
-  localStorage.removeItem("usernameAktif");
-  location.reload();
-}
+    const cloudData = await response.json();
 
-// Saat halaman dibuka
-window.addEventListener("DOMContentLoaded", () => {
-  const user = localStorage.getItem("usernameAktif");
-  if (user) {
-    tampilkanTombolSyncSaja();
-    window.usernameAktif = user; // bisa dipakai di syncData()
-  } else {
-    tampilkanFormInputUsername();
+    // Bersihkan localStorage dulu
+    Object.keys(localStorage).forEach(k => {
+      if (k.startsWith("note-") || k === "tadabbur-bookmark" || k === "tadabbur-log") {
+        localStorage.removeItem(k);
+      }
+    });
+
+    // Tulis ulang semua data lokal
+    localStorage.setItem("tadabbur-bookmark", JSON.stringify(cloudData.bookmark || []));
+    localStorage.setItem("tadabbur-log", JSON.stringify(cloudData.log || []));
+    if (cloudData.notes) {
+      Object.keys(cloudData.notes).forEach(k => localStorage.setItem(k, cloudData.notes[k]));
+    }
+
+    status.innerHTML = '<span style="color:green">✅ Download berhasil!</span>';
+  } catch (err) {
+    console.error(err);
+    status.innerHTML = '<span style="color:red">❌ Download gagal.</span>';
   }
-});
+}
+
 
   
 </script>
 
-  <!-- 🔒 SYNC OVERLAY -->
+<!-- 🔒 SYNC OVERLAY -->
 <div id="sync-overlay" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); justify-content: center; align-items: center; z-index: 9999;">
-  <div style="background: white; padding: 2em; border-radius: 12px; max-width: 400px; width: 90%; text-align: center; position: relative;">
-    <div onclick="document.getElementById('sync-overlay').style.display='none'" style="position: absolute; top: 10px; right: 15px; cursor: pointer; font-weight: bold;">✖</div>
-    <h3>👤 Buat atau masukkan username</h3>
-
-    <input id="sync-username" placeholder="contoh: ahmad123, dickymiswardi" oninput="resetCheckResult()" style="padding: 0.5em; width: 80%; max-width: 250px;" />
-    <button onclick="checkUsername()">Ok</button>
-    <span id="check-result" style="display:inline-block; margin-left:10px;"></span>
-
-    <div style="margin-top: 1em;">
-      <button onclick="syncData()">🔁 Simpan Catatanku di Cloud</button>
-      <div id="sync-status" style="margin-top: 1em;"></div>
-    </div>
+  <div style="background: white; padding: 2em; border-radius: 12px; max-width: 400px; text-align: center;">
+    <h3>Sinkronisasi</h3>
+    <p>Kamu login sebagai: <strong><span id="username-label-display"></span></strong></p>
+    <button onclick="uploadDataToCloud()">⬆️ Upload data ke Cloud</button>
+    <button onclick="downloadDataFromCloud()">⬇️ Download data dari Cloud</button>
+    <br><br>
+    <button onclick="document.getElementById('sync-overlay').style.display='none'">❌ Tutup</button>
+    <div id="sync-status" style="margin-top: 1em;"></div>
   </div>
 </div>
-  <script>
-document.addEventListener("DOMContentLoaded", () => {
-  const savedUser = localStorage.getItem("username");
-  const input = document.getElementById("sync-username");
 
-  if (savedUser && input) {
-    usernameConfirmed = true;
-
-    // Sembunyikan input & tampilkan label username
-    input.style.display = 'none';
-    const label = document.createElement("div");
-    label.id = "username-label";
-    label.style.marginTop = "0.5em";
-    label.innerHTML = `👤 Username: <strong>${savedUser}</strong>`;
-    input.parentElement.insertBefore(label, input.nextSibling);
-
-    document.getElementById('check-result').innerHTML = `<span style="color:green">✅ Username dikonfirmasi</span>`;
-  }
-
-  // Tambah tombol Ganti User di bawah tombol SYNC
-  const nav = document.querySelector(".nav-buttons");
-  if (savedUser && nav && !document.getElementById("ganti-user-btn")) {
-    const gantiBtn = document.createElement("button");
-    gantiBtn.id = "ganti-user-btn";
-    gantiBtn.innerText = "GANTI USER";
-    gantiBtn.onclick = () => {
-      localStorage.removeItem("username");
-      location.reload();
-    };
-    nav.appendChild(gantiBtn);
-  }
-});
-</script>
+  
+  
 
   <script>
 document.addEventListener("DOMContentLoaded", () => {
