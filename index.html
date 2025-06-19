@@ -21,7 +21,13 @@
       color: #111;
     }
 
-    #bookmark-btn {
+    #sync-overlay button {
+  font-size: 0.9em !important;
+  padding: 0.6em 1.2em !important;
+  margin-top: 0.6em;
+}
+
+     #bookmark-btn {
   margin-left: 0.3em;
   background: transparent;
   border: none;
@@ -29,6 +35,7 @@
   cursor: pointer;
   vertical-align: middle;
 }
+
 
 #bookmark-btn.checked {
   color: green;
@@ -812,9 +819,15 @@ ayatNodes.forEach(aya => {
 // Daftar sumber tafsir
 const tafsirSources = {
   jalalayn: {
-    name: "Al-Jalalayn ID",
+    name: "Al-Jalalayn Indonesia",
     path: "id.jalalayn.xml",
     query: (s, a) => `sura[index="${s}"] > aya[index="${a}"]`
+  },
+    Kemenag: {
+    name: "Kemenag Indonesia",
+    path: (s, a) =>
+      `https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/KemenagID/${s}/${a}.txt`,
+    query: (data) => data // isi teks langsung
   },
   al_muyassar: {
   name: "Al-Muyassar Arabic",
@@ -874,9 +887,13 @@ async function loadTafsir(sourceKey, surah, ayah) {
 
     if (ext === "txt") {
       const textContent = await response.text();
-      const key = source.query(surah, ayah); // contoh: "2|255|"
-      const line = textContent.split("\n").find(line => line.startsWith(key));
-      return line ? line.split("|")[2] : "Tafsir tidak ditemukan";
+      if (source.name === "Kemenag Indonesia") {
+    return textContent;
+  }
+      const key = source.query(surah, ayah);
+  const line = textContent.split("\n").find(line => line.startsWith(key));
+  return line ? line.split("|")[2] : "Tafsir tidak ditemukan";
+
 
     } else if (ext === "xml") {
       const textContent = await response.text();
@@ -1109,7 +1126,7 @@ translationDiv.appendChild(noteButton);
 
   const bookmarkBtn = document.createElement("button");
 bookmarkBtn.id = "bookmark-btn";
-bookmarkBtn.innerHTML = "🆙"; // default ikon
+bookmarkBtn.innerHTML = "🔰"; // default ikon
 translationDiv.appendChild(bookmarkBtn);
 
 const notifSpan = document.createElement("span");
@@ -1172,7 +1189,7 @@ function showBookmarkNotif(text) {
 }
 
       const playAudioBtn = document.createElement("button");
-playAudioBtn.textContent = "☰ PILIH QARI";
+playAudioBtn.textContent = "♬ MP3";
 playAudioBtn.onclick = showQariSelector;
 navDiv.appendChild(playAudioBtn);
 
@@ -1324,6 +1341,16 @@ if (savedQari && fromAutoplay) {
 // setelah dicek, hapus flag agar tidak autoplay lagi tanpa sengaja
 localStorage.removeItem("fromAutoplay");
 
+  // TOMBOL SYNC
+
+  const syncBtn = document.createElement("button");
+syncBtn.innerText = "🔒 USER";
+syncBtn.onclick = () => {
+  document.getElementById("sync-overlay").style.display = "flex";
+  document.getElementById("sync-status").innerHTML = '';
+};
+navDiv.appendChild(syncBtn);
+
       if (next) {
         const nextBtn = document.createElement("button");
         nextBtn.textContent = "◀ NEXT";
@@ -1360,18 +1387,6 @@ localStorage.removeItem("fromAutoplay");
       console.error(err);
       document.getElementById("result").textContent = "Gagal memuat data.";
     });
-
-    document.addEventListener("DOMContentLoaded", function () {
-  const params = new URLSearchParams(window.location.search);
-  const hasParams = params.has("surah") && params.has("ayat");
-
-  if (!hasParams) {
-    // Tidak ada parameter, ambil dari localStorage
-    const lastSurah = localStorage.getItem("lastSurah") || "1";
-    const lastAyat = localStorage.getItem("lastAyat") || "1";
-    window.location.href = `?surah=${lastSurah}&ayat=${lastAyat}`;
-    return;
-  }
 
   // Jika ada parameter, tampilkan seperti biasa
   const surah = parseInt(params.get("surah") || "1");
@@ -1549,53 +1564,345 @@ function showNoteOverlay(surah, ayah) {
     sumberDiv.parentNode.insertBefore(infoDiv, sumberDiv.nextSibling);
   }
 })();
+
+// SCRIPT SYNC TOMBOL OVERLAY
+
+  let usernameConfirmed = false;
+
+function resetCheckResult() {
+  usernameConfirmed = false;
+  document.getElementById('check-result').innerHTML = '';
+  document.getElementById('sync-status').innerHTML = '';
+}
+
+async function isUsernameTaken(username) {
+  const url = `https://raw.githubusercontent.com/dickymiswardi/tadabbur/main/data/${username}.json`;
+  const res = await fetch(url);
+  return res.ok;
+}
+
+async function checkUsername() {
+  const el = document.getElementById('sync-username');
+  const status = document.getElementById('check-result');
+  const username = el.value.trim().toLowerCase();
+
+  if (!/^[a-z0-9_-]+$/.test(username)) {
+    status.innerHTML = '<span style=\"color:red\">❌ username harus huruf kecil tanpa spasi</span>';
+    return;
+  }
+
+  status.innerHTML = '<img src="https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/FadingFountain.gif" width="28" />';
+  const taken = await isUsernameTaken(username);
+
+  if (taken) {
+    status.innerHTML = `
+      <div style=\"color:red\">⚠️ Username sudah ada. Apakah ini milikmu?</div>
+      <button onclick=\"confirmUsername(true)\">✅ Lanjutkan</button>
+      <button onclick=\"confirmUsername(false)\">❌ Ganti</button>
+    `;
+  } else {
+  confirmUsername(true); // langsung konfirmasi otomatis
+}
+}
+
+function confirmUsername(ok) {
+  const status = document.getElementById('check-result');
+  const input = document.getElementById('sync-username');
+  const checkBtn = input.nextElementSibling; // tombol Check
+  const username = input.value.trim().toLowerCase();
+
+  if (ok) {
+    usernameConfirmed = true;
+    localStorage.setItem("usernameAktif", username);
+    status.innerHTML = '<span style="color:green">✅ Username dikonfirmasi. Mohon disimpan.</span>';
+
+    // Sembunyikan input dan tombol Check
+    input.style.display = "none";
+    if (checkBtn) checkBtn.style.display = "none";
+
+    // Tambahkan label username
+    const label = document.createElement("div");
+    label.id = "username-label";
+    label.innerHTML = `👤 Username: <strong>${username}</strong>`;
+    input.parentElement.insertBefore(label, input.nextSibling);
+
+    // Tambahkan tombol Ganti User
+    if (!document.getElementById("btn-ganti-user")) {
+      const gantiBtn = document.createElement("button");
+      gantiBtn.id = "btn-ganti-user";
+      gantiBtn.textContent = "🔁 Ganti User";
+      gantiBtn.onclick = () => {
+        // Kembalikan input dan tombol Check
+        localStorage.removeItem("usernameAktif");
+        input.style.display = "inline-block";
+        if (checkBtn) checkBtn.style.display = "inline-block";
+        status.innerHTML = '';
+        document.getElementById("username-label")?.remove();
+        document.getElementById("btn-ganti-user")?.remove();
+        input.value = '';
+        input.focus();
+        usernameConfirmed = false;
+      };
+      input.parentElement.appendChild(gantiBtn);
+    }
+
+  } else {
+    input.value = '';
+    usernameConfirmed = false;
+    status.innerHTML = '<span style="color:gray">Silakan isi username baru</span>';
+  }
+}
+
+
+
+
+
+
+
+  function tampilkanFormInputUsername() {
+  document.getElementById('username-overlay').style.display = 'flex';
+}
+
+function tampilkanTombolSyncSaja() {
+  document.getElementById('sync-ui').style.display = 'block';
+}
+
+function konfirmasiUsername() {
+  const input = document.getElementById('username-input').value.trim().toLowerCase();
+  const error = document.getElementById('username-error');
+
+  if (!/^[a-z0-9_-]+$/.test(input)) {
+    error.innerText = "❌ Username hanya huruf kecil tanpa spasi";
+    return;
+  }
+
+  // Simpan username ke localStorage
+  localStorage.setItem("usernameAktif", input);
+  location.reload();
+}
+
+function gantiUser() {
+  localStorage.removeItem("usernameAktif");
+  location.reload();
+}
+
+  // ⬆️ Fungsi Upload (satu arah ke Cloud)
+
+async function uploadDataToCloud() {
+  const username = localStorage.getItem('usernameAktif');
+  const status = document.getElementById('sync-status');
+  status.innerHTML = '';
+
+  if (!username || !/^[a-z0-9_-]+$/.test(username)) {
+    status.innerHTML = '<span style="color:red">❌ Username tidak valid.</span>';
+    return;
+  }
+
+  try {
+    const localBookmark = JSON.parse(localStorage.getItem('tadabbur-bookmark') || '[]');
+    const localLog = JSON.parse(localStorage.getItem('tadabbur-log') || '[]');
+    const localNotes = {};
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k.startsWith('note-')) localNotes[k] = localStorage.getItem(k);
+    }
+
+    const payload = {
+      bookmark: localBookmark,
+      notes: localNotes,
+      log: localLog
+    };
+
+    status.innerHTML = '⬆️ Upload... <img src="https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/FadingFountain.gif" width="28" />';
+    await fetch('/.netlify/functions/sync', {
+      method: 'POST',
+      body: JSON.stringify({ username, data: payload })
+    });
+
+    status.innerHTML = '<span style="color:green">✅ Upload berhasil!</span>';
+  } catch (err) {
+    console.error(err);
+    status.innerHTML = '<span style="color:red">❌ Upload gagal.</span>';
+  }
+}
+
+ // ⬇️ Fungsi Download (satu arah dari Cloud)
+
+  async function downloadDataFromCloud() {
+  const username = localStorage.getItem('usernameAktif');
+  const status = document.getElementById('sync-status');
+  status.innerHTML = '';
+
+  if (!username || !/^[a-z0-9_-]+$/.test(username)) {
+    status.innerHTML = '<span style="color:red">❌ Username tidak valid.</span>';
+    return;
+  }
+
+  try {
+    const url = `https://raw.githubusercontent.com/dickymiswardi/tadabbur/main/data/${username}.json`;
+    const response = await fetch(url);
+    if (!response.ok) throw new Error("Gagal ambil data");
+
+    const cloudData = await response.json();
+
+    Object.keys(localStorage).forEach(k => {
+      if (k.startsWith("note-") || k === "tadabbur-bookmark" || k === "tadabbur-log") {
+        localStorage.removeItem(k);
+      }
+    });
+
+    localStorage.setItem("tadabbur-bookmark", JSON.stringify(cloudData.bookmark || []));
+    localStorage.setItem("tadabbur-log", JSON.stringify(cloudData.log || []));
+    if (cloudData.notes) {
+      Object.keys(cloudData.notes).forEach(k => localStorage.setItem(k, cloudData.notes[k]));
+    }
+
+    status.innerHTML = '<span style="color:green">✅ Download berhasil!</span>';
+  } catch (err) {
+    console.error(err);
+    status.innerHTML = '<span style="color:red">❌ Download gagal.</span>';
+  }
+}
+
+
+// Saat halaman dibuka
+window.addEventListener("DOMContentLoaded", () => {
+  const user = localStorage.getItem("usernameAktif");
+  if (user) {
+    tampilkanTombolSyncSaja();
+    window.usernameAktif = user; // bisa dipakai di syncData()
+  } else {
+    tampilkanFormInputUsername();
+  }
+});
+
+  
+</script>
+
+  <!-- 🔒 SYNC OVERLAY -->
+<div id="sync-overlay" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); justify-content: center; align-items: center; z-index: 9999;">
+  <div style="background: white; padding: 2em; border-radius: 12px; max-width: 400px; width: 90%; text-align: center; position: relative;">
+    <div onclick="document.getElementById('sync-overlay').style.display='none'" style="position: absolute; top: 10px; right: 15px; cursor: pointer; font-weight: bold;">✖</div>
+    <h3>👤 Buat atau masukkan username</h3>
+
+    <input id="sync-username" placeholder="contoh: ahmad123, dickymiswardi" oninput="resetCheckResult()" style="padding: 0.5em; width: 80%; max-width: 250px;" />
+    <button onclick="checkUsername()">Ok</button>
+    <span id="check-result" style="display:inline-block; margin-left:10px;"></span>
+
+    <div style="margin-top: 1em;">
+      <button onclick="uploadDataToCloud()">⬆️ Upload data ke Cloud</button>
+<button onclick="downloadDataFromCloud()">⬇️ Download data dari Cloud</button>
+      <div id="sync-status" style="margin-top: 1em;"></div>
+    </div>
+  </div>
+</div>
+
+  
+  <script>
+document.addEventListener("DOMContentLoaded", () => {
+  const savedUser = localStorage.getItem("username");
+  const input = document.getElementById("sync-username");
+
+  if (savedUser && input) {
+    usernameConfirmed = true;
+
+    // Sembunyikan input & tampilkan label username
+    input.style.display = 'none';
+    const label = document.createElement("div");
+    label.id = "username-label";
+    label.style.marginTop = "0.5em";
+    label.innerHTML = `👤 Username: <strong>${savedUser}</strong>`;
+    input.parentElement.insertBefore(label, input.nextSibling);
+
+    document.getElementById('check-result').innerHTML = `<span style="color:green">✅ Username dikonfirmasi</span>`;
+  }
+
+  // Tambah tombol Ganti User di bawah tombol SYNC
+  const nav = document.querySelector(".nav-buttons");
+  if (savedUser && nav && !document.getElementById("ganti-user-btn")) {
+    const gantiBtn = document.createElement("button");
+    gantiBtn.id = "ganti-user-btn";
+    gantiBtn.innerText = "GANTI USER";
+    gantiBtn.onclick = () => {
+      localStorage.removeItem("username");
+      location.reload();
+    };
+    nav.appendChild(gantiBtn);
+  }
+});
 </script>
 
   <script>
-async function syncToCloud() {
-  const username = document.getElementById("sync-username").value.trim().toLowerCase();
-  if (!username) return alert("Masukkan username!");
+document.addEventListener("DOMContentLoaded", () => {
+  const saved = localStorage.getItem("usernameAktif");
+  const input = document.getElementById("sync-username");
+  const checkBtn = input.nextElementSibling;
+  const status = document.getElementById("check-result");
 
-  const bookmark = JSON.parse(localStorage.getItem("tadabbur-bookmark") || "[]");
+  if (saved && input && status) {
+    usernameConfirmed = true;
+    input.style.display = "none";
+    if (checkBtn) checkBtn.style.display = "none";
 
-  const notes = {};
-  for (let i = 0; i < localStorage.length; i++) {
-    const k = localStorage.key(i);
-    if (k.startsWith("note-")) notes[k] = localStorage.getItem(k);
+    const label = document.createElement("div");
+    label.id = "username-label";
+    label.innerHTML = `👤 Username: <strong>${saved}</strong>`;
+    input.parentElement.insertBefore(label, input.nextSibling);
+
+    status.innerHTML = '<span style="color:green">✅ Username dikonfirmasi</span>';
+
+    if (!document.getElementById("btn-ganti-user")) {
+      const gantiBtn = document.createElement("button");
+      gantiBtn.id = "btn-ganti-user";
+      gantiBtn.textContent = "🔁 Ganti User";
+      gantiBtn.onclick = () => {
+        localStorage.removeItem("usernameAktif");
+        input.style.display = "inline-block";
+        if (checkBtn) checkBtn.style.display = "inline-block";
+        status.innerHTML = '';
+        document.getElementById("username-label")?.remove();
+        document.getElementById("btn-ganti-user")?.remove();
+        input.value = '';
+        input.focus();
+        usernameConfirmed = false;
+      };
+      input.parentElement.appendChild(gantiBtn);
+    }
   }
-
-  const res = await fetch("/.netlify/functions/sync", {
-    method: "POST",
-    body: JSON.stringify({ username, data: { bookmark, notes } }),
-  });
-
-  alert(await res.text());
-}
-
-async function syncFromCloud() {
-  const username = document.getElementById("sync-username").value.trim().toLowerCase();
-  if (!username) return alert("Masukkan username!");
-
-  const url = `https://raw.githubusercontent.com/dickymiswardi/tadabbur/main/data/${username}.json`;
-
-  const res = await fetch(url);
-  if (!res.ok) return alert("Data tidak ditemukan di cloud");
-
-  const { bookmark, notes } = await res.json();
-  if (bookmark) localStorage.setItem("tadabbur-bookmark", JSON.stringify(bookmark));
-  if (notes) Object.keys(notes).forEach(k => localStorage.setItem(k, notes[k]));
-
-  alert("✅ Sinkronisasi selesai. Muat ulang halaman.");
-}
+});
 </script>
 
+<script>
+// Deteksi swipe kiri dan kanan untuk menggantikan tombol NEXT dan PREV
+let touchStartX = 0;
+let touchEndX = 0;
 
+function handleSwipeGesture() {
+  const threshold = 50; // jarak minimal swipe agar dianggap geser
+  const deltaX = touchEndX - touchStartX;
 
-<div style="margin-top: 2em; text-align: center;">
-  <input id="sync-username" placeholder="username..." style="padding: 0.4em;" />
-  <button onclick="syncToCloud()">⏫ Simpan ke Cloud</button>
-  <button onclick="syncFromCloud()">🔄 Ambil dari Cloud</button>
-</div>
+  if (deltaX > threshold) {
+    // Geser kanan = tombol NEXT (maju ke ayat berikutnya)
+    const nextBtn = [...document.querySelectorAll("button")]
+      .find(btn => btn.textContent.trim() === "◀ NEXT");
+    if (nextBtn) nextBtn.click();
+  } else if (deltaX < -threshold) {
+    // Geser kiri = tombol PREV (kembali ke ayat sebelumnya)
+    const prevBtn = [...document.querySelectorAll("button")]
+      .find(btn => btn.textContent.trim() === "PREV ▶");
+    if (prevBtn) prevBtn.click();
+  }
+}
+
+document.addEventListener('touchstart', e => {
+  touchStartX = e.changedTouches[0].screenX;
+});
+
+document.addEventListener('touchend', e => {
+  touchEndX = e.changedTouches[0].screenX;
+  handleSwipeGesture();
+});
+</script>
 
   
 </body>
