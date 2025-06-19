@@ -2,96 +2,90 @@
 <html lang="ar">
 <head>
   <meta charset="UTF-8">
-  <title>Pencarian Ayat Al-Qur'an (Lokal)</title>
+  <title>Pencarian Ayat Al-Qur'an (quran2.json)</title>
   <style>
-    body { font-family: sans-serif; padding: 2rem; background: #f9f9f9; }
-    .search-box {
-      max-width: 600px;
-      margin: 0 auto;
-      text-align: center;
-    }
+    body { font-family: sans-serif; padding: 2rem; background: #f0f0f0; }
+    .search-box { text-align: center; max-width: 600px; margin: auto; }
     input, button {
-      padding: 1rem;
       font-size: 1.2rem;
+      padding: 0.8rem;
       margin: 0.3rem;
       border-radius: 8px;
       border: 1px solid #ccc;
     }
-    input {
-      width: 70%;
-    }
-    button {
-      background: #28a745;
-      color: white;
-      cursor: pointer;
-    }
+    input { width: 70%; }
+    button { background: #28a745; color: white; cursor: pointer; }
     .result {
       background: white;
-      padding: 1rem;
       margin: 1rem auto;
+      padding: 1rem;
       border-radius: 8px;
+      max-width: 600px;
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
       direction: rtl;
       text-align: right;
-      max-width: 600px;
     }
-    .meta {
-      font-size: 0.9rem;
-      color: #555;
-      margin-bottom: 0.3rem;
-    }
+    .meta { font-size: 0.9rem; color: #555; margin-bottom: 0.5rem; text-align: left; direction: ltr; }
   </style>
 </head>
 <body>
 
 <div class="search-box">
-  <h2>🔍 Pencarian Ayat Al-Qur'an (Lokal)</h2>
-  <input type="text" id="searchInput" placeholder="Tulis kata Arab, contoh: اللَّهِ">
+  <h2>🔍 Cari Ayat Al-Qur'an (Lokal - quran2.json)</h2>
+  <input type="text" id="searchInput" placeholder="Contoh: اللَّهِ">
   <button onclick="doSearch()">Search</button>
-  <div id="results"></div>
 </div>
 
-<script>
-let quranText = [];
+<div id="results"></div>
 
-// Ambil data dari Quran JSON
-fetch('https://unpkg.com/quran-json@1.0.1/json/quran/text.json')
+<script>
+let quran = {};
+
+fetch("https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/quran2.json")
   .then(res => res.json())
   .then(data => {
-    quranText = data;
+    quran = data;
+    console.log("✅ Quran loaded");
   })
   .catch(err => {
-    alert("Gagal memuat data Al-Qur'an.");
+    alert("Gagal memuat quran2.json");
     console.error(err);
   });
 
 function doSearch() {
-  const keyword = document.getElementById('searchInput').value.trim();
-  const container = document.getElementById('results');
-  container.innerHTML = '';
+  const keyword = document.getElementById("searchInput").value.trim();
+  const resultBox = document.getElementById("results");
+  resultBox.innerHTML = '';
 
-  if (quranText.length === 0) {
-    container.innerHTML = '<p>🔄 Sedang memuat data, coba sebentar lagi...</p>';
+  if (!keyword || keyword.length < 2) {
+    resultBox.innerHTML = '<p>❗ Masukkan minimal 2 huruf Arab</p>';
     return;
   }
 
-  if (keyword.length < 2) {
-    container.innerHTML = '<p>❗ Masukkan minimal 2 huruf Arab.</p>';
-    return;
-  }
+  const results = [];
 
-  const results = quranText.filter(ayat =>
-    ayat.text.split(' ').some(kata => kata.includes(keyword))
-  );
+  for (const surahKey in quran) {
+    const surah = quran[surahKey];
+    surah.text.forEach(ayat => {
+      if (ayat.text.includes(keyword)) {
+        results.push({
+          surahNumber: surah.chapterNumber,
+          surahName: surah.titleAr,
+          verseNumber: ayat.verseNumber,
+          text: ayat.text
+        });
+      }
+    });
+  }
 
   if (results.length === 0) {
-    container.innerHTML = '<p>❌ Tidak ditemukan.</p>';
+    resultBox.innerHTML = '<p>❌ Tidak ditemukan.</p>';
     return;
   }
 
-  container.innerHTML = results.map(r => `
+  resultBox.innerHTML = results.map(r => `
     <div class="result">
-      <div class="meta">Surah ${r.chapter}, Ayat ${r.verse}</div>
+      <div class="meta">Surah ${r.surahNumber} (${r.surahName}) • Ayat ${r.verseNumber}</div>
       <div class="text">${r.text}</div>
     </div>
   `).join('');
