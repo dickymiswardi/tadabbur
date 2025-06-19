@@ -1259,15 +1259,15 @@ navDiv.appendChild(playAudioBtn);
     select.appendChild(opt);
   });
 
-  const confirmBtn = document.createElement("button");
-  confirmBtn.textContent = "Dengarkan Qari Ini";
   confirmBtn.onclick = () => {
-    const qariId = select.value;
-    localStorage.setItem("lastQari", qariId);
-    playAudioForAyah(qariId);
-    overlay.remove();
-    backdrop.remove();
-  };
+  const qariId = select.value;
+  localStorage.setItem("lastQari", qariId);
+  localStorage.setItem("audioPlayerVisible", "true"); // <--- TAMBAHKAN INI
+  playAudioForAyah(qariId);
+  overlay.remove();
+  backdrop.remove();
+};
+
 
   overlay.innerHTML = `<h3>Pilih Qari</h3>`;
   overlay.appendChild(select);
@@ -1335,6 +1335,7 @@ window.location.href = `?surah=${next.surah}&ayat=${next.ayah}`;
   audioWrapper.appendChild(audio);
   audioWrapper.appendChild(toggleWrap);
   container.appendChild(audioWrapper);
+ localStorage.setItem("audioPlayerVisible", "true");
 }
 
       function getGlobalAyahNumber(surah, ayah) {
@@ -1940,6 +1941,17 @@ document.addEventListener('touchend', e => {
 
   if (lastQari && (shouldShowAudio || fromAutoplay)) {
     playAudioForAyah(lastQari);
+  }
+
+  localStorage.removeItem("fromAutoplay");
+</script>
+<script>
+  const savedQari = localStorage.getItem("lastQari");
+  const showAudio = localStorage.getItem("audioPlayerVisible") === "true";
+  const fromAutoplay = localStorage.getItem("fromAutoplay") === "true";
+
+  if (savedQari && (showAudio || fromAutoplay)) {
+    playAudioForAyah(savedQari);
   }
 
   localStorage.removeItem("fromAutoplay");
