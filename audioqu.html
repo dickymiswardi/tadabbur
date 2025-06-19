@@ -34,7 +34,7 @@
       <option value="7">Abdul Baset (Mujawwad)</option>
       <option value="8">Abdul Baset (Murattal)</option>
       <option value="11">Maher Al-Muaiqly</option>
-      <option value="3">X1</option>
+      <option value="3">XX</option>
     </select>
   </label>
 
@@ -55,24 +55,15 @@
       audioList.innerHTML = "<p>⏳ Memuat audio...</p>";
 
       try {
-        const tokenRes = await fetch("https://prelive-oauth2.quran.foundation/v4/auth/oauth/token", {
+        const response = await fetch("/.netlify/functions/get-audio", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            grant_type: "client_credentials",
-            client_id: "310ab2c2-3140-4dca-8507-a993b4e8d128",
-            client_secret: "spvNGTD5tfY7wgCqYclzYRLNPr"
+            recitation_id: reciterId,
+            chapter_number: surahNumber
           })
         });
-        const tokenData = await tokenRes.json();
-        const token = tokenData.access_token;
 
-        const audioRes = await fetch(`https://prelive-oauth2.quran.foundation/v4/audio/recitation/${reciterId}/audio_files?chapter_number=${surahNumber}`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-
-        const data = await audioRes.json();
-
+        const data = await response.json();
         audioList.innerHTML = "";
 
         data.audio_files.forEach(file => {
