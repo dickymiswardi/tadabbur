@@ -2020,6 +2020,7 @@ document.addEventListener('touchend', e => {
 
 
 <!-- Overlay Pencarian Ayat Al-Qur'an -->
+<!-- Overlay Pencarian Ayat Al-Qur'an -->
 <div id="searchOverlay" style="
   display:none;
   position:fixed;
@@ -2030,19 +2031,18 @@ document.addEventListener('touchend', e => {
   overflow:auto;
 ">
   <div style="
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  min-height:100vh;
-  padding:1rem;
-">
+    position: relative;
+    min-height: 100vh;
+  ">
     <div style="
       background:white;
       padding:2rem;
       border-radius:12px;
-      width:100%;
+      width:90%;
       max-width:600px;
+      margin: 10vh auto;
       box-shadow:0 0 10px rgba(0,0,0,0.3);
+      transition: all 0.2s ease-in-out;
     ">
       <div style="text-align:right;">
         <button onclick="closeSearch()" style="
@@ -2126,18 +2126,18 @@ function doSearch() {
   container.innerHTML = results.map(r => `
     <div style="margin-bottom:1rem; padding:1rem; background:#f1f1f1; border-radius:8px;">
       <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap; margin-bottom:5px;">
-  <a href="${currentHost}/?surah=${r.surah}&ayat=${r.ayah}" class="meta" style="text-decoration:none; color:inherit; font-weight:bold;">
-    Surah ${r.surah} (${r.nama}) • Ayat ${r.ayah}
-  </a>
-  <a href="${currentHost}/?surah=${r.surah}&ayat=${r.ayah}" style="
-    padding: 0.3rem 0.8rem;
-    font-size: 0.85rem;
-    background-color: #28a745;
-    color: white;
-    border-radius: 6px;
-    text-decoration: none;
-  ">Lihat</a>
-</div>
+        <a href="${currentHost}/?surah=${r.surah}&ayat=${r.ayah}" class="meta" style="text-decoration:none; color:inherit; font-weight:bold;">
+          Surah ${r.surah} (${r.nama}) • Ayat ${r.ayah}
+        </a>
+        <a href="${currentHost}/?surah=${r.surah}&ayat=${r.ayah}" style="
+          padding: 0.3rem 0.8rem;
+          font-size: 0.85rem;
+          background-color: #28a745;
+          color: white;
+          border-radius: 6px;
+          text-decoration: none;
+        ">Yuk Tadabbur</a>
+      </div>
       ${isAr ? `
         <div style="font-size:1.2rem; direction:rtl; text-align:right;">${highlight(r.arab, input)}</div>
         <div style="font-size:1rem; margin-top:0.3rem;">${r.terjemah}</div>
@@ -2162,6 +2162,7 @@ if (searchBtn) {
   });
 }
 </script>
+
 
 <script>
 let searchData = [];
