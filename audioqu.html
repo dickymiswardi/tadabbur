@@ -1,81 +1,56 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>Qur'an Audio Player</title>
+  <title>Pencarian Al-Qur'an</title>
   <style>
-    body {
-      font-family: sans-serif;
-      max-width: 700px;
-      margin: auto;
-      padding: 2em;
-    }
-    select, input, button {
-      padding: 0.5em;
-      margin: 0.5em 0;
-    }
-    audio {
-      width: 100%;
-      margin-top: 0.5em;
-    }
-    .ayah {
-      margin-bottom: 1.5em;
-      border-bottom: 1px solid #ccc;
-      padding-bottom: 1em;
-    }
+    body { font-family: sans-serif; padding: 2em; max-width: 600px; margin: auto; }
+    input, button { padding: 0.5em; margin-top: 1em; width: 100%; }
+    .result { margin-top: 1.5em; border-top: 1px solid #ccc; padding-top: 1em; }
+    .result div { margin-bottom: 1em; }
+    a { text-decoration: none; color: darkblue; }
   </style>
 </head>
 <body>
-  <h1>🎧 Pemutar Audio Qur'an</h1>
+  <h2>🔎 Pencarian Kata dalam Al-Qur'an</h2>
 
-  <label>Reciter:
-    <select id="reciter">
-      <option value="5">Mishari Rashid Al-Afasy</option>
-      <option value="7">Abdul Baset (Mujawwad)</option>
-      <option value="8">Abdul Baset (Murattal)</option>
-      <option value="11">Maher Al-Muaiqly</option>
-      <option value="3">XX</option>
-    </select>
-  </label>
+  <input id="search-input" placeholder="Masukkan kata, contoh: الرحمن" />
+  <button onclick="searchQuran()">Cari</button>
 
-  <label>Surah:
-    <input type="number" id="surah" value="1" min="1" max="114" />
-  </label>
-
-  <button onclick="loadAudio()">Tampilkan Audio</button>
-
-  <div id="audio-list"></div>
+  <div id="results" class="result"></div>
 
   <script>
-    async function loadAudio() {
-      const reciterId = document.getElementById("reciter").value;
-      const surahNumber = document.getElementById("surah").value;
-      const audioList = document.getElementById("audio-list");
-
-      audioList.innerHTML = "<p>⏳ Memuat audio...</p>";
+    async function searchQuran() {
+      const query = document.getElementById("search-input").value.trim();
+      const resultsDiv = document.getElementById("results");
+      resultsDiv.innerHTML = "⏳ Mencari...";
 
       try {
-        const response = await fetch("/.netlify/functions/get-audio", {
-          method: "POST",
-          body: JSON.stringify({
-            recitation_id: reciterId,
-            chapter_number: surahNumber
-          })
-        });
-
+        const response = await fetch(`https://api.quran.com/v4/search?q=${encodeURIComponent(query)}&language=id&size=50&source=translation`);
         const data = await response.json();
-        audioList.innerHTML = "";
 
-        data.audio_files.forEach(file => {
-          const ayahDiv = document.createElement("div");
-          ayahDiv.className = "ayah";
-          ayahDiv.innerHTML = `<strong>Ayat ${file.verse_key}</strong><br>
-            <audio controls src="https://verses.quran.foundation/${file.url}"></audio>`;
-          audioList.appendChild(ayahDiv);
+        if (!data.results.length) {
+          resultsDiv.innerHTML = "❌ Tidak ditemukan.";
+          return;
+        }
+
+        resultsDiv.innerHTML = "";
+        data.results.forEach(item => {
+          const [surah, ayat] = item.verse_key.split(":");
+          const tautan = `https://tadabbur.netlify.app/?surah=${surah}&ayat=${ayat}`;
+          const div = document.createElement("div");
+          div.innerHTML = `
+            <strong>QS ${item.verse_key}</strong><br>
+            <span style="font-size: 1.2em;">${item.text}</span><br>
+            <em>${item.translations?.[0]?.text || ''}</em><br>
+            <a href="${tautan}" target="_blank">➡️ Buka ayat di situsmu</a>
+          `;
+          resultsDiv.appendChild(div);
         });
+
       } catch (err) {
         console.error(err);
-        audioList.innerHTML = "<p style='color:red'>❌ Gagal memuat audio.</p>";
+        resultsDiv.innerHTML = "❌ Gagal mengambil data.";
       }
     }
   </script>
