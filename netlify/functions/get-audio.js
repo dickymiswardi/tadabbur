@@ -3,7 +3,7 @@ const fetch = require("node-fetch");
 exports.handler = async function (event) {
   const { recitation_id, chapter_number } = JSON.parse(event.body);
 
-  const tokenRes = await fetch("https://prelive-oauth2.quran.foundation/v4/auth/oauth/token", {
+  const tokenRes = await fetch("https://prelive-oauth2.quran.foundation/oauth/token", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
