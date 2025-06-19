@@ -1769,7 +1769,7 @@ async function uploadDataToCloud() {
       Object.keys(cloudData.notes).forEach(k => localStorage.setItem(k, cloudData.notes[k]));
     }
 
-    status.innerHTML = '<span style="color:green">✅ Download berhasil!</span>';
+    status.innerHTML = '<span style="color:green">✅ Download berhasil! <img src="https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/FadingFountain.gif" width="50" style="vertical-align:middle;" /></span>';
   } catch (err) {
     console.error(err);
     status.innerHTML = '<span style="color:red">❌ Download gagal.</span>';
