@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Qur'an Audio Player</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      max-width: 700px;
+      margin: auto;
+      padding: 2em;
+    }
+    select, input, button {
+      padding: 0.5em;
+      margin: 0.5em 0;
+    }
+    audio {
+      width: 100%;
+      margin-top: 0.5em;
+    }
+    .ayah {
+      margin-bottom: 1.5em;
+      border-bottom: 1px solid #ccc;
+      padding-bottom: 1em;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎧 Pemutar Audio Qur'an</h1>
+
+  <label>Reciter:
+    <select id="reciter">
+      <option value="5">Mishari Rashid Al-Afasy</option>
+      <option value="7">Abdul Baset (Mujawwad)</option>
+      <option value="8">Abdul Baset (Murattal)</option>
+      <option value="11">Maher Al-Muaiqly</option>
+    </select>
+  </label>
+
+  <label>Surah:
+    <input type="number" id="surah" value="1" min="1" max="114" />
+  </label>
+
+  <button onclick="loadAudio()">Tampilkan Audio</button>
+
+  <div id="audio-list"></div>
+
+  <script>
+    async function loadAudio() {
+      const reciterId = document.getElementById("reciter").value;
+      const surahNumber = document.getElementById("surah").value;
+      const audioList = document.getElementById("audio-list");
+
+      audioList.innerHTML = "<p>⏳ Memuat audio...</p>";
+
+      try {
+        const tokenRes = await fetch("https://prelive-oauth2.quran.foundation/v4/auth/oauth/token", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            grant_type: "client_credentials",
+            client_id: "310ab2c2-3140-4dca-8507-a993b4e8d128",
+            client_secret: "spvNGTD5tfY7wgCqYclzYRLNPr"
+          })
+        });
+        const tokenData = await tokenRes.json();
+        const token = tokenData.access_token;
+
+        const audioRes = await fetch(`https://prelive-oauth2.quran.foundation/v4/audio/recitation/${reciterId}/audio_files?chapter_number=${surahNumber}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        const data = await audioRes.json();
+
+        audioList.innerHTML = "";
+
+        data.audio_files.forEach(file => {
+          const ayahDiv = document.createElement("div");
+          ayahDiv.className = "ayah";
+          ayahDiv.innerHTML = `<strong>Ayat ${file.verse_key}</strong><br>
+            <audio controls src="https://verses.quran.foundation/${file.url}"></audio>`;
+          audioList.appendChild(ayahDiv);
+        });
+      } catch (err) {
+        console.error(err);
+        audioList.innerHTML = "<p style='color:red'>❌ Gagal memuat audio.</p>";
+      }
+    }
+  </script>
+</body>
+</html>
