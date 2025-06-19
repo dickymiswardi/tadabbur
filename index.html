@@ -754,12 +754,9 @@ const lastAyat = urlParams.get("ayat") || localStorage.getItem("lastAyat");
   fetch("indonesian_complex_v1.0.xml").then(res => res.text())
 ])
 .then(([quranData, xmlText]) => {
-  let arabicText = "(Teks Arab tidak ditemukan)";
-
-  // Loop ke seluruh entri quranData
-  // Versi quran.json
-const match = quranData.find(item => item.surah_number === surah && item.verse_number === ayat);
+  const match = quranData.find(item => item.surah_number === surah && item.verse_number === ayat);
 let arabicText = match ? match.content : "(Teks Arab tidak ditemukan)";
+
 
       // Tambahkan simbol ayat
   arabicText += ` \u06dd${toArabicNumber(ayat)}`;
