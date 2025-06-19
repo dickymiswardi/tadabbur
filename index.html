@@ -1179,6 +1179,10 @@ function showBookmarkNotif(text) {
   }, 5000);
 }
 
+// LINK SEARCH
+  <span id="search-link" style="margin-left: 1em; cursor: pointer; color: #007b8a; font-weight: bold;">Search</span>
+  
+
       const playAudioBtn = document.createElement("button");
 playAudioBtn.textContent = "♬ MP3";
 playAudioBtn.onclick = showQariSelector;
@@ -1996,6 +2000,91 @@ document.addEventListener('touchend', e => {
   touchEndX = e.changedTouches[0].screenX;
   handleSwipeGesture();
 });
+</script>
+
+<!-- Overlay dan Search Box -->
+<div id="search-overlay-backdrop" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.4); z-index:9998;"></div>
+<div id="search-overlay" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); width:95%; max-width:700px; background:#fff; border-radius:12px; padding:1.5em; z-index:9999; max-height:80vh; overflow-y:auto;">
+  <div style="text-align:right;">
+    <span id="search-close" style="font-size:1.3em; font-weight:bold; cursor:pointer; color:#007b8a;">&times;</span>
+  </div>
+  <h3 style="text-align:center; color:#007BFF;">Pencarian Ayat</h3>
+  <div style="display:flex; gap:0.5em; margin-bottom:1em;">
+    <input type="text" id="searchInput" placeholder="Tulis kata Arab atau Indonesia..." style="flex:1; padding:0.7em 1em; font-size:1em; border-radius:8px; border:1px solid #ccc;">
+    <button onclick="doSearch()" style="padding:0.7em 1.2em; background:#007BFF; color:white; border:none; border-radius:8px;">Cari</button>
+  </div>
+  <div id="searchResults"></div>
+</div>
+
+<!-- Script pencarian -->
+<script>
+  document.getElementById("search-link").onclick = function () {
+    document.getElementById("search-overlay").style.display = "block";
+    document.getElementById("search-overlay-backdrop").style.display = "block";
+  }
+  document.getElementById("search-close").onclick = function () {
+    document.getElementById("search-overlay").style.display = "none";
+    document.getElementById("search-overlay-backdrop").style.display = "none";
+  }
+  document.getElementById("search-overlay-backdrop").onclick = function () {
+    document.getElementById("search-overlay").style.display = "none";
+    document.getElementById("search-overlay-backdrop").style.display = "none";
+  }
+
+  function isArabic(text) {
+    return /[\u0600-\u06FF]/.test(text);
+  }
+
+  function doSearch() {
+    const keyword = document.getElementById("searchInput").value.trim();
+    const isAr = isArabic(keyword);
+    const resultBox = document.getElementById("searchResults");
+    resultBox.innerHTML = `<div style='text-align:center;'>🔄 Sedang mencari...</div>`;
+
+    Promise.all([
+      fetch("https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/quran.xml").then(res => res.text()),
+      fetch("https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/TerjemahID.xml").then(res => res.text())
+    ]).then(([arabXML, indoXML]) => {
+      const arDoc = new DOMParser().parseFromString(arabXML, "text/xml");
+      const idDoc = new DOMParser().parseFromString(indoXML, "text/xml");
+      const results = [];
+
+      if (isAr) {
+        const suras = arDoc.querySelectorAll("sura");
+        suras.forEach(sura => {
+          const surah = sura.getAttribute("index");
+          const name = sura.getAttribute("name") || "";
+          sura.querySelectorAll("aya").forEach(aya => {
+            const ayat = aya.getAttribute("index");
+            const text = aya.getAttribute("text") || "";
+            if (text.includes(keyword)) {
+              const idText = idDoc.querySelector(`Chapter[ChapterID='${surah}'] > Verse[VerseID='${ayat}']`)?.textContent || "(terjemahan tidak ditemukan)";
+              results.push(`<div style='margin-bottom:1em; direction:rtl; text-align:right;'><strong>${name} • Ayat ${ayat}</strong><br><mark>${text}</mark><br><div style='direction:ltr; text-align:left; font-size:0.95em; margin-top:0.3em;'>${idText}</div></div>`);
+            }
+          });
+        });
+      } else {
+        const chapters = idDoc.querySelectorAll("Chapter");
+        chapters.forEach(chap => {
+          const surah = chap.getAttribute("ChapterID");
+          const name = chap.getAttribute("ChapterName") || "";
+          chap.querySelectorAll("Verse").forEach(verse => {
+            const ayat = verse.getAttribute("VerseID");
+            const text = verse.textContent.trim();
+            if (text.toLowerCase().includes(keyword.toLowerCase())) {
+              const arText = arDoc.querySelector(`sura[index='${surah}'] > aya[index='${ayat}']`)?.getAttribute("text") || "(Arab tidak ditemukan)";
+              results.push(`<div style='margin-bottom:1em; direction:ltr; text-align:left;'><strong>${name} • Ayat ${ayat}</strong><br><mark>${text}</mark><br><div style='direction:rtl; text-align:right; font-size:1.2em; margin-top:0.3em;'>${arText}</div></div>`);
+            }
+          });
+        });
+      }
+
+      resultBox.innerHTML = results.length ? results.join("") : `<div style='text-align:center;'>❌ Tidak ditemukan.</div>`;
+    }).catch(err => {
+      resultBox.innerHTML = `<div style='text-align:center; color:red;'>❌ Gagal memuat data XML</div>`;
+      console.error(err);
+    });
+  }
 </script>
 
   
