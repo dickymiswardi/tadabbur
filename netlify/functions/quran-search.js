@@ -1,5 +1,10 @@
 const fetch = require("node-fetch");
 
+// Ambil client ID dan secret dari environment variable Netlify
+const clientId = process.env.QURAN_CLIENT_ID;
+const clientSecret = process.env.QURAN_CLIENT_SECRET;
+
+// Fungsi timeout untuk fetch
 function timeoutFetch(url, options = {}, timeout = 5000) {
   return Promise.race([
     fetch(url, options),
@@ -11,6 +16,7 @@ function timeoutFetch(url, options = {}, timeout = 5000) {
 
 exports.handler = async function (event) {
   const query = event.queryStringParameters.q;
+
   if (!query) {
     return {
       statusCode: 400,
@@ -18,13 +24,11 @@ exports.handler = async function (event) {
     };
   }
 
-  const clientId = "4032fd79-ed9a-4416-966f-8be347967401";
-  const clientSecret = "dgjsFbkqFNx9EycbbvS2zaxvKk";
   const credentials = Buffer.from(`${clientId}:${clientSecret}`).toString("base64");
 
   try {
-    // 1. Ambil token
-    const tokenRes = await timeoutFetch("https://prelive-oauth2.quran.foundation/oauth2/token", {
+    // 1. Ambil access token dari API production
+    const tokenRes = await timeoutFetch("https://oauth2.quran.foundation/oauth2/token", {
       method: "POST",
       headers: {
         Authorization: `Basic ${credentials}`,
@@ -37,14 +41,13 @@ exports.handler = async function (event) {
     const token = tokenData.access_token;
 
     if (!token) {
-      console.log("Token tidak didapat:", tokenData);
       return {
         statusCode: 500,
-        body: JSON.stringify({ error: "Gagal dapat token" }),
+        body: JSON.stringify({ error: "Gagal mendapatkan token" }),
       };
     }
 
-    // 2. Cari ayat
+    // 2. Kirim pencarian ke endpoint content production
     const searchRes = await timeoutFetch(
       `https://apis.quran.foundation/content/api/v4/search?q=${encodeURIComponent(query)}&size=10`,
       {
@@ -58,14 +61,12 @@ exports.handler = async function (event) {
     );
 
     const result = await searchRes.json();
-    console.log("Hasil pencarian:", result);
-
     return {
       statusCode: 200,
       body: JSON.stringify(result),
     };
   } catch (err) {
-    console.error("❌ ERROR:", err.message);
+    console.error("❌ Error:", err.message);
     return {
       statusCode: 500,
       body: JSON.stringify({ error: err.message }),
