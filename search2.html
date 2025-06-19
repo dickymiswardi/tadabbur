@@ -154,7 +154,7 @@ function doSearch() {
 }
 
 // Load Quran Arab
-fetch('quran-ar.xml')
+fetch('https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/quran.xml')
   .then(res => res.text())
   .then(txt => new DOMParser().parseFromString(txt, "text/xml"))
   .then(xml => {
@@ -178,7 +178,7 @@ fetch('quran-ar.xml')
 
 // Load Terjemahan
 function loadTranslation() {
-  fetch('quran-id.xml')
+  fetch('https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/TerjemahID.xml')
     .then(res => res.text())
     .then(txt => new DOMParser().parseFromString(txt, "text/xml"))
     .then(xml => {
