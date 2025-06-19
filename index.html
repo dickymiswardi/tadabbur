@@ -1118,7 +1118,8 @@ translationDiv.appendChild(noteButton);
         const prevBtn = document.createElement("button");
         prevBtn.textContent = "PREV ▶";
         prevBtn.onclick = () => {
-  localStorage.setItem("fromAutoplay", "false");
+  const autoplayOn = localStorage.getItem("autoplay") === "true";
+  localStorage.setItem("fromAutoplay", autoplayOn ? "true" : "false");
   window.location.search = `?surah=${prev.surah}&ayat=${prev.ayah}`;
 };
         navDiv.appendChild(prevBtn);
@@ -1355,7 +1356,8 @@ navDiv.appendChild(syncBtn);
         const nextBtn = document.createElement("button");
         nextBtn.textContent = "◀ NEXT";
         nextBtn.onclick = () => {
-  localStorage.setItem("fromAutoplay", "false");
+  const autoplayOn = localStorage.getItem("autoplay") === "true";
+  localStorage.setItem("fromAutoplay", autoplayOn ? "true" : "false");
   window.location.search = `?surah=${next.surah}&ayat=${next.ayah}`;
 };
         navDiv.appendChild(nextBtn);
