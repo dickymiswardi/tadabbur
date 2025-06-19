@@ -1,4 +1,19 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE HolyQuran [
+	<!ATTLIST HolyQuran TranslationID CDATA #REQUIRED>
+	<!ATTLIST HolyQuran Writer CDATA #REQUIRED>
+	<!ATTLIST HolyQuran Language CDATA #REQUIRED>
+	<!ATTLIST HolyQuran LanguageIsoCode CDATA #REQUIRED>
+	<!ATTLIST HolyQuran Direction (rtl|ltr) #REQUIRED>
+	<!ELEMENT HolyQuran (Chapter+)>
+	<!ATTLIST Chapter ChapterID CDATA #REQUIRED>
+	<!ATTLIST Chapter ChapterName CDATA #REQUIRED>
+	<!ELEMENT Chapter (Verse+)>
+	<!ATTLIST Verse VerseID CDATA #REQUIRED>
+	<!ELEMENT Verse (#PCDATA)>
+]>
+<!-- This SQL Query Generated at 31 July 2014 10:52 (UTC) from www.qurandatabase.org -->
+<HolyQuran TranslationID="68" Writer="Bahasa Indonesia" Language="Indonesian" LanguageIsoCode="ind" Direction="ltr">
 	<Chapter ChapterID="1" ChapterName="AL-FAATIHAH">
 		<Verse VerseID="1"><![CDATA[Dengan menyebut nama Allah Yang Maha Pemurah lagi Maha Penyayang.]]></Verse>
 		<Verse VerseID="2"><![CDATA[Segala puji bagi Allah, Tuhan semesta alam.]]></Verse>
@@ -296,7 +311,7 @@
 		<Verse VerseID="285"><![CDATA[Rasul telah beriman kepada Al Quran yang diturunkan kepadanya dari Tuhannya, demikian pula orang-orang yang beriman. Semuanya beriman kepada Allah, malaikat-malaikat-Nya, kitab-kitab-Nya dan rasul-rasul-Nya. (Mereka mengatakan): "Kami tidak membeda-bedakan antara seseorangpun (dengan yang lain) dari rasul-rasul-Nya", dan mereka mengatakan: "Kami dengar dan kami taat". (Mereka berdoa): "Ampunilah kami ya Tuhan kami dan kepada Engkaulah tempat kembali".]]></Verse>
 		<Verse VerseID="286"><![CDATA[Allah tidak membebani seseorang melainkan sesuai dengan kesanggupannya. Ia mendapat pahala (dari kebajikan) yang diusahakannya dan ia mendapat siksa (dari kejahatan) yang dikerjakannya. (Mereka berdoa): "Ya Tuhan kami, janganlah Engkau hukum kami jika kami lupa atau kami tersalah. Ya Tuhan kami, janganlah Engkau bebankan kepada kami beban yang berat sebagaimana Engkau bebankan kepada orang-orang sebelum kami. Ya Tuhan kami, janganlah Engkau pikulkan kepada kami apa yang tak sanggup kami memikulnya. Beri maaflah kami; ampunilah kami; dan rahmatilah kami. Engkaulah Penolong kami, maka tolonglah kami terhadap kaum yang kafir".]]></Verse>
 	</Chapter>
-	<Chapter ChapterID="3" ChapterName="AL� AALI-IMRAN">
+	<Chapter ChapterID="3" ChapterName="AL  AALI-IMRAN">
 		<Verse VerseID="1"><![CDATA[Alif laam miim.]]></Verse>
 		<Verse VerseID="2"><![CDATA[Allah, tidak ada Tuhan (yang berhak disembah) melainkan Dia. Yang hidup kekal lagi terus menerus mengurus makhluk-Nya.]]></Verse>
 		<Verse VerseID="3"><![CDATA[Dia menurunkan Al Kitab (Al Quran) kepadamu dengan sebenarnya; membenarkan kitab yang telah diturunkan sebelumnya dan menurunkan Taurat dan Injil,]]></Verse>
@@ -1775,7 +1790,7 @@
 		<Verse VerseID="42"><![CDATA[Dan sungguh orang-orang kafir yang sebelum mereka (kafir Mekah) telah mengadakan tipu daya, tetapi semua tipu daya itu adalah dalam kekuasaan Allah. Dia mengetahui apa yang diusahakan oleh setiap diri, dan orang-orang kafir akan mengetahui untuk siapa tempat kesudahan (yang baik) itu.]]></Verse>
 		<Verse VerseID="43"><![CDATA[Berkatalah orang-orang kafir: "Kamu bukan seorang yang dijadikan Rasul". Katakanlah: "Cukuplah Allah menjadi saksi antaraku dan kamu, dan antara orang yang mempunyai ilmu Al Kitab".]]></Verse>
 	</Chapter>
-	<Chapter ChapterID="14" ChapterName="�BRAH�M">
+	<Chapter ChapterID="14" ChapterName=" BRAH M">
 		<Verse VerseID="1"><![CDATA[Alif, laam raa. (Ini adalah) Kitab yang Kami turunkan kepadamu supaya kamu mengeluarkan manusia dari gelap gulita kepada cahaya terang benderang dengan izin Tuhan mereka, (yaitu) menuju jalan Tuhan Yang Maha Perkasa lagi Maha Terpuji.]]></Verse>
 		<Verse VerseID="2"><![CDATA[Allah-lah yang memiliki segala apa yang di langit dan di bumi. Dan kecelakaanlah bagi orang-orang kafir karena siksaan yang sangat pedih,]]></Verse>
 		<Verse VerseID="3"><![CDATA[(yaitu) orang-orang yang lebih menyukai kehidupan dunia dari pada kehidupan akhirat, dan menghalang-halangi (manusia) dari jalan Allah dan menginginkan agar jalan Allah itu bengkok. Mereka itu berada dalam kesesatan yang jauh.]]></Verse>
@@ -6463,3 +6478,4 @@
 		<Verse VerseID="5"><![CDATA[yang membisikkan (kejahatan) ke dalam dada manusia,]]></Verse>
 		<Verse VerseID="6"><![CDATA[dari (golongan) jin dan manusia.]]></Verse>
 	</Chapter>
+</HolyQuran>
