@@ -4,14 +4,15 @@ exports.handler = async function (event) {
   const { recitation_id, chapter_number } = JSON.parse(event.body);
 
   const tokenRes = await fetch("https://prelive-oauth2.quran.foundation/oauth/token", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      grant_type: "client_credentials",
-      client_id: process.env.CLIENT_ID,
-      client_secret: process.env.CLIENT_SECRET
-    })
-  });
+  method: "POST",
+  headers: { "Content-Type": "application/x-www-form-urlencoded" },
+  body: new URLSearchParams({
+    grant_type: "client_credentials",
+    client_id: process.env.CLIENT_ID,
+    client_secret: process.env.CLIENT_SECRET
+  })
+});
+
 
   const tokenData = await tokenRes.json();
 
