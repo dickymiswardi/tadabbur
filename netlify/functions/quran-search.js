@@ -14,14 +14,14 @@ exports.handler = async function (event) {
   const credentials = Buffer.from(`${clientId}:${clientSecret}`).toString("base64");
 
   try {
-    // Ambil access token
+    // 1. Ambil token
     const tokenRes = await fetch("https://prelive-oauth2.quran.foundation/oauth2/token", {
       method: "POST",
       headers: {
-        "Authorization": `Basic ${credentials}`,
-        "Content-Type": "application/x-www-form-urlencoded"
+        Authorization: `Basic ${credentials}`,
+        "Content-Type": "application/x-www-form-urlencoded",
       },
-      body: "grant_type=client_credentials"
+      body: "grant_type=client_credentials",
     });
 
     const tokenData = await tokenRes.json();
@@ -30,26 +30,31 @@ exports.handler = async function (event) {
     if (!token) {
       return {
         statusCode: 500,
-        body: JSON.stringify({ error: "Gagal mendapatkan token" }),
+        body: JSON.stringify({ error: "Gagal dapat token" }),
       };
     }
 
-    // Panggil API search
-    const searchRes = await fetch(`https://api.quran.com/v4/search?q=${encodeURIComponent(query)}&size=10`, {
-      headers: {
-        Authorization: `Bearer ${token}`
+    // 2. Gunakan endpoint /content/api/v4/search
+    const searchRes = await fetch(
+      `https://apis-prelive.quran.foundation/content/api/v4/search?q=${encodeURIComponent(query)}&size=10`,
+      {
+        method: "GET",
+        headers: {
+          "x-auth-token": token,
+          "x-client-id": clientId,
+        },
       }
-    });
+    );
 
     const result = await searchRes.json();
     return {
       statusCode: 200,
-      body: JSON.stringify(result)
+      body: JSON.stringify(result),
     };
   } catch (err) {
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: err.message })
+      body: JSON.stringify({ error: err.message }),
     };
   }
 };
