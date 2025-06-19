@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>🔍 Pencarian Ayat + Highlight</title>
+  <title>Pencarian Ayat Al-Qur’an</title>
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
@@ -11,29 +11,24 @@
       margin: 0;
       padding: 2rem;
     }
-
     .container {
-      max-width: 700px;
+      max-width: 800px;
       margin: auto;
       background: #fff;
       border-radius: 12px;
       padding: 2rem;
       box-shadow: 0 8px 20px rgba(0,0,0,0.1);
     }
-
     h2 {
       text-align: center;
       color: #007BFF;
       margin-bottom: 1.5rem;
     }
-
     .search-box {
       display: flex;
-      justify-content: center;
       gap: 0.5rem;
       margin-bottom: 1rem;
     }
-
     input[type="text"] {
       flex: 1;
       font-size: 1.1rem;
@@ -41,7 +36,6 @@
       border: 1px solid #ccc;
       border-radius: 8px;
     }
-
     button {
       padding: 0.7rem 1.5rem;
       font-size: 1.1rem;
@@ -50,13 +44,8 @@
       background-color: #007BFF;
       color: white;
       cursor: pointer;
-      transition: background-color 0.2s ease;
     }
-
-    button:hover {
-      background-color: #0056b3;
-    }
-
+    button:hover { background-color: #0056b3; }
     .result {
       background: #f9f9f9;
       padding: 1rem;
@@ -66,87 +55,54 @@
       text-align: right;
       box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     }
-
     .meta {
       font-size: 0.9rem;
       color: #666;
       text-align: left;
       direction: ltr;
-      margin-bottom: 0.3rem;
     }
-
-    .no-result {
-      text-align: center;
-      color: #888;
-      margin-top: 1rem;
+    .terjemah {
+      direction: ltr;
+      text-align: left;
+      color: #444;
+      font-size: 1rem;
+      margin-top: 0.5rem;
     }
-
     mark {
       background-color: yellow;
       padding: 0 2px;
       border-radius: 4px;
     }
+    .no-result {
+      text-align: center;
+      color: #888;
+      margin-top: 1rem;
+    }
   </style>
 </head>
 <body>
-
 <div class="container">
-  <h2>🔍 Pencarian Awal Kata Ayat + Highlight</h2>
-
+  <h2>🔍 Pencarian Ayat Al-Qur’an + Terjemah</h2>
   <div class="search-box">
-    <input type="text" id="searchInput" placeholder="Contoh: عين">
-    <button onclick="doSearch()">Search</button>
+    <input type="text" id="searchInput" placeholder="Cari kata Arab atau Indonesia...">
+    <button onclick="doSearch()">Cari</button>
   </div>
-
   <div id="results"></div>
 </div>
 
 <script>
-let ayatList = [];
-
-fetch('https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/quran.xml') // Ganti ke lokasi file XML kamu
-  .then(res => res.text())
-  .then(xmlText => new window.DOMParser().parseFromString(xmlText, "text/xml"))
-  .then(xml => {
-    const suras = Array.from(xml.querySelectorAll('sura'));
-    suras.forEach(sura => {
-      const surahNumber = parseInt(sura.getAttribute('index'));
-      const surahName = sura.getAttribute('name');
-      const ayat = Array.from(sura.querySelectorAll('aya'));
-      ayat.forEach(aya => {
-        ayatList.push({
-          surah_number: surahNumber,
-          surah_name: surahName,
-          verse_number: parseInt(aya.getAttribute('index')),
-          content: aya.getAttribute('text')
-        });
-      });
-    });
-    console.log("✅ Quran XML loaded:", ayatList.length, "ayat");
-  })
-  .catch(err => {
-    document.getElementById("results").innerHTML = `<p class="no-result">❌ Gagal memuat file XML.</p>`;
-    console.error(err);
-  });
+let arabList = [];
+let idMap = {}; // { "1:1": "terjemahan" }
 
 const allowedPrefixes = ['أ', 'ب', 'س', 'ف', 'ل', 'و'];
 
-function highlightContent(content, keyword) {
-  const words = content.trim().split(/\s+/);
-  const highlighted = words.map(word => {
-    if (word.startsWith(keyword)) {
-      return `<mark>${word}</mark>`;
-    }
-    if (word.length > keyword.length + 1) {
-      const prefix = word[0];
-      const rest = word.slice(1);
-      if (allowedPrefixes.includes(prefix) && rest.startsWith(keyword)) {
-        return `<mark>${word}</mark>`;
-      }
-    }
-    return word;
-  });
-  return highlighted.join(" ");
+function isArabic(text) {
+  return /[\u0600-\u06FF]/.test(text);
+}
+
+function highlight(content, keyword) {
+  const regex = new RegExp(`(${keyword})`, 'gi');
+  return content.replace(regex, '<mark>$1</mark>');
 }
 
 function matchAwalKataArab(content, keyword) {
@@ -156,41 +112,94 @@ function matchAwalKataArab(content, keyword) {
     if (word.length > keyword.length + 1) {
       const prefix = word[0];
       const rest = word.slice(1);
-      if (allowedPrefixes.includes(prefix) && rest.startsWith(keyword)) {
-        return true;
-      }
+      return allowedPrefixes.includes(prefix) && rest.startsWith(keyword);
     }
     return false;
   });
 }
 
 function doSearch() {
-  const keyword = document.getElementById("searchInput").value.trim();
+  const input = document.getElementById("searchInput").value.trim();
   const container = document.getElementById("results");
   container.innerHTML = "";
 
-  if (!keyword) {
-    container.innerHTML = `<p class="no-result">❗ Silakan masukkan kata Arab untuk dicari.</p>`;
+  if (!input) {
+    container.innerHTML = `<p class="no-result">❗ Masukkan kata Arab atau Indonesia.</p>`;
     return;
   }
 
-  const results = ayatList.filter(item =>
-    matchAwalKataArab(item.content, keyword)
-  );
+  const isAr = isArabic(input);
+  const results = arabList.filter(item => {
+    if (isAr) return matchAwalKataArab(item.arab, input);
+    else return item.id.includes(input);
+  });
 
   if (results.length === 0) {
-    container.innerHTML = `<p class="no-result">🚫 Tidak ditemukan ayat yang mengandung awal kata: <strong>${keyword}</strong></p>`;
+    container.innerHTML = `<p class="no-result">🚫 Tidak ditemukan hasil untuk: <strong>${input}</strong></p>`;
     return;
   }
 
   container.innerHTML = results.map(r => `
     <div class="result">
-      <div class="meta">Surah ${r.surah_number} (${r.surah_name}) • Ayat ${r.verse_number}</div>
-      <div class="text">${highlightContent(r.content, keyword)}</div>
+      <div class="meta">Surah ${r.surah} (${r.name}) • Ayat ${r.ayah}</div>
+      ${isAr ? `
+        <div class="arab">${highlight(r.arab, input)}</div>
+        <div class="terjemah">${r.id}</div>
+      ` : `
+        <div class="terjemah">${highlight(r.id, input)}</div>
+        <div class="arab">${r.arab}</div>
+      `}
     </div>
   `).join('');
 }
-</script>
 
+// Load Quran Arab
+fetch('quran-ar.xml')
+  .then(res => res.text())
+  .then(txt => new DOMParser().parseFromString(txt, "text/xml"))
+  .then(xml => {
+    Array.from(xml.querySelectorAll('sura')).forEach(sura => {
+      const surah = parseInt(sura.getAttribute('index'));
+      const name = sura.getAttribute('name') || '';
+      Array.from(sura.querySelectorAll('aya')).forEach(aya => {
+        const ayah = parseInt(aya.getAttribute('index'));
+        const text = aya.getAttribute('text');
+        arabList.push({
+          surah,
+          ayah,
+          name,
+          arab: text,
+          id: "(menunggu terjemahan)"
+        });
+      });
+    });
+    loadTranslation();
+  });
+
+// Load Terjemahan
+function loadTranslation() {
+  fetch('quran-id.xml')
+    .then(res => res.text())
+    .then(txt => new DOMParser().parseFromString(txt, "text/xml"))
+    .then(xml => {
+      Array.from(xml.querySelectorAll('Chapter')).forEach(ch => {
+        const surah = parseInt(ch.getAttribute('ChapterID'));
+        Array.from(ch.querySelectorAll('Verse')).forEach(verse => {
+          const ayah = parseInt(verse.getAttribute('VerseID'));
+          const key = `${surah}:${ayah}`;
+          idMap[key] = verse.textContent.trim();
+        });
+      });
+
+      // Inject terjemahan ke arabList
+      arabList = arabList.map(a => {
+        const key = `${a.surah}:${a.ayah}`;
+        return { ...a, id: idMap[key] || '(terjemahan tidak ditemukan)' };
+      });
+
+      console.log("✅ Data lengkap dan siap.");
+    });
+}
+</script>
 </body>
 </html>
