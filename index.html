@@ -1119,10 +1119,8 @@ translationDiv.appendChild(noteButton);
         prevBtn.textContent = "PREV ▶";
         prevBtn.onclick = () => {
   localStorage.setItem("fromAutoplay", "false");
-  simpanStatusAudio(); // <--- tambahkan ini
   window.location.search = `?surah=${prev.surah}&ayat=${prev.ayah}`;
 };
-
         navDiv.appendChild(prevBtn);
       }
 
@@ -1190,20 +1188,18 @@ function showBookmarkNotif(text) {
   }, 5000);
 }
 
-  function showQariSelector() {
+      const playAudioBtn = document.createElement("button");
+playAudioBtn.textContent = "♬ MP3";
+playAudioBtn.onclick = showQariSelector;
+navDiv.appendChild(playAudioBtn);
+
+      function showQariSelector() {
   const backdrop = document.createElement("div");
   backdrop.className = "audio-qari-backdrop";
   backdrop.onclick = () => {
     backdrop.remove();
     overlay.remove();
   };
-
-      const playAudioBtn = document.createElement("button");
-playAudioBtn.textContent = "♬ MP3";
-playAudioBtn.onclick = showQariSelector;
-navDiv.appendChild(playAudioBtn);
-
-      
 
   const overlay = document.createElement("div");
   overlay.className = "audio-qari-overlay";
@@ -1261,15 +1257,15 @@ navDiv.appendChild(playAudioBtn);
     select.appendChild(opt);
   });
 
+  const confirmBtn = document.createElement("button");
+  confirmBtn.textContent = "Dengarkan Qari Ini";
   confirmBtn.onclick = () => {
-  const qariId = select.value;
-  localStorage.setItem("lastQari", qariId);
-  localStorage.setItem("audioPlayerVisible", "true"); // <--- TAMBAHKAN INI
-  playAudioForAyah(qariId);
-  overlay.remove();
-  backdrop.remove();
-};
-
+    const qariId = select.value;
+    localStorage.setItem("lastQari", qariId);
+    playAudioForAyah(qariId);
+    overlay.remove();
+    backdrop.remove();
+  };
 
   overlay.innerHTML = `<h3>Pilih Qari</h3>`;
   overlay.appendChild(select);
@@ -1277,18 +1273,6 @@ navDiv.appendChild(playAudioBtn);
 
   document.body.appendChild(backdrop);
   document.body.appendChild(overlay);
-}
-
-  function simpanStatusAudio() {
-  const audioContainer = document.getElementById("audio-player-container");
-  const isVisible = audioContainer && audioContainer.style.display === "block";
-  const lastQari = localStorage.getItem("lastQari");
-  
-  if (isVisible && lastQari) {
-    localStorage.setItem("audioPlayerVisible", "true");
-  } else {
-    localStorage.removeItem("audioPlayerVisible");
-  }
 }
 
       function playAudioForAyah(qariId) {
@@ -1337,7 +1321,6 @@ window.location.href = `?surah=${next.surah}&ayat=${next.ayah}`;
   audioWrapper.appendChild(audio);
   audioWrapper.appendChild(toggleWrap);
   container.appendChild(audioWrapper);
- localStorage.setItem("audioPlayerVisible", "true");
 }
 
       function getGlobalAyahNumber(surah, ayah) {
@@ -1373,10 +1356,8 @@ navDiv.appendChild(syncBtn);
         nextBtn.textContent = "◀ NEXT";
         nextBtn.onclick = () => {
   localStorage.setItem("fromAutoplay", "false");
-  simpanStatusAudio(); // <--- tambahkan ini
   window.location.search = `?surah=${next.surah}&ayat=${next.ayah}`;
 };
-
         navDiv.appendChild(nextBtn);
       }
 
@@ -1936,28 +1917,6 @@ document.addEventListener('touchend', e => {
 });
 </script>
 
-  <script>
-  const lastQari = localStorage.getItem("lastQari");
-  const shouldShowAudio = localStorage.getItem("audioPlayerVisible") === "true";
-  const fromAutoplay = localStorage.getItem("fromAutoplay") === "true";
-
-  if (lastQari && (shouldShowAudio || fromAutoplay)) {
-    playAudioForAyah(lastQari);
-  }
-
-  localStorage.removeItem("fromAutoplay");
-</script>
-<script>
-  const savedQari = localStorage.getItem("lastQari");
-  const showAudio = localStorage.getItem("audioPlayerVisible") === "true";
-  const fromAutoplay = localStorage.getItem("fromAutoplay") === "true";
-
-  if (savedQari && (showAudio || fromAutoplay)) {
-    playAudioForAyah(savedQari);
-  }
-
-  localStorage.removeItem("fromAutoplay");
-</script>
-
+  
 </body>
 </html>
