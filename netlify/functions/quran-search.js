@@ -35,7 +35,7 @@ exports.handler = async function (event) {
     }
 
     // Panggil API search
-    const searchRes = await fetch(`https://api.quran.com/v4/search?q=${encodeURIComponent(query)}&size=10&language=id`, {
+    const searchRes = await fetch(`https://api.quran.com/v4/search?q=${encodeURIComponent(query)}&size=10`, {
       headers: {
         Authorization: `Bearer ${token}`
       }
