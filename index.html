@@ -1308,22 +1308,71 @@ const url = `https://quran.ksu.edu.sa/ayat/mp3/${qariId}/${surahStr}${ayahStr}.m
   toggleWrap.appendChild(toggle);
   toggleWrap.appendChild(document.createTextNode("Visible player dan putar otomatis ayat selanjutnya"));
 
+  // TOGGLE PUTAR ULANG
+
+  // === Tambahan: Dropdown "Putar ulang ayat ini" ===
+const repeatLabel = document.createElement("label");
+repeatLabel.className = "autoplay-toggle";
+repeatLabel.innerHTML = `Putar ulang ayat ini `;
+
+const repeatSelect = document.createElement("select");
+repeatSelect.id = "repeat-count";
+
+// Isi opsi 1x sampai 5x
+[1, 2, 3, 4, 5].forEach(n => {
+  const opt = document.createElement("option");
+  opt.value = n;
+  opt.textContent = `${n}x`;
+  repeatSelect.appendChild(opt);
+});
+
+// Ambil nilai terakhir dari localStorage jika ada
+repeatSelect.value = localStorage.getItem("repeatCount") || "1";
+
+// Simpan ke localStorage saat berubah
+repeatSelect.onchange = () => {
+  localStorage.setItem("repeatCount", repeatSelect.value);
+};
+
+repeatLabel.appendChild(repeatSelect);
+
+
   // Event audio selesai
-  audio.onended = () => {
+  // Ambil jumlah pengulangan dari localStorage
+let repeatCount = parseInt(localStorage.getItem("repeatCount") || "1");
+let playedTimes = 1;
+
+audio.onended = () => {
+  if (playedTimes < repeatCount) {
+    // Ulang ayat
+    playedTimes++;
+    audio.currentTime = 0;
+    audio.play();
+  } else {
+    // Reset ulang
+    playedTimes = 1;
+
     if (toggle.checked) {
+      // Jika autoplay aktif → lanjut ke ayat berikutnya
       const next = getNextAyah(surah, ayat);
       if (next) {
         localStorage.setItem("fromAutoplay", "true");
-window.location.href = `?surah=${next.surah}&ayat=${next.ayah}`;
+        window.location.href = `?surah=${next.surah}&ayat=${next.ayah}`;
       }
     }
-  };
+    // Jika autoplay tidak dicentang, cukup berhenti setelah ulang selesai
+  }
+};
+
 
   audioWrapper.appendChild(audio);
   audioWrapper.appendChild(toggleWrap);
   container.appendChild(audioWrapper);
+  audioWrapper.appendChild(repeatLabel);
 }
 
+
+  
       function getGlobalAyahNumber(surah, ayah) {
   let total = 0;
   for (let i = 1; i < surah; i++) {
