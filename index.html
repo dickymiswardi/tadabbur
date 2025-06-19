@@ -1342,7 +1342,16 @@ repeatSelect.value = localStorage.getItem("repeatCount") || "1";
 // Simpan ke localStorage saat berubah
 repeatSelect.onchange = () => {
   localStorage.setItem("repeatCount", repeatSelect.value);
+
+  // Jika audio sudah ada, maka langsung ulang dari awal
+  if (audio) {
+    audio.currentTime = 0;
+    audio.play().catch(() => {
+      console.warn("Autoplay dicegah oleh browser");
+    });
+  }
 };
+
 
 repeatLabel.appendChild(repeatSelect);
 
