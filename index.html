@@ -1916,43 +1916,6 @@ document.addEventListener('touchend', e => {
   handleSwipeGesture();
 });
 </script>
-
- <select id="reciter-select">
-  <option value="5">Mishari Rashid Alafasy</option>
-  <option value="7">Abdul Basit</option>
-</select>
-
-<input type="number" id="chapter-input" value="1" min="1" max="114" />
-<button onclick="loadAudio()">🎧 Tampilkan Audio</button>
-
-<div id="audio-list"></div>
-
-<script>
-async function loadAudio() {
-  const recitation_id = document.getElementById("reciter-select").value;
-  const chapter_number = document.getElementById("chapter-input").value;
-  const audioList = document.getElementById("audio-list");
-
-  audioList.innerHTML = "🔄 Memuat audio...";
-
-  const response = await fetch("/.netlify/functions/getAudio", {
-    method: "POST",
-    body: JSON.stringify({ recitation_id, chapter_number })
-  });
-  const result = await response.json();
-
-  audioList.innerHTML = "";
-  result.audio_files.forEach(file => {
-    const div = document.createElement("div");
-    div.innerHTML = `
-      <strong>${file.verse_key}</strong><br />
-      <audio controls src="https://verses.quran.foundation/${file.url}"></audio>
-      <hr />
-    `;
-    audioList.appendChild(div);
-  });
-}
-</script>
  
 </body>
 </html>
