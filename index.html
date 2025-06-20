@@ -2027,18 +2027,17 @@ document.addEventListener('touchend', e => {
     width: 100%;
   }
   #searchOverlay {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.7);
-    z-index: 9999;
-    display: none;
-    display: none;
-    justify-content: center;
-    align-items: center;
-    touch-action: none;
-    overscroll-behavior: contain;
-  }
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 9999;
+  display: none;
+  justify-content: center;
+  align-items: center;
+}
+
+<div id="searchOverlay">
   #searchBox {
     background: #fff;
     padding: 1.5rem;
@@ -2101,15 +2100,16 @@ document.addEventListener('touchend', e => {
 
   <script>
 function openSearch() {
-  document.getElementById("searchOverlay").style.display = "flex";
+  document.getElementById("searchOverlay").classList.add("show");
   document.body.classList.add("modal-open");
   document.getElementById("searchInput").focus();
 }
 
 function closeSearch() {
-  document.getElementById("searchOverlay").style.display = "none";
+  document.getElementById("searchOverlay").classList.remove("show");
   document.body.classList.remove("modal-open");
 }
+
 
 document.getElementById("openSearch")?.addEventListener("click", openSearch);
 
