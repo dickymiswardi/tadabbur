@@ -495,19 +495,20 @@
 </head>
 <body>
 
-  <script>
-    const params = new URLSearchParams(window.location.search);
-    const hasParams = params.has("surah") && params.has("ayat");
+ <script>
+  const params = new URLSearchParams(window.location.search);
+  const hasParams = params.has("surah") && params.has("ayat");
 
-    if (!hasParams) {
-      const lastSurah = localStorage.getItem("lastSurah");
-      const lastAyat = localStorage.getItem("lastAyat");
-
-      if (lastSurah && lastAyat) {
-        window.location.href = `?surah=${lastSurah}&ayat=${lastAyat}`;
-      }
+  if (!hasParams) {
+    const lastVisited = localStorage.getItem("lastVisited");
+    if (lastVisited) {
+      location.href = lastVisited;
     }
-  </script>
+  } else {
+    // Setiap kali halaman dibuka dengan ayat, simpan ke lastVisited
+    localStorage.setItem("lastVisited", location.href);
+  }
+</script>
 
 
   <!-- BATAS TAMBAHAN -->
