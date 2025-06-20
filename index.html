@@ -1492,31 +1492,24 @@ navDiv.appendChild(syncBtn);
       document.getElementById("result").textContent = "Gagal memuat data.";
     });
 
-    document.addEventListener("DOMContentLoaded", function () {
+
+// SIMPAN AYAT TERAKHIR
+
+    <script>
   const params = new URLSearchParams(window.location.search);
   const hasParams = params.has("surah") && params.has("ayat");
 
   if (!hasParams) {
-    // Tidak ada parameter, ambil dari localStorage
-    const lastSurah = localStorage.getItem("lastSurah") || "1";
-    const lastAyat = localStorage.getItem("lastAyat") || "1";
-    window.location.href = `?surah=${lastSurah}&ayat=${lastAyat}`;
-    return;
+    const lastSurah = localStorage.getItem("lastSurah");
+    const lastAyat = localStorage.getItem("lastAyat");
+
+    if (lastSurah && lastAyat) {
+      window.location.href = `?surah=${lastSurah}&ayat=${lastAyat}`;
+    }
   }
+</script>
 
-  // Jika ada parameter, tampilkan seperti biasa
-  const surah = parseInt(params.get("surah") || "1");
-  const ayat = parseInt(params.get("ayat") || "1");
-
-  document.getElementById("surah-select").value = surah;
-  document.getElementById("ayah-select").value = ayat;
-
-  // Simpan ke localStorage
-  localStorage.setItem("lastSurah", surah);
-  localStorage.setItem("lastAyat", ayat);
-
-  loadAyat(surah, ayat);
-});
+    
   </script>
   <script>
   // Simpan URL terakhir ke localStorage saat halaman ini dibuka
@@ -2228,16 +2221,6 @@ function fetchTerjemah() {
 }
 </script>
 
-  <script>
-  // Redirect otomatis ke halaman terakhir disimpan
-  const lastSurah = localStorage.getItem("lastSurah");
-  const lastAyat = localStorage.getItem("lastAyat");
-
-  // Redirect hanya jika tidak ada parameter di URL
-  if (!location.search && lastSurah && lastAyat) {
-    location.href = `?surah=${lastSurah}&ayat=${lastAyat}`;
-  }
-</script>
 
   
 </body>
