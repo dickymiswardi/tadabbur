@@ -1018,11 +1018,9 @@ function showTafsir(title, content) {
   // Backdrop
   const backdrop = document.createElement("div");
   backdrop.id = "tafsir-backdrop";
-  backdrop.onclick = () => {
-    overlay.remove();
-    backdrop.remove();
-  };
+  backdrop.onclick = null;
 
+  
   // Overlay
   const overlay = document.createElement("div");
   overlay.id = "tafsir-overlay";
@@ -1482,24 +1480,22 @@ navDiv.appendChild(syncBtn);
       }
 
   document.addEventListener('keydown', function (event) {
-    if (event.key === 'ArrowRight') {
-      // Panah kanan = klik tombol "Sebelumnya"
-      const buttons = document.querySelectorAll("button");
-      buttons.forEach((btn) => {
-        if (btn.textContent.trim() === "PREV ▶") {
-          btn.click();
-        }
-      });
-    } else if (event.key === 'ArrowLeft') {
-      // Panah kiri = klik tombol "Selanjutnya"
-      const buttons = document.querySelectorAll("button");
-      buttons.forEach((btn) => {
-        if (btn.textContent.trim() === "◀ NEXT") {
-          btn.click();
-        }
-      });
-    }
-  });
+  const overlayOpen = document.querySelector(
+    "#tafsir-overlay, #note-overlay, #searchOverlay"
+  );
+  if (overlayOpen) return; // ❗ Jangan NEXT/PREV jika overlay terbuka
+
+  if (event.key === 'ArrowRight') {
+    document.querySelectorAll("button").forEach((btn) => {
+      if (btn.textContent.trim() === "PREV ▶") btn.click();
+    });
+  } else if (event.key === 'ArrowLeft') {
+    document.querySelectorAll("button").forEach((btn) => {
+      if (btn.textContent.trim() === "◀ NEXT") btn.click();
+    });
+  }
+});
+
 
       document.getElementById("result").appendChild(navDiv);
     })
@@ -1546,10 +1542,7 @@ function showNoteOverlay(surah, ayah) {
   // Buat backdrop
   const backdrop = document.createElement("div");
   backdrop.id = "note-backdrop";
-  backdrop.onclick = () => {
-    backdrop.remove();
-    overlay.remove();
-  };
+  backdrop.onclick = null;
 
   // Buat overlay
   const overlay = document.createElement("div");
@@ -2035,6 +2028,13 @@ document.addEventListener('touchend', e => {
   touchEndX = e.changedTouches[0].screenX;
   handleSwipeGesture();
 });
+
+  document.addEventListener("touchstart", function (e) {
+  if (document.querySelector("#tafsir-overlay, #note-overlay, #searchOverlay")) {
+    e.preventDefault(); // ❗ blok swipe saat overlay
+  }
+}, { passive: false });
+
 </script>
 
 
