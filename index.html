@@ -1730,7 +1730,7 @@ function confirmUsername(ok) {
   if (ok) {
     usernameConfirmed = true;
     localStorage.setItem("usernameAktif", username);
-    status.innerHTML = '<span style="color:green">✅ Username dikonfirmasi. Mohon disimpan.</span>';
+    status.innerHTML = '<span style="color:green">✅ Username dikonfirmasi. Mohon diingat.</span>';
 
     // Sembunyikan input dan tombol Check
     input.style.display = "none";
@@ -1907,8 +1907,8 @@ window.addEventListener("DOMContentLoaded", () => {
     <span id="check-result" style="display:inline-block; margin-left:10px;"></span>
 
     <div style="margin-top: 1em;">
-      <button onclick="uploadDataToCloud()">⬆️ Upload data ke Cloud</button>
-<button onclick="downloadDataFromCloud()">⬇️ Download data dari Cloud</button>
+      <button onclick="uploadDataToCloud()">⬆️ Upload Catatanku ke Cloud</button>
+<button onclick="downloadDataFromCloud()">⬇️ Download Catatanku dari Cloud</button>
       <div id="sync-status" style="margin-top: 1em;"></div>
     </div>
   </div>
