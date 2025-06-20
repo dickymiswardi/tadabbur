@@ -495,6 +495,21 @@
 </head>
 <body>
 
+  <script>
+  const params = new URLSearchParams(window.location.search);
+  const hasParams = params.has("surah") && params.has("ayat");
+
+  if (!hasParams) {
+    const lastSurah = localStorage.getItem("lastSurah");
+    const lastAyat = localStorage.getItem("lastAyat");
+
+    if (lastSurah && lastAyat) {
+      window.location.href = `?surah=${lastSurah}&ayat=${lastAyat}`;
+    }
+  }
+</script>
+
+
   <!-- BATAS TAMBAHAN -->
   <!-- PILIHAN SURAH & AYAT -->
 <div id="pilihan-container" style="visibility: hidden; margin-bottom: 1em;">
@@ -1492,24 +1507,31 @@ navDiv.appendChild(syncBtn);
       document.getElementById("result").textContent = "Gagal memuat data.";
     });
 
-
-// SIMPAN AYAT TERAKHIR
-
-    <script>
+    document.addEventListener("DOMContentLoaded", function () {
   const params = new URLSearchParams(window.location.search);
   const hasParams = params.has("surah") && params.has("ayat");
 
   if (!hasParams) {
-    const lastSurah = localStorage.getItem("lastSurah");
-    const lastAyat = localStorage.getItem("lastAyat");
-
-    if (lastSurah && lastAyat) {
-      window.location.href = `?surah=${lastSurah}&ayat=${lastAyat}`;
-    }
+    // Tidak ada parameter, ambil dari localStorage
+    const lastSurah = localStorage.getItem("lastSurah") || "1";
+    const lastAyat = localStorage.getItem("lastAyat") || "1";
+    window.location.href = `?surah=${lastSurah}&ayat=${lastAyat}`;
+    return;
   }
-</script>
 
-    
+  // Jika ada parameter, tampilkan seperti biasa
+  const surah = parseInt(params.get("surah") || "1");
+  const ayat = parseInt(params.get("ayat") || "1");
+
+  document.getElementById("surah-select").value = surah;
+  document.getElementById("ayah-select").value = ayat;
+
+  // Simpan ke localStorage
+  localStorage.setItem("lastSurah", surah);
+  localStorage.setItem("lastAyat", ayat);
+
+  loadAyat(surah, ayat);
+});
   </script>
   <script>
   // Simpan URL terakhir ke localStorage saat halaman ini dibuka
@@ -2220,7 +2242,6 @@ function fetchTerjemah() {
     });
 }
 </script>
-
 
   
 </body>
