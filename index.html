@@ -21,6 +21,10 @@
       color: #111;
     }
 
+    body.modal-open {
+  overflow: hidden;
+}
+
   #sync-overlay button {
   font-size: 0.9em !important;
   padding: 0.6em 1.2em !important;
@@ -2024,28 +2028,24 @@ document.addEventListener('touchend', e => {
 <div id="searchOverlay" style="
   position: fixed;
   top: 0; left: 0;
-  width: 100%; height: 100%;
+  width: 100vw; height: 100vh;
   background: rgba(0, 0, 0, 0.7);
   z-index: 9999;
   display: none;
-  overflow-y: auto;
+  justify-content: center;
+  align-items: center;
 ">
-  <div style="
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    padding: 1rem;
-  ">
     <div style="
-      background: #fff;
-      width: 100%;
-      max-width: 600px;
-      padding: 1.5rem;
-      border-radius: 12px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.3);
-      position: relative;
-    ">
+  background: #fff;
+  width: 100%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.3);
+  position: relative;
+">
       <!-- Tombol tutup -->
       <button onclick="closeSearch()" style="
         position: absolute;
@@ -2168,10 +2168,19 @@ function closeSearch() {
 
 const searchBtn = document.getElementById("openSearch");
 if (searchBtn) {
-  searchBtn.addEventListener("click", () => {
-    document.getElementById("searchOverlay").style.display = "block";
-    document.getElementById("searchInput").focus();
-  });
+  searchBtn.addEventListener("click", openSearch);
+}
+
+function openSearch() {
+  const overlay = document.getElementById("searchOverlay");
+  overlay.style.display = "flex";
+  document.body.classList.add("modal-open");
+  document.getElementById("searchInput").focus();
+}
+
+function closeSearch() {
+  document.getElementById("searchOverlay").style.display = "none";
+  document.body.classList.remove("modal-open");
 }
 </script>
 
