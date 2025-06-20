@@ -2037,7 +2037,8 @@ document.addEventListener('touchend', e => {
   align-items: center;
 }
 
-<div id="searchOverlay">
+<div id="searchOverlay" style="display: none;">
+
   #searchBox {
     background: #fff;
     padding: 1.5rem;
@@ -2196,7 +2197,7 @@ function closeSearch() {
 const searchBtn = document.getElementById("openSearch");
 if (searchBtn) {
   searchBtn.addEventListener("click", () => {
-    document.getElementById("searchOverlay").style.display = "block";
+   // document.getElementById("searchOverlay").style.display = "block";
     document.body.style.overflow = 'hidden';
     document.getElementById("searchInput").focus();
   });
