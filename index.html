@@ -1138,9 +1138,8 @@ searchBtn.style.backgroundColor = "#007BFF";
 searchBtn.style.color = "white";
 searchBtn.style.boxShadow = "0 2px 5px rgba(0,0,0,0.1)";
 translationDiv.appendChild(searchBtn);
-  searchBtn.addEventListener("click", () => {
-  document.getElementById("searchOverlay").style.display = "block";
-});
+  searchBtn.addEventListener("click", openSearch);
+
 
 
 
@@ -2031,11 +2030,11 @@ document.addEventListener('touchend', e => {
   width: 100vw; height: 100vh;
   background: rgba(0, 0, 0, 0.7);
   z-index: 9999;
-  display: none;
+  display: none;  <!-- ✅ Ini yang benar -->
   justify-content: center;
   align-items: center;
-  display: flex;
 ">
+
     <div style="
   background: #fff;
   width: 100%;
