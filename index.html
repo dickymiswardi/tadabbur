@@ -1097,7 +1097,7 @@ translationDiv.appendChild(tafsirDropdown);
   // CATATAN TAFSIR
 const noteButton = document.createElement("button");
 noteButton.className = "note-dropbtn";
-noteButton.textContent = "Catatan";
+noteButton.textContent = "Note";
 noteButton.onclick = () => {
   showNoteOverlay(surah, ayat);
 };
@@ -1923,8 +1923,8 @@ window.addEventListener("DOMContentLoaded", () => {
     <span id="check-result" style="display:inline-block; margin-left:10px;"></span>
 
     <div style="margin-top: 1em;">
-      <button onclick="uploadDataToCloud()">⬆️ Upload Catatan ke Cloud</button>
-<button onclick="downloadDataFromCloud()">⬇️ Download Catatan dari Cloud</button>
+      <button onclick="uploadDataToCloud()">⬆️ Upload Note ke Cloud</button>
+<button onclick="downloadDataFromCloud()">⬇️ Download Note dari Cloud</button>
       <div id="sync-status" style="margin-top: 1em;"></div>
     </div>
   </div>
