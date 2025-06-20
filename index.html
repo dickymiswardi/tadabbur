@@ -2228,6 +2228,17 @@ function fetchTerjemah() {
 }
 </script>
 
+  <script>
+  // Redirect otomatis ke halaman terakhir disimpan
+  const lastSurah = localStorage.getItem("lastSurah");
+  const lastAyat = localStorage.getItem("lastAyat");
+
+  // Redirect hanya jika tidak ada parameter di URL
+  if (!location.search && lastSurah && lastAyat) {
+    location.href = `?surah=${lastSurah}&ayat=${lastAyat}`;
+  }
+</script>
+
   
 </body>
 </html>
