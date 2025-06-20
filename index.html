@@ -2020,71 +2020,66 @@ document.addEventListener('touchend', e => {
 
 
 <!-- Overlay Pencarian Ayat Al-Qur'an -->
-<style>
-  body.modal-open {
-    overflow: hidden;
-    position: fixed;
-    width: 100%;
-  }
-  #searchOverlay {
+<!-- Overlay Pencarian Ayat Al-Qur'an (fix tengah responsif dan stabil) -->
+<div id="searchOverlay" style="
   position: fixed;
   top: 0; left: 0;
   width: 100%; height: 100%;
   background: rgba(0, 0, 0, 0.7);
   z-index: 9999;
   display: none;
-  justify-content: center;
-  align-items: center;
-}
+  overflow-y: auto;
+">
+  <div style="
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 1rem;
+  ">
+    <div style="
+      background: #fff;
+      width: 100%;
+      max-width: 600px;
+      padding: 1.5rem;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.3);
+      position: relative;
+    ">
+      <!-- Tombol tutup -->
+      <button onclick="closeSearch()" style="
+        position: absolute;
+        top: 12px;
+        right: 16px;
+        background: none;
+        border: none;
+        font-size: 1.8rem;
+        color: #555;
+        cursor: pointer;
+        line-height: 1;
+      ">&times;</button>
 
-<div id="searchOverlay" style="display: none;">
-
-  #searchBox {
-    background: #fff;
-    padding: 1.5rem;
-    border-radius: 12px;
-    max-width: 600px;
-    width: 90%;
-    max-height: 90vh;
-    overflow-y: auto;
-    position: relative;
-  }
-</style>
-
-<div id="searchOverlay">
-  <div id="searchBox">
-    <button onclick="closeSearch()" style="
-      position: absolute;
-      top: 12px;
-      right: 16px;
-      background: none;
-      border: none;
-      font-size: 2rem;
-      color: #555;
-      cursor: pointer;
-      line-height: 1;
-    ">&times;</button>
-
-    <form onsubmit="doSearch(); return false;" style="margin: 2.5rem 0;">
+      <!-- Form pencarian -->
+      <form onsubmit="doSearch(); return false;" style="margin: 2.5rem 0;">
   <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
-        <input type="text" id="searchInput" placeholder="Cari ayat dan terjemahan..." style="
-          flex: 1;
-          padding: 0.75rem;
-          font-size: 1rem;
-          border: 1px solid #ccc;
-          border-radius: 8px;
-        ">
-        <button type="submit" style="
-          padding: 0.75rem 1.2rem;
-          font-size: 1rem;
-          background-color: #007BFF;
-          color: white;
-          border: none;
-          border-radius: 8px;
-          cursor: pointer;
-        ">Cari</button>
-      </div>
-    </form>
+          <input type="text" id="searchInput" placeholder="Cari ayat dan terjemahan..." style="
+            flex: 1;
+            padding: 0.75rem;
+            font-size: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+          ">
+          <button type="submit" style="
+            padding: 0.75rem 1.2rem;
+            font-size: 1rem;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+          ">Cari</button>
+        </div>
+      </form>
 
       <!-- Hasil pencarian -->
       <div id="searchResults" style="
@@ -2097,28 +2092,6 @@ document.addEventListener('touchend', e => {
     </div>
   </div>
 </div>
-
-
-  <script>
-function openSearch() {
-  document.getElementById("searchOverlay").classList.add("show");
-  document.body.classList.add("modal-open");
-  document.getElementById("searchInput").focus();
-}
-
-function closeSearch() {
-  document.getElementById("searchOverlay").classList.remove("show");
-  document.body.classList.remove("modal-open");
-}
-
-
-document.getElementById("openSearch")?.addEventListener("click", openSearch);
-
-document.addEventListener("keydown", function(e) {
-  if (e.key === "Escape") closeSearch();
-});
-</script>
-
 
 <script>
 const allowedPrefixes = ['أ', 'ب', 'س', 'ف', 'ل', 'و'];
@@ -2191,14 +2164,12 @@ function doSearch() {
 
 function closeSearch() {
   document.getElementById("searchOverlay").style.display = "none";
-  document.body.style.overflow = ''; // ✅ aktifkan scroll kembali
 }
 
 const searchBtn = document.getElementById("openSearch");
 if (searchBtn) {
   searchBtn.addEventListener("click", () => {
-   // document.getElementById("searchOverlay").style.display = "block";
-    document.body.style.overflow = 'hidden';
+    document.getElementById("searchOverlay").style.display = "block";
     document.getElementById("searchInput").focus();
   });
 }
