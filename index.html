@@ -2028,8 +2028,12 @@ document.addEventListener('touchend', e => {
   background: rgba(0, 0, 0, 0.7);
   z-index: 9999;
   display: none;
-  overflow-y: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem;
 ">
+
   <div style="
     display: flex;
     justify-content: center;
@@ -2038,14 +2042,16 @@ document.addEventListener('touchend', e => {
     padding: 1rem;
   ">
     <div style="
-      background: #fff;
-      width: 100%;
-      max-width: 600px;
-      padding: 1.5rem;
-      border-radius: 12px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.3);
-      position: relative;
-    ">
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  max-width: 600px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+">
+
       <!-- Tombol tutup -->
       <button onclick="closeSearch()" style="
         position: absolute;
@@ -2053,7 +2059,7 @@ document.addEventListener('touchend', e => {
         right: 16px;
         background: none;
         border: none;
-        font-size: 1.8rem;
+        font-size: 2rem;
         color: #555;
         cursor: pointer;
         line-height: 1;
@@ -2164,12 +2170,14 @@ function doSearch() {
 
 function closeSearch() {
   document.getElementById("searchOverlay").style.display = "none";
+  document.body.style.overflow = ''; // ✅ aktifkan scroll kembali
 }
 
 const searchBtn = document.getElementById("openSearch");
 if (searchBtn) {
   searchBtn.addEventListener("click", () => {
     document.getElementById("searchOverlay").style.display = "block";
+    document.body.style.overflow = 'hidden';
     document.getElementById("searchInput").focus();
   });
 }
