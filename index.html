@@ -2046,6 +2046,8 @@ document.addEventListener('touchend', e => {
       box-shadow: 0 0 10px rgba(0,0,0,0.3);
       position: relative;
     ">
+
+      
       <!-- Tombol tutup -->
       <button onclick="closeSearch()" style="
         position: absolute;
@@ -2116,6 +2118,13 @@ function matchAwalKataArab(text, keyword) {
   });
 }
 
+body.modal-open {
+  overflow: hidden;
+  position: fixed;
+  width: 100%;
+}
+
+  
 function highlight(text, keyword) {
   return text.replace(new RegExp('('+keyword+')', 'gi'), '<mark>$1</mark>');
 }
@@ -2217,6 +2226,7 @@ function fetchTerjemah() {
       });
     });
 }
+  
 </script>
 
   
