@@ -524,6 +524,14 @@
     // Setiap kali halaman dibuka dengan ayat, simpan ke lastVisited
     localStorage.setItem("lastVisited", location.href);
   }
+
+window.addEventListener("popstate", function () {
+  const params = new URLSearchParams(window.location.search);
+  const surah = parseInt(params.get("surah") || "1");
+  const ayat = parseInt(params.get("ayat") || "1");
+  loadAyat(surah, ayat);
+});
+
 </script>
 
 
@@ -675,7 +683,8 @@
         const url = new URL(window.location.href);
         url.searchParams.set("surah", surah);
         url.searchParams.set("ayat", ayat);
-        window.location.href = url.toString();
+        history.pushState({}, "", url.toString());
+        loadAyat(parseInt(surah), parseInt(ayat));
       }
     });
 
