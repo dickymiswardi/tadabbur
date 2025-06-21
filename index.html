@@ -2192,6 +2192,9 @@ function fetchTerjemah() {
 
 
 
+
+
+
 <script>
 document.addEventListener("DOMContentLoaded", () => {
   let allQuran = [];
@@ -2234,17 +2237,29 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const surah = parseInt(localStorage.getItem("lastSurah") || "1");
     const ayat = parseInt(localStorage.getItem("lastAyat") || "1");
-    loadAyat(surah, ayat);
 
-    const surahSelect = document.getElementById("surah");
-    const ayatSelect = document.getElementById("ayat");
-    if (surahSelect && ayatSelect) {
-      surahSelect.value = surah;
-      ayatSelect.value = ayat;
-    }
+    const waitFor = (fn, cb) => {
+      const i = setInterval(() => {
+        if (typeof window[fn] === "function") {
+          clearInterval(i);
+          cb();
+        }
+      }, 100);
+    };
+
+    waitFor("loadAyat", () => {
+      loadAyat(surah, ayat);
+      const surahSelect = document.getElementById("surah");
+      const ayatSelect = document.getElementById("ayat");
+      if (surahSelect && ayatSelect) {
+        surahSelect.value = surah;
+        ayatSelect.value = ayat;
+      }
+    });
   })
   .catch((err) => {
-    document.getElementById("result").innerHTML = "❌ Gagal memuat data Quran secara offline.<br>" + err;
+    const el = document.getElementById("result");
+    if (el) el.innerHTML = "❌ Gagal memuat data Quran secara offline.<br>" + err;
     console.error("Gagal memuat salah satu data:", err);
   });
 });
