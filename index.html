@@ -1152,7 +1152,7 @@ translationDiv.appendChild(noteButton);
 
       if (prev) {
         const prevBtn = document.createElement("button");
-        prevBtn.textContent = "▶";
+        prevBtn.textContent = "▷";
         prevBtn.onclick = () => {
   const autoplayOn = localStorage.getItem("autoplay") === "true";
   localStorage.setItem("fromAutoplay", autoplayOn ? "true" : "false");
@@ -1482,7 +1482,7 @@ localStorage.removeItem("fromAutoplay");
   // TOMBOL SYNC
 
   const syncBtn = document.createElement("button");
-syncBtn.innerText = "🔒 USER";
+syncBtn.innerText = "👤 USER";
 syncBtn.onclick = () => {
   document.getElementById("sync-overlay").style.display = "flex";
   document.getElementById("sync-status").innerHTML = '';
@@ -1491,7 +1491,7 @@ navDiv.appendChild(syncBtn);
 
       if (next) {
         const nextBtn = document.createElement("button");
-        nextBtn.textContent = "◀";
+        nextBtn.textContent = "◁";
         nextBtn.onclick = () => {
   const autoplayOn = localStorage.getItem("autoplay") === "true";
   localStorage.setItem("fromAutoplay", autoplayOn ? "true" : "false");
@@ -2036,12 +2036,12 @@ function handleSwipeGesture() {
   if (deltaX > threshold) {
     // Geser kanan = tombol NEXT (maju ke ayat berikutnya)
     const nextBtn = [...document.querySelectorAll("button")]
-      .find(btn => btn.textContent.trim() === "◀ NEXT");
+      .find(btn => btn.textContent.trim() === "◁");
     if (nextBtn) nextBtn.click();
   } else if (deltaX < -threshold) {
     // Geser kiri = tombol PREV (kembali ke ayat sebelumnya)
     const prevBtn = [...document.querySelectorAll("button")]
-      .find(btn => btn.textContent.trim() === "PREV ▶");
+      .find(btn => btn.textContent.trim() === "▷");
     if (prevBtn) prevBtn.click();
   }
 }
