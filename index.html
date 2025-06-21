@@ -1,14 +1,13 @@
 <!DOCTYPE html>
+
 <html lang="id">
 <head>
-
-<link rel="manifest" href="manifest.json" />
-<meta name="theme-color" content="#007b8a" />
-  
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Tadabbur</title>
-  <style>
+<link href="manifest.json" rel="manifest"/>
+<meta content="#007b8a" name="theme-color"/>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Tadabbur</title>
+<style>
     @font-face {
       font-family: 'Madina';
       src: url('madina.woff2') format('woff2');
@@ -512,10 +511,9 @@
       }
     }
   </style>
-</head>
+<link href="manifest.json" rel="manifest"/><meta content="#007b8a" name="theme-color"/></head>
 <body>
-
- <script>
+<script>
   const params = new URLSearchParams(window.location.search);
   const hasParams = params.has("surah") && params.has("ayat");
 
@@ -529,12 +527,10 @@
     localStorage.setItem("lastVisited", location.href);
   }
 </script>
-
-
-  <!-- BATAS TAMBAHAN -->
-  <!-- PILIHAN SURAH & AYAT -->
+<!-- BATAS TAMBAHAN -->
+<!-- PILIHAN SURAH & AYAT -->
 <div id="pilihan-container" style="visibility: hidden; margin-bottom: 1em;">
-  <style>
+<style>
   #pilihan-container .row {
     display: flex;
     border: 1px solid #007b8a;
@@ -597,25 +593,23 @@
     }
   }
 </style>
-
-  <div class="row">
-    <div class="col">
-      <div class="select-wrapper">
-        <select id="surah">
-          <option value="">-- Pilih Surah --</option>
-        </select>
-      </div>
-    </div>
-    <div class="col">
-      <div class="select-wrapper">
-        <select id="ayat">
-          <option value="">-- Pilih Ayat --</option>
-        </select>
-      </div>
-    </div>
-  </div>
-
-  <script>
+<div class="row">
+<div class="col">
+<div class="select-wrapper">
+<select id="surah">
+<option value="">-- Pilih Surah --</option>
+</select>
+</div>
+</div>
+<div class="col">
+<div class="select-wrapper">
+<select id="ayat">
+<option value="">-- Pilih Ayat --</option>
+</select>
+</div>
+</div>
+</div>
+<script>
     const surahSelect = document.getElementById("surah");
     const ayatSelect = document.getElementById("ayat");
 
@@ -696,17 +690,16 @@ const lastAyat = urlParams.get("ayat") || localStorage.getItem("lastAyat");
     });
   </script>
 </div>
-  <!-- BATAS TAMBAHAN -->
-
-  <!-- Ganti 'Memuat...' dengan animasi -->
-  <div id="result">
-    <div class="loader">
-      <img src="https://raw.githubusercontent.com/dickymiswardi/tadabbur/aa160525691e67e5d0b7aab1e7e9f37657d0ed45/AnimatedBook.gif" class="loading-icon" />
-    </div>
-  </div>
+<!-- BATAS TAMBAHAN -->
+<!-- Ganti 'Memuat...' dengan animasi -->
+<div id="result">
+<div class="loader">
+<img class="loading-icon" src="https://raw.githubusercontent.com/dickymiswardi/tadabbur/aa160525691e67e5d0b7aab1e7e9f37657d0ed45/AnimatedBook.gif"/>
+</div>
+</div>
 <div id="audio-player-container" style="display: none;"></div>
-  <div class="sumber"></div>
-  <script>
+<div class="sumber"></div>
+<script>
     const surah = parseInt(new URLSearchParams(window.location.search).get("surah") || "1");
     const ayat = parseInt(new URLSearchParams(window.location.search).get("ayat") || "1");
 
@@ -1558,7 +1551,7 @@ navDiv.appendChild(syncBtn);
   loadAyat(surah, ayat);
 });
   </script>
-  <script>
+<script>
   // Simpan URL terakhir ke localStorage saat halaman ini dibuka
   localStorage.setItem("lastQuranPage", window.location.href);
 
@@ -1680,7 +1673,6 @@ function showNoteOverlay(surah, ayah) {
 }
     // CATATAN TASIR
 </script>
-
 <script>
 (function () {
   const now = new Date();
@@ -1935,27 +1927,22 @@ window.addEventListener("DOMContentLoaded", () => {
 
   
 </script>
-
-  <!-- 🔒 SYNC OVERLAY -->
+<!-- 🔒 SYNC OVERLAY -->
 <div id="sync-overlay" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); justify-content: center; align-items: center; z-index: 9999;">
-  <div style="background: white; padding: 2em; border-radius: 12px; max-width: 400px; width: 90%; text-align: center; position: relative;">
-    <div onclick="document.getElementById('sync-overlay').style.display='none'" style="position: absolute; top: 10px; right: 15px; cursor: pointer; font-weight: bold;">✖</div>
-    <h3>👤 Buat atau masukkan username</h3>
-
-    <input id="sync-username" placeholder="contoh: ahmad123, dickymiswardi" oninput="resetCheckResult()" style="padding: 0.5em; width: 80%; max-width: 250px;" />
-    <button onclick="checkUsername()">Ok</button>
-    <span id="check-result" style="display:inline-block; margin-left:10px;"></span>
-
-    <div style="margin-top: 1em;">
-      <button onclick="uploadDataToCloud()">⬆️ Upload Note ke Cloud</button>
+<div style="background: white; padding: 2em; border-radius: 12px; max-width: 400px; width: 90%; text-align: center; position: relative;">
+<div onclick="document.getElementById('sync-overlay').style.display='none'" style="position: absolute; top: 10px; right: 15px; cursor: pointer; font-weight: bold;">✖</div>
+<h3>👤 Buat atau masukkan username</h3>
+<input id="sync-username" oninput="resetCheckResult()" placeholder="contoh: ahmad123, dickymiswardi" style="padding: 0.5em; width: 80%; max-width: 250px;"/>
+<button onclick="checkUsername()">Ok</button>
+<span id="check-result" style="display:inline-block; margin-left:10px;"></span>
+<div style="margin-top: 1em;">
+<button onclick="uploadDataToCloud()">⬆️ Upload Note ke Cloud</button>
 <button onclick="downloadDataFromCloud()">⬇️ Download Note dari Cloud</button>
-      <div id="sync-status" style="margin-top: 1em;"></div>
-    </div>
-  </div>
+<div id="sync-status" style="margin-top: 1em;"></div>
 </div>
-
-  
-  <script>
+</div>
+</div>
+<script>
 document.addEventListener("DOMContentLoaded", () => {
   const savedUser = localStorage.getItem("username");
   const input = document.getElementById("sync-username");
@@ -1988,8 +1975,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 </script>
-
-  <script>
+<script>
 document.addEventListener("DOMContentLoaded", () => {
   const saved = localStorage.getItem("usernameAktif");
   const input = document.getElementById("sync-username");
@@ -2028,7 +2014,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 </script>
-
 <script>
 // Deteksi swipe kiri dan kanan untuk menggantikan tombol NEXT dan PREV
 let touchStartX = 0;
@@ -2060,8 +2045,6 @@ document.addEventListener('touchend', e => {
   handleSwipeGesture();
 });
 </script>
-
-
 <!-- Overlay Pencarian Ayat Al-Qur'an -->
 <!-- Overlay Pencarian Ayat Al-Qur'an (fix tengah responsif dan stabil) -->
 <div id="searchOverlay" style="
@@ -2074,8 +2057,7 @@ document.addEventListener('touchend', e => {
   justify-content: center;
   align-items: center;
 ">
-
-    <div style="
+<div style="
   background: #fff;
   width: 100%;
   max-width: 600px;
@@ -2086,8 +2068,8 @@ document.addEventListener('touchend', e => {
   box-shadow: 0 0 10px rgba(0,0,0,0.3);
   position: relative;
 ">
-      <!-- Tombol tutup -->
-      <button onclick="closeSearch()" style="
+<!-- Tombol tutup -->
+<button onclick="closeSearch()" style="
         position: absolute;
         top: 12px;
         right: 16px;
@@ -2097,19 +2079,18 @@ document.addEventListener('touchend', e => {
         color: #555;
         cursor: pointer;
         line-height: 1;
-      ">&times;</button>
-
-      <!-- Form pencarian -->
-      <form onsubmit="doSearch(); return false;" style="margin: 2.5rem 0;">
-  <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
-          <input type="text" id="searchInput" placeholder="Kosa kata Quran atau Terjemah" style="
+      ">×</button>
+<!-- Form pencarian -->
+<form onsubmit="doSearch(); return false;" style="margin: 2.5rem 0;">
+<div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
+<input id="searchInput" placeholder="Kosa kata Quran atau Terjemah" style="
             flex: 1;
             padding: 0.75rem;
             font-size: 1rem;
             border: 1px solid #ccc;
             border-radius: 8px;
-          ">
-          <button type="submit" style="
+          " type="text"/>
+<button style="
             padding: 0.75rem 1.2rem;
             font-size: 1rem;
             background-color: #007BFF;
@@ -2117,23 +2098,20 @@ document.addEventListener('touchend', e => {
             border: none;
             border-radius: 8px;
             cursor: pointer;
-          ">Cari</button>
-        </div>
-      </form>
-
-      <!-- Hasil pencarian -->
-      <div id="searchCount" style="color:#555; font-weight:bold; margin-bottom: 1rem;"></div>
-      <div id="searchResults" style="
+          " type="submit">Cari</button>
+</div>
+</form>
+<!-- Hasil pencarian -->
+<div id="searchCount" style="color:#555; font-weight:bold; margin-bottom: 1rem;"></div>
+<div id="searchResults" style="
   max-height: 60vh;
   overflow-y: auto;
   margin-top: 1rem;
   padding-right: 0.5rem;
 ">
-
-    </div>
-  </div>
 </div>
-
+</div>
+</div>
 <script>
 const allowedPrefixes = ['أ', 'ب', 'س', 'ف', 'ل', 'و'];
 const currentHost = location.hostname.includes("netlify")
@@ -2226,8 +2204,6 @@ function closeSearch() {
   document.body.classList.remove("modal-open");
 }
 </script>
-
-
 <script>
 let searchData = [];
 
@@ -2270,8 +2246,47 @@ function fetchTerjemah() {
     });
 }
 </script>
+<script>
+let deferredPrompt;
+const installBtn = document.createElement("button");
+installBtn.textContent = "📲 Install Aplikasi";
+installBtn.style.position = "fixed";
+installBtn.style.bottom = "20px";
+installBtn.style.right = "20px";
+installBtn.style.padding = "0.8em 1.2em";
+installBtn.style.backgroundColor = "#007b8a";
+installBtn.style.color = "white";
+installBtn.style.border = "none";
+installBtn.style.borderRadius = "8px";
+installBtn.style.zIndex = 9999;
+installBtn.style.display = "none";
+document.body.appendChild(installBtn);
 
-  <script>
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  installBtn.style.display = "block";
+  installBtn.onclick = () => {
+    installBtn.style.display = "none";
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then((choiceResult) => {
+      if (choiceResult.outcome === 'accepted') {
+        console.log('✅ Install accepted');
+      } else {
+        console.log('❌ Install dismissed');
+      }
+      deferredPrompt = null;
+    });
+  };
+});
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js')
+    .then(() => console.log('✅ Service Worker registered'))
+    .catch(err => console.warn('❌ SW error:', err));
+}
+</script>
+<script>
 let deferredPrompt;
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
@@ -2311,9 +2326,5 @@ if ('serviceWorker' in navigator) {
     .then(() => console.log('✅ Service Worker registered'))
     .catch(err => console.warn('❌ Service Worker failed:', err));
 }
-</script>
-
-
-  
-</body>
+</script></body>
 </html>
