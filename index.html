@@ -25,6 +25,22 @@
   overflow: hidden;
 }
 
+    .search-dropbtn {
+  font-size: 0.6em;
+  padding: 0.4em 0.8em;
+  background-color: #007BFF;
+  color: white;
+  font-size: 0.95em;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-left: 0.5em;
+}
+.search-dropbtn:hover {
+  background-color: #0070e8;
+}
+
   #sync-overlay button {
   font-size: 0.9em !important;
   padding: 0.6em 1.2em !important;
@@ -1143,18 +1159,11 @@ translationDiv.appendChild(bookmarkBtn);
   // TOMBOL SEARCH
   const searchBtn = document.createElement("button");
 searchBtn.id = "openSearch";
-searchBtn.innerHTML = "Cari";
-searchBtn.style.marginLeft = "10px";
-searchBtn.style.padding = "0.5rem 1rem";
-searchBtn.style.fontSize = "0.85rem";
-searchBtn.style.borderRadius = "6px";
-searchBtn.style.border = "none";
-searchBtn.style.cursor = "pointer";
-searchBtn.style.backgroundColor = "#007BFF";
-searchBtn.style.color = "white";
-searchBtn.style.boxShadow = "0 2px 5px rgba(0,0,0,0.1)";
+searchBtn.textContent = "Cari";
+searchBtn.className = "search-dropbtn";
+searchBtn.onclick = openSearch;
 translationDiv.appendChild(searchBtn);
-  searchBtn.addEventListener("click", openSearch);
+
 
 
 
