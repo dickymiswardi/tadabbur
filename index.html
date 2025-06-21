@@ -2273,44 +2273,46 @@ function fetchTerjemah() {
 
   <script>
 let deferredPrompt;
-const installBtn = document.createElement("button");
-installBtn.textContent = "📲 Install Aplikasi";
-installBtn.style.position = "fixed";
-installBtn.style.bottom = "20px";
-installBtn.style.right = "20px";
-installBtn.style.padding = "0.8em 1.2em";
-installBtn.style.backgroundColor = "#007b8a";
-installBtn.style.color = "white";
-installBtn.style.border = "none";
-installBtn.style.borderRadius = "8px";
-installBtn.style.zIndex = 9999;
-installBtn.style.display = "none";
-document.body.appendChild(installBtn);
-
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
   deferredPrompt = e;
+
+  const installBtn = document.createElement("button");
+  installBtn.textContent = "📲 Install Aplikasi";
+  installBtn.style.position = "fixed";
+  installBtn.style.bottom = "20px";
+  installBtn.style.right = "20px";
+  installBtn.style.padding = "0.8em 1.2em";
+  installBtn.style.backgroundColor = "#007b8a";
+  installBtn.style.color = "white";
+  installBtn.style.border = "none";
+  installBtn.style.borderRadius = "8px";
+  installBtn.style.zIndex = 9999;
   installBtn.style.display = "block";
-  installBtn.onclick = () => {
+
+  document.body.appendChild(installBtn);
+
+  installBtn.addEventListener('click', () => {
     installBtn.style.display = "none";
     deferredPrompt.prompt();
     deferredPrompt.userChoice.then((choiceResult) => {
       if (choiceResult.outcome === 'accepted') {
-        console.log('✅ Install accepted');
+        console.log('✅ User accepted install');
       } else {
-        console.log('❌ Install dismissed');
+        console.log('❌ User dismissed install');
       }
       deferredPrompt = null;
     });
-  };
+  });
 });
 
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('./sw.js')
+  navigator.serviceWorker.register('sw.js')
     .then(() => console.log('✅ Service Worker registered'))
-    .catch(err => console.warn('❌ SW error:', err));
+    .catch(err => console.warn('❌ Service Worker failed:', err));
 }
 </script>
+
 
   
 </body>
