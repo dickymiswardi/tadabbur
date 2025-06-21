@@ -2156,6 +2156,12 @@ function doSearch() {
     return isAr ? matchAwalKataArab(item.arab, input) : item.terjemah.toLowerCase().includes(input.toLowerCase());
   });
 
+  const summary = document.createElement("div");
+summary.style.fontWeight = "bold";
+summary.style.margin = "0.5em 0 1em";
+summary.textContent = `Hasil pencarian: ${matches.length}`;
+container.appendChild(summary);
+
   if (results.length === 0) {
     container.innerHTML = '<p style="text-align:center; color:#888;">Tidak ditemukan.</p>';
     return;
