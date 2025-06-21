@@ -511,27 +511,32 @@
 </head>
 <body>
 
+<script>
+let allQuran = [];
+let allXML = null;
+
+Promise.all([
+  fetch("quran.json").then(r => r.json()),
+  fetch("indonesian_complex_v1.0.xml").then(r => r.text())
+]).then(([quranData, xmlText]) => {
+  allQuran = quranData;
+  allXML = (new DOMParser()).parseFromString(xmlText, "text/xml");
+  const surah = parseInt(localStorage.getItem("lastSurah") || "1");
+  const ayat = parseInt(localStorage.getItem("lastAyat") || "1");
+  loadAyat(surah, ayat);
+});
+</script>
+
+
  <script>
-  const params = new URLSearchParams(window.location.search);
+  const params = new URLSearchParams("");
   const hasParams = params.has("surah") && params.has("ayat");
 
-  if (!hasParams) {
-    const lastVisited = localStorage.getItem("lastVisited");
-    if (lastVisited) {
-      location.href = lastVisited;
-    }
+  history.replaceState({}, "", location.pathname);
   } else {
     // Setiap kali halaman dibuka dengan ayat, simpan ke lastVisited
     localStorage.setItem("lastVisited", location.href);
   }
-
-window.addEventListener("popstate", function () {
-  const params = new URLSearchParams(window.location.search);
-  const surah = parseInt(params.get("surah") || "1");
-  const ayat = parseInt(params.get("ayat") || "1");
-  loadAyat(surah, ayat);
-});
-
 </script>
 
 
@@ -683,14 +688,13 @@ window.addEventListener("popstate", function () {
         const url = new URL(window.location.href);
         url.searchParams.set("surah", surah);
         url.searchParams.set("ayat", ayat);
-        history.pushState({}, "", url.toString());
-        loadAyat(parseInt(surah), parseInt(ayat));
+        // URL change disabled
       }
     });
 
     document.addEventListener("DOMContentLoaded", () => {
       populateSurahs();
-      const urlParams = new URLSearchParams(window.location.search);
+      const urlParams = new URLSearchParams("");
 const lastSurah = urlParams.get("surah") || localStorage.getItem("lastSurah");
 const lastAyat = urlParams.get("ayat") || localStorage.getItem("lastAyat");
       if (lastSurah) {
@@ -712,8 +716,8 @@ const lastAyat = urlParams.get("ayat") || localStorage.getItem("lastAyat");
 <div id="audio-player-container" style="display: none;"></div>
   <div class="sumber"></div>
   <script>
-    const surah = parseInt(new URLSearchParams(window.location.search).get("surah") || "1");
-    const ayat = parseInt(new URLSearchParams(window.location.search).get("ayat") || "1");
+    const surah = parseInt(new URLSearchParams("").get("surah") || "1");
+    const ayat = parseInt(new URLSearchParams("").get("ayat") || "1");
 
     const surahNames = {
       1:"Al-Fatihah",2:"Al-Baqarah",3:"Ali 'Imran",4:"An-Nisa'",5:"Al-Ma'idah",
@@ -1155,7 +1159,7 @@ translationDiv.appendChild(noteButton);
         prevBtn.onclick = () => {
   const autoplayOn = localStorage.getItem("autoplay") === "true";
   localStorage.setItem("fromAutoplay", autoplayOn ? "true" : "false");
-  window.location.search = `?surah=${prev.surah}&ayat=${prev.ayah}`;
+  // search disabled
 };
         navDiv.appendChild(prevBtn);
       }
@@ -1423,7 +1427,7 @@ audio.onended = () => {
       const next = getNextAyah(surah, ayat);
       if (next) {
         localStorage.setItem("fromAutoplay", "true");
-        window.location.href = `?surah=${next.surah}&ayat=${next.ayah}`;
+        // URL change disabled
       }
     }
     // Jika autoplay tidak dicentang, cukup berhenti setelah ulang selesai
@@ -1494,7 +1498,7 @@ navDiv.appendChild(syncBtn);
         nextBtn.onclick = () => {
   const autoplayOn = localStorage.getItem("autoplay") === "true";
   localStorage.setItem("fromAutoplay", autoplayOn ? "true" : "false");
-  window.location.search = `?surah=${next.surah}&ayat=${next.ayah}`;
+  // search disabled
 };
         navDiv.appendChild(nextBtn);
       }
@@ -1527,16 +1531,10 @@ navDiv.appendChild(syncBtn);
     });
 
     document.addEventListener("DOMContentLoaded", function () {
-  const params = new URLSearchParams(window.location.search);
+  const params = new URLSearchParams("");
   const hasParams = params.has("surah") && params.has("ayat");
 
-  if (!hasParams) {
-    // Tidak ada parameter, ambil dari localStorage
-    const lastSurah = localStorage.getItem("lastSurah") || "1";
-    const lastAyat = localStorage.getItem("lastAyat") || "1";
-    window.location.href = `?surah=${lastSurah}&ayat=${lastAyat}`;
-    return;
-  }
+  history.replaceState({}, "", location.pathname);
 
   // Jika ada parameter, tampilkan seperti biasa
   const surah = parseInt(params.get("surah") || "1");
