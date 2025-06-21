@@ -306,7 +306,6 @@
 
     .nav-buttons button {
       padding: 0.6em 1.2em;
-      border: none;
       background-color: #b2d8db;
       border: 2px solid #017b8b;
       color: black;
@@ -317,7 +316,7 @@
     }
 
     .nav-buttons button:hover {
-      background-color: #046b7a;
+      background-color: #eef5f5;
     }
 
     /* CATATAN TAFSIR */
@@ -583,7 +582,7 @@
 
     #pilihan-container select:focus {
   outline: none; /* hilangkan outline hitam default */
-  border: 0.5px solid #ffffff; /* atau ganti dengan warna lain */
+  border: 2px solid #ffffff; /* atau ganti dengan warna lain */
   box-shadow: 0 0 0 2px #017b8b; /* efek fokus halus sesuai warna kolom */
 }
 
@@ -1153,7 +1152,7 @@ translationDiv.appendChild(noteButton);
 
       if (prev) {
         const prevBtn = document.createElement("button");
-        prevBtn.textContent = "PREV ▶";
+        prevBtn.textContent = "▶";
         prevBtn.onclick = () => {
   const autoplayOn = localStorage.getItem("autoplay") === "true";
   localStorage.setItem("fromAutoplay", autoplayOn ? "true" : "false");
@@ -1492,7 +1491,7 @@ navDiv.appendChild(syncBtn);
 
       if (next) {
         const nextBtn = document.createElement("button");
-        nextBtn.textContent = "◀ NEXT";
+        nextBtn.textContent = "◀";
         nextBtn.onclick = () => {
   const autoplayOn = localStorage.getItem("autoplay") === "true";
   localStorage.setItem("fromAutoplay", autoplayOn ? "true" : "false");
