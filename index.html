@@ -525,7 +525,33 @@
     localStorage.setItem("lastVisited", location.href);
   }
 
-   
+window.addEventListener("popstate", (event) => {
+  const params = new URLSearchParams(window.location.search);
+  const surah = parseInt(params.get("surah") || "1");
+  const ayat = parseInt(params.get("ayat") || "1");
+  loadAyat(surah, ayat, false);
+});
+
+function loadAyat(surah, ayat, updateURL = false) {
+  if (updateURL) {
+    const url = new URL(window.location.href);
+    url.searchParams.set("surah", surah);
+    url.searchParams.set("ayat", ayat);
+    history.pushState({ surah, ayat }, "", url.pathname + `?surah=${surah}&ayat=${ayat}`);
+  }
+
+  localStorage.setItem("lastSurah", surah);
+  localStorage.setItem("lastAyat", ayat);
+
+  document.getElementById("surah").value = surah;
+  populateAyat(surah, ayat);
+
+  document.getElementById("result").innerHTML = '<div class="loader">Memuat...</div>';
+  renderAyat(surah, ayat);
+}
+
+// Fungsi renderAyat harus kamu salin dari hasil sebelumnya
+
 </script>
 
 
@@ -681,856 +707,41 @@
       }
     });
 
-    document.addEventListener("DOMContentLoaded", () => {
-      populateSurahs();
-      const urlParams = new URLSearchParams(window.location.search);
-const lastSurah = urlParams.get("surah") || localStorage.getItem("lastSurah");
-const lastAyat = urlParams.get("ayat") || localStorage.getItem("lastAyat");
-      if (lastSurah) {
-        surahSelect.value = lastSurah;
-        populateAyat(lastSurah, lastAyat);
-      }
-      document.getElementById("pilihan-container").style.visibility = 'visible';
-    });
-  </script>
-</div>
-  <!-- BATAS TAMBAHAN -->
-
-  <!-- Ganti 'Memuat...' dengan animasi -->
-  <div id="result">
-    <div class="loader">
-      <img src="https://raw.githubusercontent.com/dickymiswardi/tadabbur/aa160525691e67e5d0b7aab1e7e9f37657d0ed45/AnimatedBook.gif" class="loading-icon" />
-    </div>
-  </div>
-<div id="audio-player-container" style="display: none;"></div>
-  <div class="sumber"></div>
-  <script>
-    const surah = parseInt(new URLSearchParams(window.location.search).get("surah") || "1");
-    const ayat = parseInt(new URLSearchParams(window.location.search).get("ayat") || "1");
-
-    const surahNames = {
-      1:"Al-Fatihah",2:"Al-Baqarah",3:"Ali 'Imran",4:"An-Nisa'",5:"Al-Ma'idah",
-      6:"Al-An'am",7:"Al-A'raf",8:"Al-Anfal",9:"At-Tawbah",10:"Yunus",
-      11:"Hud",12:"Yusuf",13:"Ar-Ra'd",14:"Ibrahim",15:"Al-Hijr",
-      16:"An-Nahl",17:"Al-Isra'",18:"Al-Kahf",19:"Maryam",20:"Ta-Ha",
-      21:"Al-Anbiya'",22:"Al-Hajj",23:"Al-Mu'minun",24:"An-Nur",25:"Al-Furqan",
-      26:"Ash-Shu'ara'",27:"An-Naml",28:"Al-Qasas",29:"Al-'Ankabut",30:"Ar-Rum",
-      31:"Luqman",32:"As-Sajdah",33:"Al-Ahzab",34:"Saba'",35:"Fatir",
-      36:"Ya-Sin",37:"As-Saffat",38:"Sad",39:"Az-Zumar",40:"Ghafir",
-      41:"Fussilat",42:"Ash-Shura",43:"Az-Zukhruf",44:"Ad-Dukhan",45:"Al-Jathiyah",
-      46:"Al-Ahqaf",47:"Muhammad",48:"Al-Fath",49:"Al-Hujurat",50:"Qaf",
-      51:"Adh-Dhariyat",52:"At-Tur",53:"An-Najm",54:"Al-Qamar",55:"Ar-Rahman",
-      56:"Al-Waqi'ah",57:"Al-Hadid",58:"Al-Mujadila",59:"Al-Hashr",60:"Al-Mumtahanah",
-      61:"As-Saff",62:"Al-Jumu'ah",63:"Al-Munafiqun",64:"At-Taghabun",65:"At-Talaq",
-      66:"At-Tahrim",67:"Al-Mulk",68:"Al-Qalam",69:"Al-Haqqah",70:"Al-Ma'arij",
-      71:"Nuh",72:"Al-Jinn",73:"Al-Muzzammil",74:"Al-Muddaththir",75:"Al-Qiyamah",
-      76:"Al-Insan",77:"Al-Mursalat",78:"An-Naba'",79:"An-Nazi'at",80:"'Abasa",
-      81:"At-Takwir",82:"Al-Infitar",83:"Al-Mutaffifin",84:"Al-Inshiqaq",85:"Al-Buruj",
-      86:"At-Tariq",87:"Al-A'la",88:"Al-Ghashiyah",89:"Al-Fajr",90:"Al-Balad",
-      91:"Ash-Shams",92:"Al-Lail",93:"Adh-Dhuha",94:"Ash-Sharh",95:"At-Tin",
-      96:"Al-'Alaq",97:"Al-Qadr",98:"Al-Bayyinah",99:"Az-Zalzalah",100:"Al-'Adiyat",
-      101:"Al-Qari'ah",102:"At-Takathur",103:"Al-'Asr",104:"Al-Humazah",105:"Al-Fil",
-      106:"Quraysh",107:"Al-Ma'un",108:"Al-Kawthar",109:"Al-Kafirun",110:"An-Nasr",
-      111:"Al-Masad",112:"Al-Ikhlas",113:"Al-Falaq",114:"An-Nas"
-    };
-
-    const surahAyahCount = {
-      1:7, 2:286, 3:200, 4:176, 5:120, 6:165, 7:206, 8:75, 9:129, 10:109,
-      11:123, 12:111, 13:43, 14:52, 15:99, 16:128, 17:111, 18:110, 19:98, 20:135,
-      21:112, 22:78, 23:118, 24:64, 25:77, 26:227, 27:93, 28:88, 29:69, 30:60,
-      31:34, 32:30, 33:73, 34:54, 35:45, 36:83, 37:182, 38:88, 39:75, 40:85,
-      41:54, 42:53, 43:89, 44:59, 45:37, 46:35, 47:38, 48:29, 49:18, 50:45,
-      51:60, 52:49, 53:62, 54:55, 55:78, 56:96, 57:29, 58:22, 59:24, 60:13,
-      61:14, 62:11, 63:11, 64:18, 65:12, 66:12, 67:30, 68:52, 69:52, 70:44,
-      71:28, 72:28, 73:20, 74:56, 75:40, 76:31, 77:50, 78:40, 79:46, 80:42,
-      81:29, 82:19, 83:36, 84:25, 85:22, 86:17, 87:19, 88:26, 89:30, 90:20,
-      91:15, 92:21, 93:11, 94:8, 95:8, 96:19, 97:5, 98:8, 99:8, 100:11,
-      101:11, 102:8, 103:3, 104:9, 105:5, 106:4, 107:7, 108:3, 109:6, 110:3,
-      111:5, 112:4, 113:5, 114:6
-    };
-
-    function toArabicNumber(n) {
-      const map = ["٠", "١", "٢", "٣", "٤", "٥", "٦", "٧", "٨", "٩"];
-      return String(n).split('').map(d => map[parseInt(d)]).join('');
-    }
-
-    function wrapRasmSymbols(text) {
-  // Tangani kasus khusus "ً ۢ ا" → "ًا<sup>ۢ</sup>"
-  text = text.replace(/ً\s*ۢ\s*ا/g, function () {
-    return 'ًا<sup class="rasm-symbol rasm-symbol-special">ۢ</sup>';
-  });
-
-  // Hapus ۢ jika muncul tepat setelah ن (huruf nun)
-  text = text.replace(/ن\s*ۢ/g, 'ن');
-
-  // Bungkus simbol-simbol rasm dengan <sup>
-  return text.replace(/([ۭۛۖۚۗۙۘۜۢ])/g, function (match) {
-    if (match === 'ۢ' || match === 'ۭ') {
-      return ' <sup class="rasm-symbol rasm-symbol-special">' + match + '</sup> ';
-    } else {
-      return ' <sup class="rasm-symbol">' + match + '</sup> ';
-    }
-  });
-}
-    function getNextAyah(surah, ayah) {
-      if (surah === 114 && ayah === 6) return { surah: 1, ayah: 1 };
-      const lastAyah = surahAyahCount[surah];
-      if (ayah < lastAyah) return { surah, ayah: ayah + 1 };
-      return { surah: surah + 1, ayah: 1 };
-    }
-
-    function getPrevAyah(surah, ayah) {
-      if (surah === 1 && ayah === 1) return null;
-      if (ayah > 1) return { surah, ayah: ayah - 1 };
-      return { surah: surah - 1, ayah: surahAyahCount[surah - 1] };
-    }
-
-    const apiURL = `quran.json`; // ganti dari versi API lama
-
-    Promise.all([
-  fetch("quran.json").then(res => res.json()),
-  fetch("indonesian_complex_v1.0.xml").then(res => res.text())
-])
-.then(([quranData, xmlText]) => {
-  const match = quranData.find(item => item.surah_number === surah && item.verse_number === ayat);
-let arabicText = match ? match.content : "(Teks Arab tidak ditemukan)";
-
-
-      // Tambahkan simbol ayat
-  arabicText += ` \u06dd${toArabicNumber(ayat)}`;
-  arabicText = wrapRasmSymbols(arabicText);
-
-      const arabDiv = document.createElement('div');
-      arabDiv.className = 'arabic';
-      arabDiv.innerHTML = arabicText;
-      document.getElementById("result").innerHTML = '';
-      document.getElementById("result").appendChild(arabDiv);
-
-      const parser = new DOMParser();
-      const xmlDoc = parser.parseFromString(xmlText, "text/xml");
-
-      // Buat peta footnoteNumber ke posisi Surah & Ayat
-const footnoteMap = {};
-const ayatNodes = xmlDoc.querySelectorAll("aya");
-ayatNodes.forEach(aya => {
-  const footnotes = aya.querySelector("footnotes");
-  if (footnotes && footnotes.textContent.trim()) {
-    const matches = footnotes.textContent.match(/\d+/g);
-    if (matches) {
-      matches.forEach(num => {
-        // Simpan hanya jika belum ada
-        if (!footnoteMap[num]) {
-          const surahNum = aya.parentElement.getAttribute("number");
-          const ayahNum = aya.getAttribute("number");
-          footnoteMap[num] = `Surah ${surahNum} Ayat ${ayahNum}`;
-        }
-      });
-    }
-  }
-});
-
-      const translationAyah = xmlDoc.querySelector(`sura[number="${surah}"] > aya[number="${ayat}"]`);
-      let translation = translationAyah?.querySelector("translation")?.textContent || "(Terjemahan tidak ditemukan)";
-      const footnotes = translationAyah?.querySelector("footnotes")?.textContent || "";
-
-      if (footnotes) {
-        translation = translation.replace(/(\d+)/g, '<sup>($1)</sup>');
-      }
-
-      const translationDiv = document.createElement("div");
-      translationDiv.className = "translation";
-      translationDiv.innerHTML = translation;
-      document.getElementById("result").appendChild(translationDiv);
-
-// GANTI bagian kode tafsir yang lama DENGAN ini:
-
-// Daftar sumber tafsir
-const tafsirSources = {
-  jalalayn: {
-    name: "Al-Jalalayn Indonesia",
-    path: "id.jalalayn.xml",
-    query: (s, a) => `sura[index="${s}"] > aya[index="${a}"]`
-  },
-    Kemenag: {
-    name: "Kemenag Indonesia",
-    path: (s, a) =>
-      `https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/KemenagID/${s}/${a}.txt`,
-    query: (data) => data // isi teks langsung
-  },
-  al_muyassar: {
-  name: "Al-Muyassar Arabic",
-  path: "ar.muyassar.txt",
-  query: (s, a) => `${s}|${a}|` // mencari baris yang diawali dengan "s|a|"
-},
-  As_Saadi: {
-    name: "As-Sa'di Arabic",
-    path: (s, a) =>
-      `https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/arabic-saadi/${s}/${a}.json`,
-    query: (data) => data?.text
-  },
-  Baghawi: {
-    name: "Al-Baghawi Arabic",
-    path: (s, a) =>
-      `https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/arabic-baghawi/${s}/${a}.json`,
-    query: (data) => data?.text
-  },
-  Kathir: {
-    name: "Ibnu Katsir Arabic",
-    path: (s, a) =>
-      `https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/arabic-kathir/${s}/${a}.json`,
-    query: (data) => data?.text
-  },
-  Qurtubi: {
-    name: "Al-Qurtubi Arabic",
-    path: (s, a) =>
-      `https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/arabic-qurtubi/${s}/${a}.json`,
-    query: (data) => data?.text
-  },
-  Tabari: {
-    name: "At-Tabari Arabic",
-    path: (s, a) =>
-      `https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/arabic-tabari/${s}/${a}.json`,
-    query: (data) => data?.text
-  },
-  Wasit: {
-    name: "Al-Washit Arabic",
-    path: (s, a) =>
-      `https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/arabic-wasit/${s}/${a}.json`,
-    query: (data) => data?.text
-  }
-};
-
-// Fungsi memuat tafsir
-async function loadTafsir(sourceKey, surah, ayah) {
-  const source = tafsirSources[sourceKey];
-  if (!source) return "Sumber tafsir tidak valid";
-
-  try {
-    // Tangani path dinamis (fungsi) dan statis (string)
-    const url = typeof source.path === "function" ? source.path(surah, ayah) : source.path;
-    const response = await fetch(url);
-    if (!response.ok) throw new Error('File tafsir tidak ditemukan');
-
-    const ext = url.split('.').pop().toLowerCase();
-
-    if (ext === "txt") {
-      const textContent = await response.text();
-      if (source.name === "Kemenag Indonesia") {
-    return textContent;
-  }
-      const key = source.query(surah, ayah);
-  const line = textContent.split("\n").find(line => line.startsWith(key));
-  return line ? line.split("|")[2] : "Tafsir tidak ditemukan";
-
-
-    } else if (ext === "xml") {
-      const textContent = await response.text();
-      const parser = new DOMParser();
-      const xmlDoc = parser.parseFromString(textContent, "text/xml");
-      const tafsirNode = xmlDoc.querySelector(source.query(surah, ayah));
-      return tafsirNode?.getAttribute("text") || tafsirNode?.textContent || "Tafsir tidak ditemukan";
-
-    } else if (ext === "json") {
-      const jsonData = await response.json();
-      return source.query(jsonData, surah, ayah) || "Tafsir tidak ditemukan";
-
-    } else {
-      return "Format file tidak dikenali";
-    }
-
-  } catch (error) {
-    console.error(`Error loading ${source.name}:`, error);
-    return `Gagal memuat ${source.name}`;
-  }
-}
-
-// Buat dropdown tafsir
-function createTafsirDropdown(surah, ayah) {
-  const dropdownContainer = document.createElement("div");
-  dropdownContainer.className = "tafsir-dropdown";
-
-  const dropbtn = document.createElement("button");
-  dropbtn.className = "tafsir-dropbtn";
-  dropbtn.textContent = "Tafsir";
-
-  const dropdownContent = document.createElement("div");
-  dropdownContent.className = "tafsir-dropdown-content";
-
-  // Tambahkan opsi tafsir
-  Object.keys(tafsirSources).forEach(key => {
-    const source = tafsirSources[key];
-    const link = document.createElement("a");
-    link.href = "#";
-    link.textContent = source.name;
-    link.onclick = async (e) => {
-  e.preventDefault();
-
-  // Tampilkan loader dulu
-  const overlay = document.createElement("div");
-  overlay.id = "tafsir-overlay";
-  overlay.innerHTML = `
-    <div class="loader">
-      <img src="https://raw.githubusercontent.com/dickymiswardi/tadabbur/aa160525691e67e5d0b7aab1e7e9f37657d0ed45/AnimatedBook.gif" class="loading-icon" />
-    </div>
-  `;
-  const backdrop = document.createElement("div");
-  backdrop.id = "tafsir-backdrop";
-
-  document.body.appendChild(backdrop);
-  document.body.appendChild(overlay);
-
-  // Proses ambil tafsir
-  const tafsirText = await loadTafsir(key, surah, ayah);
-
-  // Hapus loader & tampilkan tafsir
-  overlay.remove();
-  backdrop.remove();
-  showTafsir(source.name, tafsirText);
-
-  dropdownContent.classList.remove("show", "upward");
-};
-
-    dropdownContent.appendChild(link);
-  });
-
-  // Tombol klik buka/tutup dropdown
-  dropbtn.onclick = (e) => {
-    e.stopPropagation();
-
-    // Tutup semua dropdown lain
-    document.querySelectorAll(".tafsir-dropdown-content").forEach(d => {
-      if (d !== dropdownContent) d.classList.remove("show", "upward");
-    });
-
-    dropdownContent.classList.toggle("show");
-
-    // Deteksi apakah tombol terlalu bawah
-    const rect = dropbtn.getBoundingClientRect();
-    const spaceBelow = window.innerHeight - rect.bottom;
-
-    if (spaceBelow < 250) {
-      dropdownContent.classList.add("upward");
-    } else {
-      dropdownContent.classList.remove("upward");
-    }
-  };
-
-  dropdownContainer.appendChild(dropbtn);
-  dropdownContainer.appendChild(dropdownContent);
-  return dropdownContainer;
-}
-
-      // Tutup dropdown saat klik di luar
-window.addEventListener("click", function () {
-  document.querySelectorAll(".tafsir-dropdown-content").forEach(d => {
-    d.classList.remove("show", "upward");
-  });
-});
-
-// Fungsi tampilkan tafsir
-function showTafsir(title, content) {
-  // Bersihkan jika ada sebelumnya
-  document.getElementById("tafsir-overlay")?.remove();
-  document.getElementById("tafsir-backdrop")?.remove();
-
-  // Backdrop
-  const backdrop = document.createElement("div");
-  backdrop.id = "tafsir-backdrop";
-  backdrop.onclick = () => {
-    overlay.remove();
-    backdrop.remove();
-  };
-
-  // Overlay
-  const overlay = document.createElement("div");
-  overlay.id = "tafsir-overlay";
-
-  // Tombol close
-  const closeBtn = document.createElement("div");
-  closeBtn.id = "tafsir-overlay-close";
-  closeBtn.innerHTML = "&times;";
-  closeBtn.onclick = () => {
-    overlay.remove();
-    backdrop.remove();
-  };
-
-  // Deteksi arab/latin
-  const arabicRegex = /[\u0600-\u06FF]/;
-  const isArabic = arabicRegex.test(content);
-  const titleClass = title === "Al-Jalalayn ID" ? "tafsir-title-left" : "tafsir-title";
-
-  // Buat elemen
-  const titleEl = document.createElement("div");
-  titleEl.className = titleClass;
-  titleEl.textContent = title;
-
-  const copyWrap = document.createElement("div");
-  copyWrap.className = titleClass;
-  copyWrap.innerHTML = `
-    <button id="copy-tafsir-btn" class="copy-button">Salin Tafsir</button>
-    <span id="copy-status" class="copy-status"></span>
-  `;
-
-  const contentWrap = document.createElement("div");
-  contentWrap.innerHTML = isArabic
-    ? `<div class="tafsir-arabic">${content}</div>`
-    : `<div class="tafsir-latin">${content}</div>`;
-
-  // Susun overlay
-  overlay.appendChild(closeBtn);
-  overlay.appendChild(titleEl);
-  overlay.appendChild(copyWrap);
-  overlay.appendChild(contentWrap);
-
-  document.body.appendChild(backdrop);
-  document.body.appendChild(overlay);
-
-  // Salin tafsir
-  setTimeout(() => {
-    const copyBtn = document.getElementById("copy-tafsir-btn");
-    const copyStatus = document.getElementById("copy-status");
-
-    if (copyBtn) {
-      copyBtn.addEventListener("click", () => {
-        const plainText = overlay.innerText
-          .replace("Salin Tafsir", "")
-          .replace("✅ Tersalin", "")
-          .trim();
-
-        navigator.clipboard.writeText(plainText)
-          .then(() => {
-            copyStatus.textContent = "✅ Tersalin";
-          })
-          .catch(() => {
-            copyStatus.textContent = "❌ Gagal menyalin";
-          });
-      });
-    }
-  }, 300);
-}
-// Cara penggunaan (ganti kode tafsir lama):
-const tafsirDropdown = createTafsirDropdown(surah, ayat);
-translationDiv.appendChild(tafsirDropdown);
-
-  // CATATAN TAFSIR
-const noteButton = document.createElement("button");
-noteButton.className = "note-dropbtn";
-noteButton.textContent = "Note";
-noteButton.onclick = () => {
-  showNoteOverlay(surah, ayat);
-};
-translationDiv.appendChild(noteButton);
-  // CATATAN TAFSIR
-      
-      if (footnotes) {
-  const foot = document.createElement("div");
-  foot.className = "footnote";
-
-  // Tambahkan keterangan referensi footnote jika ada
-  let modifiedFootnote = footnotes.replace(/Lihat catatan kaki nomor (\d+)/g, (fullMatch, num) => {
-  const ref = footnoteMap[num];
-  return ref ? `Lihat catatan kaki nomor ${num} (${ref})` : fullMatch;
-});
-
-  foot.innerHTML = `<strong>Catatan:</strong> ${modifiedFootnote}`;
-  document.getElementById("result").appendChild(foot);
-}
-
-      const navDiv = document.createElement("div");
-      navDiv.className = "nav-buttons";
-
-      const prev = getPrevAyah(surah, ayat);
-      const next = getNextAyah(surah, ayat);
-
-      if (prev) {
-        const prevBtn = document.createElement("button");
-        prevBtn.textContent = "PREV ▶";
-        prevBtn.onclick = () => {
-  const autoplayOn = localStorage.getItem("autoplay") === "true";
-  localStorage.setItem("fromAutoplay", autoplayOn ? "true" : "false");
-  loadAyat(prev.surah, prev.ayah, true);
-};
-        navDiv.appendChild(prevBtn);
-      }
-
-  const bookmarkBtn = document.createElement("button");
-bookmarkBtn.id = "bookmark-btn";
-bookmarkBtn.innerHTML = "🔰"; // default ikon
-translationDiv.appendChild(bookmarkBtn);
-
-  // TOMBOL SEARCH
-  const searchBtn = document.createElement("button");
-searchBtn.id = "openSearch";
-searchBtn.textContent = "Cari";
-searchBtn.className = "search-dropbtn";
-searchBtn.onclick = openSearch;
-translationDiv.appendChild(searchBtn);
-
-
-
-
-
-const notifSpan = document.createElement("span");
-notifSpan.id = "bookmark-notif";
-notifSpan.style.display = "none";
-translationDiv.appendChild(notifSpan);
-
-  const bookmarkKey = "tadabbur-bookmark";
-let bookmarks = [];
-
-try {
-  bookmarks = JSON.parse(localStorage.getItem(bookmarkKey)) || [];
-} catch {
-  bookmarks = [];
-}
-
-// Cek apakah ayat ini sudah ditandai
-let existing = bookmarks.find(b => b.surah === surah && b.ayat === ayat);
-if (existing) {
-  bookmarkBtn.classList.add("checked");
-  bookmarkBtn.innerHTML = "✅";
-}
-
-// Event klik tombol bookmark
-bookmarkBtn.onclick = () => {
-  const now = new Date();
-  const dateStr = now.toLocaleDateString("id-ID", { day: '2-digit', month: 'long', year: 'numeric' });
-  const timeStr = now.toLocaleTimeString("id-ID", { hour: '2-digit', minute: '2-digit' });
-
-  let existingIndex = bookmarks.findIndex(b => b.surah === surah && b.ayat === ayat);
-
-  if (existingIndex === -1) {
-    // Tambah ke daftar
-    const newEntry = {
-      surah,
-      ayat,
-      timestamp: `${dateStr} ${timeStr}`
-    };
-    bookmarks.push(newEntry);
-    localStorage.setItem(bookmarkKey, JSON.stringify(bookmarks));
-
-    bookmarkBtn.classList.add("checked");
-    bookmarkBtn.innerHTML = "✅";
-
-    showBookmarkNotif(`✅ Selesai tadabbur pada ${dateStr} pukul ${timeStr}. Total tadabbur ${bookmarks.length} ayat.`);
-  } else {
-    // Sudah ditandai, hanya tampilkan notifikasi lagi
-    const order = existingIndex + 1;
-    const stamp = bookmarks[existingIndex].timestamp;
-    showBookmarkNotif(`✅ Selesai tadabbur pada ${dateStr} pukul ${timeStr}. Total tadabbur ${order} ayat.`);
-  }
-};
-
-function showBookmarkNotif(text) {
-  notifSpan.textContent = text;
-  notifSpan.style.display = "inline-block";
-  setTimeout(() => {
-    notifSpan.style.display = "none";
-  }, 5000);
-}
-
-      const playAudioBtn = document.createElement("button");
-playAudioBtn.textContent = "♬ MP3";
-playAudioBtn.onclick = showQariSelector;
-navDiv.appendChild(playAudioBtn);
-
-      function showQariSelector() {
-  const backdrop = document.createElement("div");
-  backdrop.className = "audio-qari-backdrop";
-  backdrop.onclick = () => {
-    backdrop.remove();
-    overlay.remove();
-  };
-
-  const overlay = document.createElement("div");
-  overlay.className = "audio-qari-overlay";
-
-  const select = document.createElement("select");
-  const qaris = [
-    { name: "Al-Husary", id: "Husary_64kbps" },
-    { name: "Al-Husary Mujawwad", id: "Husary_Mujawwad_64kbps" },
-    { name: "Ali Jaber", id: "Ali_Jaber_64kbps" },
-    { name: "Abdurrahman As-Sudais", id: "Abdurrahmaan_As-Sudais_64kbps" },
-    { name: "Al-Minshawy Murattal", id: "Minshawy_Murattal_128kbps" },
-    { name: "Al-Minshawy Teacher", id: "Minshawy_Teacher_128kbps" },
-    { name: "Yaser Salamah", id: "Yaser_Salamah_128kbps" },
-    { name: "Sa'ad Al-Ghamidi", id: "Ghamadi_40kbps" },
-    { name: "Yaser Ad-Dausary", id: "Yasser_Ad-Dussary_128kbps" },
-    { name: "Abu Bakar Ash-Shaatree", id: "Abu_Bakr_Ash-Shaatree_64kbps" },
-    { name: "Misyari Alafasy", id: "Alafasy_64kbps" },
-    { name: "Mostafa Ismail", id: "Mostafa_Ismail_128kbps" },
-    { name: "Abdul Basith", id: "AbdulSamad_64kbps" },
-    { name: "Muhammad Ayyoub", id: "Muhammad_Ayyoub_64kbps" },
-    { name: "Al-Tablaway", id: "Mohammad_al_Tablaway_64kbps" },
-    { name: "Khaleefa AtTunaiji", id: "tunaiji_64kbps" },
-    { name: "Al-Banna", id: "Banna_32kbps" },
-    { name: "Ibrahim Akhdar", id: "Ibrahim_Akhdar_32kbps" },
-    { name: "English Walk", id: "English_Walk" },
-    { name: "Bosnian Korkut", id: "Bosnian_Korkut_128kbps" },
-    { name: "Khan Urdu", id: "ur.khan_46kbs" },
-    { name: "Al-Husary Qasr", id: "husary_qasr_64kbps" },
-    { name: "Al-Hussary Teacher", id: "Hussary.teacher_64kbps" },
-    { name: "Ali Hudhaify", id: "Hudhaify_64kbps" },
-    { name: "Su'ud As-Syuraim", id: "Saood_ash-Shuraym_64kbps" },
-    { name: "Al-Minshawy Mujawwad", id: "Minshawy_Mujawwad_64kbps" },
-    { name: "Ayman Sowaid", id: "Ayman_Sowaid_64kbps" },
-    { name: "Maher Al-Muaiqly", id: "Maher_AlMuaiqly_64kbps" },
-    { name: "Naser Al-Qatami", id: "Nasser_Alqatami_128kbps" },
-    { name: "Muhammad Jibreel", id: "Muhammad_Jibreel_64kbps" },
-    { name: "Ahmed Al-Ajamy", id: "Ahmed_ibn_Ali_al-Ajamy_64kbps" },
-    { name: "Ali Basfar", id: "Abdullah_Basfar_64kbps" },
-    { name: "Abdul Basith Murattal", id: "Abdul_Basit_Murattal_64kbps" },
-    { name: "Hani Ar-Rifai", id: "Hani_Rifai_192kbps" },
-    { name: "Abdul Muhsin Al-Qasim", id: "Muhsin_Al_Qasim_192kbps" },
-    { name: "Fares Abbad", id: "Fares_Abbad_64kbps" },
-    { name: "Al-Juhani", id: "Abdullaah_3awwaad_Al-Juhaynee_128kbps" },
-    { name: "Ad-Dousary Warsh", id: "warsh_dossary_128kbps" },
-    { name: "Al-Husary Warsh", id: "warsh_husary_64kbps" },
-    { name: "Yasin Warsh", id: "warsh_yassin_64kbps" }
-  ];
-
-  const savedQari = localStorage.getItem("lastQari") || "";
-  qaris.forEach(qari => {
-    const opt = document.createElement("option");
-    opt.value = qari.id;
-    opt.textContent = qari.name;
-    if (qari.id === savedQari) opt.selected = true;
-    select.appendChild(opt);
-  });
-
-  const confirmBtn = document.createElement("button");
-  confirmBtn.textContent = "Dengarkan Qari Ini";
-  confirmBtn.onclick = () => {
-    const qariId = select.value;
-    localStorage.setItem("lastQari", qariId);
-    playAudioForAyah(qariId);
-    overlay.remove();
-    backdrop.remove();
-  };
-
-  overlay.innerHTML = `<h3>Pilih Qari</h3>`;
-  overlay.appendChild(select);
-  overlay.appendChild(confirmBtn);
-
-  document.body.appendChild(backdrop);
-  document.body.appendChild(overlay);
-}
-
-      function playAudioForAyah(qariId) {
-  const surahStr = String(surah).padStart(3, '0');
-const ayahStr = String(ayat).padStart(3, '0');
-const url = `https://quran.ksu.edu.sa/ayat/mp3/${qariId}/${surahStr}${ayahStr}.mp3`;
-
-  const container = document.getElementById("audio-player-container");
-  container.style.display = "block";
-  container.innerHTML = '';
-
-  const audioWrapper = document.createElement("div");
-  audioWrapper.className = "audio-wrapper";
-
-  const audio = document.createElement("audio");
-  audio.controls = true;
-  audio.src = url;
-  audio.autoplay = true;
-        // Paksa play ulang otomatis jika repeat > 1
-const repeat = parseInt(localStorage.getItem("repeatCount") || "1");
-if (repeat > 1) {
-  // Tunggu sedikit agar DOM siap, lalu play ulang
-  setTimeout(() => {
-    audio.play().catch(() => {
-      console.warn("Autoplay dicegah oleh browser");
-    });
-  }, 300);
-}
-
-  // Autoplay toggle
-  const toggleWrap = document.createElement("label");
-  toggleWrap.className = "autoplay-toggle";
-
-  const toggle = document.createElement("input");
-  toggle.type = "checkbox";
-  toggle.checked = localStorage.getItem("autoplay") === "true";
-
-  toggle.onchange = () => {
-    localStorage.setItem("autoplay", toggle.checked);
-  };
-
-  toggleWrap.appendChild(toggle);
-  toggleWrap.appendChild(document.createTextNode("Putar otomatis ayat selanjutnya"));
-
-  // TOGGLE PUTAR ULANG
-
-  // === Tambahan: Dropdown "Putar ulang ayat ini" ===
-const repeatLabel = document.createElement("label");
-repeatLabel.className = "autoplay-toggle";
-repeatLabel.innerHTML = `Putar ulang ayat ini `;
-
-const repeatSelect = document.createElement("select");
-repeatSelect.id = "repeat-count";
-
-// Isi opsi 1x sampai 5x
-[1, 2, 3, 4, 5].forEach(n => {
-  const opt = document.createElement("option");
-  opt.value = n;
-  opt.textContent = `${n}x`;
-  repeatSelect.appendChild(opt);
-});
-
-// Ambil nilai terakhir dari localStorage jika ada
-repeatSelect.value = localStorage.getItem("repeatCount") || "1";
-
-// Simpan ke localStorage saat berubah
-repeatSelect.onchange = () => {
-  localStorage.setItem("repeatCount", repeatSelect.value);
-
-  // Jika audio sudah ada, maka langsung ulang dari awal
-  if (audio) {
-    audio.currentTime = 0;
-    audio.play().catch(() => {
-      console.warn("Autoplay dicegah oleh browser");
-    });
-  }
-};
-
-
-repeatLabel.appendChild(repeatSelect);
-
-
-  // Event audio selesai
-  // Ambil jumlah pengulangan dari localStorage
-let repeatCount = parseInt(localStorage.getItem("repeatCount") || "1");
-let playedTimes = 1;
-
-audio.onended = () => {
-  if (playedTimes < repeatCount) {
-    // Ulang ayat
-    playedTimes++;
-    audio.currentTime = 0;
-    audio.play();
-  } else {
-    // Reset ulang
-    playedTimes = 1;
-
-    if (toggle.checked) {
-      // Jika autoplay aktif → lanjut ke ayat berikutnya
-      const next = getNextAyah(surah, ayat);
-      if (next) {
-        localStorage.setItem("fromAutoplay", "true");
-        loadAyat(next.surah, next.ayah, true);
-      }
-    }
-    // Jika autoplay tidak dicentang, cukup berhenti setelah ulang selesai
-  }
-};
-
-
-  audioWrapper.appendChild(audio);
-
-// === Checkbox "Aktifkan player selalu" ===
-const keepPlayerWrap = document.createElement("label");
-keepPlayerWrap.className = "autoplay-toggle";
-
-const keepCheckbox = document.createElement("input");
-keepCheckbox.type = "checkbox";
-keepCheckbox.checked = localStorage.getItem("keepPlayer") === "true";
-keepCheckbox.onchange = () => {
-  localStorage.setItem("keepPlayer", keepCheckbox.checked);
-};
-
-keepPlayerWrap.appendChild(keepCheckbox);
-keepPlayerWrap.appendChild(document.createTextNode("Aktifkan player selalu"));
-
-audioWrapper.appendChild(keepPlayerWrap);
-
-  audioWrapper.appendChild(repeatLabel);  
-  audioWrapper.appendChild(toggleWrap);
-  container.appendChild(audioWrapper);
-}
-
-
-  
-      function getGlobalAyahNumber(surah, ayah) {
-  let total = 0;
-  for (let i = 1; i < surah; i++) {
-    total += surahAyahCount[i];
-  }
-  return total + ayah;
-}
-
-      const savedQari = localStorage.getItem("lastQari");
-const fromAutoplay = localStorage.getItem("fromAutoplay") === "true";
-
-const autoplayChecked = localStorage.getItem("autoplay") === "true";
-const keepPlayer = localStorage.getItem("keepPlayer") === "true";
-
-if (savedQari && (fromAutoplay || keepPlayer || autoplayChecked)) {
-  playAudioForAyah(savedQari);
-}
-
-
-// setelah dicek, hapus flag agar tidak autoplay lagi tanpa sengaja
-localStorage.removeItem("fromAutoplay");
-
-  // TOMBOL SYNC
-
-  const syncBtn = document.createElement("button");
-syncBtn.innerText = "🔒 USER";
-syncBtn.onclick = () => {
-  document.getElementById("sync-overlay").style.display = "flex";
-  document.getElementById("sync-status").innerHTML = '';
-};
-navDiv.appendChild(syncBtn);
-
-      if (next) {
-        const nextBtn = document.createElement("button");
-        nextBtn.textContent = "◀ NEXT";
-        nextBtn.onclick = () => {
-  const autoplayOn = localStorage.getItem("autoplay") === "true";
-  localStorage.setItem("fromAutoplay", autoplayOn ? "true" : "false");
-  window.location.search = `?surah=${next.surah}&ayat=${next.ayah}`;
-};
-        navDiv.appendChild(nextBtn);
-      }
-
-  document.addEventListener('keydown', function (event) {
-    if (event.key === 'ArrowRight') {
-      // Panah kanan = klik tombol "Sebelumnya"
-      const buttons = document.querySelectorAll("button");
-      buttons.forEach((btn) => {
-        if (btn.textContent.trim() === "PREV ▶") {
-          btn.click();
-        }
-      });
-    } else if (event.key === 'ArrowLeft') {
-      // Panah kiri = klik tombol "Selanjutnya"
-      const buttons = document.querySelectorAll("button");
-      buttons.forEach((btn) => {
-        if (btn.textContent.trim() === "◀ NEXT") {
-          btn.click();
-        }
-      });
-    }
-  });
-
-      document.getElementById("result").appendChild(navDiv);
-    })
-    .catch(err => {
-      console.error(err);
-      document.getElementById("result").textContent = "Gagal memuat data.";
-    });
-
     document.addEventListener("DOMContentLoaded", function () {
   const params = new URLSearchParams(window.location.search);
-  const hasParams = params.has("surah") && params.has("ayat");
-
   const surah = parseInt(params.get("surah") || localStorage.getItem("lastSurah") || "1");
   const ayat = parseInt(params.get("ayat") || localStorage.getItem("lastAyat") || "1");
-
-  loadAyat(surah, ayat, false); // false = tidak update URL lagi karena sudah di URL
+  loadAyat(surah, ayat, false);
+});
+  
+window.addEventListener("popstate", (event) => {
+  const params = new URLSearchParams(window.location.search);
+  const surah = parseInt(params.get("surah") || "1");
+  const ayat = parseInt(params.get("ayat") || "1");
+  loadAyat(surah, ayat, false);
 });
 
-    
-  </script>
+function loadAyat(surah, ayat, updateURL = false) {
+  if (updateURL) {
+    const url = new URL(window.location.href);
+    url.searchParams.set("surah", surah);
+    url.searchParams.set("ayat", ayat);
+    history.pushState({ surah, ayat }, "", url.pathname + `?surah=${surah}&ayat=${ayat}`);
+  }
+
+  localStorage.setItem("lastSurah", surah);
+  localStorage.setItem("lastAyat", ayat);
+
+  document.getElementById("surah").value = surah;
+  populateAyat(surah, ayat);
+
+  document.getElementById("result").innerHTML = '<div class="loader">Memuat...</div>';
+  renderAyat(surah, ayat);
+}
+
+// Fungsi renderAyat harus kamu salin dari hasil sebelumnya
+
+</script>
   <script>
   // Simpan URL terakhir ke localStorage saat halaman ini dibuka
   localStorage.setItem("lastQuranPage", window.location.href);
@@ -1652,6 +863,34 @@ function showNoteOverlay(surah, ayah) {
   document.body.appendChild(overlay);
 }
     // CATATAN TASIR
+
+window.addEventListener("popstate", (event) => {
+  const params = new URLSearchParams(window.location.search);
+  const surah = parseInt(params.get("surah") || "1");
+  const ayat = parseInt(params.get("ayat") || "1");
+  loadAyat(surah, ayat, false);
+});
+
+function loadAyat(surah, ayat, updateURL = false) {
+  if (updateURL) {
+    const url = new URL(window.location.href);
+    url.searchParams.set("surah", surah);
+    url.searchParams.set("ayat", ayat);
+    history.pushState({ surah, ayat }, "", url.pathname + `?surah=${surah}&ayat=${ayat}`);
+  }
+
+  localStorage.setItem("lastSurah", surah);
+  localStorage.setItem("lastAyat", ayat);
+
+  document.getElementById("surah").value = surah;
+  populateAyat(surah, ayat);
+
+  document.getElementById("result").innerHTML = '<div class="loader">Memuat...</div>';
+  renderAyat(surah, ayat);
+}
+
+// Fungsi renderAyat harus kamu salin dari hasil sebelumnya
+
 </script>
 
 <script>
@@ -1907,6 +1146,34 @@ window.addEventListener("DOMContentLoaded", () => {
 });
 
   
+
+window.addEventListener("popstate", (event) => {
+  const params = new URLSearchParams(window.location.search);
+  const surah = parseInt(params.get("surah") || "1");
+  const ayat = parseInt(params.get("ayat") || "1");
+  loadAyat(surah, ayat, false);
+});
+
+function loadAyat(surah, ayat, updateURL = false) {
+  if (updateURL) {
+    const url = new URL(window.location.href);
+    url.searchParams.set("surah", surah);
+    url.searchParams.set("ayat", ayat);
+    history.pushState({ surah, ayat }, "", url.pathname + `?surah=${surah}&ayat=${ayat}`);
+  }
+
+  localStorage.setItem("lastSurah", surah);
+  localStorage.setItem("lastAyat", ayat);
+
+  document.getElementById("surah").value = surah;
+  populateAyat(surah, ayat);
+
+  document.getElementById("result").innerHTML = '<div class="loader">Memuat...</div>';
+  renderAyat(surah, ayat);
+}
+
+// Fungsi renderAyat harus kamu salin dari hasil sebelumnya
+
 </script>
 
   <!-- 🔒 SYNC OVERLAY -->
@@ -1960,6 +1227,34 @@ document.addEventListener("DOMContentLoaded", () => {
     nav.appendChild(gantiBtn);
   }
 });
+
+window.addEventListener("popstate", (event) => {
+  const params = new URLSearchParams(window.location.search);
+  const surah = parseInt(params.get("surah") || "1");
+  const ayat = parseInt(params.get("ayat") || "1");
+  loadAyat(surah, ayat, false);
+});
+
+function loadAyat(surah, ayat, updateURL = false) {
+  if (updateURL) {
+    const url = new URL(window.location.href);
+    url.searchParams.set("surah", surah);
+    url.searchParams.set("ayat", ayat);
+    history.pushState({ surah, ayat }, "", url.pathname + `?surah=${surah}&ayat=${ayat}`);
+  }
+
+  localStorage.setItem("lastSurah", surah);
+  localStorage.setItem("lastAyat", ayat);
+
+  document.getElementById("surah").value = surah;
+  populateAyat(surah, ayat);
+
+  document.getElementById("result").innerHTML = '<div class="loader">Memuat...</div>';
+  renderAyat(surah, ayat);
+}
+
+// Fungsi renderAyat harus kamu salin dari hasil sebelumnya
+
 </script>
 
   <script>
@@ -2000,6 +1295,34 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 });
+
+window.addEventListener("popstate", (event) => {
+  const params = new URLSearchParams(window.location.search);
+  const surah = parseInt(params.get("surah") || "1");
+  const ayat = parseInt(params.get("ayat") || "1");
+  loadAyat(surah, ayat, false);
+});
+
+function loadAyat(surah, ayat, updateURL = false) {
+  if (updateURL) {
+    const url = new URL(window.location.href);
+    url.searchParams.set("surah", surah);
+    url.searchParams.set("ayat", ayat);
+    history.pushState({ surah, ayat }, "", url.pathname + `?surah=${surah}&ayat=${ayat}`);
+  }
+
+  localStorage.setItem("lastSurah", surah);
+  localStorage.setItem("lastAyat", ayat);
+
+  document.getElementById("surah").value = surah;
+  populateAyat(surah, ayat);
+
+  document.getElementById("result").innerHTML = '<div class="loader">Memuat...</div>';
+  renderAyat(surah, ayat);
+}
+
+// Fungsi renderAyat harus kamu salin dari hasil sebelumnya
+
 </script>
 
 <script>
@@ -2032,6 +1355,34 @@ document.addEventListener('touchend', e => {
   touchEndX = e.changedTouches[0].screenX;
   handleSwipeGesture();
 });
+
+window.addEventListener("popstate", (event) => {
+  const params = new URLSearchParams(window.location.search);
+  const surah = parseInt(params.get("surah") || "1");
+  const ayat = parseInt(params.get("ayat") || "1");
+  loadAyat(surah, ayat, false);
+});
+
+function loadAyat(surah, ayat, updateURL = false) {
+  if (updateURL) {
+    const url = new URL(window.location.href);
+    url.searchParams.set("surah", surah);
+    url.searchParams.set("ayat", ayat);
+    history.pushState({ surah, ayat }, "", url.pathname + `?surah=${surah}&ayat=${ayat}`);
+  }
+
+  localStorage.setItem("lastSurah", surah);
+  localStorage.setItem("lastAyat", ayat);
+
+  document.getElementById("surah").value = surah;
+  populateAyat(surah, ayat);
+
+  document.getElementById("result").innerHTML = '<div class="loader">Memuat...</div>';
+  renderAyat(surah, ayat);
+}
+
+// Fungsi renderAyat harus kamu salin dari hasil sebelumnya
+
 </script>
 
 
@@ -2198,6 +1549,34 @@ function closeSearch() {
   document.getElementById("searchOverlay").style.display = "none";
   document.body.classList.remove("modal-open");
 }
+
+window.addEventListener("popstate", (event) => {
+  const params = new URLSearchParams(window.location.search);
+  const surah = parseInt(params.get("surah") || "1");
+  const ayat = parseInt(params.get("ayat") || "1");
+  loadAyat(surah, ayat, false);
+});
+
+function loadAyat(surah, ayat, updateURL = false) {
+  if (updateURL) {
+    const url = new URL(window.location.href);
+    url.searchParams.set("surah", surah);
+    url.searchParams.set("ayat", ayat);
+    history.pushState({ surah, ayat }, "", url.pathname + `?surah=${surah}&ayat=${ayat}`);
+  }
+
+  localStorage.setItem("lastSurah", surah);
+  localStorage.setItem("lastAyat", ayat);
+
+  document.getElementById("surah").value = surah;
+  populateAyat(surah, ayat);
+
+  document.getElementById("result").innerHTML = '<div class="loader">Memuat...</div>';
+  renderAyat(surah, ayat);
+}
+
+// Fungsi renderAyat harus kamu salin dari hasil sebelumnya
+
 </script>
 
 
@@ -2243,6 +1622,12 @@ function fetchTerjemah() {
     });
 }
 
+window.addEventListener("popstate", (event) => {
+  const params = new URLSearchParams(window.location.search);
+  const surah = parseInt(params.get("surah") || "1");
+  const ayat = parseInt(params.get("ayat") || "1");
+  loadAyat(surah, ayat, false);
+});
 
 function loadAyat(surah, ayat, updateURL = false) {
   if (updateURL) {
@@ -2252,22 +1637,18 @@ function loadAyat(surah, ayat, updateURL = false) {
     history.pushState({ surah, ayat }, "", url.pathname + `?surah=${surah}&ayat=${ayat}`);
   }
 
-  // Simpan lokal
   localStorage.setItem("lastSurah", surah);
   localStorage.setItem("lastAyat", ayat);
 
-  location.reload(); // sementara, reload dulu (nanti kita ubah)
+  document.getElementById("surah").value = surah;
+  populateAyat(surah, ayat);
+
+  document.getElementById("result").innerHTML = '<div class="loader">Memuat...</div>';
+  renderAyat(surah, ayat);
 }
 
+// Fungsi renderAyat harus kamu salin dari hasil sebelumnya
 
-window.addEventListener("popstate", (event) => {
-  const params = new URLSearchParams(window.location.search);
-  const surah = parseInt(params.get("surah") || "1");
-  const ayat = parseInt(params.get("ayat") || "1");
-  loadAyat(surah, ayat, false);
-});  
-
-  
 </script>
 
   
