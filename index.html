@@ -511,6 +511,88 @@
 </head>
 <body>
 
+<div id="loader" style="display: none; padding: 10px; background: #f1f1f1; border-radius: 6px; margin: 1rem auto; max-width: 500px;">
+  <p id="loader-status" style="margin-bottom: 0.5rem;">📥 Mengunduh data Al-Qur’an...</p>
+  <progress id="loader-bar" value="0" max="100" style="width: 100%; height: 20px;"></progress>
+</div>
+
+  <script>
+  async function syncOfflineFilesWithProgress() {
+  const files = [
+    { url: "https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/quran.json", key: "quran.json" },
+    { url: "https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/indonesian_complex_v1.0.xml", key: "indonesian_complex_v1.0.xml" },
+    { url: "https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/quran.xml", key: "quran.xml" },
+    { url: "https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/TerjemahID.xml", key: "TerjemahID.xml" },
+  ];
+
+  const loader = document.getElementById("loader");
+  const loaderBar = document.getElementById("loader-bar");
+  const loaderStatus = document.getElementById("loader-status");
+
+  loader.style.display = "block";
+  loaderBar.value = 0;
+
+  for (let i = 0; i < files.length; i++) {
+    const { url, key } = files[i];
+    loaderStatus.textContent = `📥 Mengunduh ${key} (${i + 1} dari ${files.length})...`;
+
+    const res = await fetch(url);
+    const text = await res.text();
+    localStorage.setItem(key, text);
+
+    const percent = Math.round(((i + 1) / files.length) * 100);
+    loaderBar.value = percent;
+  }
+
+  loaderStatus.textContent = "✅ Semua data berhasil diunduh!";
+  setTimeout(() => loader.style.display = "none", 1500);
+}
+
+    document.addEventListener("DOMContentLoaded", async () => {
+  const isReady = localStorage.getItem("quran.json") &&
+                  localStorage.getItem("indonesian_complex_v1.0.xml") &&
+                  localStorage.getItem("quran.xml") &&
+                  localStorage.getItem("TerjemahID.xml");
+
+  if (!isReady) {
+    await syncOfflineFilesWithProgress();
+  }
+
+  const surah = parseInt(localStorage.getItem("lastSurah") || "1");
+  const ayat = parseInt(localStorage.getItem("lastAyat") || "1");
+  renderAyat(surah, ayat);
+});
+
+    const xmlText = localStorage.getItem("indonesian_complex_v1.0.xml");
+const parser = new DOMParser();
+const xmlDoc = parser.parseFromString(xmlText, "text/xml");
+
+
+    function getTerjemah(surah, ayat) {
+  const element = xmlDoc.querySelector(`ayah[sura='${surah}'][aya='${ayat}']`);
+  return element?.textContent || "(Terjemah tidak ditemukan)";
+}
+
+    function renderAyat(surah, ayat) {
+  localStorage.setItem("lastSurah", surah);
+  localStorage.setItem("lastAyat", ayat);
+
+  const quranData = JSON.parse(localStorage.getItem("quran.json"));
+  const ayatArab = quranData.find(
+    x => x.surah_number === surah && x.verse_number === ayat
+  )?.content || "(Teks Arab tidak ditemukan)";
+
+  const terjemah = getTerjemah(surah, ayat);
+
+  document.getElementById("arab").textContent = ayatArab;
+  document.getElementById("terjemah").textContent = terjemah;
+
+  // (opsional) jalankan audio, tafsir, dll di sini
+}
+
+
+</script>
+  
  <script>
   const params = new URLSearchParams(window.location.search);
   const hasParams = params.has("surah") && params.has("ayat");
@@ -612,86 +694,91 @@
   </div>
 
   <script>
-    const surahSelect = document.getElementById("surah");
-    const ayatSelect = document.getElementById("ayat");
+   const surahSelect = document.getElementById("surah");
+const ayatSelect = document.getElementById("ayat");
 
-    const surahData = [
-      ["Al-Fatihah", 7], ["Al-Baqarah", 286], ["Ali 'Imran", 200], ["An-Nisa'", 176],
-      ["Al-Ma'idah", 120], ["Al-An'am", 165], ["Al-A'raf", 206], ["Al-Anfal", 75],
-      ["At-Tawbah", 129], ["Yunus", 109], ["Hud", 123], ["Yusuf", 111], ["Ar-Ra'd", 43],
-      ["Ibrahim", 52], ["Al-Hijr", 99], ["An-Nahl", 128], ["Al-Isra", 111], ["Al-Kahf", 110],
-      ["Maryam", 98], ["Ta-Ha", 135], ["Al-Anbiya", 112], ["Al-Hajj", 78], ["Al-Mu'minun", 118],
-      ["An-Nur", 64], ["Al-Furqan", 77], ["Ash-Shu'ara", 227], ["An-Naml", 93], ["Al-Qasas", 88],
-      ["Al-Ankabut", 69], ["Ar-Rum", 60], ["Luqman", 34], ["As-Sajda", 30], ["Al-Ahzab", 73],
-      ["Saba'", 54], ["Fatir", 45], ["Ya-Sin", 83], ["As-Saffat", 182], ["Sad", 88],
-      ["Az-Zumar", 75], ["Ghafir", 85], ["Fussilat", 54], ["Ash-Shura", 53], ["Az-Zukhruf", 89],
-      ["Ad-Dukhan", 59], ["Al-Jathiya", 37], ["Al-Ahqaf", 35], ["Muhammad", 38], ["Al-Fath", 29],
-      ["Al-Hujurat", 18], ["Qaf", 45], ["Adh-Dhariyat", 60], ["At-Tur", 49], ["An-Najm", 62],
-      ["Al-Qamar", 55], ["Ar-Rahman", 78], ["Al-Waqi'a", 96], ["Al-Hadid", 29], ["Al-Mujadila", 22],
-      ["Al-Hashr", 24], ["Al-Mumtahana", 13], ["As-Saff", 14], ["Al-Jumu'a", 11], ["Al-Munafiqun", 11],
-      ["At-Taghabun", 18], ["At-Talaq", 12], ["At-Tahrim", 12], ["Al-Mulk", 30], ["Al-Qalam", 52],
-      ["Al-Haqqah", 52], ["Al-Ma'arij", 44], ["Nuh", 28], ["Al-Jinn", 28], ["Al-Muzzammil", 20],
-      ["Al-Muddaththir", 56], ["Al-Qiyamah", 40], ["Al-Insan", 31], ["Al-Mursalat", 50],
-      ["An-Naba", 40], ["An-Nazi'at", 46], ["Abasa", 42], ["At-Takwir", 29], ["Al-Infitar", 19],
-      ["Al-Mutaffifin", 36], ["Al-Inshiqaq", 25], ["Al-Buruj", 22], ["At-Tariq", 17], ["Al-A'la", 19],
-      ["Al-Ghashiyah", 26], ["Al-Fajr", 30], ["Al-Balad", 20], ["Ash-Shams", 15], ["Al-Lail", 21],
-      ["Ad-Duhaa", 11], ["Ash-Sharh", 8], ["At-Tin", 8], ["Al-'Alaq", 19], ["Al-Qadr", 5],
-      ["Al-Bayyinah", 8], ["Az-Zalzalah", 8], ["Al-Adiyat", 11], ["Al-Qari'ah", 11],
-      ["At-Takathur", 8], ["Al-Asr", 3], ["Al-Humazah", 9], ["Al-Fil", 5], ["Quraysh", 4],
-      ["Al-Ma'un", 7], ["Al-Kawthar", 3], ["Al-Kafirun", 6], ["An-Nasr", 3], ["Al-Masad", 5],
-      ["Al-Ikhlas", 4], ["Al-Falaq", 5], ["An-Nas", 6]
-    ];
+const surahData = [
+  ["Al-Fatihah", 7], ["Al-Baqarah", 286], ["Ali 'Imran", 200], ["An-Nisa'", 176],
+  ["Al-Ma'idah", 120], ["Al-An'am", 165], ["Al-A'raf", 206], ["Al-Anfal", 75],
+  ["At-Tawbah", 129], ["Yunus", 109], ["Hud", 123], ["Yusuf", 111], ["Ar-Ra'd", 43],
+  ["Ibrahim", 52], ["Al-Hijr", 99], ["An-Nahl", 128], ["Al-Isra", 111], ["Al-Kahf", 110],
+  ["Maryam", 98], ["Ta-Ha", 135], ["Al-Anbiya", 112], ["Al-Hajj", 78], ["Al-Mu'minun", 118],
+  ["An-Nur", 64], ["Al-Furqan", 77], ["Ash-Shu'ara", 227], ["An-Naml", 93], ["Al-Qasas", 88],
+  ["Al-Ankabut", 69], ["Ar-Rum", 60], ["Luqman", 34], ["As-Sajda", 30], ["Al-Ahzab", 73],
+  ["Saba'", 54], ["Fatir", 45], ["Ya-Sin", 83], ["As-Saffat", 182], ["Sad", 88],
+  ["Az-Zumar", 75], ["Ghafir", 85], ["Fussilat", 54], ["Ash-Shura", 53], ["Az-Zukhruf", 89],
+  ["Ad-Dukhan", 59], ["Al-Jathiya", 37], ["Al-Ahqaf", 35], ["Muhammad", 38], ["Al-Fath", 29],
+  ["Al-Hujurat", 18], ["Qaf", 45], ["Adh-Dhariyat", 60], ["At-Tur", 49], ["An-Najm", 62],
+  ["Al-Qamar", 55], ["Ar-Rahman", 78], ["Al-Waqi'a", 96], ["Al-Hadid", 29], ["Al-Mujadila", 22],
+  ["Al-Hashr", 24], ["Al-Mumtahana", 13], ["As-Saff", 14], ["Al-Jumu'a", 11], ["Al-Munafiqun", 11],
+  ["At-Taghabun", 18], ["At-Talaq", 12], ["At-Tahrim", 12], ["Al-Mulk", 30], ["Al-Qalam", 52],
+  ["Al-Haqqah", 52], ["Al-Ma'arij", 44], ["Nuh", 28], ["Al-Jinn", 28], ["Al-Muzzammil", 20],
+  ["Al-Muddaththir", 56], ["Al-Qiyamah", 40], ["Al-Insan", 31], ["Al-Mursalat", 50],
+  ["An-Naba", 40], ["An-Nazi'at", 46], ["Abasa", 42], ["At-Takwir", 29], ["Al-Infitar", 19],
+  ["Al-Mutaffifin", 36], ["Al-Inshiqaq", 25], ["Al-Buruj", 22], ["At-Tariq", 17], ["Al-A'la", 19],
+  ["Al-Ghashiyah", 26], ["Al-Fajr", 30], ["Al-Balad", 20], ["Ash-Shams", 15], ["Al-Lail", 21],
+  ["Ad-Duhaa", 11], ["Ash-Sharh", 8], ["At-Tin", 8], ["Al-'Alaq", 19], ["Al-Qadr", 5],
+  ["Al-Bayyinah", 8], ["Az-Zalzalah", 8], ["Al-Adiyat", 11], ["Al-Qari'ah", 11],
+  ["At-Takathur", 8], ["Al-Asr", 3], ["Al-Humazah", 9], ["Al-Fil", 5], ["Quraysh", 4],
+  ["Al-Ma'un", 7], ["Al-Kawthar", 3], ["Al-Kafirun", 6], ["An-Nasr", 3], ["Al-Masad", 5],
+  ["Al-Ikhlas", 4], ["Al-Falaq", 5], ["An-Nas", 6]
+];
 
-    function populateSurahs() {
-      surahData.forEach(([name], i) => {
-        const opt = new Option(`${i + 1}. ${name}`, i + 1);
-        surahSelect.appendChild(opt);
-      });
-    }
+function populateSurahs() {
+  surahData.forEach(([name], i) => {
+    const opt = new Option(`${i + 1}. ${name}`, i + 1);
+    surahSelect.appendChild(opt);
+  });
+}
 
-    function populateAyat(surahIndex, selectedAyat = null) {
-      ayatSelect.innerHTML = '<option value="">-- Pilih Ayat --</option>';
-      if (!surahIndex) return;
-      const totalAyat = surahData[surahIndex - 1][1];
-      for (let i = 1; i <= totalAyat; i++) {
-        const opt = new Option(`Ayat ${i}`, i);
-        ayatSelect.appendChild(opt);
-      }
-      if (selectedAyat) ayatSelect.value = selectedAyat;
-    }
+function populateAyat(surahIndex, selectedAyat = null) {
+  ayatSelect.innerHTML = '<option value="">-- Pilih Ayat --</option>';
+  if (!surahIndex) return;
+  const totalAyat = surahData[surahIndex - 1][1];
+  for (let i = 1; i <= totalAyat; i++) {
+    const opt = new Option(`Ayat ${i}`, i);
+    ayatSelect.appendChild(opt);
+  }
+  if (selectedAyat) ayatSelect.value = selectedAyat;
+}
 
-    surahSelect.addEventListener("change", () => {
-      const surah = surahSelect.value;
-      localStorage.setItem("lastSurah", surah);
-      populateAyat(surah);
-      localStorage.removeItem("lastAyat");
-    });
+surahSelect.addEventListener("change", () => {
+  const surah = parseInt(surahSelect.value);
+  populateAyat(surah);
+  localStorage.setItem("lastSurah", surah);
+  localStorage.removeItem("lastAyat");
+});
 
-    ayatSelect.addEventListener("change", () => {
-      const ayat = ayatSelect.value;
-      localStorage.setItem("lastAyat", ayat);
-      const surah = surahSelect.value;
-      if (surah && ayat) {
-        const url = new URL(window.location.href);
-        url.searchParams.set("surah", surah);
-        url.searchParams.set("ayat", ayat);
-        window.location.href = url.toString();
-      }
-    });
+ayatSelect.addEventListener("change", () => {
+  const surah = parseInt(surahSelect.value);
+  const ayat = parseInt(ayatSelect.value);
+  if (surah && ayat) {
+    localStorage.setItem("lastSurah", surah);
+    localStorage.setItem("lastAyat", ayat);
+    renderAyat(surah, ayat); // panggil fungsi render, tidak reload
+  }
+});
 
-    document.addEventListener("DOMContentLoaded", () => {
-      populateSurahs();
-      const urlParams = new URLSearchParams(window.location.search);
-const lastSurah = urlParams.get("surah") || localStorage.getItem("lastSurah");
-const lastAyat = urlParams.get("ayat") || localStorage.getItem("lastAyat");
-      if (lastSurah) {
-        surahSelect.value = lastSurah;
-        populateAyat(lastSurah, lastAyat);
-      }
-      document.getElementById("pilihan-container").style.visibility = 'visible';
-    });
+document.addEventListener("DOMContentLoaded", () => {
+  populateSurahs();
+  const lastSurah = parseInt(localStorage.getItem("lastSurah") || "1");
+  const lastAyat = parseInt(localStorage.getItem("lastAyat") || "1");
+  surahSelect.value = lastSurah;
+  populateAyat(lastSurah, lastAyat);
+  ayatSelect.value = lastAyat;
+
+  document.getElementById("pilihan-container").style.visibility = 'visible';
+  renderAyat(lastSurah, lastAyat);
+});
+
   </script>
 </div>
+
+  <div style="margin-top: 1rem;">
+  <h2 id="arab" style="text-align: right; font-size: 2rem;">(Memuat ayat...)</h2>
+  <p id="terjemah" style="margin-top: 0.5rem; font-size: 1.1rem;">(Memuat terjemah...)</p>
+</div>
+
   <!-- BATAS TAMBAHAN -->
 
   <!-- Ganti 'Memuat...' dengan animasi -->
@@ -1148,19 +1235,40 @@ translationDiv.appendChild(noteButton);
       const navDiv = document.createElement("div");
       navDiv.className = "nav-buttons";
 
+  function getPrevAyah(surah, ayat) {
+  if (ayat > 1) return { surah, ayat: ayat - 1 };
+  if (surah > 1) {
+    const prevSurah = surah - 1;
+    const totalAyat = surahData[prevSurah - 1][1];
+    return { surah: prevSurah, ayat: totalAyat };
+  }
+  return null;
+}
+
+function getNextAyah(surah, ayat) {
+  const totalAyat = surahData[surah - 1][1];
+  if (ayat < totalAyat) return { surah, ayat: ayat + 1 };
+  if (surah < 114) return { surah: surah + 1, ayat: 1 };
+  return null;
+}
+
+
       const prev = getPrevAyah(surah, ayat);
       const next = getNextAyah(surah, ayat);
 
       if (prev) {
-        const prevBtn = document.createElement("button");
-        prevBtn.textContent = "PREV ▶";
-        prevBtn.onclick = () => {
-  const autoplayOn = localStorage.getItem("autoplay") === "true";
-  localStorage.setItem("fromAutoplay", autoplayOn ? "true" : "false");
-  window.location.search = `?surah=${prev.surah}&ayat=${prev.ayah}`;
-};
-        navDiv.appendChild(prevBtn);
-      }
+  const prevBtn = document.createElement("button");
+  prevBtn.textContent = "PREV ▶";
+
+  const prevSurah = prev.surah;
+  const prevAyat = prev.ayah;
+
+  prevBtn.onclick = () => {
+    renderAyat(prevSurah, prevAyat);
+  };
+
+  navDiv.appendChild(prevBtn);
+}
 
   const bookmarkBtn = document.createElement("button");
 bookmarkBtn.id = "bookmark-btn";
@@ -1425,7 +1533,7 @@ audio.onended = () => {
       const next = getNextAyah(surah, ayat);
       if (next) {
         localStorage.setItem("fromAutoplay", "true");
-        window.location.href = `?surah=${next.surah}&ayat=${next.ayah}`;
+        renderAyat(next.surah, next.ayat); // ✅ Tanpa reload
       }
     }
     // Jika autoplay tidak dicentang, cukup berhenti setelah ulang selesai
@@ -1491,15 +1599,21 @@ syncBtn.onclick = () => {
 navDiv.appendChild(syncBtn);
 
       if (next) {
-        const nextBtn = document.createElement("button");
-        nextBtn.textContent = "◀ NEXT";
-        nextBtn.onclick = () => {
-  const autoplayOn = localStorage.getItem("autoplay") === "true";
-  localStorage.setItem("fromAutoplay", autoplayOn ? "true" : "false");
-  window.location.search = `?surah=${next.surah}&ayat=${next.ayah}`;
-};
-        navDiv.appendChild(nextBtn);
-      }
+  const nextBtn = document.createElement("button");
+  nextBtn.textContent = "◀ NEXT";
+
+  // Tangkap nilai next sekarang dalam variabel lokal
+  const nextSurah = next.surah;
+  const nextAyat = next.ayah;
+
+  nextBtn.onclick = () => {
+    const autoplayOn = localStorage.getItem("autoplay") === "true";
+    localStorage.setItem("fromAutoplay", autoplayOn ? "true" : "false");
+    renderAyat(nextSurah, nextAyat); // ✅ Tidak tergantung variabel luar
+  };
+
+  navDiv.appendChild(nextBtn);
+}
 
   document.addEventListener('keydown', function (event) {
     if (event.key === 'ArrowRight') {
@@ -1536,7 +1650,7 @@ navDiv.appendChild(syncBtn);
     // Tidak ada parameter, ambil dari localStorage
     const lastSurah = localStorage.getItem("lastSurah") || "1";
     const lastAyat = localStorage.getItem("lastAyat") || "1";
-    window.location.href = `?surah=${lastSurah}&ayat=${lastAyat}`;
+    renderAyat(lastSurah, lastAyat);
     return;
   }
 
@@ -2181,14 +2295,15 @@ function doSearch() {
         <a href="${currentHost}/?surah=${r.surah}&ayat=${r.ayah}" class="meta" style="text-decoration:none; color:inherit; font-weight:bold;">
           Surah ${r.surah} (${r.nama}) • Ayat ${r.ayah}
         </a>
-        <a href="${currentHost}/?surah=${r.surah}&ayat=${r.ayah}" style="
-          padding: 0.3rem 0.8rem;
-          font-size: 0.85rem;
-          background-color: #28a745;
-          color: white;
-          border-radius: 6px;
-          text-decoration: none;
-        ">Lihat</a>
+        <button onclick="renderAyat(${r.surah}, ${r.ayah})" style="
+  padding: 0.3rem 0.8rem;
+  font-size: 0.85rem;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+">Lihat</button>
       </div>
       ${isAr ? `
         <div style="font-size:1.2rem; direction:rtl; text-align:right;">${highlight(r.arab, input)}</div>
