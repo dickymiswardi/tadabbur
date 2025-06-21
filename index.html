@@ -2269,6 +2269,23 @@ function fetchTerjemah() {
       });
     });
 }
+
+  // Uji koneksi quran.json
+fetch('quran.json')
+  .then(res => res.json())
+  .then(data => console.log("Berhasil muat Quran:", data.length))
+  .catch(err => console.error("Gagal muat Quran JSON:", err));
+
+// Uji koneksi XML terjemahan
+fetch('indonesian_complex_v1.0.xml')
+  .then(res => res.text())
+  .then(str => {
+    const parser = new DOMParser();
+    const xml = parser.parseFromString(str, "application/xml");
+    console.log("Berhasil muat XML:", xml);
+  })
+  .catch(err => console.error("Gagal muat XML:", err));
+
 </script>
 
   
