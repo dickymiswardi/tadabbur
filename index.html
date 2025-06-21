@@ -2107,6 +2107,7 @@ document.addEventListener('touchend', e => {
       </form>
 
       <!-- Hasil pencarian -->
+      <div id="searchCount" style="color:#555; font-weight:bold; margin-bottom: 1rem;"></div>
       <div id="searchResults" style="
   max-height: 60vh;
   overflow-y: auto;
@@ -2148,6 +2149,7 @@ function highlight(text, keyword) {
 function doSearch() {
   const input = document.getElementById("searchInput").value.trim();
   const container = document.getElementById("searchResults");
+  document.getElementById("searchCount").innerText = "";
   container.innerHTML = "";
   if (!input) return;
 
@@ -2161,6 +2163,7 @@ function doSearch() {
     return;
   }
 
+  document.getElementById("searchCount").innerText = `Hasil pencarian: ${results.length}`;
   container.innerHTML = results.map(r => `
     <div style="margin-bottom:1rem; padding:1rem; background:#f1f1f1; border-radius:8px;">
       <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap; margin-bottom:5px;">
