@@ -1523,27 +1523,12 @@ navDiv.appendChild(syncBtn);
   const params = new URLSearchParams(window.location.search);
   const hasParams = params.has("surah") && params.has("ayat");
 
-  if (!hasParams) {
-    // Tidak ada parameter, ambil dari localStorage
-    const lastSurah = localStorage.getItem("lastSurah") || "1";
-    const lastAyat = localStorage.getItem("lastAyat") || "1";
-    window.location.href = `?surah=${lastSurah}&ayat=${lastAyat}`;
-    return;
-  }
+  const surah = parseInt(params.get("surah") || localStorage.getItem("lastSurah") || "1");
+  const ayat = parseInt(params.get("ayat") || localStorage.getItem("lastAyat") || "1");
 
-  // Jika ada parameter, tampilkan seperti biasa
-  const surah = parseInt(params.get("surah") || "1");
-  const ayat = parseInt(params.get("ayat") || "1");
-
-  document.getElementById("surah-select").value = surah;
-  document.getElementById("ayah-select").value = ayat;
-
-  // Simpan ke localStorage
-  localStorage.setItem("lastSurah", surah);
-  localStorage.setItem("lastAyat", ayat);
-
-  loadAyat(surah, ayat);
+  loadAyat(surah, ayat, false); // false = tidak update URL lagi karena sudah di URL
 });
+
     
   </script>
   <script>
