@@ -1938,79 +1938,9 @@ window.addEventListener("DOMContentLoaded", () => {
 </div>
 
   
-  <script>
-document.addEventListener("DOMContentLoaded", () => {
-  const savedUser = localStorage.getItem("username");
-  const input = document.getElementById("sync-username");
+  
 
-  if (savedUser && input) {
-    usernameConfirmed = true;
-
-    // Sembunyikan input & tampilkan label username
-    input.style.display = 'none';
-    const label = document.createElement("div");
-    label.id = "username-label";
-    label.style.marginTop = "0.5em";
-    label.innerHTML = `👤 Username: <strong>${savedUser}</strong>`;
-    input.parentElement.insertBefore(label, input.nextSibling);
-
-    document.getElementById('check-result').innerHTML = `<span style="color:green">✅ Username dikonfirmasi</span>`;
-  }
-
-  // Tambah tombol Ganti User di bawah tombol SYNC
-  const nav = document.querySelector(".nav-buttons");
-  if (savedUser && nav && !document.getElementById("ganti-user-btn")) {
-    const gantiBtn = document.createElement("button");
-    gantiBtn.id = "ganti-user-btn";
-    gantiBtn.innerText = "GANTI USER";
-    gantiBtn.onclick = () => {
-      localStorage.removeItem("username");
-      location.reload();
-    };
-    nav.appendChild(gantiBtn);
-  }
-});
-</script>
-
-  <script>
-document.addEventListener("DOMContentLoaded", () => {
-  const saved = localStorage.getItem("usernameAktif");
-  const input = document.getElementById("sync-username");
-  const checkBtn = input.nextElementSibling;
-  const status = document.getElementById("check-result");
-
-  if (saved && input && status) {
-    usernameConfirmed = true;
-    input.style.display = "none";
-    if (checkBtn) checkBtn.style.display = "none";
-
-    const label = document.createElement("div");
-    label.id = "username-label";
-    label.innerHTML = `👤 Username: <strong>${saved}</strong>`;
-    input.parentElement.insertBefore(label, input.nextSibling);
-
-    status.innerHTML = '<span style="color:green">✅ Username dikonfirmasi</span>';
-
-    if (!document.getElementById("btn-ganti-user")) {
-      const gantiBtn = document.createElement("button");
-      gantiBtn.id = "btn-ganti-user";
-      gantiBtn.textContent = "🔁 Ganti User";
-      gantiBtn.onclick = () => {
-        localStorage.removeItem("usernameAktif");
-        input.style.display = "inline-block";
-        if (checkBtn) checkBtn.style.display = "inline-block";
-        status.innerHTML = '';
-        document.getElementById("username-label")?.remove();
-        document.getElementById("btn-ganti-user")?.remove();
-        input.value = '';
-        input.focus();
-        usernameConfirmed = false;
-      };
-      input.parentElement.appendChild(gantiBtn);
-    }
-  }
-});
-</script>
+  
 
 <script>
 // Deteksi swipe kiri dan kanan untuk menggantikan tombol NEXT dan PREV
@@ -2259,32 +2189,63 @@ function fetchTerjemah() {
 
 
 
+
+
+
 <script>
 document.addEventListener("DOMContentLoaded", () => {
   let allQuran = [];
   let allXML = null;
+  let allQuranSearch = null;
+  let allTranslationSearch = null;
+
+  const cachedQuran = localStorage.getItem("cache_quran_json");
+  const cachedXML = localStorage.getItem("cache_translation_xml");
+  const cachedQuranXML = localStorage.getItem("cache_quran_xml");
+  const cachedTerjemahXML = localStorage.getItem("cache_terjemah_xml");
+
+  const fetchIfNotCached = (key, url) => {
+    if (localStorage.getItem(key)) {
+      return Promise.resolve(localStorage.getItem(key));
+    }
+    return fetch(url).then(r => r.text()).then(data => {
+      localStorage.setItem(key, data);
+      return data;
+    });
+  };
 
   Promise.all([
-    fetch("quran.json").then(res => res.json()),
-    fetch("indonesian_complex_v1.0.xml").then(res => res.text())
+    fetchIfNotCached("cache_quran_json", "https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/quran.json")
+      .then(text => JSON.parse(text)),
+    fetchIfNotCached("cache_translation_xml", "https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/indonesian_complex_v1.0.xml"),
+    fetchIfNotCached("cache_quran_xml", "https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/quran.xml"),
+    fetchIfNotCached("cache_terjemah_xml", "https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/TerjemahID.xml")
   ])
-  .then(([quranData, xmlText]) => {
+  .then(([quranData, translationText, quranText, terjemahText]) => {
     allQuran = quranData;
-    allXML = (new DOMParser()).parseFromString(xmlText, "text/xml");
+    allXML = (new DOMParser()).parseFromString(translationText, "text/xml");
+    allQuranSearch = (new DOMParser()).parseFromString(quranText, "text/xml");
+    allTranslationSearch = (new DOMParser()).parseFromString(terjemahText, "text/xml");
+
     window.allQuran = allQuran;
     window.allXML = allXML;
+    window.allQuranSearch = allQuranSearch;
+    window.allTranslationSearch = allTranslationSearch;
 
     const surah = parseInt(localStorage.getItem("lastSurah") || "1");
     const ayat = parseInt(localStorage.getItem("lastAyat") || "1");
-    if (typeof loadAyat === "function") {
-      loadAyat(surah, ayat);
-    } else {
-      console.error("⚠️ Fungsi loadAyat belum tersedia saat preload dijalankan.");
+    loadAyat(surah, ayat);
+
+    const surahSelect = document.getElementById("surah");
+    const ayatSelect = document.getElementById("ayat");
+    if (surahSelect && ayatSelect) {
+      surahSelect.value = surah;
+      ayatSelect.value = ayat;
     }
   })
   .catch((err) => {
     document.getElementById("result").innerHTML = "❌ Gagal memuat data Quran secara offline.<br>" + err;
-    console.error("Gagal memuat quran.json atau XML:", err);
+    console.error("Gagal memuat salah satu data:", err);
   });
 });
 </script>
