@@ -512,7 +512,9 @@
 <body>
 
  <script>
-  const params = new URLSearchParams(window.location.search);
+  const surah = parseInt(localStorage.getItem("lastSurah") || "1");
+const ayat = parseInt(localStorage.getItem("lastAyat") || "1");
+
   const hasParams = params.has("surah") && params.has("ayat");
 
   if (!hasParams) {
@@ -668,20 +670,21 @@
     });
 
     ayatSelect.addEventListener("change", () => {
-      const ayat = ayatSelect.value;
-      localStorage.setItem("lastAyat", ayat);
-      const surah = surahSelect.value;
-      if (surah && ayat) {
-        const url = new URL(window.location.href);
-        url.searchParams.set("surah", surah);
-        url.searchParams.set("ayat", ayat);
-        window.location.href = url.toString();
-      }
-    });
+  const ayat = ayatSelect.value;
+  const surah = surahSelect.value;
+  if (surah && ayat) {
+    localStorage.setItem("lastSurah", surah);
+    localStorage.setItem("lastAyat", ayat);
+    location.reload();
+  }
+});
+
 
     document.addEventListener("DOMContentLoaded", () => {
       populateSurahs();
-      const urlParams = new URLSearchParams(window.location.search);
+      const surah = parseInt(localStorage.getItem("lastSurah") || "1");
+const ayat = parseInt(localStorage.getItem("lastAyat") || "1");
+
 const lastSurah = urlParams.get("surah") || localStorage.getItem("lastSurah");
 const lastAyat = urlParams.get("ayat") || localStorage.getItem("lastAyat");
       if (lastSurah) {
@@ -1425,7 +1428,10 @@ audio.onended = () => {
       const next = getNextAyah(surah, ayat);
       if (next) {
         localStorage.setItem("fromAutoplay", "true");
-        window.location.href = `?surah=${next.surah}&ayat=${next.ayah}`;
+        localStorage.setItem("lastSurah", next.surah);
+localStorage.setItem("lastAyat", next.ayah);
+location.reload();
+
       }
     }
     // Jika autoplay tidak dicentang, cukup berhenti setelah ulang selesai
@@ -1496,8 +1502,9 @@ navDiv.appendChild(syncBtn);
         nextBtn.onclick = () => {
   const autoplayOn = localStorage.getItem("autoplay") === "true";
   localStorage.setItem("fromAutoplay", autoplayOn ? "true" : "false");
-  window.location.search = `?surah=${next.surah}&ayat=${next.ayah}`;
-};
+  localStorage.setItem("lastSurah", next.surah);
+localStorage.setItem("lastAyat", next.ayah);
+location.reload();
         navDiv.appendChild(nextBtn);
       }
 
@@ -1529,20 +1536,16 @@ navDiv.appendChild(syncBtn);
     });
 
     document.addEventListener("DOMContentLoaded", function () {
-  const params = new URLSearchParams(window.location.search);
+  const surah = parseInt(localStorage.getItem("lastSurah") || "1");
+const ayat = parseInt(localStorage.getItem("lastAyat") || "1");
+
   const hasParams = params.has("surah") && params.has("ayat");
 
-  if (!hasParams) {
-    // Tidak ada parameter, ambil dari localStorage
-    const lastSurah = localStorage.getItem("lastSurah") || "1";
-    const lastAyat = localStorage.getItem("lastAyat") || "1";
-    window.location.href = `?surah=${lastSurah}&ayat=${lastAyat}`;
-    return;
-  }
 
   // Jika ada parameter, tampilkan seperti biasa
-  const surah = parseInt(params.get("surah") || "1");
-  const ayat = parseInt(params.get("ayat") || "1");
+  const surah = parseInt(localStorage.getItem("lastSurah") || "1");
+const ayat = parseInt(localStorage.getItem("lastAyat") || "1");
+
 
   document.getElementById("surah-select").value = surah;
   document.getElementById("ayah-select").value = ayat;
