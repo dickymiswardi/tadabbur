@@ -524,6 +524,15 @@
     // Setiap kali halaman dibuka dengan ayat, simpan ke lastVisited
     localStorage.setItem("lastVisited", location.href);
   }
+
+window.addEventListener("popstate", (event) => {
+  const params = new URLSearchParams(window.location.search);
+  const surah = parseInt(params.get("surah") || "1");
+  const ayat = parseInt(params.get("ayat") || "1");
+  loadAyat(surah, ayat, false);
+});
+
+   
 </script>
 
 
@@ -675,7 +684,7 @@
         const url = new URL(window.location.href);
         url.searchParams.set("surah", surah);
         url.searchParams.set("ayat", ayat);
-        window.location.href = url.toString();
+        loadAyat(surah, ayat, true);
       }
     });
 
@@ -1146,7 +1155,7 @@ translationDiv.appendChild(noteButton);
         prevBtn.onclick = () => {
   const autoplayOn = localStorage.getItem("autoplay") === "true";
   localStorage.setItem("fromAutoplay", autoplayOn ? "true" : "false");
-  window.location.search = `?surah=${prev.surah}&ayat=${prev.ayah}`;
+  loadAyat(prev.surah, prev.ayah, true);
 };
         navDiv.appendChild(prevBtn);
       }
@@ -1414,7 +1423,7 @@ audio.onended = () => {
       const next = getNextAyah(surah, ayat);
       if (next) {
         localStorage.setItem("fromAutoplay", "true");
-        window.location.href = `?surah=${next.surah}&ayat=${next.ayah}`;
+        loadAyat(next.surah, next.ayah, true);
       }
     }
     // Jika autoplay tidak dicentang, cukup berhenti setelah ulang selesai
@@ -1542,6 +1551,23 @@ navDiv.appendChild(syncBtn);
 
   loadAyat(surah, ayat);
 });
+
+function loadAyat(surah, ayat, updateURL = false) {
+  if (updateURL) {
+    const url = new URL(window.location.href);
+    url.searchParams.set("surah", surah);
+    url.searchParams.set("ayat", ayat);
+    history.pushState({ surah, ayat }, "", url.pathname + `?surah=${surah}&ayat=${ayat}`);
+  }
+
+  // Simpan lokal
+  localStorage.setItem("lastSurah", surah);
+  localStorage.setItem("lastAyat", ayat);
+
+  location.reload(); // sementara, reload dulu (nanti kita ubah)
+}
+
+    
   </script>
   <script>
   // Simpan URL terakhir ke localStorage saat halaman ini dibuka
