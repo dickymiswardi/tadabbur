@@ -2256,21 +2256,36 @@ function fetchTerjemah() {
 
   
 
+
+
+
 <script>
-let allQuran = [];
-let allXML = null;
+document.addEventListener("DOMContentLoaded", () => {
+  let allQuran = [];
+  let allXML = null;
 
-Promise.all([
-  fetch("quran.json").then(res => res.json()),
-  fetch("indonesian_complex_v1.0.xml").then(res => res.text())
-]).then(([quranData, xmlText]) => {
-  allQuran = quranData;
-  allXML = (new DOMParser()).parseFromString(xmlText, "text/xml");
+  Promise.all([
+    fetch("quran.json").then(res => res.json()),
+    fetch("indonesian_complex_v1.0.xml").then(res => res.text())
+  ])
+  .then(([quranData, xmlText]) => {
+    allQuran = quranData;
+    allXML = (new DOMParser()).parseFromString(xmlText, "text/xml");
+    window.allQuran = allQuran;
+    window.allXML = allXML;
 
-  const surah = parseInt(localStorage.getItem("lastSurah") || "1");
-  const ayat = parseInt(localStorage.getItem("lastAyat") || "1");
-
-  loadAyat(surah, ayat);
+    const surah = parseInt(localStorage.getItem("lastSurah") || "1");
+    const ayat = parseInt(localStorage.getItem("lastAyat") || "1");
+    if (typeof loadAyat === "function") {
+      loadAyat(surah, ayat);
+    } else {
+      console.error("⚠️ Fungsi loadAyat belum tersedia saat preload dijalankan.");
+    }
+  })
+  .catch((err) => {
+    document.getElementById("result").innerHTML = "❌ Gagal memuat data Quran secara offline.<br>" + err;
+    console.error("Gagal memuat quran.json atau XML:", err);
+  });
 });
 </script>
 
