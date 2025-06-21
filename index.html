@@ -552,6 +552,143 @@ function loadAyat(surah, ayat, updateURL = false) {
 
 // Fungsi renderAyat harus kamu salin dari hasil sebelumnya
 
+
+
+async function renderAyat(surah, ayat) {
+  try {
+    const [quranData, xmlText] = await Promise.all([
+      fetch("quran.json").then(r => r.json()),
+      fetch("indonesian_complex_v1.0.xml").then(r => r.text())
+    ]);
+
+    const resultDiv = document.getElementById("result");
+    resultDiv.innerHTML = ""; // bersihkan isi
+
+    const match = quranData.find(v => v.surah_number === surah && v.verse_number === ayat);
+    let arab = match?.content || "(Teks Arab tidak ditemukan)";
+    arab += " ۝" + toArabicNumber(ayat);
+    arab = wrapRasmSymbols(arab);
+
+    const arabDiv = document.createElement("div");
+    arabDiv.className = "arabic";
+    arabDiv.innerHTML = arab;
+    resultDiv.appendChild(arabDiv);
+
+    const parser = new DOMParser();
+    const xmlDoc = parser.parseFromString(xmlText, "text/xml");
+    const tAyah = xmlDoc.querySelector(`sura[number="${surah}"] > aya[number="${ayat}"]`);
+    let trans = tAyah?.querySelector("translation")?.textContent || "(Terjemahan tidak ditemukan)";
+    const footnotes = tAyah?.querySelector("footnotes")?.textContent || "";
+
+    if (footnotes) {
+      trans = trans.replace(/(\d+)/g, '<sup>($1)</sup>');
+    }
+
+    const transDiv = document.createElement("div");
+    transDiv.className = "translation";
+    transDiv.innerHTML = trans;
+    resultDiv.appendChild(transDiv);
+
+    const tafsirDropdown = createTafsirDropdown(surah, ayat);
+    transDiv.appendChild(tafsirDropdown);
+
+    const noteBtn = document.createElement("button");
+    noteBtn.className = "note-dropbtn";
+    noteBtn.textContent = "Note";
+    noteBtn.onclick = () => showNoteOverlay(surah, ayat);
+    transDiv.appendChild(noteBtn);
+
+    const bookmarkBtn = document.createElement("button");
+    bookmarkBtn.id = "bookmark-btn";
+    bookmarkBtn.innerHTML = "🔰";
+    transDiv.appendChild(bookmarkBtn);
+
+    const notifSpan = document.createElement("span");
+    notifSpan.id = "bookmark-notif";
+    notifSpan.style.display = "none";
+    transDiv.appendChild(notifSpan);
+
+    const bookmarkKey = "tadabbur-bookmark";
+    let bookmarks = JSON.parse(localStorage.getItem(bookmarkKey) || "[]");
+    const existing = bookmarks.find(b => b.surah === surah && b.ayat === ayat);
+
+    if (existing) {
+      bookmarkBtn.classList.add("checked");
+      bookmarkBtn.innerHTML = "✅";
+    }
+
+    bookmarkBtn.onclick = () => {
+      const now = new Date();
+      const stamp = now.toLocaleDateString("id-ID", { day: "2-digit", month: "long", year: "numeric" })
+                 + " " + now.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" });
+      const idx = bookmarks.findIndex(b => b.surah === surah && b.ayat === ayat);
+
+      if (idx === -1) {
+        bookmarks.push({ surah, ayat, timestamp: stamp });
+        localStorage.setItem(bookmarkKey, JSON.stringify(bookmarks));
+        bookmarkBtn.classList.add("checked");
+        bookmarkBtn.innerHTML = "✅";
+        showBookmarkNotif(`✅ Disimpan: ${stamp} (Total ${bookmarks.length} ayat)`);
+      } else {
+        const order = idx + 1;
+        showBookmarkNotif(`✅ Ayat ini sudah tersimpan (#${order})`);
+      }
+    };
+
+    function showBookmarkNotif(msg) {
+      notifSpan.textContent = msg;
+      notifSpan.style.display = "inline-block";
+      setTimeout(() => notifSpan.style.display = "none", 5000);
+    }
+
+    if (footnotes.trim()) {
+      const foot = document.createElement("div");
+      foot.className = "footnote";
+      foot.innerHTML = `<strong>Catatan:</strong> ${footnotes}`;
+      resultDiv.appendChild(foot);
+    }
+
+    const navDiv = document.createElement("div");
+    navDiv.className = "nav-buttons";
+
+    const prev = getPrevAyah(surah, ayat);
+    const next = getNextAyah(surah, ayat);
+
+    if (prev) {
+      const prevBtn = document.createElement("button");
+      prevBtn.textContent = "PREV ▶";
+      prevBtn.onclick = () => loadAyat(prev.surah, prev.ayah, true);
+      navDiv.appendChild(prevBtn);
+    }
+
+    const audioBtn = document.createElement("button");
+    audioBtn.textContent = "♬ MP3";
+    audioBtn.onclick = showQariSelector;
+    navDiv.appendChild(audioBtn);
+
+    const syncBtn = document.createElement("button");
+    syncBtn.innerText = "🔒 USER";
+    syncBtn.onclick = () => {
+      document.getElementById("sync-overlay").style.display = "flex";
+      document.getElementById("sync-status").innerHTML = '';
+    };
+    navDiv.appendChild(syncBtn);
+
+    if (next) {
+      const nextBtn = document.createElement("button");
+      nextBtn.textContent = "◀ NEXT";
+      nextBtn.onclick = () => loadAyat(next.surah, next.ayah, true);
+      navDiv.appendChild(nextBtn);
+    }
+
+    resultDiv.appendChild(navDiv);
+
+  } catch (err) {
+    console.error(err);
+    document.getElementById("result").innerHTML = "❌ Gagal memuat ayat.";
+  }
+}
+
 </script>
 
 
@@ -741,6 +878,143 @@ function loadAyat(surah, ayat, updateURL = false) {
 
 // Fungsi renderAyat harus kamu salin dari hasil sebelumnya
 
+
+
+async function renderAyat(surah, ayat) {
+  try {
+    const [quranData, xmlText] = await Promise.all([
+      fetch("quran.json").then(r => r.json()),
+      fetch("indonesian_complex_v1.0.xml").then(r => r.text())
+    ]);
+
+    const resultDiv = document.getElementById("result");
+    resultDiv.innerHTML = ""; // bersihkan isi
+
+    const match = quranData.find(v => v.surah_number === surah && v.verse_number === ayat);
+    let arab = match?.content || "(Teks Arab tidak ditemukan)";
+    arab += " ۝" + toArabicNumber(ayat);
+    arab = wrapRasmSymbols(arab);
+
+    const arabDiv = document.createElement("div");
+    arabDiv.className = "arabic";
+    arabDiv.innerHTML = arab;
+    resultDiv.appendChild(arabDiv);
+
+    const parser = new DOMParser();
+    const xmlDoc = parser.parseFromString(xmlText, "text/xml");
+    const tAyah = xmlDoc.querySelector(`sura[number="${surah}"] > aya[number="${ayat}"]`);
+    let trans = tAyah?.querySelector("translation")?.textContent || "(Terjemahan tidak ditemukan)";
+    const footnotes = tAyah?.querySelector("footnotes")?.textContent || "";
+
+    if (footnotes) {
+      trans = trans.replace(/(\d+)/g, '<sup>($1)</sup>');
+    }
+
+    const transDiv = document.createElement("div");
+    transDiv.className = "translation";
+    transDiv.innerHTML = trans;
+    resultDiv.appendChild(transDiv);
+
+    const tafsirDropdown = createTafsirDropdown(surah, ayat);
+    transDiv.appendChild(tafsirDropdown);
+
+    const noteBtn = document.createElement("button");
+    noteBtn.className = "note-dropbtn";
+    noteBtn.textContent = "Note";
+    noteBtn.onclick = () => showNoteOverlay(surah, ayat);
+    transDiv.appendChild(noteBtn);
+
+    const bookmarkBtn = document.createElement("button");
+    bookmarkBtn.id = "bookmark-btn";
+    bookmarkBtn.innerHTML = "🔰";
+    transDiv.appendChild(bookmarkBtn);
+
+    const notifSpan = document.createElement("span");
+    notifSpan.id = "bookmark-notif";
+    notifSpan.style.display = "none";
+    transDiv.appendChild(notifSpan);
+
+    const bookmarkKey = "tadabbur-bookmark";
+    let bookmarks = JSON.parse(localStorage.getItem(bookmarkKey) || "[]");
+    const existing = bookmarks.find(b => b.surah === surah && b.ayat === ayat);
+
+    if (existing) {
+      bookmarkBtn.classList.add("checked");
+      bookmarkBtn.innerHTML = "✅";
+    }
+
+    bookmarkBtn.onclick = () => {
+      const now = new Date();
+      const stamp = now.toLocaleDateString("id-ID", { day: "2-digit", month: "long", year: "numeric" })
+                 + " " + now.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" });
+      const idx = bookmarks.findIndex(b => b.surah === surah && b.ayat === ayat);
+
+      if (idx === -1) {
+        bookmarks.push({ surah, ayat, timestamp: stamp });
+        localStorage.setItem(bookmarkKey, JSON.stringify(bookmarks));
+        bookmarkBtn.classList.add("checked");
+        bookmarkBtn.innerHTML = "✅";
+        showBookmarkNotif(`✅ Disimpan: ${stamp} (Total ${bookmarks.length} ayat)`);
+      } else {
+        const order = idx + 1;
+        showBookmarkNotif(`✅ Ayat ini sudah tersimpan (#${order})`);
+      }
+    };
+
+    function showBookmarkNotif(msg) {
+      notifSpan.textContent = msg;
+      notifSpan.style.display = "inline-block";
+      setTimeout(() => notifSpan.style.display = "none", 5000);
+    }
+
+    if (footnotes.trim()) {
+      const foot = document.createElement("div");
+      foot.className = "footnote";
+      foot.innerHTML = `<strong>Catatan:</strong> ${footnotes}`;
+      resultDiv.appendChild(foot);
+    }
+
+    const navDiv = document.createElement("div");
+    navDiv.className = "nav-buttons";
+
+    const prev = getPrevAyah(surah, ayat);
+    const next = getNextAyah(surah, ayat);
+
+    if (prev) {
+      const prevBtn = document.createElement("button");
+      prevBtn.textContent = "PREV ▶";
+      prevBtn.onclick = () => loadAyat(prev.surah, prev.ayah, true);
+      navDiv.appendChild(prevBtn);
+    }
+
+    const audioBtn = document.createElement("button");
+    audioBtn.textContent = "♬ MP3";
+    audioBtn.onclick = showQariSelector;
+    navDiv.appendChild(audioBtn);
+
+    const syncBtn = document.createElement("button");
+    syncBtn.innerText = "🔒 USER";
+    syncBtn.onclick = () => {
+      document.getElementById("sync-overlay").style.display = "flex";
+      document.getElementById("sync-status").innerHTML = '';
+    };
+    navDiv.appendChild(syncBtn);
+
+    if (next) {
+      const nextBtn = document.createElement("button");
+      nextBtn.textContent = "◀ NEXT";
+      nextBtn.onclick = () => loadAyat(next.surah, next.ayah, true);
+      navDiv.appendChild(nextBtn);
+    }
+
+    resultDiv.appendChild(navDiv);
+
+  } catch (err) {
+    console.error(err);
+    document.getElementById("result").innerHTML = "❌ Gagal memuat ayat.";
+  }
+}
+
 </script>
   <script>
   // Simpan URL terakhir ke localStorage saat halaman ini dibuka
@@ -890,6 +1164,143 @@ function loadAyat(surah, ayat, updateURL = false) {
 }
 
 // Fungsi renderAyat harus kamu salin dari hasil sebelumnya
+
+
+
+async function renderAyat(surah, ayat) {
+  try {
+    const [quranData, xmlText] = await Promise.all([
+      fetch("quran.json").then(r => r.json()),
+      fetch("indonesian_complex_v1.0.xml").then(r => r.text())
+    ]);
+
+    const resultDiv = document.getElementById("result");
+    resultDiv.innerHTML = ""; // bersihkan isi
+
+    const match = quranData.find(v => v.surah_number === surah && v.verse_number === ayat);
+    let arab = match?.content || "(Teks Arab tidak ditemukan)";
+    arab += " ۝" + toArabicNumber(ayat);
+    arab = wrapRasmSymbols(arab);
+
+    const arabDiv = document.createElement("div");
+    arabDiv.className = "arabic";
+    arabDiv.innerHTML = arab;
+    resultDiv.appendChild(arabDiv);
+
+    const parser = new DOMParser();
+    const xmlDoc = parser.parseFromString(xmlText, "text/xml");
+    const tAyah = xmlDoc.querySelector(`sura[number="${surah}"] > aya[number="${ayat}"]`);
+    let trans = tAyah?.querySelector("translation")?.textContent || "(Terjemahan tidak ditemukan)";
+    const footnotes = tAyah?.querySelector("footnotes")?.textContent || "";
+
+    if (footnotes) {
+      trans = trans.replace(/(\d+)/g, '<sup>($1)</sup>');
+    }
+
+    const transDiv = document.createElement("div");
+    transDiv.className = "translation";
+    transDiv.innerHTML = trans;
+    resultDiv.appendChild(transDiv);
+
+    const tafsirDropdown = createTafsirDropdown(surah, ayat);
+    transDiv.appendChild(tafsirDropdown);
+
+    const noteBtn = document.createElement("button");
+    noteBtn.className = "note-dropbtn";
+    noteBtn.textContent = "Note";
+    noteBtn.onclick = () => showNoteOverlay(surah, ayat);
+    transDiv.appendChild(noteBtn);
+
+    const bookmarkBtn = document.createElement("button");
+    bookmarkBtn.id = "bookmark-btn";
+    bookmarkBtn.innerHTML = "🔰";
+    transDiv.appendChild(bookmarkBtn);
+
+    const notifSpan = document.createElement("span");
+    notifSpan.id = "bookmark-notif";
+    notifSpan.style.display = "none";
+    transDiv.appendChild(notifSpan);
+
+    const bookmarkKey = "tadabbur-bookmark";
+    let bookmarks = JSON.parse(localStorage.getItem(bookmarkKey) || "[]");
+    const existing = bookmarks.find(b => b.surah === surah && b.ayat === ayat);
+
+    if (existing) {
+      bookmarkBtn.classList.add("checked");
+      bookmarkBtn.innerHTML = "✅";
+    }
+
+    bookmarkBtn.onclick = () => {
+      const now = new Date();
+      const stamp = now.toLocaleDateString("id-ID", { day: "2-digit", month: "long", year: "numeric" })
+                 + " " + now.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" });
+      const idx = bookmarks.findIndex(b => b.surah === surah && b.ayat === ayat);
+
+      if (idx === -1) {
+        bookmarks.push({ surah, ayat, timestamp: stamp });
+        localStorage.setItem(bookmarkKey, JSON.stringify(bookmarks));
+        bookmarkBtn.classList.add("checked");
+        bookmarkBtn.innerHTML = "✅";
+        showBookmarkNotif(`✅ Disimpan: ${stamp} (Total ${bookmarks.length} ayat)`);
+      } else {
+        const order = idx + 1;
+        showBookmarkNotif(`✅ Ayat ini sudah tersimpan (#${order})`);
+      }
+    };
+
+    function showBookmarkNotif(msg) {
+      notifSpan.textContent = msg;
+      notifSpan.style.display = "inline-block";
+      setTimeout(() => notifSpan.style.display = "none", 5000);
+    }
+
+    if (footnotes.trim()) {
+      const foot = document.createElement("div");
+      foot.className = "footnote";
+      foot.innerHTML = `<strong>Catatan:</strong> ${footnotes}`;
+      resultDiv.appendChild(foot);
+    }
+
+    const navDiv = document.createElement("div");
+    navDiv.className = "nav-buttons";
+
+    const prev = getPrevAyah(surah, ayat);
+    const next = getNextAyah(surah, ayat);
+
+    if (prev) {
+      const prevBtn = document.createElement("button");
+      prevBtn.textContent = "PREV ▶";
+      prevBtn.onclick = () => loadAyat(prev.surah, prev.ayah, true);
+      navDiv.appendChild(prevBtn);
+    }
+
+    const audioBtn = document.createElement("button");
+    audioBtn.textContent = "♬ MP3";
+    audioBtn.onclick = showQariSelector;
+    navDiv.appendChild(audioBtn);
+
+    const syncBtn = document.createElement("button");
+    syncBtn.innerText = "🔒 USER";
+    syncBtn.onclick = () => {
+      document.getElementById("sync-overlay").style.display = "flex";
+      document.getElementById("sync-status").innerHTML = '';
+    };
+    navDiv.appendChild(syncBtn);
+
+    if (next) {
+      const nextBtn = document.createElement("button");
+      nextBtn.textContent = "◀ NEXT";
+      nextBtn.onclick = () => loadAyat(next.surah, next.ayah, true);
+      navDiv.appendChild(nextBtn);
+    }
+
+    resultDiv.appendChild(navDiv);
+
+  } catch (err) {
+    console.error(err);
+    document.getElementById("result").innerHTML = "❌ Gagal memuat ayat.";
+  }
+}
 
 </script>
 
@@ -1174,6 +1585,143 @@ function loadAyat(surah, ayat, updateURL = false) {
 
 // Fungsi renderAyat harus kamu salin dari hasil sebelumnya
 
+
+
+async function renderAyat(surah, ayat) {
+  try {
+    const [quranData, xmlText] = await Promise.all([
+      fetch("quran.json").then(r => r.json()),
+      fetch("indonesian_complex_v1.0.xml").then(r => r.text())
+    ]);
+
+    const resultDiv = document.getElementById("result");
+    resultDiv.innerHTML = ""; // bersihkan isi
+
+    const match = quranData.find(v => v.surah_number === surah && v.verse_number === ayat);
+    let arab = match?.content || "(Teks Arab tidak ditemukan)";
+    arab += " ۝" + toArabicNumber(ayat);
+    arab = wrapRasmSymbols(arab);
+
+    const arabDiv = document.createElement("div");
+    arabDiv.className = "arabic";
+    arabDiv.innerHTML = arab;
+    resultDiv.appendChild(arabDiv);
+
+    const parser = new DOMParser();
+    const xmlDoc = parser.parseFromString(xmlText, "text/xml");
+    const tAyah = xmlDoc.querySelector(`sura[number="${surah}"] > aya[number="${ayat}"]`);
+    let trans = tAyah?.querySelector("translation")?.textContent || "(Terjemahan tidak ditemukan)";
+    const footnotes = tAyah?.querySelector("footnotes")?.textContent || "";
+
+    if (footnotes) {
+      trans = trans.replace(/(\d+)/g, '<sup>($1)</sup>');
+    }
+
+    const transDiv = document.createElement("div");
+    transDiv.className = "translation";
+    transDiv.innerHTML = trans;
+    resultDiv.appendChild(transDiv);
+
+    const tafsirDropdown = createTafsirDropdown(surah, ayat);
+    transDiv.appendChild(tafsirDropdown);
+
+    const noteBtn = document.createElement("button");
+    noteBtn.className = "note-dropbtn";
+    noteBtn.textContent = "Note";
+    noteBtn.onclick = () => showNoteOverlay(surah, ayat);
+    transDiv.appendChild(noteBtn);
+
+    const bookmarkBtn = document.createElement("button");
+    bookmarkBtn.id = "bookmark-btn";
+    bookmarkBtn.innerHTML = "🔰";
+    transDiv.appendChild(bookmarkBtn);
+
+    const notifSpan = document.createElement("span");
+    notifSpan.id = "bookmark-notif";
+    notifSpan.style.display = "none";
+    transDiv.appendChild(notifSpan);
+
+    const bookmarkKey = "tadabbur-bookmark";
+    let bookmarks = JSON.parse(localStorage.getItem(bookmarkKey) || "[]");
+    const existing = bookmarks.find(b => b.surah === surah && b.ayat === ayat);
+
+    if (existing) {
+      bookmarkBtn.classList.add("checked");
+      bookmarkBtn.innerHTML = "✅";
+    }
+
+    bookmarkBtn.onclick = () => {
+      const now = new Date();
+      const stamp = now.toLocaleDateString("id-ID", { day: "2-digit", month: "long", year: "numeric" })
+                 + " " + now.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" });
+      const idx = bookmarks.findIndex(b => b.surah === surah && b.ayat === ayat);
+
+      if (idx === -1) {
+        bookmarks.push({ surah, ayat, timestamp: stamp });
+        localStorage.setItem(bookmarkKey, JSON.stringify(bookmarks));
+        bookmarkBtn.classList.add("checked");
+        bookmarkBtn.innerHTML = "✅";
+        showBookmarkNotif(`✅ Disimpan: ${stamp} (Total ${bookmarks.length} ayat)`);
+      } else {
+        const order = idx + 1;
+        showBookmarkNotif(`✅ Ayat ini sudah tersimpan (#${order})`);
+      }
+    };
+
+    function showBookmarkNotif(msg) {
+      notifSpan.textContent = msg;
+      notifSpan.style.display = "inline-block";
+      setTimeout(() => notifSpan.style.display = "none", 5000);
+    }
+
+    if (footnotes.trim()) {
+      const foot = document.createElement("div");
+      foot.className = "footnote";
+      foot.innerHTML = `<strong>Catatan:</strong> ${footnotes}`;
+      resultDiv.appendChild(foot);
+    }
+
+    const navDiv = document.createElement("div");
+    navDiv.className = "nav-buttons";
+
+    const prev = getPrevAyah(surah, ayat);
+    const next = getNextAyah(surah, ayat);
+
+    if (prev) {
+      const prevBtn = document.createElement("button");
+      prevBtn.textContent = "PREV ▶";
+      prevBtn.onclick = () => loadAyat(prev.surah, prev.ayah, true);
+      navDiv.appendChild(prevBtn);
+    }
+
+    const audioBtn = document.createElement("button");
+    audioBtn.textContent = "♬ MP3";
+    audioBtn.onclick = showQariSelector;
+    navDiv.appendChild(audioBtn);
+
+    const syncBtn = document.createElement("button");
+    syncBtn.innerText = "🔒 USER";
+    syncBtn.onclick = () => {
+      document.getElementById("sync-overlay").style.display = "flex";
+      document.getElementById("sync-status").innerHTML = '';
+    };
+    navDiv.appendChild(syncBtn);
+
+    if (next) {
+      const nextBtn = document.createElement("button");
+      nextBtn.textContent = "◀ NEXT";
+      nextBtn.onclick = () => loadAyat(next.surah, next.ayah, true);
+      navDiv.appendChild(nextBtn);
+    }
+
+    resultDiv.appendChild(navDiv);
+
+  } catch (err) {
+    console.error(err);
+    document.getElementById("result").innerHTML = "❌ Gagal memuat ayat.";
+  }
+}
+
 </script>
 
   <!-- 🔒 SYNC OVERLAY -->
@@ -1255,6 +1803,143 @@ function loadAyat(surah, ayat, updateURL = false) {
 
 // Fungsi renderAyat harus kamu salin dari hasil sebelumnya
 
+
+
+async function renderAyat(surah, ayat) {
+  try {
+    const [quranData, xmlText] = await Promise.all([
+      fetch("quran.json").then(r => r.json()),
+      fetch("indonesian_complex_v1.0.xml").then(r => r.text())
+    ]);
+
+    const resultDiv = document.getElementById("result");
+    resultDiv.innerHTML = ""; // bersihkan isi
+
+    const match = quranData.find(v => v.surah_number === surah && v.verse_number === ayat);
+    let arab = match?.content || "(Teks Arab tidak ditemukan)";
+    arab += " ۝" + toArabicNumber(ayat);
+    arab = wrapRasmSymbols(arab);
+
+    const arabDiv = document.createElement("div");
+    arabDiv.className = "arabic";
+    arabDiv.innerHTML = arab;
+    resultDiv.appendChild(arabDiv);
+
+    const parser = new DOMParser();
+    const xmlDoc = parser.parseFromString(xmlText, "text/xml");
+    const tAyah = xmlDoc.querySelector(`sura[number="${surah}"] > aya[number="${ayat}"]`);
+    let trans = tAyah?.querySelector("translation")?.textContent || "(Terjemahan tidak ditemukan)";
+    const footnotes = tAyah?.querySelector("footnotes")?.textContent || "";
+
+    if (footnotes) {
+      trans = trans.replace(/(\d+)/g, '<sup>($1)</sup>');
+    }
+
+    const transDiv = document.createElement("div");
+    transDiv.className = "translation";
+    transDiv.innerHTML = trans;
+    resultDiv.appendChild(transDiv);
+
+    const tafsirDropdown = createTafsirDropdown(surah, ayat);
+    transDiv.appendChild(tafsirDropdown);
+
+    const noteBtn = document.createElement("button");
+    noteBtn.className = "note-dropbtn";
+    noteBtn.textContent = "Note";
+    noteBtn.onclick = () => showNoteOverlay(surah, ayat);
+    transDiv.appendChild(noteBtn);
+
+    const bookmarkBtn = document.createElement("button");
+    bookmarkBtn.id = "bookmark-btn";
+    bookmarkBtn.innerHTML = "🔰";
+    transDiv.appendChild(bookmarkBtn);
+
+    const notifSpan = document.createElement("span");
+    notifSpan.id = "bookmark-notif";
+    notifSpan.style.display = "none";
+    transDiv.appendChild(notifSpan);
+
+    const bookmarkKey = "tadabbur-bookmark";
+    let bookmarks = JSON.parse(localStorage.getItem(bookmarkKey) || "[]");
+    const existing = bookmarks.find(b => b.surah === surah && b.ayat === ayat);
+
+    if (existing) {
+      bookmarkBtn.classList.add("checked");
+      bookmarkBtn.innerHTML = "✅";
+    }
+
+    bookmarkBtn.onclick = () => {
+      const now = new Date();
+      const stamp = now.toLocaleDateString("id-ID", { day: "2-digit", month: "long", year: "numeric" })
+                 + " " + now.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" });
+      const idx = bookmarks.findIndex(b => b.surah === surah && b.ayat === ayat);
+
+      if (idx === -1) {
+        bookmarks.push({ surah, ayat, timestamp: stamp });
+        localStorage.setItem(bookmarkKey, JSON.stringify(bookmarks));
+        bookmarkBtn.classList.add("checked");
+        bookmarkBtn.innerHTML = "✅";
+        showBookmarkNotif(`✅ Disimpan: ${stamp} (Total ${bookmarks.length} ayat)`);
+      } else {
+        const order = idx + 1;
+        showBookmarkNotif(`✅ Ayat ini sudah tersimpan (#${order})`);
+      }
+    };
+
+    function showBookmarkNotif(msg) {
+      notifSpan.textContent = msg;
+      notifSpan.style.display = "inline-block";
+      setTimeout(() => notifSpan.style.display = "none", 5000);
+    }
+
+    if (footnotes.trim()) {
+      const foot = document.createElement("div");
+      foot.className = "footnote";
+      foot.innerHTML = `<strong>Catatan:</strong> ${footnotes}`;
+      resultDiv.appendChild(foot);
+    }
+
+    const navDiv = document.createElement("div");
+    navDiv.className = "nav-buttons";
+
+    const prev = getPrevAyah(surah, ayat);
+    const next = getNextAyah(surah, ayat);
+
+    if (prev) {
+      const prevBtn = document.createElement("button");
+      prevBtn.textContent = "PREV ▶";
+      prevBtn.onclick = () => loadAyat(prev.surah, prev.ayah, true);
+      navDiv.appendChild(prevBtn);
+    }
+
+    const audioBtn = document.createElement("button");
+    audioBtn.textContent = "♬ MP3";
+    audioBtn.onclick = showQariSelector;
+    navDiv.appendChild(audioBtn);
+
+    const syncBtn = document.createElement("button");
+    syncBtn.innerText = "🔒 USER";
+    syncBtn.onclick = () => {
+      document.getElementById("sync-overlay").style.display = "flex";
+      document.getElementById("sync-status").innerHTML = '';
+    };
+    navDiv.appendChild(syncBtn);
+
+    if (next) {
+      const nextBtn = document.createElement("button");
+      nextBtn.textContent = "◀ NEXT";
+      nextBtn.onclick = () => loadAyat(next.surah, next.ayah, true);
+      navDiv.appendChild(nextBtn);
+    }
+
+    resultDiv.appendChild(navDiv);
+
+  } catch (err) {
+    console.error(err);
+    document.getElementById("result").innerHTML = "❌ Gagal memuat ayat.";
+  }
+}
+
 </script>
 
   <script>
@@ -1323,6 +2008,143 @@ function loadAyat(surah, ayat, updateURL = false) {
 
 // Fungsi renderAyat harus kamu salin dari hasil sebelumnya
 
+
+
+async function renderAyat(surah, ayat) {
+  try {
+    const [quranData, xmlText] = await Promise.all([
+      fetch("quran.json").then(r => r.json()),
+      fetch("indonesian_complex_v1.0.xml").then(r => r.text())
+    ]);
+
+    const resultDiv = document.getElementById("result");
+    resultDiv.innerHTML = ""; // bersihkan isi
+
+    const match = quranData.find(v => v.surah_number === surah && v.verse_number === ayat);
+    let arab = match?.content || "(Teks Arab tidak ditemukan)";
+    arab += " ۝" + toArabicNumber(ayat);
+    arab = wrapRasmSymbols(arab);
+
+    const arabDiv = document.createElement("div");
+    arabDiv.className = "arabic";
+    arabDiv.innerHTML = arab;
+    resultDiv.appendChild(arabDiv);
+
+    const parser = new DOMParser();
+    const xmlDoc = parser.parseFromString(xmlText, "text/xml");
+    const tAyah = xmlDoc.querySelector(`sura[number="${surah}"] > aya[number="${ayat}"]`);
+    let trans = tAyah?.querySelector("translation")?.textContent || "(Terjemahan tidak ditemukan)";
+    const footnotes = tAyah?.querySelector("footnotes")?.textContent || "";
+
+    if (footnotes) {
+      trans = trans.replace(/(\d+)/g, '<sup>($1)</sup>');
+    }
+
+    const transDiv = document.createElement("div");
+    transDiv.className = "translation";
+    transDiv.innerHTML = trans;
+    resultDiv.appendChild(transDiv);
+
+    const tafsirDropdown = createTafsirDropdown(surah, ayat);
+    transDiv.appendChild(tafsirDropdown);
+
+    const noteBtn = document.createElement("button");
+    noteBtn.className = "note-dropbtn";
+    noteBtn.textContent = "Note";
+    noteBtn.onclick = () => showNoteOverlay(surah, ayat);
+    transDiv.appendChild(noteBtn);
+
+    const bookmarkBtn = document.createElement("button");
+    bookmarkBtn.id = "bookmark-btn";
+    bookmarkBtn.innerHTML = "🔰";
+    transDiv.appendChild(bookmarkBtn);
+
+    const notifSpan = document.createElement("span");
+    notifSpan.id = "bookmark-notif";
+    notifSpan.style.display = "none";
+    transDiv.appendChild(notifSpan);
+
+    const bookmarkKey = "tadabbur-bookmark";
+    let bookmarks = JSON.parse(localStorage.getItem(bookmarkKey) || "[]");
+    const existing = bookmarks.find(b => b.surah === surah && b.ayat === ayat);
+
+    if (existing) {
+      bookmarkBtn.classList.add("checked");
+      bookmarkBtn.innerHTML = "✅";
+    }
+
+    bookmarkBtn.onclick = () => {
+      const now = new Date();
+      const stamp = now.toLocaleDateString("id-ID", { day: "2-digit", month: "long", year: "numeric" })
+                 + " " + now.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" });
+      const idx = bookmarks.findIndex(b => b.surah === surah && b.ayat === ayat);
+
+      if (idx === -1) {
+        bookmarks.push({ surah, ayat, timestamp: stamp });
+        localStorage.setItem(bookmarkKey, JSON.stringify(bookmarks));
+        bookmarkBtn.classList.add("checked");
+        bookmarkBtn.innerHTML = "✅";
+        showBookmarkNotif(`✅ Disimpan: ${stamp} (Total ${bookmarks.length} ayat)`);
+      } else {
+        const order = idx + 1;
+        showBookmarkNotif(`✅ Ayat ini sudah tersimpan (#${order})`);
+      }
+    };
+
+    function showBookmarkNotif(msg) {
+      notifSpan.textContent = msg;
+      notifSpan.style.display = "inline-block";
+      setTimeout(() => notifSpan.style.display = "none", 5000);
+    }
+
+    if (footnotes.trim()) {
+      const foot = document.createElement("div");
+      foot.className = "footnote";
+      foot.innerHTML = `<strong>Catatan:</strong> ${footnotes}`;
+      resultDiv.appendChild(foot);
+    }
+
+    const navDiv = document.createElement("div");
+    navDiv.className = "nav-buttons";
+
+    const prev = getPrevAyah(surah, ayat);
+    const next = getNextAyah(surah, ayat);
+
+    if (prev) {
+      const prevBtn = document.createElement("button");
+      prevBtn.textContent = "PREV ▶";
+      prevBtn.onclick = () => loadAyat(prev.surah, prev.ayah, true);
+      navDiv.appendChild(prevBtn);
+    }
+
+    const audioBtn = document.createElement("button");
+    audioBtn.textContent = "♬ MP3";
+    audioBtn.onclick = showQariSelector;
+    navDiv.appendChild(audioBtn);
+
+    const syncBtn = document.createElement("button");
+    syncBtn.innerText = "🔒 USER";
+    syncBtn.onclick = () => {
+      document.getElementById("sync-overlay").style.display = "flex";
+      document.getElementById("sync-status").innerHTML = '';
+    };
+    navDiv.appendChild(syncBtn);
+
+    if (next) {
+      const nextBtn = document.createElement("button");
+      nextBtn.textContent = "◀ NEXT";
+      nextBtn.onclick = () => loadAyat(next.surah, next.ayah, true);
+      navDiv.appendChild(nextBtn);
+    }
+
+    resultDiv.appendChild(navDiv);
+
+  } catch (err) {
+    console.error(err);
+    document.getElementById("result").innerHTML = "❌ Gagal memuat ayat.";
+  }
+}
+
 </script>
 
 <script>
@@ -1382,6 +2204,143 @@ function loadAyat(surah, ayat, updateURL = false) {
 }
 
 // Fungsi renderAyat harus kamu salin dari hasil sebelumnya
+
+
+
+async function renderAyat(surah, ayat) {
+  try {
+    const [quranData, xmlText] = await Promise.all([
+      fetch("quran.json").then(r => r.json()),
+      fetch("indonesian_complex_v1.0.xml").then(r => r.text())
+    ]);
+
+    const resultDiv = document.getElementById("result");
+    resultDiv.innerHTML = ""; // bersihkan isi
+
+    const match = quranData.find(v => v.surah_number === surah && v.verse_number === ayat);
+    let arab = match?.content || "(Teks Arab tidak ditemukan)";
+    arab += " ۝" + toArabicNumber(ayat);
+    arab = wrapRasmSymbols(arab);
+
+    const arabDiv = document.createElement("div");
+    arabDiv.className = "arabic";
+    arabDiv.innerHTML = arab;
+    resultDiv.appendChild(arabDiv);
+
+    const parser = new DOMParser();
+    const xmlDoc = parser.parseFromString(xmlText, "text/xml");
+    const tAyah = xmlDoc.querySelector(`sura[number="${surah}"] > aya[number="${ayat}"]`);
+    let trans = tAyah?.querySelector("translation")?.textContent || "(Terjemahan tidak ditemukan)";
+    const footnotes = tAyah?.querySelector("footnotes")?.textContent || "";
+
+    if (footnotes) {
+      trans = trans.replace(/(\d+)/g, '<sup>($1)</sup>');
+    }
+
+    const transDiv = document.createElement("div");
+    transDiv.className = "translation";
+    transDiv.innerHTML = trans;
+    resultDiv.appendChild(transDiv);
+
+    const tafsirDropdown = createTafsirDropdown(surah, ayat);
+    transDiv.appendChild(tafsirDropdown);
+
+    const noteBtn = document.createElement("button");
+    noteBtn.className = "note-dropbtn";
+    noteBtn.textContent = "Note";
+    noteBtn.onclick = () => showNoteOverlay(surah, ayat);
+    transDiv.appendChild(noteBtn);
+
+    const bookmarkBtn = document.createElement("button");
+    bookmarkBtn.id = "bookmark-btn";
+    bookmarkBtn.innerHTML = "🔰";
+    transDiv.appendChild(bookmarkBtn);
+
+    const notifSpan = document.createElement("span");
+    notifSpan.id = "bookmark-notif";
+    notifSpan.style.display = "none";
+    transDiv.appendChild(notifSpan);
+
+    const bookmarkKey = "tadabbur-bookmark";
+    let bookmarks = JSON.parse(localStorage.getItem(bookmarkKey) || "[]");
+    const existing = bookmarks.find(b => b.surah === surah && b.ayat === ayat);
+
+    if (existing) {
+      bookmarkBtn.classList.add("checked");
+      bookmarkBtn.innerHTML = "✅";
+    }
+
+    bookmarkBtn.onclick = () => {
+      const now = new Date();
+      const stamp = now.toLocaleDateString("id-ID", { day: "2-digit", month: "long", year: "numeric" })
+                 + " " + now.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" });
+      const idx = bookmarks.findIndex(b => b.surah === surah && b.ayat === ayat);
+
+      if (idx === -1) {
+        bookmarks.push({ surah, ayat, timestamp: stamp });
+        localStorage.setItem(bookmarkKey, JSON.stringify(bookmarks));
+        bookmarkBtn.classList.add("checked");
+        bookmarkBtn.innerHTML = "✅";
+        showBookmarkNotif(`✅ Disimpan: ${stamp} (Total ${bookmarks.length} ayat)`);
+      } else {
+        const order = idx + 1;
+        showBookmarkNotif(`✅ Ayat ini sudah tersimpan (#${order})`);
+      }
+    };
+
+    function showBookmarkNotif(msg) {
+      notifSpan.textContent = msg;
+      notifSpan.style.display = "inline-block";
+      setTimeout(() => notifSpan.style.display = "none", 5000);
+    }
+
+    if (footnotes.trim()) {
+      const foot = document.createElement("div");
+      foot.className = "footnote";
+      foot.innerHTML = `<strong>Catatan:</strong> ${footnotes}`;
+      resultDiv.appendChild(foot);
+    }
+
+    const navDiv = document.createElement("div");
+    navDiv.className = "nav-buttons";
+
+    const prev = getPrevAyah(surah, ayat);
+    const next = getNextAyah(surah, ayat);
+
+    if (prev) {
+      const prevBtn = document.createElement("button");
+      prevBtn.textContent = "PREV ▶";
+      prevBtn.onclick = () => loadAyat(prev.surah, prev.ayah, true);
+      navDiv.appendChild(prevBtn);
+    }
+
+    const audioBtn = document.createElement("button");
+    audioBtn.textContent = "♬ MP3";
+    audioBtn.onclick = showQariSelector;
+    navDiv.appendChild(audioBtn);
+
+    const syncBtn = document.createElement("button");
+    syncBtn.innerText = "🔒 USER";
+    syncBtn.onclick = () => {
+      document.getElementById("sync-overlay").style.display = "flex";
+      document.getElementById("sync-status").innerHTML = '';
+    };
+    navDiv.appendChild(syncBtn);
+
+    if (next) {
+      const nextBtn = document.createElement("button");
+      nextBtn.textContent = "◀ NEXT";
+      nextBtn.onclick = () => loadAyat(next.surah, next.ayah, true);
+      navDiv.appendChild(nextBtn);
+    }
+
+    resultDiv.appendChild(navDiv);
+
+  } catch (err) {
+    console.error(err);
+    document.getElementById("result").innerHTML = "❌ Gagal memuat ayat.";
+  }
+}
 
 </script>
 
@@ -1577,6 +2536,143 @@ function loadAyat(surah, ayat, updateURL = false) {
 
 // Fungsi renderAyat harus kamu salin dari hasil sebelumnya
 
+
+
+async function renderAyat(surah, ayat) {
+  try {
+    const [quranData, xmlText] = await Promise.all([
+      fetch("quran.json").then(r => r.json()),
+      fetch("indonesian_complex_v1.0.xml").then(r => r.text())
+    ]);
+
+    const resultDiv = document.getElementById("result");
+    resultDiv.innerHTML = ""; // bersihkan isi
+
+    const match = quranData.find(v => v.surah_number === surah && v.verse_number === ayat);
+    let arab = match?.content || "(Teks Arab tidak ditemukan)";
+    arab += " ۝" + toArabicNumber(ayat);
+    arab = wrapRasmSymbols(arab);
+
+    const arabDiv = document.createElement("div");
+    arabDiv.className = "arabic";
+    arabDiv.innerHTML = arab;
+    resultDiv.appendChild(arabDiv);
+
+    const parser = new DOMParser();
+    const xmlDoc = parser.parseFromString(xmlText, "text/xml");
+    const tAyah = xmlDoc.querySelector(`sura[number="${surah}"] > aya[number="${ayat}"]`);
+    let trans = tAyah?.querySelector("translation")?.textContent || "(Terjemahan tidak ditemukan)";
+    const footnotes = tAyah?.querySelector("footnotes")?.textContent || "";
+
+    if (footnotes) {
+      trans = trans.replace(/(\d+)/g, '<sup>($1)</sup>');
+    }
+
+    const transDiv = document.createElement("div");
+    transDiv.className = "translation";
+    transDiv.innerHTML = trans;
+    resultDiv.appendChild(transDiv);
+
+    const tafsirDropdown = createTafsirDropdown(surah, ayat);
+    transDiv.appendChild(tafsirDropdown);
+
+    const noteBtn = document.createElement("button");
+    noteBtn.className = "note-dropbtn";
+    noteBtn.textContent = "Note";
+    noteBtn.onclick = () => showNoteOverlay(surah, ayat);
+    transDiv.appendChild(noteBtn);
+
+    const bookmarkBtn = document.createElement("button");
+    bookmarkBtn.id = "bookmark-btn";
+    bookmarkBtn.innerHTML = "🔰";
+    transDiv.appendChild(bookmarkBtn);
+
+    const notifSpan = document.createElement("span");
+    notifSpan.id = "bookmark-notif";
+    notifSpan.style.display = "none";
+    transDiv.appendChild(notifSpan);
+
+    const bookmarkKey = "tadabbur-bookmark";
+    let bookmarks = JSON.parse(localStorage.getItem(bookmarkKey) || "[]");
+    const existing = bookmarks.find(b => b.surah === surah && b.ayat === ayat);
+
+    if (existing) {
+      bookmarkBtn.classList.add("checked");
+      bookmarkBtn.innerHTML = "✅";
+    }
+
+    bookmarkBtn.onclick = () => {
+      const now = new Date();
+      const stamp = now.toLocaleDateString("id-ID", { day: "2-digit", month: "long", year: "numeric" })
+                 + " " + now.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" });
+      const idx = bookmarks.findIndex(b => b.surah === surah && b.ayat === ayat);
+
+      if (idx === -1) {
+        bookmarks.push({ surah, ayat, timestamp: stamp });
+        localStorage.setItem(bookmarkKey, JSON.stringify(bookmarks));
+        bookmarkBtn.classList.add("checked");
+        bookmarkBtn.innerHTML = "✅";
+        showBookmarkNotif(`✅ Disimpan: ${stamp} (Total ${bookmarks.length} ayat)`);
+      } else {
+        const order = idx + 1;
+        showBookmarkNotif(`✅ Ayat ini sudah tersimpan (#${order})`);
+      }
+    };
+
+    function showBookmarkNotif(msg) {
+      notifSpan.textContent = msg;
+      notifSpan.style.display = "inline-block";
+      setTimeout(() => notifSpan.style.display = "none", 5000);
+    }
+
+    if (footnotes.trim()) {
+      const foot = document.createElement("div");
+      foot.className = "footnote";
+      foot.innerHTML = `<strong>Catatan:</strong> ${footnotes}`;
+      resultDiv.appendChild(foot);
+    }
+
+    const navDiv = document.createElement("div");
+    navDiv.className = "nav-buttons";
+
+    const prev = getPrevAyah(surah, ayat);
+    const next = getNextAyah(surah, ayat);
+
+    if (prev) {
+      const prevBtn = document.createElement("button");
+      prevBtn.textContent = "PREV ▶";
+      prevBtn.onclick = () => loadAyat(prev.surah, prev.ayah, true);
+      navDiv.appendChild(prevBtn);
+    }
+
+    const audioBtn = document.createElement("button");
+    audioBtn.textContent = "♬ MP3";
+    audioBtn.onclick = showQariSelector;
+    navDiv.appendChild(audioBtn);
+
+    const syncBtn = document.createElement("button");
+    syncBtn.innerText = "🔒 USER";
+    syncBtn.onclick = () => {
+      document.getElementById("sync-overlay").style.display = "flex";
+      document.getElementById("sync-status").innerHTML = '';
+    };
+    navDiv.appendChild(syncBtn);
+
+    if (next) {
+      const nextBtn = document.createElement("button");
+      nextBtn.textContent = "◀ NEXT";
+      nextBtn.onclick = () => loadAyat(next.surah, next.ayah, true);
+      navDiv.appendChild(nextBtn);
+    }
+
+    resultDiv.appendChild(navDiv);
+
+  } catch (err) {
+    console.error(err);
+    document.getElementById("result").innerHTML = "❌ Gagal memuat ayat.";
+  }
+}
+
 </script>
 
 
@@ -1648,6 +2744,143 @@ function loadAyat(surah, ayat, updateURL = false) {
 }
 
 // Fungsi renderAyat harus kamu salin dari hasil sebelumnya
+
+
+
+async function renderAyat(surah, ayat) {
+  try {
+    const [quranData, xmlText] = await Promise.all([
+      fetch("quran.json").then(r => r.json()),
+      fetch("indonesian_complex_v1.0.xml").then(r => r.text())
+    ]);
+
+    const resultDiv = document.getElementById("result");
+    resultDiv.innerHTML = ""; // bersihkan isi
+
+    const match = quranData.find(v => v.surah_number === surah && v.verse_number === ayat);
+    let arab = match?.content || "(Teks Arab tidak ditemukan)";
+    arab += " ۝" + toArabicNumber(ayat);
+    arab = wrapRasmSymbols(arab);
+
+    const arabDiv = document.createElement("div");
+    arabDiv.className = "arabic";
+    arabDiv.innerHTML = arab;
+    resultDiv.appendChild(arabDiv);
+
+    const parser = new DOMParser();
+    const xmlDoc = parser.parseFromString(xmlText, "text/xml");
+    const tAyah = xmlDoc.querySelector(`sura[number="${surah}"] > aya[number="${ayat}"]`);
+    let trans = tAyah?.querySelector("translation")?.textContent || "(Terjemahan tidak ditemukan)";
+    const footnotes = tAyah?.querySelector("footnotes")?.textContent || "";
+
+    if (footnotes) {
+      trans = trans.replace(/(\d+)/g, '<sup>($1)</sup>');
+    }
+
+    const transDiv = document.createElement("div");
+    transDiv.className = "translation";
+    transDiv.innerHTML = trans;
+    resultDiv.appendChild(transDiv);
+
+    const tafsirDropdown = createTafsirDropdown(surah, ayat);
+    transDiv.appendChild(tafsirDropdown);
+
+    const noteBtn = document.createElement("button");
+    noteBtn.className = "note-dropbtn";
+    noteBtn.textContent = "Note";
+    noteBtn.onclick = () => showNoteOverlay(surah, ayat);
+    transDiv.appendChild(noteBtn);
+
+    const bookmarkBtn = document.createElement("button");
+    bookmarkBtn.id = "bookmark-btn";
+    bookmarkBtn.innerHTML = "🔰";
+    transDiv.appendChild(bookmarkBtn);
+
+    const notifSpan = document.createElement("span");
+    notifSpan.id = "bookmark-notif";
+    notifSpan.style.display = "none";
+    transDiv.appendChild(notifSpan);
+
+    const bookmarkKey = "tadabbur-bookmark";
+    let bookmarks = JSON.parse(localStorage.getItem(bookmarkKey) || "[]");
+    const existing = bookmarks.find(b => b.surah === surah && b.ayat === ayat);
+
+    if (existing) {
+      bookmarkBtn.classList.add("checked");
+      bookmarkBtn.innerHTML = "✅";
+    }
+
+    bookmarkBtn.onclick = () => {
+      const now = new Date();
+      const stamp = now.toLocaleDateString("id-ID", { day: "2-digit", month: "long", year: "numeric" })
+                 + " " + now.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" });
+      const idx = bookmarks.findIndex(b => b.surah === surah && b.ayat === ayat);
+
+      if (idx === -1) {
+        bookmarks.push({ surah, ayat, timestamp: stamp });
+        localStorage.setItem(bookmarkKey, JSON.stringify(bookmarks));
+        bookmarkBtn.classList.add("checked");
+        bookmarkBtn.innerHTML = "✅";
+        showBookmarkNotif(`✅ Disimpan: ${stamp} (Total ${bookmarks.length} ayat)`);
+      } else {
+        const order = idx + 1;
+        showBookmarkNotif(`✅ Ayat ini sudah tersimpan (#${order})`);
+      }
+    };
+
+    function showBookmarkNotif(msg) {
+      notifSpan.textContent = msg;
+      notifSpan.style.display = "inline-block";
+      setTimeout(() => notifSpan.style.display = "none", 5000);
+    }
+
+    if (footnotes.trim()) {
+      const foot = document.createElement("div");
+      foot.className = "footnote";
+      foot.innerHTML = `<strong>Catatan:</strong> ${footnotes}`;
+      resultDiv.appendChild(foot);
+    }
+
+    const navDiv = document.createElement("div");
+    navDiv.className = "nav-buttons";
+
+    const prev = getPrevAyah(surah, ayat);
+    const next = getNextAyah(surah, ayat);
+
+    if (prev) {
+      const prevBtn = document.createElement("button");
+      prevBtn.textContent = "PREV ▶";
+      prevBtn.onclick = () => loadAyat(prev.surah, prev.ayah, true);
+      navDiv.appendChild(prevBtn);
+    }
+
+    const audioBtn = document.createElement("button");
+    audioBtn.textContent = "♬ MP3";
+    audioBtn.onclick = showQariSelector;
+    navDiv.appendChild(audioBtn);
+
+    const syncBtn = document.createElement("button");
+    syncBtn.innerText = "🔒 USER";
+    syncBtn.onclick = () => {
+      document.getElementById("sync-overlay").style.display = "flex";
+      document.getElementById("sync-status").innerHTML = '';
+    };
+    navDiv.appendChild(syncBtn);
+
+    if (next) {
+      const nextBtn = document.createElement("button");
+      nextBtn.textContent = "◀ NEXT";
+      nextBtn.onclick = () => loadAyat(next.surah, next.ayah, true);
+      navDiv.appendChild(nextBtn);
+    }
+
+    resultDiv.appendChild(navDiv);
+
+  } catch (err) {
+    console.error(err);
+    document.getElementById("result").innerHTML = "❌ Gagal memuat ayat.";
+  }
+}
 
 </script>
 
