@@ -681,15 +681,14 @@ Promise.all([
     });
 
     ayatSelect.addEventListener("change", () => {
-      const ayat = ayatSelect.value;
-      localStorage.setItem("lastAyat", ayat);
-      const surah = surahSelect.value;
-      if (surah && ayat) {
-        const url = new URL(window.location.href);
-        url.searchParams.set("surah", surah);
-        url.searchParams.set("ayat", ayat);
-        // URL change disabled
-      }
+  const ayat = ayatSelect.value;
+  const surah = surahSelect.value;
+  if (surah && ayat) {
+    localStorage.setItem("lastSurah", surah);
+    localStorage.setItem("lastAyat", ayat);
+    loadAyat(parseInt(surah), parseInt(ayat));
+  }
+});
     });
 
     document.addEventListener("DOMContentLoaded", () => {
@@ -1157,10 +1156,10 @@ translationDiv.appendChild(noteButton);
         const prevBtn = document.createElement("button");
         prevBtn.textContent = "PREV ▶";
         prevBtn.onclick = () => {
-  const autoplayOn = localStorage.getItem("autoplay") === "true";
-  localStorage.setItem("fromAutoplay", autoplayOn ? "true" : "false");
-  // search disabled
-};
+  localStorage.setItem("lastSurah", prev.surah);
+  localStorage.setItem("lastAyat", prev.ayah);
+  loadAyat(prev.surah, prev.ayah);
+};;
         navDiv.appendChild(prevBtn);
       }
 
@@ -1496,10 +1495,10 @@ navDiv.appendChild(syncBtn);
         const nextBtn = document.createElement("button");
         nextBtn.textContent = "◀ NEXT";
         nextBtn.onclick = () => {
-  const autoplayOn = localStorage.getItem("autoplay") === "true";
-  localStorage.setItem("fromAutoplay", autoplayOn ? "true" : "false");
-  // search disabled
-};
+  localStorage.setItem("lastSurah", next.surah);
+  localStorage.setItem("lastAyat", next.ayah);
+  loadAyat(next.surah, next.ayah);
+};;
         navDiv.appendChild(nextBtn);
       }
 
