@@ -523,6 +523,12 @@ Promise.all([
   allXML = (new DOMParser()).parseFromString(xmlText, "text/xml");
   const surah = parseInt(localStorage.getItem("lastSurah") || "1");
   const ayat = parseInt(localStorage.getItem("lastAyat") || "1");
+  
+populateSurahs();
+populateAyat(surah, ayat);
+document.getElementById("surah").value = surah;
+document.getElementById("ayat").value = ayat;
+
   loadAyat(surah, ayat);
 });
 </script>
@@ -700,7 +706,7 @@ const lastAyat = urlParams.get("ayat") || localStorage.getItem("lastAyat");
         surahSelect.value = lastSurah;
         populateAyat(lastSurah, lastAyat);
       }
-      document.getElementById("pilihan-container").style.visibility = 'visible';
+      document.getElementById("pilihan-container").style.display = "block";
     });
   </script>
 </div>
@@ -1545,6 +1551,12 @@ navDiv.appendChild(syncBtn);
   // Simpan ke localStorage
   localStorage.setItem("lastSurah", surah);
   localStorage.setItem("lastAyat", ayat);
+
+  
+populateSurahs();
+populateAyat(surah, ayat);
+document.getElementById("surah").value = surah;
+document.getElementById("ayat").value = ayat;
 
   loadAyat(surah, ayat);
 });
