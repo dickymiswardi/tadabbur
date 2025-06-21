@@ -525,13 +525,6 @@
     localStorage.setItem("lastVisited", location.href);
   }
 
-window.addEventListener("popstate", (event) => {
-  const params = new URLSearchParams(window.location.search);
-  const surah = parseInt(params.get("surah") || "1");
-  const ayat = parseInt(params.get("ayat") || "1");
-  loadAyat(surah, ayat, false);
-});
-
    
 </script>
 
@@ -1551,22 +1544,6 @@ navDiv.appendChild(syncBtn);
 
   loadAyat(surah, ayat);
 });
-
-function loadAyat(surah, ayat, updateURL = false) {
-  if (updateURL) {
-    const url = new URL(window.location.href);
-    url.searchParams.set("surah", surah);
-    url.searchParams.set("ayat", ayat);
-    history.pushState({ surah, ayat }, "", url.pathname + `?surah=${surah}&ayat=${ayat}`);
-  }
-
-  // Simpan lokal
-  localStorage.setItem("lastSurah", surah);
-  localStorage.setItem("lastAyat", ayat);
-
-  location.reload(); // sementara, reload dulu (nanti kita ubah)
-}
-
     
   </script>
   <script>
@@ -2280,6 +2257,32 @@ function fetchTerjemah() {
       });
     });
 }
+
+
+function loadAyat(surah, ayat, updateURL = false) {
+  if (updateURL) {
+    const url = new URL(window.location.href);
+    url.searchParams.set("surah", surah);
+    url.searchParams.set("ayat", ayat);
+    history.pushState({ surah, ayat }, "", url.pathname + `?surah=${surah}&ayat=${ayat}`);
+  }
+
+  // Simpan lokal
+  localStorage.setItem("lastSurah", surah);
+  localStorage.setItem("lastAyat", ayat);
+
+  location.reload(); // sementara, reload dulu (nanti kita ubah)
+}
+
+
+window.addEventListener("popstate", (event) => {
+  const params = new URLSearchParams(window.location.search);
+  const surah = parseInt(params.get("surah") || "1");
+  const ayat = parseInt(params.get("ayat") || "1");
+  loadAyat(surah, ayat, false);
+});  
+
+  
 </script>
 
   
