@@ -78,15 +78,45 @@
     background: #eef5f5;
   }
 
-    .install-close {
-  margin-left: 0.8em;
-  font-weight: bold;
-  background: transparent;
-  border: none;
-  font-size: 1.2em;
-  cursor: pointer;
-  color: #333;
-}
+.install-container {
+    position: fixed;
+    bottom: 1em;
+    right: 1em;
+    z-index: 10000;
+  }
+
+  .install-button {
+    background-color: #a1d99b;
+    border: 2px solid #41ab5d;
+    color: #333333;
+    font-weight: bold;
+    border-radius: 8px;
+    padding: 0.8em 1.2em;
+    font-size: 0.95em;
+    box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    cursor: pointer;
+    text-align: center;
+  }
+
+  .close-install {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    background-color: white;
+    border: 2px solid #ccc;
+    border-radius: 50%;
+    width: 22px;
+    height: 22px;
+    font-size: 1em;
+    line-height: 18px;
+    text-align: center;
+    cursor: pointer;
+    box-shadow: 0 0 4px rgba(0,0,0,0.2);
+  }
+
+  .close-install:hover {
+    background-color: #f0f0f0;
+  }
 
     body.modal-open {
   overflow: hidden;
@@ -2358,9 +2388,8 @@ function fetchTerjemah() {
 
 <script>
   let deferredPrompt;
-  let installBtn;
+  let installContainer;
 
-  // Cegah tombol muncul lebih dari sekali (awal buka saja)
   const alreadyShown = sessionStorage.getItem('installPromptShown');
 
   window.addEventListener('beforeinstallprompt', (e) => {
@@ -2370,41 +2399,29 @@ function fetchTerjemah() {
     e.preventDefault();
     deferredPrompt = e;
 
-    // Buat tombol install
-    installBtn = document.createElement('div');
-    installBtn.style = `
-      position: fixed;
-      bottom: 1em;
-      right: 1em;
-      background-color: #a1d99b;
-      border: 2px solid #41ab5d;
-      color: #333333;
-      font-weight: bold;
-      border-radius: 8px;
-      padding: 0.8em 1.2em;
-      font-size: 0.95em;
-      z-index: 10000;
-      box-shadow: 0 0 10px rgba(0,0,0,0.2);
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    `;
+    // Buat container
+    installContainer = document.createElement('div');
+    installContainer.className = 'install-container';
 
-    installBtn.innerHTML = `
-      📥 Install aplikasi ini
-      <button class="install-close" title="Tutup">&times;</button>
-    `;
-    document.body.appendChild(installBtn);
+    // Tambahkan tombol install utama
+    const mainBtn = document.createElement('button');
+    mainBtn.className = 'install-button';
+    mainBtn.textContent = '📥 Install aplikasi ini';
 
-    // Event klik install
-    installBtn.addEventListener('click', async (event) => {
-      if (event.target.classList.contains('install-close')) {
-        installBtn.remove();
-        return;
-      }
+    // Tombol silang
+    const closeBtn = document.createElement('button');
+    closeBtn.className = 'close-install';
+    closeBtn.textContent = '✖';
+    closeBtn.title = 'Tutup';
 
-      installBtn.style.display = 'none';
+    // Gabungkan ke DOM
+    installContainer.appendChild(mainBtn);
+    installContainer.appendChild(closeBtn);
+    document.body.appendChild(installContainer);
+
+    // Event install
+    mainBtn.addEventListener('click', async () => {
+      installContainer.style.display = 'none';
       deferredPrompt.prompt();
       const { outcome } = await deferredPrompt.userChoice;
       if (outcome === 'accepted') {
@@ -2413,17 +2430,24 @@ function fetchTerjemah() {
       deferredPrompt = null;
     });
 
-    // Otomatis hilang setelah 7 detik
+    // Event tutup (✖)
+    closeBtn.addEventListener('click', () => {
+      installContainer.remove();
+    });
+
+    // Hilang otomatis setelah 7 detik
     setTimeout(() => {
-      installBtn?.remove();
+      installContainer?.remove();
     }, 7000);
 
-    // Hilangkan jika pindah halaman (SPA atau page reload)
+    // Hilang jika ganti halaman
     window.addEventListener('beforeunload', () => {
-      installBtn?.remove();
+      installContainer?.remove();
     });
   });
 </script>
+
+
 
 
   
