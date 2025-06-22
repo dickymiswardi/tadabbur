@@ -78,6 +78,8 @@
     background: #eef5f5;
   }
 
+    
+
     body.modal-open {
   overflow: hidden;
 }
@@ -2348,28 +2350,21 @@ function fetchTerjemah() {
 
 <script>
   let deferredPrompt;
+  let installContainer;
 
-  // Simpan path halaman saat ini
   const currentPath = location.pathname;
   const shownKey = `installPromptShown_${currentPath}`;
+  const alreadyShown = sessionStorage.getItem(shownKey);
 
-  // Simpan event global ketika prompt tersedia
   window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    deferredPrompt = e;
-    window.deferredPrompt = e; // agar global
-
-    showInstallButton(); // tampilkan tombol
-  });
-
-  function showInstallButton() {
-    const alreadyShown = sessionStorage.getItem(shownKey);
     if (alreadyShown) return;
     sessionStorage.setItem(shownKey, 'true');
 
-    if (!window.deferredPrompt) return;
+    e.preventDefault();
+    deferredPrompt = e;
 
-    const installContainer = document.createElement('div');
+    // Container tombol
+    installContainer = document.createElement('div');
     installContainer.style = `
       position: fixed;
       bottom: 1em;
@@ -2377,6 +2372,7 @@ function fetchTerjemah() {
       z-index: 10000;
     `;
 
+    // Tombol utama install
     const mainBtn = document.createElement('button');
     mainBtn.textContent = '📥 Install aplikasi ini';
     mainBtn.style = `
@@ -2392,6 +2388,7 @@ function fetchTerjemah() {
       position: relative;
     `;
 
+    // Tombol silang
     const closeBtn = document.createElement('button');
     closeBtn.textContent = '✖';
     closeBtn.title = 'Tutup';
@@ -2414,40 +2411,41 @@ function fetchTerjemah() {
       box-shadow: 0 0 4px rgba(0,0,0,0.2);
     `;
 
+    // Gabungkan
     mainBtn.appendChild(closeBtn);
     installContainer.appendChild(mainBtn);
     document.body.appendChild(installContainer);
 
-    // Klik tombol utama
+    // Klik tombol utama (bukan silang)
     mainBtn.addEventListener('click', async (event) => {
-      if (event.target === closeBtn) return; // jika yang diklik adalah close
+      if (event.target === closeBtn) return;
       installContainer.style.display = 'none';
       deferredPrompt.prompt();
       const { outcome } = await deferredPrompt.userChoice;
       if (outcome === 'accepted') {
-        const notif = document.getElementById('install-notif');
-        if (notif) notif.style.display = 'block';
+        document.getElementById('install-notif').style.display = 'block';
       }
       deferredPrompt = null;
     });
 
-    // Klik tombol silang ✖
+    // Klik silang
     closeBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       installContainer.remove();
     });
 
-    // Hilang otomatis setelah 7 detik
+    // Auto hilang 7 detik
     setTimeout(() => {
       installContainer?.remove();
     }, 7000);
 
-    // Hilang saat pindah halaman
+    // Hilang saat ganti halaman
     window.addEventListener('beforeunload', () => {
       installContainer?.remove();
     });
-  }
+  });
 </script>
+
 
 
   
