@@ -2352,13 +2352,13 @@ function fetchTerjemah() {
   let deferredPrompt;
   let installContainer;
 
+  // Kunci penanda berdasarkan halaman
   const currentPath = location.pathname;
   const shownKey = `installPromptShown_${currentPath}`;
   const alreadyShown = sessionStorage.getItem(shownKey);
 
   window.addEventListener('beforeinstallprompt', (e) => {
     if (alreadyShown) return;
-    sessionStorage.setItem(shownKey, 'true');
 
     e.preventDefault();
     deferredPrompt = e;
@@ -2372,7 +2372,7 @@ function fetchTerjemah() {
       z-index: 10000;
     `;
 
-    // Tombol utama install
+    // Tombol utama
     const mainBtn = document.createElement('button');
     mainBtn.textContent = '📥 Install aplikasi ini';
     mainBtn.style = `
@@ -2411,14 +2411,19 @@ function fetchTerjemah() {
       box-shadow: 0 0 4px rgba(0,0,0,0.2);
     `;
 
-    // Gabungkan
     mainBtn.appendChild(closeBtn);
     installContainer.appendChild(mainBtn);
     document.body.appendChild(installContainer);
 
-    // Klik tombol utama (bukan silang)
+    // ➕ Sekarang set sessionStorage hanya jika tombol sudah tampil selama 100ms
+    setTimeout(() => {
+      sessionStorage.setItem(shownKey, 'true');
+    }, 100);
+
+    // Klik install
     mainBtn.addEventListener('click', async (event) => {
       if (event.target === closeBtn) return;
+
       installContainer.style.display = 'none';
       deferredPrompt.prompt();
       const { outcome } = await deferredPrompt.userChoice;
@@ -2428,7 +2433,7 @@ function fetchTerjemah() {
       deferredPrompt = null;
     });
 
-    // Klik silang
+    // Klik ✖
     closeBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       installContainer.remove();
@@ -2439,14 +2444,12 @@ function fetchTerjemah() {
       installContainer?.remove();
     }, 7000);
 
-    // Hilang saat ganti halaman
+    // Hilang kalau pindah halaman
     window.addEventListener('beforeunload', () => {
       installContainer?.remove();
     });
   });
 </script>
-
-
 
   
 </body>
