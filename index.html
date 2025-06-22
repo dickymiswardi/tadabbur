@@ -2352,24 +2352,19 @@ function fetchTerjemah() {
   let deferredPrompt;
   let installContainer;
 
-  window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    deferredPrompt = e;
+  // Simpan rootPage hanya saat pertama buka browser
+  if (!sessionStorage.getItem('installRootPage')) {
+    sessionStorage.setItem('installRootPage', window.location.pathname);
+  }
 
-    const shown = sessionStorage.getItem('installShown');
-    const rootPage = sessionStorage.getItem('rootPage');
+  const rootPage = sessionStorage.getItem('installRootPage');
 
-    // Tentukan halaman awal jika belum disimpan
-    const currentPage = window.location.pathname;
-    if (!shown || !rootPage) {
-      sessionStorage.setItem('installShown', 'true');
-      sessionStorage.setItem('rootPage', currentPage);
-    }
+  // Fungsi buat tombol hanya jika halaman = rootPage
+  function showInstallButton() {
+    // Jangan munculkan kalau bukan di halaman pertama
+    if (window.location.pathname !== rootPage) return;
 
-    // Tampilkan tombol hanya jika masih di halaman rootPage
-    if (currentPage !== sessionStorage.getItem('rootPage')) return;
-
-    // Buat tombol jika belum ada
+    // Jangan munculkan kalau sudah ada tombolnya
     if (document.getElementById('install-container')) return;
 
     installContainer = document.createElement('div');
@@ -2422,9 +2417,9 @@ function fetchTerjemah() {
     installContainer.appendChild(mainBtn);
     document.body.appendChild(installContainer);
 
-    // Tombol utama install
+    // Klik tombol install
     mainBtn.addEventListener('click', async (event) => {
-      if (event.target === closeBtn) return; // Jangan jalankan jika klik silang
+      if (event.target === closeBtn) return;
       installContainer.style.display = 'none';
       deferredPrompt.prompt();
       const { outcome } = await deferredPrompt.userChoice;
@@ -2434,28 +2429,35 @@ function fetchTerjemah() {
       deferredPrompt = null;
     });
 
-    // Tombol silang
+    // Klik tombol silang
     closeBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       installContainer.remove();
     });
+  }
+
+  // Event saat browser siap tawarkan install
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    showInstallButton(); // hanya munculkan tombol jika di rootPage
   });
 
-  // Hilangkan tombol jika berpindah halaman (via pushState, link, dsb)
-  window.addEventListener('popstate', checkPathChange);
-  window.addEventListener('hashchange', checkPathChange);
+  // Hilangkan tombol jika pindah dari rootPage
+  window.addEventListener('popstate', checkPage);
+  window.addEventListener('hashchange', checkPage);
 
-  function checkPathChange() {
-    const current = window.location.pathname;
-    const root = sessionStorage.getItem('rootPage');
+  function checkPage() {
+    const now = window.location.pathname;
     const container = document.getElementById('install-container');
-    if (current !== root && container) {
+    if (now !== rootPage && container) {
       container.remove();
-    } else if (current === root && !container) {
-      // Bisa dipanggil ulang paksa: location.reload() jika perlu
+    } else if (now === rootPage && !container && deferredPrompt) {
+      showInstallButton();
     }
   }
 </script>
+
 
   
 </body>
