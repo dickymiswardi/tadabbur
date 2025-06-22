@@ -1,6 +1,10 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
+
+<link rel="manifest" href="manifest.json" />
+<meta name="theme-color" content="#ffffff" />
+  
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Al-Qur'an Digital</title>
@@ -2260,6 +2264,48 @@ function fetchTerjemah() {
       });
     });
 }
+</script>
+
+  <script>
+  let deferredPrompt;
+
+  window.addEventListener('beforeinstallprompt', (e) => {
+    // Cegah prompt otomatis
+    e.preventDefault();
+    deferredPrompt = e;
+
+    // Tampilkan tombol install ke user
+    const installBtn = document.createElement('button');
+    installBtn.textContent = '📥 Install Aplikasi Ini';
+    installBtn.style = `
+      position: fixed;
+      bottom: 1em;
+      right: 1em;
+      background: #017b8b;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 0.8em 1.2em;
+      font-size: 0.95em;
+      z-index: 10000;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+      cursor: pointer;
+    `;
+    document.body.appendChild(installBtn);
+
+    installBtn.addEventListener('click', async () => {
+      installBtn.style.display = 'none';
+      deferredPrompt.prompt();
+
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === 'accepted') {
+        console.log('User accepted the A2HS prompt');
+      } else {
+        console.log('User dismissed the A2HS prompt');
+      }
+      deferredPrompt = null;
+    });
+  });
 </script>
 
   
