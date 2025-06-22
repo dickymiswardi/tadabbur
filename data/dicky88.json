@@ -1,0 +1,26 @@
+{
+  "bookmark": [
+    {
+      "surah": 1,
+      "ayat": 6,
+      "timestamp": "22 Juni 2025 17.14"
+    },
+    {
+      "surah": 1,
+      "ayat": 1,
+      "timestamp": "22 Juni 2025 19.59"
+    },
+    {
+      "surah": 2,
+      "ayat": 164,
+      "timestamp": "23 Juni 2025 02.36"
+    }
+  ],
+  "notes": {
+    "note-2-164": "Tes halo..."
+  },
+  "log": [
+    "2025-06-22",
+    "2025-06-23"
+  ]
+}
