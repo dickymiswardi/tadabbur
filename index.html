@@ -78,46 +78,6 @@
     background: #eef5f5;
   }
 
-.install-container {
-    position: fixed;
-    bottom: 1em;
-    right: 1em;
-    z-index: 10000;
-  }
-
-  .install-button {
-    background-color: #a1d99b;
-    border: 2px solid #41ab5d;
-    color: #333333;
-    font-weight: bold;
-    border-radius: 8px;
-    padding: 0.8em 1.2em;
-    font-size: 0.95em;
-    box-shadow: 0 0 10px rgba(0,0,0,0.2);
-    cursor: pointer;
-    text-align: center;
-  }
-
-  .close-install {
-    position: absolute;
-    top: -10px;
-    right: -10px;
-    background-color: white;
-    border: 2px solid #ccc;
-    border-radius: 50%;
-    width: 22px;
-    height: 22px;
-    font-size: 1em;
-    line-height: 18px;
-    text-align: center;
-    cursor: pointer;
-    box-shadow: 0 0 4px rgba(0,0,0,0.2);
-  }
-
-  .close-install:hover {
-    background-color: #f0f0f0;
-  }
-
     body.modal-open {
   overflow: hidden;
 }
@@ -2399,28 +2359,62 @@ function fetchTerjemah() {
     e.preventDefault();
     deferredPrompt = e;
 
-    // Buat container
+    // Container tombol
     installContainer = document.createElement('div');
-    installContainer.className = 'install-container';
+    installContainer.style = `
+      position: fixed;
+      bottom: 1em;
+      right: 1em;
+      z-index: 10000;
+    `;
 
-    // Tambahkan tombol install utama
+    // Tombol utama install
     const mainBtn = document.createElement('button');
-    mainBtn.className = 'install-button';
     mainBtn.textContent = '📥 Install aplikasi ini';
+    mainBtn.style = `
+      background-color: #a1d99b;
+      border: 2px solid #41ab5d;
+      color: #333333;
+      font-weight: bold;
+      border-radius: 8px;
+      padding: 0.8em 1.2em;
+      font-size: 0.95em;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+      cursor: pointer;
+      position: relative;
+    `;
 
     // Tombol silang
     const closeBtn = document.createElement('button');
-    closeBtn.className = 'close-install';
     closeBtn.textContent = '✖';
     closeBtn.title = 'Tutup';
+    closeBtn.style = `
+      position: absolute;
+      top: -12px;
+      right: -12px;
+      width: 24px;
+      height: 24px;
+      background-color: white;
+      border: 2px solid #ccc;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      color: #333;
+      cursor: pointer;
+      padding: 0;
+      box-shadow: 0 0 4px rgba(0,0,0,0.2);
+    `;
 
-    // Gabungkan ke DOM
+    // Gabungkan
+    mainBtn.appendChild(closeBtn);
     installContainer.appendChild(mainBtn);
-    installContainer.appendChild(closeBtn);
     document.body.appendChild(installContainer);
 
-    // Event install
-    mainBtn.addEventListener('click', async () => {
+    // Event klik tombol utama (bukan silang)
+    mainBtn.addEventListener('click', async (event) => {
+      if (event.target === closeBtn) return;
       installContainer.style.display = 'none';
       deferredPrompt.prompt();
       const { outcome } = await deferredPrompt.userChoice;
@@ -2430,22 +2424,24 @@ function fetchTerjemah() {
       deferredPrompt = null;
     });
 
-    // Event tutup (✖)
-    closeBtn.addEventListener('click', () => {
+    // Klik silang
+    closeBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
       installContainer.remove();
     });
 
-    // Hilang otomatis setelah 7 detik
+    // Auto hilang 7 detik
     setTimeout(() => {
       installContainer?.remove();
     }, 7000);
 
-    // Hilang jika ganti halaman
+    // Hilang jika pindah halaman
     window.addEventListener('beforeunload', () => {
       installContainer?.remove();
     });
   });
 </script>
+
 
 
 
