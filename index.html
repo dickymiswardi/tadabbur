@@ -2352,26 +2352,28 @@ function fetchTerjemah() {
   let deferredPrompt;
   let installContainer;
 
-  // Simpan halaman pertama di sessionStorage
-  if (!sessionStorage.getItem('firstPagePath')) {
-    sessionStorage.setItem('firstPagePath', window.location.pathname);
-  }
-
   window.addEventListener('beforeinstallprompt', (e) => {
-    // Hanya munculkan tombol jika halaman saat ini = halaman pertama
-    const firstPath = sessionStorage.getItem('firstPagePath');
-    if (window.location.pathname !== firstPath) {
-      return; // Jangan munculkan tombol di halaman lain
-    }
-
     e.preventDefault();
     deferredPrompt = e;
 
-    // Cegah tombol dibuat ganda
-    if (installContainer) return;
+    const shown = sessionStorage.getItem('installShown');
+    const rootPage = sessionStorage.getItem('rootPage');
 
-    // Buat container tombol
+    // Tentukan halaman awal jika belum disimpan
+    const currentPage = window.location.pathname;
+    if (!shown || !rootPage) {
+      sessionStorage.setItem('installShown', 'true');
+      sessionStorage.setItem('rootPage', currentPage);
+    }
+
+    // Tampilkan tombol hanya jika masih di halaman rootPage
+    if (currentPage !== sessionStorage.getItem('rootPage')) return;
+
+    // Buat tombol jika belum ada
+    if (document.getElementById('install-container')) return;
+
     installContainer = document.createElement('div');
+    installContainer.id = 'install-container';
     installContainer.style = `
       position: fixed;
       bottom: 1em;
@@ -2379,7 +2381,6 @@ function fetchTerjemah() {
       z-index: 10000;
     `;
 
-    // Buat tombol utama
     const mainBtn = document.createElement('button');
     mainBtn.textContent = '📥 Install aplikasi ini';
     mainBtn.style = `
@@ -2395,7 +2396,6 @@ function fetchTerjemah() {
       position: relative;
     `;
 
-    // Tombol silang
     const closeBtn = document.createElement('button');
     closeBtn.textContent = '✖';
     closeBtn.title = 'Tutup';
@@ -2422,10 +2422,9 @@ function fetchTerjemah() {
     installContainer.appendChild(mainBtn);
     document.body.appendChild(installContainer);
 
-    // Event klik install
+    // Tombol utama install
     mainBtn.addEventListener('click', async (event) => {
-      if (event.target === closeBtn) return;
-
+      if (event.target === closeBtn) return; // Jangan jalankan jika klik silang
       installContainer.style.display = 'none';
       deferredPrompt.prompt();
       const { outcome } = await deferredPrompt.userChoice;
@@ -2435,26 +2434,28 @@ function fetchTerjemah() {
       deferredPrompt = null;
     });
 
-    // Klik ✖
+    // Tombol silang
     closeBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       installContainer.remove();
     });
-
-    // Hilang jika pindah halaman
-    window.addEventListener('popstate', () => {
-      installContainer?.remove();
-    });
-
-    // Jika SPA: pantau pushState juga
-    const originalPushState = history.pushState;
-    history.pushState = function () {
-      originalPushState.apply(this, arguments);
-      installContainer?.remove();
-    };
   });
-</script>
 
+  // Hilangkan tombol jika berpindah halaman (via pushState, link, dsb)
+  window.addEventListener('popstate', checkPathChange);
+  window.addEventListener('hashchange', checkPathChange);
+
+  function checkPathChange() {
+    const current = window.location.pathname;
+    const root = sessionStorage.getItem('rootPage');
+    const container = document.getElementById('install-container');
+    if (current !== root && container) {
+      container.remove();
+    } else if (current === root && !container) {
+      // Bisa dipanggil ulang paksa: location.reload() jika perlu
+    }
+  }
+</script>
 
   
 </body>
