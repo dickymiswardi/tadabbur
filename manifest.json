@@ -1,7 +1,7 @@
 {
   "name": "Al-Qur'an Digital",
   "short_name": "Quran Tadabur",
-  "start_url": "https://tadabbur.netlify.app/",
+  "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#017b8b",
