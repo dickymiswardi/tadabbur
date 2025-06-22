@@ -2352,22 +2352,17 @@ function fetchTerjemah() {
   let deferredPrompt;
   let installContainer;
 
-  // Cek apakah tombol sudah diklik atau ditutup
-  const dismissed = sessionStorage.getItem('installPromptDismissed');
-  const clicked = sessionStorage.getItem('installPromptClicked');
+  const alreadyShown = sessionStorage.getItem('installPromptShown');
 
   window.addEventListener('beforeinstallprompt', (e) => {
-    if (dismissed || clicked) return; // jangan tampilkan lagi
+    if (alreadyShown) return;
+    sessionStorage.setItem('installPromptShown', 'true');
 
     e.preventDefault();
     deferredPrompt = e;
 
-    // Jika sudah dibuat di halaman sebelumnya, jangan buat ulang
-    if (document.getElementById('install-container')) return;
-
-    // Container
+    // Container tombol
     installContainer = document.createElement('div');
-    installContainer.id = 'install-container';
     installContainer.style = `
       position: fixed;
       bottom: 1em;
@@ -2375,7 +2370,7 @@ function fetchTerjemah() {
       z-index: 10000;
     `;
 
-    // Tombol utama
+    // Tombol utama install
     const mainBtn = document.createElement('button');
     mainBtn.textContent = '📥 Install aplikasi ini';
     mainBtn.style = `
@@ -2391,7 +2386,7 @@ function fetchTerjemah() {
       position: relative;
     `;
 
-    // Tombol ✖
+    // Tombol silang
     const closeBtn = document.createElement('button');
     closeBtn.textContent = '✖';
     closeBtn.title = 'Tutup';
@@ -2414,16 +2409,15 @@ function fetchTerjemah() {
       box-shadow: 0 0 4px rgba(0,0,0,0.2);
     `;
 
+    // Gabungkan
     mainBtn.appendChild(closeBtn);
     installContainer.appendChild(mainBtn);
     document.body.appendChild(installContainer);
 
-    // Klik tombol utama
+    // Event klik tombol utama (bukan silang)
     mainBtn.addEventListener('click', async (event) => {
       if (event.target === closeBtn) return;
-      sessionStorage.setItem('installPromptClicked', 'true');
       installContainer.style.display = 'none';
-
       deferredPrompt.prompt();
       const { outcome } = await deferredPrompt.userChoice;
       if (outcome === 'accepted') {
@@ -2432,11 +2426,15 @@ function fetchTerjemah() {
       deferredPrompt = null;
     });
 
-    // Klik ✖
+    // Klik silang
     closeBtn.addEventListener('click', (e) => {
       e.stopPropagation();
-      sessionStorage.setItem('installPromptDismissed', 'true');
       installContainer.remove();
+    });
+
+    // Hilang jika pindah halaman
+    window.addEventListener('beforeunload', () => {
+      installContainer?.remove();
     });
   });
 </script>
