@@ -1,11 +1,11 @@
 {
   "name": "Al-Qur'an Digital",
-  "short_name": "Qur'an Digital",
-  "start_url": "./01.html",
+  "short_name": "Quran Tadabur",
+  "start_url": "https://tadabbur.netlify.app/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#017b8b",
-  "description": "Aplikasi Al-Qur'an Digital lengkap dengan tafsir dan audio qari.",
+  "description": "Aplikasi Al-Qur'an Digital Tadabbur lengkap dengan tafsir dan audio qari.",
   "icons": [
     {
       "src": "https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/quranlogo.png",
