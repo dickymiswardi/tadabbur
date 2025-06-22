@@ -2357,13 +2357,18 @@ function fetchTerjemah() {
     sessionStorage.setItem('firstPagePath', window.location.pathname);
   }
 
-  const isFirstPage = sessionStorage.getItem('firstPagePath') === window.location.pathname;
-
   window.addEventListener('beforeinstallprompt', (e) => {
-    if (!isFirstPage) return; // hanya di halaman pertama
+    // Hanya munculkan tombol jika halaman saat ini = halaman pertama
+    const firstPath = sessionStorage.getItem('firstPagePath');
+    if (window.location.pathname !== firstPath) {
+      return; // Jangan munculkan tombol di halaman lain
+    }
 
     e.preventDefault();
     deferredPrompt = e;
+
+    // Cegah tombol dibuat ganda
+    if (installContainer) return;
 
     // Buat container tombol
     installContainer = document.createElement('div');
@@ -2374,7 +2379,7 @@ function fetchTerjemah() {
       z-index: 10000;
     `;
 
-    // Tombol utama install
+    // Buat tombol utama
     const mainBtn = document.createElement('button');
     mainBtn.textContent = '📥 Install aplikasi ini';
     mainBtn.style = `
@@ -2390,7 +2395,7 @@ function fetchTerjemah() {
       position: relative;
     `;
 
-    // Tombol silang ✖
+    // Tombol silang
     const closeBtn = document.createElement('button');
     closeBtn.textContent = '✖';
     closeBtn.title = 'Tutup';
@@ -2413,12 +2418,11 @@ function fetchTerjemah() {
       box-shadow: 0 0 4px rgba(0,0,0,0.2);
     `;
 
-    // Tambah ke DOM
     mainBtn.appendChild(closeBtn);
     installContainer.appendChild(mainBtn);
     document.body.appendChild(installContainer);
 
-    // Klik tombol install (jika bukan silang)
+    // Event klik install
     mainBtn.addEventListener('click', async (event) => {
       if (event.target === closeBtn) return;
 
@@ -2431,18 +2435,18 @@ function fetchTerjemah() {
       deferredPrompt = null;
     });
 
-    // Klik tombol ✖ (tutup)
+    // Klik ✖
     closeBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       installContainer.remove();
     });
 
-    // Hilangkan tombol jika user berpindah halaman (popstate)
+    // Hilang jika pindah halaman
     window.addEventListener('popstate', () => {
       installContainer?.remove();
     });
 
-    // Jika SPA: deteksi pushState
+    // Jika SPA: pantau pushState juga
     const originalPushState = history.pushState;
     history.pushState = function () {
       originalPushState.apply(this, arguments);
@@ -2450,6 +2454,7 @@ function fetchTerjemah() {
     };
   });
 </script>
+
 
   
 </body>
