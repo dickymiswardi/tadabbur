@@ -78,6 +78,16 @@
     background: #eef5f5;
   }
 
+    .install-close {
+  margin-left: 0.8em;
+  font-weight: bold;
+  background: transparent;
+  border: none;
+  font-size: 1.2em;
+  cursor: pointer;
+  color: #333;
+}
+
     body.modal-open {
   overflow: hidden;
 }
@@ -2348,15 +2358,22 @@ function fetchTerjemah() {
 
 <script>
   let deferredPrompt;
+  let installBtn;
+
+  // Cegah tombol muncul lebih dari sekali (awal buka saja)
+  const alreadyShown = sessionStorage.getItem('installPromptShown');
 
   window.addEventListener('beforeinstallprompt', (e) => {
+    if (alreadyShown) return;
+    sessionStorage.setItem('installPromptShown', 'true');
+
     e.preventDefault();
     deferredPrompt = e;
 
-    const installBtn = document.createElement('button');
-    installBtn.textContent = '📥 Install aplikasi ini';
+    // Buat tombol install
+    installBtn = document.createElement('div');
     installBtn.style = `
-  position: fixed;
+      position: fixed;
       bottom: 1em;
       right: 1em;
       background-color: #a1d99b;
@@ -2369,19 +2386,41 @@ function fetchTerjemah() {
       z-index: 10000;
       box-shadow: 0 0 10px rgba(0,0,0,0.2);
       cursor: pointer;
-`;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    `;
+
+    installBtn.innerHTML = `
+      📥 Install aplikasi ini
+      <button class="install-close" title="Tutup">&times;</button>
+    `;
     document.body.appendChild(installBtn);
 
-    installBtn.addEventListener('click', async () => {
+    // Event klik install
+    installBtn.addEventListener('click', async (event) => {
+      if (event.target.classList.contains('install-close')) {
+        installBtn.remove();
+        return;
+      }
+
       installBtn.style.display = 'none';
       deferredPrompt.prompt();
-
       const { outcome } = await deferredPrompt.userChoice;
       if (outcome === 'accepted') {
-        const notif = document.getElementById('install-notif');
-        notif.style.display = 'block';
+        document.getElementById('install-notif').style.display = 'block';
       }
       deferredPrompt = null;
+    });
+
+    // Otomatis hilang setelah 7 detik
+    setTimeout(() => {
+      installBtn?.remove();
+    }, 7000);
+
+    // Hilangkan jika pindah halaman (SPA atau page reload)
+    window.addEventListener('beforeunload', () => {
+      installBtn?.remove();
     });
   });
 </script>
