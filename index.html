@@ -78,6 +78,30 @@
     background: #eef5f5;
   }
 
+    .install-close-btn {
+    position: absolute;
+    top: -12px;
+    right: -12px;
+    width: 24px;
+    height: 24px;
+    background-color: white;
+    border: 2px solid #ccc;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    color: #333;
+    cursor: pointer;
+    padding: 0;
+    box-shadow: 0 0 4px rgba(0,0,0,0.2);
+    transition: background-color 0.2s ease;
+  }
+
+  .install-close-btn:hover {
+    background-color: #eef5f5;
+  }
+
     body.modal-open {
   overflow: hidden;
 }
@@ -2361,7 +2385,7 @@ function fetchTerjemah() {
     e.preventDefault();
     deferredPrompt = e;
 
-    // Container pembungkus tombol
+    // Container tombol
     installContainer = document.createElement('div');
     installContainer.style = `
       position: fixed;
@@ -2386,7 +2410,7 @@ function fetchTerjemah() {
       position: relative;
     `;
 
-    // Tombol silang ✖
+    // Tombol silang
     const closeBtn = document.createElement('button');
     closeBtn.textContent = '✖';
     closeBtn.title = 'Tutup';
@@ -2407,23 +2431,14 @@ function fetchTerjemah() {
       cursor: pointer;
       padding: 0;
       box-shadow: 0 0 4px rgba(0,0,0,0.2);
-      transition: background-color 0.2s ease;
     `;
 
-    // Hover effect via JS
-    closeBtn.addEventListener('mouseenter', () => {
-      closeBtn.style.backgroundColor = '#eef5f5';
-    });
-    closeBtn.addEventListener('mouseleave', () => {
-      closeBtn.style.backgroundColor = 'white';
-    });
-
-    // Gabungkan tombol ke DOM
+    // Gabungkan
     mainBtn.appendChild(closeBtn);
     installContainer.appendChild(mainBtn);
     document.body.appendChild(installContainer);
 
-    // Klik tombol utama install (hindari klik silang)
+    // Klik tombol utama (bukan silang)
     mainBtn.addEventListener('click', async (event) => {
       if (event.target === closeBtn) return;
       installContainer.style.display = 'none';
@@ -2441,17 +2456,19 @@ function fetchTerjemah() {
       installContainer.remove();
     });
 
-    // Hilang otomatis 10 detik
+    // Auto hilang 10 detik
     setTimeout(() => {
       installContainer?.remove();
     }, 10000);
 
-    // Hilang jika pindah halaman
+    // Hilang saat ganti halaman
     window.addEventListener('beforeunload', () => {
       installContainer?.remove();
     });
   });
 </script>
+
+
 
 
 
