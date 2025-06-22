@@ -57,7 +57,7 @@
 
   #install-notif .install-title {
     font-size: 1.2em;
-    color: #017b8b;
+    background-color: #b2d8db;
     font-weight: bold;
     margin-bottom: 1em;
   }
@@ -65,8 +65,9 @@
   #install-notif button {
     margin-top: 1.5em;
     padding: 0.6em 1.2em;
-    background: #017b8b;
-    color: white;
+    background-color: #b2d8db;
+    border: 2px solid #017b8b;
+    color: black;
     border: none;
     border-radius: 8px;
     cursor: pointer;
@@ -75,7 +76,7 @@
   }
 
   #install-notif button:hover {
-    background: #02687a;
+    background: #eef5f5;
   }
 
     body.modal-open {
@@ -2322,9 +2323,9 @@ function fetchTerjemah() {
   <!-- Overlay Notifikasi -->
 <div id="install-notif">
   <div class="install-title">✅ Aplikasimu telah diinstall!</div>
-  Silakan cek ikon di layar utama smartphone.
+  Silakan cek ikon di layar utama smartphone sekitar 10 detik.
   <br />
-  <button onclick="window.location.href='/'">Buka Aplikasi Sekarang</button>
+  <button onclick="window.location.href='/'">Ok</button>
 </div>
 
 <script>
@@ -2340,8 +2341,9 @@ function fetchTerjemah() {
       position: fixed;
       bottom: 1em;
       right: 1em;
-      background: #017b8b;
-      color: white;
+      background-color: #b2d8db;
+      border: 2px solid #017b8b;
+      color: black;
       border: none;
       border-radius: 8px;
       padding: 0.8em 1.2em;
