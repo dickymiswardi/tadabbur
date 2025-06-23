@@ -7,9 +7,7 @@
   
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Tadabbur Al-Qur'an Digital</title>
-<meta name="description" content="Aplikasi Al-Qur'an digital dengan fitur tadabbur, catatan per ayat, bookmark, dan sinkronisasi cloud.">
-<meta name="robots" content="index, follow">
+  <title>Al-Qur'an Digital Tadabbur</title>
   <style>
     @font-face {
       font-family: 'Madina';
@@ -79,8 +77,6 @@
   #install-notif button:hover {
     background: #eef5f5;
   }
-
-    
 
     body.modal-open {
   overflow: hidden;
@@ -357,27 +353,6 @@
       text-align: center;
     }
 
-    .sumber + div {
-  display: block;
-  background-color: #EFEFEF;
-  border: 2px solid #3F7D58;
-  color: black;
-  font-weight: 600;
-  font-size: 0.85rem;
-  border-radius: 6px;
-  padding: 0.6em 1.2em;
-  transition: background-color 0.2s ease;
-  cursor: default;
-  text-align: center;
-  width: fit-content;
-
-  /* Inilah kunci untuk menengahkan elemen block dengan lebar fit-content */
-  margin-left: auto;
-  margin-right: auto;
-}
-
-
-
     .nav-buttons {
       display: flex;
       justify-content: space-between;
@@ -593,15 +568,6 @@
 </head>
 <body>
 
-  <!-- INSTAAAAALL APLIKASI INI -->
-  <script>
-  let deferredPrompt = null;
-  window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    deferredPrompt = e;
-  });
-</script>
-
  <script>
   const params = new URLSearchParams(window.location.search);
   const hasParams = params.has("surah") && params.has("ayat");
@@ -780,9 +746,11 @@ const lastAyat = urlParams.get("ayat") || localStorage.getItem("lastAyat");
 </div>
   <!-- BATAS TAMBAHAN -->
 
-  
-<!-- Ganti 'Memuat...' dengan animasi -->
+  <!-- Ganti 'Memuat...' dengan animasi -->
   <div id="result">
+    <div class="loader">
+      <img src="https://raw.githubusercontent.com/dickymiswardi/tadabbur/aa160525691e67e5d0b7aab1e7e9f37657d0ed45/AnimatedBook.gif" class="loading-icon" />
+    </div>
   </div>
 <div id="audio-player-container" style="display: none;"></div>
   <div class="sumber"></div>
@@ -1789,45 +1757,11 @@ function showNoteOverlay(surah, ayah) {
   const hariKe = log.length;
 
   const infoDiv = document.createElement("div");
-infoDiv.style.textAlign = "center";
-infoDiv.style.fontSize = "1em";
-infoDiv.style.color = "#454545";
-infoDiv.style.marginTop = "0.1em";
-infoDiv.style.display = "flex";
-infoDiv.style.flexWrap = "wrap";
-infoDiv.style.justifyContent = "center";
-infoDiv.style.alignItems = "center";
-infoDiv.style.gap = "0.8em";
-
-const spanHari = document.createElement("span");
-spanHari.textContent = `Total Waktu Tadabbur: ${hariKe} Hari`;
-
-const installBtn = document.createElement("button");
-installBtn.id = "install-btn"; // ← penting!
-installBtn.textContent = "📥 Install aplikasi ini";
-installBtn.style.padding = "0.4em 0.8em";
-installBtn.style.border = "2px solid #017b8b";
-installBtn.style.borderRadius = "6px";
-installBtn.style.backgroundColor = "#b2d8db";
-installBtn.style.cursor = "pointer";
-installBtn.style.fontSize = "0.9em";
-installBtn.onclick = () => {
-  if (deferredPrompt) {
-    deferredPrompt.prompt();
-    deferredPrompt.userChoice.then(choiceResult => {
-      if (choiceResult.outcome === 'accepted') {
-        console.log('User accepted the install prompt');
-      } else {
-        console.log('User dismissed the install prompt');
-      }
-      deferredPrompt = null;
-    });
-  }
-};
-
-infoDiv.appendChild(spanHari);
-infoDiv.appendChild(installBtn);
-
+  infoDiv.style.textAlign = "center";
+  infoDiv.style.fontSize = "1em";
+  infoDiv.style.color = "#454545";
+  infoDiv.style.marginTop = "0.1em";
+  infoDiv.textContent = `Total Waktu Tadabbur: ${hariKe} Hari`;
 
   const sumberDiv = document.querySelector(".sumber");
   if (sumberDiv && sumberDiv.parentNode) {
@@ -2393,23 +2327,45 @@ function fetchTerjemah() {
   <button onclick="window.location.href='/'">Ok</button>
 </div>
 
-  <script>
-  // Sembunyikan tombol jika aplikasi sudah terinstal
-  window.addEventListener('appinstalled', () => {
-    const installBtn = document.getElementById('install-btn');
-    if (installBtn) {
-      installBtn.style.display = 'none';
-    }
-  });
+<script>
+  let deferredPrompt;
 
-  // Deteksi langsung saat halaman dibuka (bukan setelah install)
-  if (window.matchMedia('(display-mode: standalone)').matches) {
-    const installBtn = document.getElementById('install-btn');
-    if (installBtn) {
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+
+    const installBtn = document.createElement('button');
+    installBtn.textContent = '📥 Install Aplikasi Ini';
+    installBtn.style = `
+      position: fixed;
+      bottom: 1em;
+      right: 1em;
+      background-color: #b2d8db;
+      border: 2px solid #017b8b;
+      color: black;
+      border-radius: 8px;
+      padding: 0.8em 1.2em;
+      font-size: 0.95em;
+      z-index: 10000;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+      cursor: pointer;
+    `;
+    document.body.appendChild(installBtn);
+
+    installBtn.addEventListener('click', async () => {
       installBtn.style.display = 'none';
-    }
-  }
+      deferredPrompt.prompt();
+
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === 'accepted') {
+        const notif = document.getElementById('install-notif');
+        notif.style.display = 'block';
+      }
+      deferredPrompt = null;
+    });
+  });
 </script>
+
 
   
 </body>
