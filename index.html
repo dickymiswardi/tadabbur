@@ -1780,11 +1780,44 @@ function showNoteOverlay(surah, ayah) {
   const hariKe = log.length;
 
   const infoDiv = document.createElement("div");
-  infoDiv.style.textAlign = "center";
-  infoDiv.style.fontSize = "1em";
-  infoDiv.style.color = "#454545";
-  infoDiv.style.marginTop = "0.1em";
-  infoDiv.textContent = `Total Waktu Tadabbur: ${hariKe} Hari`;
+infoDiv.style.textAlign = "center";
+infoDiv.style.fontSize = "1em";
+infoDiv.style.color = "#454545";
+infoDiv.style.marginTop = "0.1em";
+infoDiv.style.display = "flex";
+infoDiv.style.flexWrap = "wrap";
+infoDiv.style.justifyContent = "center";
+infoDiv.style.alignItems = "center";
+infoDiv.style.gap = "0.8em";
+
+const spanHari = document.createElement("span");
+spanHari.textContent = `Total Waktu Tadabbur: ${hariKe} Hari`;
+
+const installBtn = document.createElement("button");
+installBtn.textContent = "📥 Install aplikasi ini";
+installBtn.style.padding = "0.4em 0.8em";
+installBtn.style.border = "2px solid #017b8b";
+installBtn.style.borderRadius = "6px";
+installBtn.style.backgroundColor = "#b2d8db";
+installBtn.style.cursor = "pointer";
+installBtn.style.fontSize = "0.9em";
+installBtn.onclick = () => {
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(choiceResult => {
+      if (choiceResult.outcome === 'accepted') {
+        console.log('User accepted the install prompt');
+      } else {
+        console.log('User dismissed the install prompt');
+      }
+      deferredPrompt = null;
+    });
+  }
+};
+
+infoDiv.appendChild(spanHari);
+infoDiv.appendChild(installBtn);
+
 
   const sumberDiv = document.querySelector(".sumber");
   if (sumberDiv && sumberDiv.parentNode) {
