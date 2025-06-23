@@ -1,3 +1,4 @@
+
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open('tadabbur-cache').then(cache => {
