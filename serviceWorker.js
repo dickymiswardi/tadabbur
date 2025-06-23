@@ -30,3 +30,25 @@ self.addEventListener('fetch', event => {
     })
   );
 });
+
+self.addEventListener('fetch', event => {
+  // tangkap request navigasi (misal ?surah=x&ayat=y)
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      caches.match('/index.html').then(response => response || fetch('/index.html'))
+    );
+    return;
+  }
+
+  // cache biasa untuk file lainnya
+  event.respondWith(
+    caches.match(event.request).then(response => {
+      return response || fetch(event.request).then(fetchRes => {
+        return caches.open('tadabbur-cache').then(cache => {
+          cache.put(event.request, fetchRes.clone());
+          return fetchRes;
+        });
+      });
+    })
+  );
+});
