@@ -9,6 +9,7 @@ self.addEventListener('install', event => {
         './quran.xml',
         './TerjemahID.xml',
         './id.jalalayn.xml',
+        './madina.woff2',
         './manifest.json'
       ]);
     })
