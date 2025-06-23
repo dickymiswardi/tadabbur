@@ -344,7 +344,7 @@
       text-align: justify;
     }
 
-    .sumber {
+    .tadabburtime {
       font-size: 0.9em;
       color: #555;
       margin-top: 3em;
@@ -353,13 +353,13 @@
       text-align: center;
     }
 
-    .sumber + div {
+    .tadabburtime + div {
   display: block;
   background-color: #EFEFEF;
   border: 2px solid #3F7D58;
   color: black;
   font-weight: 600;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   border-radius: 6px;
   padding: 0.6em 1.2em;
   transition: background-color 0.2s ease;
@@ -774,7 +774,7 @@ const lastAyat = urlParams.get("ayat") || localStorage.getItem("lastAyat");
     </div>
   </div>
 <div id="audio-player-container" style="display: none;"></div>
-  <div class="sumber"></div>
+  <div class="tadabburtime"></div>
   <script>
     const surah = parseInt(new URLSearchParams(window.location.search).get("surah") || "1");
     const ayat = parseInt(new URLSearchParams(window.location.search).get("ayat") || "1");
@@ -1784,9 +1784,9 @@ function showNoteOverlay(surah, ayah) {
   infoDiv.style.marginTop = "0.1em";
   infoDiv.innerHTML = `Total Waktu Tadabbur: ${hariKe} Hari <span id="install-placeholder" style="margin-left: 0.6em;"></span>`;
 
-  const sumberDiv = document.querySelector(".sumber");
-  if (sumberDiv && sumberDiv.parentNode) {
-    sumberDiv.parentNode.insertBefore(infoDiv, sumberDiv.nextSibling);
+  const tadabburtimeDiv = document.querySelector(".tadabburtime");
+  if (tadabburtimeDiv && tadabburtimeDiv.parentNode) {
+    tadabburtimeDiv.parentNode.insertBefore(infoDiv, tadabburtimeDiv.nextSibling);
   }
 })();
 
