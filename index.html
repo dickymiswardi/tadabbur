@@ -2385,33 +2385,6 @@ function fetchTerjemah() {
   });
 });
 </script>
-
-<script>
-  Promise.all([
-  fetch('https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/quran.json').then(r => r.ok ? r.json() : Promise.reject('quran.json')),
-  fetch('https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/quran.xml').then(r => r.ok ? r.text() : Promise.reject('quran.xml')),
-  fetch('https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/indonesian_complex_v1.0.xml').then(r => r.ok ? r.text() : Promise.reject('indonesian_complex_v1.0.xml')),
-  fetch('https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/TerjemahID.xml').then(r => r.ok ? r.text() : Promise.reject('TerjemahID.xml'))
-])
-.then(([quranData, quranXML, tafsirXML, terjemahXML]) => {
-  // ✅ Semua file berhasil dimuat
-  document.getElementById('offline-msg').style.display = 'none';
-
-  // 🧠 Misalnya tampilkan ayat dari quranData:
-  const params = new URLSearchParams(window.location.search);
-  const s = params.get('surah');
-  const a = params.get('ayat');
-  document.getElementById('arabic').innerHTML = quranData[s][a];
-
-  // 📌 Gunakan quranXML, tafsirXML, terjemahXML sesuai fungsi kamu
-})
-.catch(error => {
-  // ❌ Jika salah satu file gagal dimuat
-  console.warn('❌ Offline: gagal ambil file:', error);
-  document.getElementById('offline-msg').style.display = 'block';
-});
-
-</script>
   
 </body>
 </html>
