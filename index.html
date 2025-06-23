@@ -2386,33 +2386,6 @@ function fetchTerjemah() {
 });
 </script>
 
-<!-- ✅ Pesan offline -->
-<div id="offline-msg" style="display:none; text-align:center; margin-top:40px;">
-  <img src="offline.png" alt="offline" width="100"><br>
-  <b>Anda offline</b>
-</div>
-
-<!-- ✅ Script utama untuk quran.json saja -->
-<script>
-  const params = new URLSearchParams(window.location.search);
-  const surah = params.get("surah");
-  const ayat = params.get("ayat");
-
-  fetch('https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/quran.json')
-    .then(r => {
-      if (!r.ok) throw new Error('gagal');
-      return r.json();
-    })
-    .then(quranData => {
-      document.getElementById('offline-msg').style.display = 'none';
-      document.getElementById("arabic").innerHTML = quranData[surah][ayat];
-    })
-    .catch(err => {
-      console.warn('❌ Tidak bisa ambil quran.json', err);
-      document.getElementById('offline-msg').style.display = 'block';
-    });
-</script>
-
   
 </body>
 </html>
