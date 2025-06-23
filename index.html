@@ -1803,6 +1803,7 @@ const spanHari = document.createElement("span");
 spanHari.textContent = `Total Waktu Tadabbur: ${hariKe} Hari`;
 
 const installBtn = document.createElement("button");
+installBtn.id = "install-btn"; // ← penting!
 installBtn.textContent = "📥 Install aplikasi ini";
 installBtn.style.padding = "0.4em 0.8em";
 installBtn.style.border = "2px solid #017b8b";
@@ -2391,6 +2392,24 @@ function fetchTerjemah() {
   <br />
   <button onclick="window.location.href='/'">Ok</button>
 </div>
+
+  <script>
+  // Sembunyikan tombol jika aplikasi sudah terinstal
+  window.addEventListener('appinstalled', () => {
+    const installBtn = document.getElementById('install-btn');
+    if (installBtn) {
+      installBtn.style.display = 'none';
+    }
+  });
+
+  // Deteksi langsung saat halaman dibuka (bukan setelah install)
+  if (window.matchMedia('(display-mode: standalone)').matches) {
+    const installBtn = document.getElementById('install-btn');
+    if (installBtn) {
+      installBtn.style.display = 'none';
+    }
+  }
+</script>
 
   
 </body>
