@@ -344,7 +344,7 @@
       text-align: justify;
     }
 
-    .tadabburtime {
+    .tadabburduration {
       font-size: 0.9em;
       color: #555;
       margin-top: 3em;
@@ -353,7 +353,7 @@
       text-align: center;
     }
 
-    .tadabburtime + div {
+    .tadabburduration + div {
   display: block;
   background-color: #EFEFEF;
   border: 2px solid #3F7D58;
@@ -774,7 +774,7 @@ const lastAyat = urlParams.get("ayat") || localStorage.getItem("lastAyat");
     </div>
   </div>
 <div id="audio-player-container" style="display: none;"></div>
-  <div class="tadabburtime"></div>
+  <div class="tadabburduration"></div>
   <script>
     const surah = parseInt(new URLSearchParams(window.location.search).get("surah") || "1");
     const ayat = parseInt(new URLSearchParams(window.location.search).get("ayat") || "1");
@@ -1782,11 +1782,11 @@ function showNoteOverlay(surah, ayah) {
   infoDiv.style.fontSize = "1em";
   infoDiv.style.color = "#454545";
   infoDiv.style.marginTop = "0.1em";
-  infoDiv.innerHTML = `Total Waktu Tadabbur: ${hariKe} Hari <span id="install-placeholder" style="margin-left: 0.6em;"></span>`;
+  infoDiv.innerHTML = `Durasi Tadabbur: ${hariKe} Hari <span id="install-placeholder" style="margin-left: 0.6em;"></span>`;
 
-  const tadabburtimeDiv = document.querySelector(".tadabburtime");
-  if (tadabburtimeDiv && tadabburtimeDiv.parentNode) {
-    tadabburtimeDiv.parentNode.insertBefore(infoDiv, tadabburtimeDiv.nextSibling);
+  const tadabburdurationDiv = document.querySelector(".tadabburduration");
+  if (tadabburdurationDiv && tadabburdurationDiv.parentNode) {
+    tadabburdurationDiv.parentNode.insertBefore(infoDiv, tadabburdurationDiv.nextSibling);
   }
 })();
 
@@ -2361,9 +2361,9 @@ function fetchTerjemah() {
   if (!placeholder) return;
 
   const installBtn = document.createElement('button');
-  installBtn.textContent = '📥 Install aplikasi ini';
+  installBtn.textContent = 'Instal App';
   installBtn.style = `
-    background-color: #a1d99b;
+    background-color: #FFFCFB;
     border: 2px solid #41ab5d;
     color: black;
     font-weight: bold;
