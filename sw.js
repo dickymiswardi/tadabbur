@@ -20,9 +20,7 @@ self.addEventListener('install', event => {
     (async () => {
       const cache = await caches.open(CACHE_NAME);
       // Tambah file lokal
-      await cache.addAll(
-  ASSETS_TO_CACHE.map(url => new Request(url, { mode: 'no-cors' }))
-);
+      await cache.addAll(ASSETS_TO_CACHE);
 
       console.log('✅ Semua aset berhasil dicache.');
     })()
