@@ -11,7 +11,9 @@ const ASSETS_TO_CACHE = [
   'https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/quran.json',
   'https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/quran.xml',
   'https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/indonesian_complex_v1.0.xml',
-  'https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/TerjemahID.xml'
+  'https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/TerjemahID.xml',
+  'https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/id.jalalayn.xml',
+  
 ];
 
 // Saat install → cache semua asset
