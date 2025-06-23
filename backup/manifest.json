@@ -1,0 +1,21 @@
+{
+  "name": "Al-Qur'an Digital Tadabbur",
+  "short_name": "Quran Tadabbur",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#017b8b",
+  "description": "Aplikasi Al-Qur'an Digital Tadabbur lengkap dengan tafsir dan audio qari.",
+  "icons": [
+    {
+      "src": "https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/quranlogo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/quranlogo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
