@@ -1790,178 +1790,313 @@ function showNoteOverlay(surah, ayah) {
   }
 })();
 
-<!-- 🌿 OVERLAY SYNC -->
-<div id="sync-overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); display:flex; justify-content:center; align-items:center; z-index:9999;">
-  <div style="background:white; padding:2em; border-radius:12px; max-width:400px; width:90%; text-align:center;">
-    <h3>👤 Masukkan username</h3>
-    <input id="sync-username" placeholder="cth: ahmad123" style="padding:0.5em; width:80%; max-width:250px;" />
-    <button id="check-btn">OK</button>
-    <div id="check-result" style="margin-top:0.5em;"></div>
-    <div style="margin-top:1em;">
-      <button onclick="uploadDataToCloud()">⬆️ Upload</button>
-      <button onclick="downloadDataFromCloud()">⬇️ Download</button>
-      <div id="sync-status" style="margin-top:1em;"></div>
-    </div>
-  </div>
-</div>
+// SCRIPT SYNC TOMBOL OVERLAY
 
-<script>
-let usernameConfirmed = false;
+  let usernameConfirmed = false;
 
-// RESET RESULT
 function resetCheckResult() {
   usernameConfirmed = false;
   document.getElementById('check-result').innerHTML = '';
   document.getElementById('sync-status').innerHTML = '';
 }
 
-// CEK APAKAH USERNAME SUDAH ADA DI GITHUB
 async function isUsernameTaken(username) {
-  try {
-    const url = `https://raw.githubusercontent.com/dickymiswardi/tadabbur/main/data/${username}.json`;
-    const res = await fetch(url, { cache: 'no-store' });
-    return res.ok;
-  } catch {
-    return false;
-  }
+  const url = `https://raw.githubusercontent.com/dickymiswardi/tadabbur/main/data/${username}.json`;
+  const res = await fetch(url);
+  return res.ok;
 }
 
-// KONFIRMASI USERNAME
-function confirmUsername(username) {
-  usernameConfirmed = true;
-  localStorage.setItem('usernameAktif', username);
-  const input = document.getElementById('sync-username');
-  const checkBtn = document.getElementById('check-btn');
-  const result = document.getElementById('check-result');
+async function checkUsername() {
+  const el = document.getElementById('sync-username');
+  const status = document.getElementById('check-result');
+  const username = el.value.trim().toLowerCase();
 
-  input.style.display = 'none';
-  checkBtn.style.display = 'none';
-  result.innerHTML = `<span style="color:green">✅ Username dikonfirmasi: <strong>${username}</strong></span>`;
-
-  if (!document.getElementById('ganti-user-btn')) {
-    const gantiBtn = document.createElement('button');
-    gantiBtn.id = 'ganti-user-btn';
-    gantiBtn.innerText = '🔁 Ganti User';
-    gantiBtn.onclick = () => {
-      localStorage.removeItem('usernameAktif');
-      location.reload();
-    };
-    result.appendChild(gantiBtn);
-  }
-}
-
-// TOMBOL CEK USERNAME
-document.getElementById('check-btn').addEventListener('click', async () => {
-  const input = document.getElementById('sync-username').value.trim().toLowerCase();
-  const result = document.getElementById('check-result');
-  resetCheckResult();
-
-  if (!/^[a-z0-9_-]+$/.test(input)) {
-    result.innerHTML = '<span style="color:red">❌ Hanya huruf kecil, angka, _ dan -</span>';
+  if (!/^[a-z0-9_-]+$/.test(username)) {
+    status.innerHTML = '<span style=\"color:red\">❌ username harus huruf kecil tanpa spasi</span>';
     return;
   }
 
-  result.innerHTML = '⏳ Mengecek username...';
-  const taken = await isUsernameTaken(input);
+  status.innerHTML = '<img src="https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/FadingFountain.gif" width="28" />';
+  const taken = await isUsernameTaken(username);
 
   if (taken) {
-    result.innerHTML = `
-      ⚠️ Username sudah ada.<br>
-      <button onclick="confirmUsername('${input}')">✅ Pakai ini</button>
-      <button onclick="document.getElementById('sync-username').value=''; resetCheckResult();">❌ Ganti</button>
+    status.innerHTML = `
+      <div style=\"color:red\">⚠️ Username sudah ada. Apakah ini milikmu?</div>
+      <button onclick=\"confirmUsername(true)\">✅ Lanjutkan</button>
+      <button onclick=\"confirmUsername(false)\">❌ Ganti</button>
     `;
   } else {
-    confirmUsername(input);
-  }
-});
+  confirmUsername(true); // langsung konfirmasi otomatis
+}
+}
 
-// UPLOAD DATA
+function confirmUsername(ok) {
+  const status = document.getElementById('check-result');
+  const input = document.getElementById('sync-username');
+  const checkBtn = input.nextElementSibling; // tombol Check
+  const username = input.value.trim().toLowerCase();
+
+  if (ok) {
+    usernameConfirmed = true;
+    localStorage.setItem("usernameAktif", username);
+    status.innerHTML = '<span style="color:green">✅ Username dikonfirmasi. Mohon diingat.</span>';
+
+    // Sembunyikan input dan tombol Check
+    input.style.display = "none";
+    if (checkBtn) checkBtn.style.display = "none";
+
+    // Tambahkan label username
+    const label = document.createElement("div");
+    label.id = "username-label";
+    label.innerHTML = `👤 Username: <strong>${username}</strong>`;
+    input.parentElement.insertBefore(label, input.nextSibling);
+
+    // Tambahkan tombol Ganti User
+    if (!document.getElementById("btn-ganti-user")) {
+      const gantiBtn = document.createElement("button");
+      gantiBtn.id = "btn-ganti-user";
+      gantiBtn.textContent = "🔁 Ganti User";
+      gantiBtn.onclick = () => {
+        // Kembalikan input dan tombol Check
+        localStorage.removeItem("usernameAktif");
+        input.style.display = "inline-block";
+        if (checkBtn) checkBtn.style.display = "inline-block";
+        status.innerHTML = '';
+        document.getElementById("username-label")?.remove();
+        document.getElementById("btn-ganti-user")?.remove();
+        input.value = '';
+        input.focus();
+        usernameConfirmed = false;
+      };
+      input.parentElement.appendChild(gantiBtn);
+    }
+
+  } else {
+    input.value = '';
+    usernameConfirmed = false;
+    status.innerHTML = '<span style="color:gray">Silakan isi username baru</span>';
+  }
+}
+
+
+
+
+
+
+
+  function tampilkanFormInputUsername() {
+  document.getElementById('username-overlay').style.display = 'flex';
+}
+
+function tampilkanTombolSyncSaja() {
+  document.getElementById('sync-ui').style.display = 'block';
+}
+
+function konfirmasiUsername() {
+  const input = document.getElementById('username-input').value.trim().toLowerCase();
+  const error = document.getElementById('username-error');
+
+  if (!/^[a-z0-9_-]+$/.test(input)) {
+    error.innerText = "❌ Username hanya huruf kecil tanpa spasi";
+    return;
+  }
+
+  // Simpan username ke localStorage
+  localStorage.setItem("usernameAktif", input);
+  location.reload();
+}
+
+function gantiUser() {
+  localStorage.removeItem("usernameAktif");
+  location.reload();
+}
+
+  // ⬆️ Fungsi Upload (satu arah ke Cloud)
+
 async function uploadDataToCloud() {
   const username = localStorage.getItem('usernameAktif');
   const status = document.getElementById('sync-status');
   status.innerHTML = '';
 
-  if (!username) {
-    status.innerHTML = '<span style="color:red">❌ Username belum dikonfirmasi</span>';
+  if (!username || !/^[a-z0-9_-]+$/.test(username)) {
+    status.innerHTML = '<span style="color:red">❌ Username tidak valid.</span>';
     return;
   }
 
   try {
-    const notes = {};
+    const localBookmark = JSON.parse(localStorage.getItem('tadabbur-bookmark') || '[]');
+    const localLog = JSON.parse(localStorage.getItem('tadabbur-log') || '[]');
+    const localNotes = {};
     for (let i = 0; i < localStorage.length; i++) {
       const k = localStorage.key(i);
-      if (k.startsWith('note-')) notes[k] = localStorage.getItem(k);
+      if (k.startsWith('note-')) localNotes[k] = localStorage.getItem(k);
     }
+
     const payload = {
-      bookmark: JSON.parse(localStorage.getItem('tadabbur-bookmark') || '[]'),
-      log: JSON.parse(localStorage.getItem('tadabbur-log') || '[]'),
-      notes
+      bookmark: localBookmark,
+      notes: localNotes,
+      log: localLog
     };
 
-    status.innerHTML = '⬆️ Uploading...';
-    const res = await fetch('https://tadabbur.netlify.app/.netlify/functions/sync', {
+    status.innerHTML = '⬆️ Upload <img src="https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/FadingFountain.gif" width="50" />';
+    await fetch('/.netlify/functions/sync', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, data: payload })
     });
-    const result = await res.json();
-    if (res.ok) {
-      status.innerHTML = `<span style="color:green">${result.message}</span>`;
-    } else {
-      status.innerHTML = `<span style="color:red">❌ ${result.error || 'Upload gagal'}</span>`;
-    }
-  } catch (e) {
-    console.error(e);
-    status.innerHTML = '<span style="color:red">❌ Upload error</span>';
+
+    status.innerHTML = '<span style="color:green">✅ Upload berhasil!</span>';
+  } catch (err) {
+    console.error(err);
+    status.innerHTML = '<span style="color:red">❌ Upload gagal.</span>';
   }
 }
 
-// DOWNLOAD DATA
-async function downloadDataFromCloud() {
+ // ⬇️ Fungsi Download (satu arah dari Cloud)
+
+  async function downloadDataFromCloud() {
   const username = localStorage.getItem('usernameAktif');
   const status = document.getElementById('sync-status');
   status.innerHTML = '';
 
-  if (!username) {
-    status.innerHTML = '<span style="color:red">❌ Username belum dikonfirmasi</span>';
+  if (!username || !/^[a-z0-9_-]+$/.test(username)) {
+    status.innerHTML = '<span style="color:red">❌ Username tidak valid.</span>';
     return;
   }
 
   try {
-    status.innerHTML = '⬇️ Downloading...';
+    status.innerHTML = '⬇️ Downloading <img src="https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/FadingFountain.gif" width="50" style="vertical-align:middle; display:inline;" />';
     const url = `https://raw.githubusercontent.com/dickymiswardi/tadabbur/main/data/${username}.json`;
-    const res = await fetch(url);
-    if (!res.ok) throw new Error("Data tidak ditemukan");
-    const data = await res.json();
+    const response = await fetch(url);
+    if (!response.ok) throw new Error("Gagal ambil data");
+
+    const cloudData = await response.json();
 
     Object.keys(localStorage).forEach(k => {
-      if (k.startsWith('note-') || k === 'tadabbur-bookmark' || k === 'tadabbur-log') localStorage.removeItem(k);
+      if (k.startsWith("note-") || k === "tadabbur-bookmark" || k === "tadabbur-log") {
+        localStorage.removeItem(k);
+      }
     });
 
-    localStorage.setItem('tadabbur-bookmark', JSON.stringify(data.bookmark || []));
-    localStorage.setItem('tadabbur-log', JSON.stringify(data.log || []));
-    if (data.notes) {
-      Object.keys(data.notes).forEach(k => localStorage.setItem(k, data.notes[k]));
+    localStorage.setItem("tadabbur-bookmark", JSON.stringify(cloudData.bookmark || []));
+    localStorage.setItem("tadabbur-log", JSON.stringify(cloudData.log || []));
+    if (cloudData.notes) {
+      Object.keys(cloudData.notes).forEach(k => localStorage.setItem(k, cloudData.notes[k]));
     }
 
     status.innerHTML = '<span style="color:green">✅ Download berhasil!</span>';
-  } catch (e) {
-    console.error(e);
-    status.innerHTML = '<span style="color:red">❌ Download gagal</span>';
+  } catch (err) {
+    console.error(err);
+    status.innerHTML = '<span style="color:red">❌ Download gagal.</span>';
   }
 }
 
-// TAMPILKAN OVERLAY SAAT PERTAMA
-document.addEventListener('DOMContentLoaded', () => {
-  if (!localStorage.getItem('usernameAktif')) {
-    document.getElementById('sync-overlay').style.display = 'flex';
+
+// Saat halaman dibuka
+window.addEventListener("DOMContentLoaded", () => {
+  const user = localStorage.getItem("usernameAktif");
+  if (user) {
+    tampilkanTombolSyncSaja();
+    window.usernameAktif = user; // bisa dipakai di syncData()
+  } else {
+    tampilkanFormInputUsername();
+  }
+});
+
+  
+</script>
+
+  <!-- 🔒 SYNC OVERLAY -->
+<div id="sync-overlay" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); justify-content: center; align-items: center; z-index: 9999;">
+  <div style="background: white; padding: 2em; border-radius: 12px; max-width: 400px; width: 90%; text-align: center; position: relative;">
+    <div onclick="document.getElementById('sync-overlay').style.display='none'" style="position: absolute; top: 10px; right: 15px; cursor: pointer; font-weight: bold;">✖</div>
+    <h3>👤 Buat atau masukkan username</h3>
+
+    <input id="sync-username" placeholder="contoh: ahmad123, dickymiswardi" oninput="resetCheckResult()" style="padding: 0.5em; width: 80%; max-width: 250px;" />
+    <button onclick="checkUsername()">Ok</button>
+    <span id="check-result" style="display:inline-block; margin-left:10px;"></span>
+
+    <div style="margin-top: 1em;">
+      <button onclick="uploadDataToCloud()">⬆️ Upload Note ke Cloud</button>
+<button onclick="downloadDataFromCloud()">⬇️ Download Note dari Cloud</button>
+      <div id="sync-status" style="margin-top: 1em;"></div>
+    </div>
+  </div>
+</div>
+
+  
+  <script>
+document.addEventListener("DOMContentLoaded", () => {
+  const savedUser = localStorage.getItem("username");
+  const input = document.getElementById("sync-username");
+
+  if (savedUser && input) {
+    usernameConfirmed = true;
+
+    // Sembunyikan input & tampilkan label username
+    input.style.display = 'none';
+    const label = document.createElement("div");
+    label.id = "username-label";
+    label.style.marginTop = "0.5em";
+    label.innerHTML = `👤 Username: <strong>${savedUser}</strong>`;
+    input.parentElement.insertBefore(label, input.nextSibling);
+
+    document.getElementById('check-result').innerHTML = `<span style="color:green">✅ Username dikonfirmasi</span>`;
+  }
+
+  // Tambah tombol Ganti User di bawah tombol SYNC
+  const nav = document.querySelector(".nav-buttons");
+  if (savedUser && nav && !document.getElementById("ganti-user-btn")) {
+    const gantiBtn = document.createElement("button");
+    gantiBtn.id = "ganti-user-btn";
+    gantiBtn.innerText = "GANTI USER";
+    gantiBtn.onclick = () => {
+      localStorage.removeItem("username");
+      location.reload();
+    };
+    nav.appendChild(gantiBtn);
   }
 });
 </script>
 
+  <script>
+document.addEventListener("DOMContentLoaded", () => {
+  const saved = localStorage.getItem("usernameAktif");
+  const input = document.getElementById("sync-username");
+  const checkBtn = input.nextElementSibling;
+  const status = document.getElementById("check-result");
 
+  if (saved && input && status) {
+    usernameConfirmed = true;
+    input.style.display = "none";
+    if (checkBtn) checkBtn.style.display = "none";
 
-  
+    const label = document.createElement("div");
+    label.id = "username-label";
+    label.innerHTML = `👤 Username: <strong>${saved}</strong>`;
+    input.parentElement.insertBefore(label, input.nextSibling);
+
+    status.innerHTML = '<span style="color:green">✅ Username dikonfirmasi</span>';
+
+    if (!document.getElementById("btn-ganti-user")) {
+      const gantiBtn = document.createElement("button");
+      gantiBtn.id = "btn-ganti-user";
+      gantiBtn.textContent = "🔁 Ganti User";
+      gantiBtn.onclick = () => {
+        localStorage.removeItem("usernameAktif");
+        input.style.display = "inline-block";
+        if (checkBtn) checkBtn.style.display = "inline-block";
+        status.innerHTML = '';
+        document.getElementById("username-label")?.remove();
+        document.getElementById("btn-ganti-user")?.remove();
+        input.value = '';
+        input.focus();
+        usernameConfirmed = false;
+      };
+      input.parentElement.appendChild(gantiBtn);
+    }
+  }
+});
+</script>
 
 <script>
 // Deteksi swipe kiri dan kanan untuk menggantikan tombol NEXT dan PREV
