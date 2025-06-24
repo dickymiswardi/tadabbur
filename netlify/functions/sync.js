@@ -13,8 +13,7 @@ exports.handler = async function (event) {
   const repo = "tadabbur";       // Ganti sesuai repo
   const path = `data/${username}.json`;
 
-  const content = Buffer.from(JSON.stringify(data, null, 2)).toString("base64");
-
+  const content = Buffer.from(JSON.stringify(data, null, 2)).toString("base64"); // Mantap
   try {
     let sha;
     try {
@@ -30,6 +29,7 @@ exports.handler = async function (event) {
       content,
       sha,
     });
+    
 
     return { statusCode: 200, body: "✅ Disimpan ke Cloud!" };
   } catch (err) {
