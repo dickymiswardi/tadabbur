@@ -2400,22 +2400,48 @@ if ('serviceWorker' in navigator) {
 </script>
 
   <!-- apus Data Offline Qur'an -->
-  <button id="clear-cache-btn" style="margin:1em; padding:0.6em 1.2em; border:2px solid #c00; background:#fdd; border-radius:8px; cursor:pointer;">
+ <button id="clear-cache-btn" style="display:none; margin:1em; padding:0.6em 1.2em; border:2px solid #c00; background:#fdd; border-radius:8px; cursor:pointer;">
   🗑 Hapus Data Offline Qur'an
 </button>
 <span id="clear-cache-status" style="font-size:0.9em; color:#c00; margin-left:0.5em;"></span>
 
-<script>
+  <script>
+async function checkVersionAndShowClear() {
+  try {
+    const response = await fetch('./version.json', { cache: 'no-store' });
+    const data = await response.json();
+    const serverVersion = data.version;
+    const localVersion = localStorage.getItem('quranAppVersion');
+
+    if (localVersion) {
+      // User sudah pernah akses
+      if (localVersion !== serverVersion) {
+        // Ada update
+        document.getElementById('clear-cache-btn').style.display = 'inline-block';
+        console.log('Ada update data, tampilkan tombol clear cache');
+      } else {
+        console.log('Tidak ada update data, tombol tidak ditampilkan');
+      }
+    } else {
+      // Browser baru pertama akses → simpan versi
+      localStorage.setItem('quranAppVersion', serverVersion);
+      console.log('Pengguna baru, simpan versi');
+    }
+
+  } catch (e) {
+    console.warn('Gagal cek versi data', e);
+  }
+}
+
+checkVersionAndShowClear();
+
+// Handler tombol hapus
 document.getElementById('clear-cache-btn').onclick = async function() {
   const status = document.getElementById('clear-cache-status');
   try {
-    // Hapus cache khusus aplikasi ini
     const deleted = await caches.delete('tadabbur-cache');
-    
-    // Bersihkan localStorage kalau Anda simpan versi / catatan di sana
-    localStorage.removeItem('quranAppVersion'); // jika Anda simpan versi
-    // localStorage.removeItem('tadabburNotes'); // jika ada catatan khusus
-
+    localStorage.removeItem('quranAppVersion');
+    // Hapus item localStorage lain jika ada (catatan, dsb)
     if (deleted) {
       status.textContent = '✅ Data Qur\'an offline dihapus. Silakan refresh.';
     } else {
@@ -2427,6 +2453,7 @@ document.getElementById('clear-cache-btn').onclick = async function() {
   }
 };
 </script>
+
 
 
 </body>
