@@ -2399,15 +2399,13 @@ if ('serviceWorker' in navigator) {
 }
 </script>
 
-  <!-- apus Data Offline Qur'an -->
-<div id="clear-cache-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; display:flex; justify-content:center; align-items:center;">
-  <div style="background:white; padding:2em; border-radius:10px; max-width:90%; box-shadow:0 0 20px rgba(0,0,0,0.3); text-align:center;">
-        <p id="clear-cache-message" style="margin-bottom:1em; font-size:1.2em;">🔄 Ada pembaruan data Qur'an. Bersihkan cache untuk update?</p>
-    <button id="clear-cache-btn" style="padding:0.6em 1.2em; border:2px solid #c00; background:#fdd; border-radius:8px; cursor:pointer; font-size:1em;">
-      🗑 Hapus Data Offline Qur'an
-    </button>
-    <div id="clear-cache-status" style="font-size:0.9em; color:#c00; margin-top:0.5em;"></div>
-  </div>
+  <!-- Hapus Data Offline Qur'an -->
+<div id="clear-cache-overlay" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);
+background:#fff; border:2px solid #c00; padding:1em 2em; border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.1); z-index:9999;">
+  <p id="clear-cache-msg" style="margin:0 0 0.5em 0; color:#c00; font-weight:bold;">Update tersedia</p>
+  <button id="clear-cache-btn" style="padding:0.6em 1.2em; border:2px solid #c00; background:#fdd; border-radius:6px; cursor:pointer;">
+    🗑 Hapus Data Offline Qur'an
+  </button>
 </div>
 
   <script>
@@ -2418,20 +2416,13 @@ async function checkVersionAndShowClear() {
     const serverVersion = data.version;
     const localVersion = localStorage.getItem('quranAppVersion');
 
-    if (localVersion) {
-      if (localVersion !== serverVersion) {
-        // Update teks overlay sesuai versi
-        const msg = document.getElementById('clear-cache-message');
-        msg.textContent = `Update terbaru: Versi ${serverVersion}`;
-        
-        // Tampilkan overlay
-        document.getElementById('clear-cache-overlay').style.display = 'flex';
-        console.log(`Ada update data ke versi ${serverVersion}, tampilkan overlay clear cache`);
-      }
-    } else {
-      // User baru → simpan versi
+    if (localVersion && localVersion !== serverVersion) {
+      // Update overlay text dengan versi terbaru
+      document.getElementById('clear-cache-msg').textContent = `Update tersedia: versi ${serverVersion}`;
+      document.getElementById('clear-cache-overlay').style.display = 'block';
+    } else if (!localVersion) {
+      // User pertama akses → simpan versi
       localStorage.setItem('quranAppVersion', serverVersion);
-      console.log('Pengguna baru, simpan versi');
     }
   } catch (e) {
     console.warn('Gagal cek versi data', e);
@@ -2441,29 +2432,18 @@ async function checkVersionAndShowClear() {
 checkVersionAndShowClear();
 
 document.getElementById('clear-cache-btn').onclick = async function() {
-  const status = document.getElementById('clear-cache-status');
   try {
     const deleted = await caches.delete('tadabbur-cache');
     localStorage.removeItem('quranAppVersion');
-    if (deleted) {
-      status.textContent = '✅ Data Qur\'an offline dihapus. Memuat ulang...';
-    } else {
-      status.textContent = 'ℹ Tidak ada data Qur\'an offline ditemukan. Memuat ulang...';
-    }
-
-    // Sembunyikan overlay langsung
+    console.log(deleted ? '✅ Cache dihapus' : 'ℹ Tidak ada cache');
     document.getElementById('clear-cache-overlay').style.display = 'none';
-
-    // Segera reload
     location.reload(true);
-
   } catch (e) {
-    status.textContent = '❌ Gagal hapus data Qur\'an offline.';
-    console.error(e);
+    console.error('❌ Gagal hapus cache', e);
   }
 };
-
 </script>
+
 
 
 
