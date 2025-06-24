@@ -2399,132 +2399,51 @@ if ('serviceWorker' in navigator) {
 }
 </script>
 
-<!-- Delete Cache -->
-  <script>
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('./DeleteCache.js')
-    .then(() => console.log('✅ Service Worker terdaftar!'))
-    .catch(err => console.error('❌ Gagal daftar Service Worker:', err));
+<!-- Hapus Cache -->
+<script>
+async function checkForDataUpdates() {
+  const cache = await caches.open('tadabbur-cache');
+  const files = [
+    './quran.json',
+    './indonesian_complex_v1.0.xml',
+    './quran.xml',
+    './TerjemahID.xml',
+    './id.jalalayn.xml'
+  ];
+
+  for (const file of files) {
+    try {
+      const req = new Request(file);
+      const networkResponse = await fetch(req);
+      await cache.put(req, networkResponse.clone());
+      console.log(`✅ ${file} sudah diupdate dari server`);
+    } catch (e) {
+      console.warn(`❌ Gagal update ${file}`);
+    }
+  }
+
+  location.reload();
+}
+
+if (navigator.onLine) {
+  checkForDataUpdates();
 }
 </script>
+<!-- Tombol Hapus Cache -->
+<button onclick="clearAndReload()" style="padding:0.5em 1em; background:#c00; color:white; border:none; border-radius:5px; cursor:pointer;">
+  🔄 Hapus Cache & Refresh
+</button>
 
-  <style>
-#cacheOverlay {
-  display: none;
-  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-  background: rgba(0,0,0,0.85); color: #fff;
-  z-index: 9999; display: flex; align-items: center; justify-content: center;
-  flex-direction: column; padding: 2em;
-  animation: fadeIn 0.5s ease-out;
+<script>
+function clearAndReload() {
+  caches.keys().then(names => {
+    Promise.all(names.map(name => caches.delete(name))).then(() => {
+      localStorage.clear(); // Jika mau, hapus juga localStorage
+      console.log('✅ Cache dan localStorage dihapus');
+      location.reload(true); // Force reload ambil data baru
+    });
+  });
 }
-#cacheOverlay p {
-  font-size: 1.2em; text-align: center; margin-bottom: 1em;
-}
-#cacheOverlay button {
-  padding: 0.8em 1.6em; font-size: 1em;
-  background: linear-gradient(135deg, #00b4d8, #0077b6);
-  color: white; border: none; border-radius: 8px;
-  cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-  transition: background 0.3s, transform 0.2s;
-}
-#cacheOverlay button:hover {
-  background: linear-gradient(135deg, #0077b6, #023e8a);
-  transform: scale(1.05);
-}
-#cacheOverlay .loader {
-  border: 4px solid rgba(255,255,255,0.3);
-  border-top: 4px solid #fff;
-  border-radius: 50%;
-  width: 40px; height: 40px;
-  animation: spin 1s linear infinite;
-  margin-top: 1em;
-}
-@keyframes fadeIn { from {opacity:0;} to {opacity:1;} }
-@keyframes spin { to { transform: rotate(360deg); } }
-</style>
-
-<div id="cacheOverlay">
-  <p>Versi data baru tersedia. Perbarui cache untuk pengalaman terbaik?</p>
-  <button id="clearCacheBtn">🗑️ Hapus Cache & Update</button>
-  <div id="overlayLoader" class="loader" style="display:none;"></div>
-</div>
-
-  <script>
-(async function() {
-  const cacheName = 'delete-cache';
-  const cacheList = await caches.keys();
-  const hasCache = cacheList.includes(cacheName);
-  let showOverlay = false;
-
-  if (hasCache) {
-    const cache = await caches.open(cacheName);
-    const cachedFlag = await cache.match('./update-flag.json');
-    let cachedData = { updateAvailable: false, version: null };
-
-    if (cachedFlag) {
-      try {
-        cachedData = await cachedFlag.json();
-      } catch (e) {
-        console.warn('❌ Tidak bisa baca versi cache');
-      }
-    }
-
-    try {
-      const response = await fetch('./update-flag.json', { cache: 'no-store' });
-      const networkData = await response.clone().json();
-
-      if (
-        networkData.updateAvailable ||
-        networkData.version !== cachedData.version
-      ) {
-        showOverlay = true;
-      }
-
-      await cache.put('./update-flag.json', response.clone());
-    } catch (e) {
-      console.warn('❌ Gagal cek update flag:', e);
-    }
-  }
-
-  if (showOverlay) {
-    document.getElementById('cacheOverlay').style.display = 'flex';
-  }
-
-  document.getElementById('clearCacheBtn').onclick = async function() {
-    const btn = this;
-    const loader = document.getElementById('overlayLoader');
-    btn.disabled = true;
-    loader.style.display = 'block';
-    await caches.delete(cacheName);
-    console.log('✅ Cache dihapus');
-
-    const cache = await caches.open(cacheName);
-    const files = [
-      './',
-      './index.html',
-      './quran.json',
-      './indonesian_complex_v1.0.xml',
-      './quran.xml',
-      './TerjemahID.xml',
-      './id.jalalayn.xml',
-      './manifest.json',
-      './update-flag.json'
-    ];
-
-    for (const file of files) {
-      try {
-        const response = await fetch(file);
-        await cache.put(file, response.clone());
-        console.log(`✅ ${file} diunduh & cache`);
-      } catch (e) {
-        console.warn(`❌ Gagal unduh ${file}`);
-      }
-    }
-
-    document.getElementById('cacheOverlay').style.display = 'none';
-    console.log('✅ Data baru siap offline');
-  };
-})();
 </script>
 
   
