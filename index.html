@@ -2446,20 +2446,23 @@ document.getElementById('clear-cache-btn').onclick = async function() {
     const deleted = await caches.delete('tadabbur-cache');
     localStorage.removeItem('quranAppVersion');
     if (deleted) {
-      status.textContent = 'Refresh...';
+      status.textContent = '✅ Data Qur\'an offline dihapus. Memuat ulang...';
     } else {
       status.textContent = 'ℹ Tidak ada data Qur\'an offline ditemukan. Memuat ulang...';
     }
-    // Sembunyikan overlay & reload
-    setTimeout(() => {
-      document.getElementById('clear-cache-overlay').style.display = 'none';
-      location.reload(true);
-    }, 1000);
+
+    // Sembunyikan overlay langsung
+    document.getElementById('clear-cache-overlay').style.display = 'none';
+
+    // Segera reload
+    location.reload(true);
+
   } catch (e) {
     status.textContent = '❌ Gagal hapus data Qur\'an offline.';
     console.error(e);
   }
 };
+
 </script>
 
 
