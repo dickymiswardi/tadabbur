@@ -2403,9 +2403,9 @@ if ('serviceWorker' in navigator) {
 <!-- Wrapper overlay dengan background samar -->
  <div id="clear-cache-overlay" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);
 background:#F5F5F5; border:2px solid #347433; padding:1em 2em; border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.1); z-index:9999; text-align:center;">
-  <p id="clear-cache-msg" style="margin:0 0 0.5em 0; color:#F5F5F5; font-weight:bold;">Update tersedia: versi 2025-06-23-06</p>
+  <p id="clear-cache-msg" style="margin:0 0 0.5em 0; color:#000000; font-weight:bold;"></p>
   <button id="clear-cache-btn" style="padding:0.6em 1.2em; border:2px solid #347433; background:#F5F5F5; border-radius:6px; cursor:pointer;">
-    Lanjtkan
+    LANJUTKAN
   </button>
 </div>
 
@@ -2421,7 +2421,7 @@ async function checkVersionAndShowClear() {
 
     if (localVersion && localVersion !== serverVersion) {
       // Update overlay text dengan versi terbaru
-      document.getElementById('clear-cache-msg').textContent = `Welcome Versi ${serverVersion}`;
+      document.getElementById('clear-cache-msg').textContent = `WELCOME VERSI ${serverVersion}`;
       document.getElementById('clear-cache-overlay').style.display = 'block';
     } else if (!localVersion) {
       // User pertama akses → simpan versi
