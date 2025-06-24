@@ -2399,5 +2399,35 @@ if ('serviceWorker' in navigator) {
 }
 </script>
 
+  <!-- apus Data Offline Qur'an -->
+  <button id="clear-cache-btn" style="margin:1em; padding:0.6em 1.2em; border:2px solid #c00; background:#fdd; border-radius:8px; cursor:pointer;">
+  🗑 Hapus Data Offline Qur'an
+</button>
+<span id="clear-cache-status" style="font-size:0.9em; color:#c00; margin-left:0.5em;"></span>
+
+<script>
+document.getElementById('clear-cache-btn').onclick = async function() {
+  const status = document.getElementById('clear-cache-status');
+  try {
+    // Hapus cache khusus aplikasi ini
+    const deleted = await caches.delete('tadabbur-cache');
+    
+    // Bersihkan localStorage kalau Anda simpan versi / catatan di sana
+    localStorage.removeItem('quranAppVersion'); // jika Anda simpan versi
+    // localStorage.removeItem('tadabburNotes'); // jika ada catatan khusus
+
+    if (deleted) {
+      status.textContent = '✅ Data Qur\'an offline dihapus. Silakan refresh.';
+    } else {
+      status.textContent = 'ℹ Tidak ada data Qur\'an offline yang ditemukan.';
+    }
+  } catch (e) {
+    status.textContent = '❌ Gagal hapus data Qur\'an offline.';
+    console.error(e);
+  }
+};
+</script>
+
+
 </body>
 </html>
