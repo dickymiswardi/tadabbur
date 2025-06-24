@@ -2401,12 +2401,13 @@ if ('serviceWorker' in navigator) {
 
   <!-- Hapus Data Offline Qur'an -->
 <div id="clear-cache-overlay" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);
-background:#fff; border:2px solid #c00; padding:1em 2em; border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.1); z-index:9999;">
-  <p id="clear-cache-msg" style="margin:0 0 0.5em 0; color:#c00; font-weight:bold;">Update tersedia</p>
-  <button id="clear-cache-btn" style="padding:0.6em 1.2em; border:2px solid #c00; background:#fdd; border-radius:6px; cursor:pointer;">
-    🗑 Hapus Data Offline Qur'an
+background:#FFFDF6; border:2px solid #4B352A; padding:1em 2em; border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.1); z-index:9999; text-align:center;">
+  <p id="clear-cache-msg" style="margin:0 0 0.5em 0; color:#4B352A; font-weight:bold;">Welcome</p>
+  <button id="clear-cache-btn" style="padding:0.6em 1.2em; border:2px solid #347433; background:#FFFDF6; color:#4B352A; border-radius:6px; cursor:pointer;">
+    Lanjutkan
   </button>
 </div>
+
 
   <script>
 async function checkVersionAndShowClear() {
@@ -2418,7 +2419,7 @@ async function checkVersionAndShowClear() {
 
     if (localVersion && localVersion !== serverVersion) {
       // Update overlay text dengan versi terbaru
-      document.getElementById('clear-cache-msg').textContent = `Update tersedia: versi ${serverVersion}`;
+      document.getElementById('clear-cache-msg').textContent = `Versi ${serverVersion}`;
       document.getElementById('clear-cache-overlay').style.display = 'block';
     } else if (!localVersion) {
       // User pertama akses → simpan versi
