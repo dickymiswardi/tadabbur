@@ -2,7 +2,7 @@ const { Octokit } = require("@octokit/rest");
 
 exports.handler = async function(event) {
   const headers = {
-    "Access-Control-Allow-Origin": "*", // GANTI jadi domain Anda setelah tes, misalnya: "https://dickymiswardi.github.io"
+    "Access-Control-Allow-Origin": "*", // ⚠ Saat production, ganti ke domain Anda untuk keamanan
     "Access-Control-Allow-Headers": "Content-Type"
   };
 
@@ -25,7 +25,7 @@ exports.handler = async function(event) {
   }
 
   try {
-    const { username, data } = JSON.parse(event.body);
+    const { username, data } = JSON.parse(event.body || "{}");
 
     if (!username || !/^[a-z0-9_-]+$/.test(username)) {
       return {
@@ -35,11 +35,27 @@ exports.handler = async function(event) {
       };
     }
 
+    if (!data) {
+      return {
+        statusCode: 400,
+        headers,
+        body: JSON.stringify({ error: "❌ Data tidak ada" })
+      };
+    }
+
     const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
+    if (!GITHUB_TOKEN) {
+      return {
+        statusCode: 500,
+        headers,
+        body: JSON.stringify({ error: "❌ GITHUB_TOKEN tidak tersedia di server" })
+      };
+    }
+
     const octokit = new Octokit({ auth: GITHUB_TOKEN });
 
-    const owner = "dickymiswardi";   // Ganti jika repo milik org lain
-    const repo = "tadabbur";         // Ganti jika repo beda
+    const owner = "dickymiswardi";
+    const repo = "tadabbur";
     const path = `data/${username}.json`;
     const content = Buffer.from(JSON.stringify(data, null, 2)).toString("base64");
 
@@ -48,7 +64,7 @@ exports.handler = async function(event) {
       const res = await octokit.repos.getContent({ owner, repo, path });
       sha = res.data.sha;
     } catch (e) {
-      // File belum ada, abaikan error
+      // File belum ada → sha undefined, tidak masalah
     }
 
     await octokit.repos.createOrUpdateFileContents({
