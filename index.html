@@ -2392,11 +2392,13 @@ function fetchTerjemah() {
   
 <!-- Akses Halaman Offline -->
 <script>
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/serviceWorker.js')
-    .then(() => console.log('Service Worker registered!'))
-    .catch(err => console.error('SW failed:', err));
-}
+const basePath = window.location.pathname.endsWith('/') 
+  ? window.location.pathname 
+  : window.location.pathname.replace(/\/[^\/]*$/, '/');
+
+navigator.serviceWorker.register(`${basePath}serviceWorker.js`)
+  .then(() => console.log('✅ Service Worker registered at', `${basePath}serviceWorker.js`))
+  .catch(err => console.error('❌ Service Worker failed', err));
 </script>
 
   <!-- Hapus Data Offline Qur'an -->
