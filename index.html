@@ -2399,5 +2399,55 @@ if ('serviceWorker' in navigator) {
 }
 </script>
 
+  <!-- Hapus Data Offline Qur'an -->
+<!-- Wrapper overlay dengan background samar -->
+ <div id="clear-cache-overlay" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);
+background:#FFFCFB; border:2.5px solid #41ab5d; padding:1em 2em; border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.1); z-index:9999; text-align:center;">
+  <p id="clear-cache-msg" style="margin:0 0 0.5em 0; color:#000; font-weight:bold;">Update</p>
+  <button id="clear-cache-btn" style="padding:0.6em 1.2em; border:2.5px solid #41ab5d; background:#FFFCFB; border-radius:6px; cursor:pointer;">
+    LANJUTKAN
+  </button>
+</div>
+
+
+  <script>
+async function checkVersionAndShowClear() {
+  try {
+    const response = await fetch('./version.json', { cache: 'no-store' });
+    const data = await response.json();
+    const serverVersion = data.version;
+    const localVersion = localStorage.getItem('quranAppVersion');
+
+    if (localVersion && localVersion !== serverVersion) {
+      // Update overlay text dengan versi terbaru
+      document.getElementById('clear-cache-msg').textContent = `WELCOME VERSI ${serverVersion}`;
+      document.getElementById('clear-cache-overlay').style.display = 'block';
+    } else if (!localVersion) {
+      // User pertama akses → simpan versi
+      localStorage.setItem('quranAppVersion', serverVersion);
+    }
+  } catch (e) {
+    console.warn('Gagal cek versi data', e);
+  }
+}
+
+checkVersionAndShowClear();
+
+document.getElementById('clear-cache-btn').onclick = async function() {
+  try {
+    const deleted = await caches.delete('tadabbur-cache');
+    localStorage.removeItem('quranAppVersion');
+    console.log(deleted ? '✅ Cache dihapus' : 'ℹ Tidak ada cache');
+    document.getElementById('clear-cache-overlay').style.display = 'none';
+    location.reload(true);
+  } catch (e) {
+    console.error('❌ Gagal hapus cache', e);
+  }
+};
+</script>
+
+
+
+
 </body>
 </html>
