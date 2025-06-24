@@ -2422,7 +2422,7 @@ async function checkVersionAndShowClear() {
 
     if (localVersion && localVersion !== serverVersion) {
       // Update overlay text dengan versi terbaru
-      document.getElementById('clear-cache-msg').textContent = `WELCOME VERSI ${serverVersion}`;
+      document.getElementById('clear-cache-msg').textContent = `UPDATE VERSI ${serverVersion}`;
       document.getElementById('clear-cache-overlay').style.display = 'block';
     } else if (!localVersion) {
       // User pertama akses → simpan versi
