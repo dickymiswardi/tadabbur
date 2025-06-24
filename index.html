@@ -1939,10 +1939,14 @@ async function uploadDataToCloud() {
     };
 
     status.innerHTML = '⬆️ Upload <img src="https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/FadingFountain.gif" width="50" />';
-    await fetch('/.netlify/functions/sync', {
-      method: 'POST',
-      body: JSON.stringify({ username, data: payload })
-    });
+    await fetch('https://tadabbur.netlify.app/.netlify/functions/sync', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({ username, data: payload })
+});
+
 
     status.innerHTML = '<span style="color:green">✅ Upload berhasil!</span>';
   } catch (err) {
