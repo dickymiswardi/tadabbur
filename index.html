@@ -2399,53 +2399,5 @@ if ('serviceWorker' in navigator) {
 }
 </script>
 
-<!-- Hapus Cache -->
-<script>
-async function checkForDataUpdates() {
-  const cache = await caches.open('tadabbur-cache');
-  const files = [
-    './quran.json',
-    './indonesian_complex_v1.0.xml',
-    './quran.xml',
-    './TerjemahID.xml',
-    './id.jalalayn.xml'
-  ];
-
-  for (const file of files) {
-    try {
-      const req = new Request(file);
-      const networkResponse = await fetch(req);
-      await cache.put(req, networkResponse.clone());
-      console.log(`✅ ${file} sudah diupdate dari server`);
-    } catch (e) {
-      console.warn(`❌ Gagal update ${file}`);
-    }
-  }
-
-  location.reload();
-}
-
-if (navigator.onLine) {
-  checkForDataUpdates();
-}
-</script>
-<!-- Tombol Hapus Cache -->
-<button onclick="clearAndReload()" style="padding:0.5em 1em; background:#c00; color:white; border:none; border-radius:5px; cursor:pointer;">
-  🔄 Hapus Cache & Refresh
-</button>
-
-<script>
-function clearAndReload() {
-  caches.keys().then(names => {
-    Promise.all(names.map(name => caches.delete(name))).then(() => {
-      localStorage.clear(); // Jika mau, hapus juga localStorage
-      console.log('✅ Cache dan localStorage dihapus');
-      location.reload(true); // Force reload ambil data baru
-    });
-  });
-}
-</script>
-
-  
 </body>
 </html>
