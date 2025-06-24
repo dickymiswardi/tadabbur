@@ -2396,5 +2396,47 @@ if ('serviceWorker' in navigator) {
 }
 </script>
 
+<!-- Update Data App -->
+<script>
+async function checkUpdateFlag() {
+  try {
+    const response = await fetch('./update-flag.json', { cache: 'no-store' });
+    const data = await response.json();
+    const savedVersion = localStorage.getItem('quranAppVersion');
+
+    if (data.updateAvailable && data.version !== savedVersion) {
+      const placeholder = document.getElementById('install-placeholder');
+      placeholder.innerHTML = '';
+
+      const btn = document.createElement('button');
+      btn.textContent = '🗑 Hapus Data Offline Qur\'an';
+      btn.style.marginLeft = '0.6em';
+      btn.style.padding = '0.4em 0.8em';
+      btn.style.background = '#fdd';
+      btn.style.border = '2px solid #c00';
+      btn.style.borderRadius = '6px';
+      btn.style.cursor = 'pointer';
+
+      btn.onclick = async function() {
+        await caches.delete('tadabbur-cache');
+        localStorage.setItem('quranAppVersion', data.version);
+        alert('✅ Data offline dihapus. Silakan refresh halaman untuk memuat data baru.');
+      };
+
+      placeholder.appendChild(btn);
+    }
+  } catch (e) {
+    console.error('Gagal cek update flag:', e);
+  }
+}
+
+// Jalankan hanya saat online
+if (navigator.onLine) {
+  checkUpdateFlag();
+}
+</script>
+
+  
+  
 </body>
 </html>
