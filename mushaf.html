@@ -2,21 +2,24 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <title>Quran Per Kata</title>
+  <title>Kata-kata dari Al-Qur'an</title>
+
+  <!-- Load QCF_P002.TTF dari jsDelivr (pastikan URL benar) -->
   <style>
     @font-face {
-      font-family: 'QuranFont';
+      font-family: 'QCF_P002';
       src: url('https://cdn.jsdelivr.net/gh/dickymiswardi/tadabbur/fonts/QCF_P002.TTF') format('truetype');
       font-display: swap;
     }
 
     body {
-      font-family: 'QuranFont', 'Amiri', 'Scheherazade', 'Traditional Arabic', serif;
+      font-family: 'QCF_P002', 'Amiri', 'Scheherazade', 'Traditional Arabic', serif;
       font-size: 36px;
       direction: rtl;
       text-align: right;
       padding: 40px;
-      background: #fcfbf8;
+      background: #fcfbf7;
+      color: #111;
     }
 
     .word {
@@ -25,18 +28,18 @@
       padding: 6px 10px;
       border: 1px solid #aaa;
       border-radius: 12px;
-      background-color: #f9f9f9;
+      background-color: #fff;
     }
   </style>
 </head>
 <body>
   <h2>📘 Kata-kata dari Al-Qur'an</h2>
-  <div id="words">⏳ Memuat...</div>
+  <div id="words">⏳ Memuat kata...</div>
 
   <script>
-    // Contoh: ambil 1 ayat — bisa diganti ke ayat manapun
+    // Ambil ayat tertentu — misal Al-Fatihah ayat 1
     const surah = 2;
-    const ayah = 2;
+    const ayah = 4;
 
     const url = `https://api.quran.com/api/v4/verses/by_key/${surah}:${ayah}?words=true&fields=words`;
 
@@ -51,7 +54,8 @@
           if (word.char_type_name === "word") {
             const span = document.createElement("span");
             span.className = "word";
-            span.textContent = word.code_v1 || word.text;
+            // gunakan text (teks Arab Unicode biasa)
+            span.textContent = word.text;
             container.appendChild(span);
           }
         });
