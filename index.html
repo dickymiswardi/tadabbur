@@ -2,51 +2,64 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <title>Al-Qur'an Per Kata Interaktif</title>
+  <title>Terjemah Per Kata Interaktif</title>
   <style>
     body {
       background: #fefcf8;
-      font-family: sans-serif;
       text-align: center;
-      padding: 2em;
+      font-family: sans-serif;
       direction: rtl;
+      padding: 2em;
     }
 
     #ayah-visual {
       font-family: 'QCF_P002', serif;
       font-size: 3em;
-      user-select: none;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.4em;
       cursor: pointer;
-      line-height: 1.8;
-      display: inline-block;
     }
 
-    .word {
-      display: inline-block;
-      margin: 0 0.2em;
+    .word-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: all 0.2s ease-in-out;
     }
 
-    .translated {
-      font-family: sans-serif;
-      font-size: 1em;
-      color: #444;
+    .arabic-word {
+      font-family: 'QCF_P002', serif;
+      font-size: 1.4em;
+      line-height: 1.2;
+    }
+
+    .translation-word {
+      font-size: 0.6em;
+      color: #555;
+      display: none;
+    }
+
+    #ayah-visual.active .translation-word {
       display: block;
-      text-align: center;
-      margin-top: 0.2em;
+    }
+
+    #ayah-visual.active .arabic-word {
+      font-size: 1em;
     }
 
     @font-face {
       font-family: 'QCF_P002';
       src: url('https://dickymiswardi.github.io/tadabbur/QCF_P002.TTF') format('truetype');
-      font-display: swap;
     }
   </style>
 </head>
 <body>
 
-  <h1>القرآن الكريم - ترجمة فورية للكلمة</h1>
+  <h1>النص القرآني مع الترجمة الفورية</h1>
 
-  <div id="ayah-visual"></div>
+  <div id="ayah-visual">جارٍ التحميل...</div>
 
   <script>
     const surah = 2;
@@ -55,43 +68,38 @@
     fetch(`https://api.quran.com/api/v4/verses/by_key/${surah}:${ayah}?words=true&translations=33`)
       .then(res => res.json())
       .then(data => {
+        const container = document.getElementById("ayah-visual");
+        container.innerHTML = '';
+        container.classList.remove('active');
+
         const words = data.verse.words;
 
-        const container = document.getElementById("ayah-visual");
-        container.innerHTML = ''; // kosongkan
-
         words.forEach(word => {
-          const span = document.createElement('span');
-          span.className = 'word';
-          span.setAttribute('data-glyph', word.code_v1 || word.text);
-          span.setAttribute('data-translate', word.translation?.text || '');
-          span.setAttribute('data-state', 'glyph');
-          span.innerText = word.code_v1 || word.text;
-          container.appendChild(span);
+          const wrapper = document.createElement('div');
+          wrapper.className = 'word-wrapper';
+
+          const arabic = document.createElement('div');
+          arabic.className = 'arabic-word';
+          arabic.innerText = word.code_v1 || word.text;
+
+          const trans = document.createElement('div');
+          trans.className = 'translation-word';
+          trans.innerText = word.translation?.text || '';
+
+          wrapper.appendChild(arabic);
+          wrapper.appendChild(trans);
+          container.appendChild(wrapper);
         });
 
-        // Tambah nomor ayat di akhir
-        const ayahNum = document.createElement('span');
-        ayahNum.innerText = ` ﴿${ayah}﴾`;
-        container.appendChild(ayahNum);
+        // Tambahkan nomor ayat di akhir
+        const number = document.createElement('div');
+        number.innerText = `﴿${ayah}﴾`;
+        number.className = 'arabic-word';
+        container.appendChild(number);
 
-        // Toggle saat diklik
+        // Klik untuk toggle
         container.addEventListener('click', () => {
-          const spans = container.querySelectorAll('.word');
-          spans.forEach(span => {
-            const state = span.getAttribute('data-state');
-            if (state === 'glyph') {
-              span.innerText = span.getAttribute('data-translate');
-              span.setAttribute('data-state', 'translate');
-              span.style.fontFamily = 'sans-serif';
-              span.style.fontSize = '1.2em';
-            } else {
-              span.innerText = span.getAttribute('data-glyph');
-              span.setAttribute('data-state', 'glyph');
-              span.style.fontFamily = 'QCF_P002';
-              span.style.fontSize = '';
-            }
-          });
+          container.classList.toggle('active');
         });
       });
   </script>
