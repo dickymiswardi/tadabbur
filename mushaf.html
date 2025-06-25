@@ -2,26 +2,55 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <title>Al-Qur'an Copy Unicode</title>
+  <title>Terjemah Per Kata Interaktif</title>
   <style>
     body {
-      background: #fefcf8;
-      font-family: sans-serif;
+      background: #fefdf8;
       text-align: center;
       padding: 2em;
       direction: rtl;
+      font-family: sans-serif;
     }
 
-    #ayah-visual {
+    #ayah-container {
       font-family: 'QCF_P002', serif;
       font-size: 3em;
+      line-height: 1.8;
       user-select: text;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.4em;
     }
 
-    #ayah-unicode {
+    .word {
+      position: relative;
+      cursor: pointer;
+      display: inline-block;
+    }
+
+    .word:hover {
+      background-color: #f7eacb;
+      border-radius: 8px;
+    }
+
+    .translation {
       position: absolute;
-      left: -9999px;
+      bottom: -2.2em;
+      font-family: sans-serif;
+      font-size: 0.5em;
+      color: #444;
+      background-color: #fff;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      padding: 0.3em 0.6em;
       white-space: nowrap;
+      display: none;
+      z-index: 10;
+    }
+
+    .active .translation {
+      display: block;
     }
 
     @font-face {
@@ -33,50 +62,38 @@
 </head>
 <body>
 
-  <h1>القرآن الكريم - نسخ آية Unicode</h1>
-
-  <div id="ayah-visual">جارٍ التحميل...</div>
-  <div id="ayah-unicode"></div>
+  <h2>Klik Kata untuk Terjemah</h2>
+  <div id="ayah-container">جارٍ التحميل...</div>
 
   <script>
     const surah = 2;
     const ayah = 2;
 
-    // Load teks dari XML lokal
-    fetch("https://dickymiswardi.github.io/tadabbur/quran-uthmani.xml")
-      .then(res => res.text())
-      .then(xmlText => {
-        const parser = new DOMParser();
-        const xml = parser.parseFromString(xmlText, "text/xml");
+    fetch(`https://api.quran.com/api/v4/verses/by_key/${surah}:${ayah}?words=true&translations=33`)
+      .then(res => res.json())
+      .then(data => {
+        const words = data.verse.words;
 
-        // Ambil ayat Unicode dari XML
-        const aya = xml.querySelector(`sura[index="${surah}"] > aya[index="${ayah}"]`);
-        const text = aya?.getAttribute("text") || "(Ayat tidak ditemukan)";
-        const ayahNumber = aya?.getAttribute("index") || "";
-        const decorated = text + " ﴿" + ayahNumber + "﴾";
+        const container = document.getElementById("ayah-container");
+        container.innerHTML = ""; // Clear loading text
 
-        document.getElementById("ayah-unicode").innerText = decorated;
+        words.forEach(word => {
+          const span = document.createElement("span");
+          span.className = "word";
+          span.innerText = word.code_v1 || word.text;
 
-        // Ambil visual Mushaf dari API (code_v1)
-        fetch(`https://api.quran.com/api/v4/verses/by_key/${surah}:${ayah}?words=true`)
-          .then(res => res.json())
-          .then(data => {
-            const codeV1 = data.verse.words.map(w => w.code_v1 || w.text).join(' ');
-            document.getElementById("ayah-visual").innerText = codeV1;
+          const trans = document.createElement("div");
+          trans.className = "translation";
+          trans.innerText = word.translation?.text || "";
+
+          span.appendChild(trans);
+          span.addEventListener("click", () => {
+            span.classList.toggle("active");
           });
-      });
 
-    // Override clipboard saat copy manual
-    document.addEventListener('copy', function (e) {
-      const selection = window.getSelection().toString();
-      const visualText = document.getElementById("ayah-visual").innerText;
-      if (visualText.includes(selection.trim())) {
-        const unicode = document.getElementById("ayah-unicode").innerText;
-        e.clipboardData.setData("text/plain", unicode);
-        e.preventDefault();
-        console.log("✅ Clipboard diganti dengan Unicode + nomor ayat");
-      }
-    });
+          container.appendChild(span);
+        });
+      });
   </script>
 
 </body>
