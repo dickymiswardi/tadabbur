@@ -1,11 +1,67 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>Al-Qur’an Dynamic Font</title>
+  <style>
+    body {
+      background: #fffaf0;
+      padding: 2em;
+      direction: rtl;
+      text-align: center;
+      font-family: sans-serif;
+    }
+
+    .page-container {
+      font-size: 2.5em;
+      line-height: 1.5;
+      text-align: justify;
+      margin: 2em auto;
+      max-width: 1000px;
+      display: none;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+
+    .word {
+      position: relative;
+      display: inline-block;
+      margin: 0 0.15em;
+      cursor: pointer;
+    }
+
+    .translation {
+      position: absolute;
+      bottom: -2.4em;
+      background-color: #fff;
+      color: #333;
+      padding: 0.3em 0.6em;
+      font-size: 0.5em;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      white-space: nowrap;
+      display: none;
+      z-index: 100;
+      font-family: sans-serif;
+    }
+
+    .word.active .translation {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+
+<h2>Al-Qur’an Surah Al-Baqarah 2:2–9</h2>
+<div id="main"></div>
+
 <script>
   const surah = 2;
   const startAyah = 2;
   const endAyah = 9;
-
   let originalUnicode = "";
 
-  // Ambil unicode dari XML untuk copy
+  // Ambil Unicode asli dari XML
   fetch("https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/quran-uthmani.xml")
     .then(res => res.text())
     .then(str => (new window.DOMParser()).parseFromString(str, "text/xml"))
@@ -20,7 +76,7 @@
       originalUnicode = full.trim();
     });
 
-  // Fungsi untuk memuat font sesuai halaman
+  // Load font dinamis berdasarkan nomor halaman
   const loadFontForPage = async (pageNumber) => {
     const fontName = `QCF_P${String(pageNumber).padStart(3, '0')}`;
     const fontUrl = `https://dickymiswardi.github.io/tadabbur/${fontName}.TTF`;
@@ -33,70 +89,68 @@
     return fontName;
   };
 
-  // Ambil semua ayat dan tampilkan per halaman
+  // Ambil dan tampilkan ayat
   document.fonts.ready.then(() => {
-    const requests = [];
+    const container = document.getElementById("main");
+    const fetches = [];
+
     for (let i = startAyah; i <= endAyah; i++) {
       const url = `https://api.quran.com/api/v4/verses/by_key/${surah}:${i}?words=true&language=id&translations=33`;
-      requests.push(fetch(url).then(res => res.json()));
+      fetches.push(fetch(url).then(res => res.json()));
     }
 
-    Promise.all(requests).then(async (results) => {
-      const container = document.getElementById("main");
-      const pages = {};
+    Promise.all(fetches).then(async results => {
+      const grouped = {};
 
-      for (const result of results) {
+      results.forEach(result => {
         const page = result.verse.v1_page;
         const words = result.verse.words;
 
-        if (!pages[page]) {
-          pages[page] = [];
-        }
-        pages[page].push(words);
-      }
+        if (!grouped[page]) grouped[page] = [];
+        grouped[page].push(words);
+      });
 
-      for (const [pageNum, wordGroups] of Object.entries(pages)) {
-        const fontName = await loadFontForPage(pageNum);
-        const div = document.createElement("div");
-        div.className = "page-container";
-        div.style.fontFamily = fontName;
+      for (const [page, wordGroups] of Object.entries(grouped)) {
+        const fontName = await loadFontForPage(page);
+        const pageDiv = document.createElement("div");
+        pageDiv.className = "page-container";
+        pageDiv.style.fontFamily = fontName;
 
         wordGroups.forEach(words => {
           words.forEach(word => {
             const span = document.createElement("span");
             span.className = "word";
-            span.innerText = word.code_v1 || word.text;
+            span.textContent = word.code_v1 || word.text;
 
             const trans = document.createElement("div");
             trans.className = "translation";
-            trans.innerText = word.translation?.text || "-";
-
+            trans.textContent = word.translation?.text || "-";
             span.appendChild(trans);
 
             span.addEventListener("click", () => {
-              if (span.classList.contains("active")) {
+              document.querySelectorAll(".word").forEach(w => w.classList.remove("active"));
+              span.classList.add("active");
+
+              clearTimeout(span._timeout);
+              span._timeout = setTimeout(() => {
                 span.classList.remove("active");
-              } else {
-                document.querySelectorAll(".word").forEach(w => w.classList.remove("active"));
-                span.classList.add("active");
-                setTimeout(() => span.classList.remove("active"), 7000);
-              }
+              }, 7000);
             });
 
-            div.appendChild(span);
+            pageDiv.appendChild(span);
           });
         });
 
-        container.appendChild(div);
+        container.appendChild(pageDiv);
         requestAnimationFrame(() => {
-          div.style.opacity = "1";
-          div.style.display = "block";
+          pageDiv.style.display = "block";
+          pageDiv.style.opacity = "1";
         });
       }
     });
   });
 
-  // Salin teks unicode asli saat copy
+  // Blok copy untuk teks Unicode normal
   document.addEventListener("copy", function (e) {
     if (originalUnicode) {
       e.preventDefault();
@@ -104,3 +158,6 @@
     }
   });
 </script>
+
+</body>
+</html>
