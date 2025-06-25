@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <title>Ayat Quran - Gaya Mushaf</title>
+  <title>Ayat Quran - Tampilan Mushaf, Copy Unicode</title>
   <style>
     body {
       background: #fefdf8;
@@ -13,14 +13,30 @@
     }
 
     h1 {
-      font-size: 2.2em;
+      font-size: 2em;
+      margin-bottom: 1em;
     }
 
-    #ayah {
+    #ayah-container {
+      position: relative;
+      display: inline-block;
+    }
+
+    #ayah-visual {
       font-family: 'QCF_P002', serif;
       font-size: 3em;
-      margin: 2em auto;
       line-height: 2;
+    }
+
+    /* Ini teks Unicode yang tersembunyi */
+    #ayah-unicode {
+      font-size: 0.01em;
+      opacity: 0;
+      position: absolute;
+      top: 0;
+      right: 0;
+      pointer-events: none;
+      user-select: text; /* tetap bisa diseleksi */
     }
 
     @font-face {
@@ -28,25 +44,56 @@
       src: url('https://dickymiswardi.github.io/tadabbur/QCF_P002.TTF') format('truetype');
       font-display: swap;
     }
+
+    .copy-btn {
+      margin-top: 1em;
+      padding: 0.6em 1.2em;
+      font-size: 1em;
+      border-radius: 6px;
+      border: none;
+      background-color: #333;
+      color: #fff;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
-  <h1>نص من القرآن الكريم 🕋</h1>
-  <div id="ayah">Memuat ayat...</div>
+
+  <h1>نص من القرآن - نسخ النص العربي ✨</h1>
+
+  <div id="ayah-container">
+    <div id="ayah-visual">Memuat...</div>
+    <div id="ayah-unicode"></div>
+  </div>
+
+  <br>
+  <button class="copy-btn" onclick="copyAyah()">📋 Salin Ayat</button>
 
   <script>
+    let unicodeText = "";
+
     fetch("https://api.quran.com/api/v4/verses/by_key/2:2?words=true&language=id&translations=33")
       .then(res => res.json())
       .then(data => {
-        const container = document.getElementById("ayah");
         const words = data.verse.words;
-        const glyphText = words.map(w => w.code_v1 || w.text).join(' ');
-        container.innerHTML = glyphText;
-      })
-      .catch(err => {
-        document.getElementById("ayah").textContent = "Gagal memuat ayat.";
-        console.error(err);
+
+        // Tampilkan glyph mushaf
+        const visual = words.map(w => w.code_v1 || w.text).join(' ');
+        document.getElementById("ayah-visual").innerText = visual;
+
+        // Simpan teks Unicode asli
+        unicodeText = words.map(w => w.text).join(' ');
+        document.getElementById("ayah-unicode").innerText = unicodeText;
       });
+
+    function copyAyah() {
+      if (unicodeText) {
+        navigator.clipboard.writeText(unicodeText).then(() => {
+          alert("✅ Ayat berhasil disalin sebagai teks Arab Unicode!");
+        });
+      }
+    }
   </script>
+
 </body>
 </html>
