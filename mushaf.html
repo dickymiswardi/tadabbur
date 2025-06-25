@@ -2,123 +2,139 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <title>Al-Baqarah 1-5</title>
-  <link href="https://dickymiswardi.github.io/tadabbur/QCF_P002.TTF" rel="stylesheet">
+  <title>Surah Al-Baqarah 1–5 - Menyambung</title>
   <style>
     body {
-      background: #fefdf9;
-      font-family: 'QCF_P002', sans-serif;
+      background: #fefcf8;
+      text-align: right;
+      padding: 2em;
       direction: rtl;
-      padding: 40px;
-      font-size: 32px;
-      line-height: 3.5rem;
-    }
-    .ayah {
-      display: inline;
-      cursor: pointer;
-    }
-    .ayah span {
-      display: inline;
-      font-size: 16px;
-      color: #333;
       font-family: sans-serif;
+      line-height: 2.8;
+      font-size: 2.2em;
     }
-    .trans {
-      display: block;
-      text-align: center;
-      font-size: 14px;
-      color: #444;
-      margin-top: 6px;
+
+    .quran-text {
+      font-family: 'QCF_P002', serif;
+      display: inline;
+      user-select: text;
     }
+
     .word {
-      display: inline;
-      padding: 4px 6px;
       position: relative;
+      display: inline-block;
+      cursor: pointer;
+      margin: 0 0.1em;
     }
-    .dropdown {
+
+    .word:hover {
+      background-color: #f3f3f3;
+      border-radius: 4px;
+    }
+
+    .translation {
       position: absolute;
-      bottom: -60px;
-      background: #fff;
-      padding: 6px 10px;
-      border-radius: 6px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      font-size: 14px;
-      z-index: 10;
-      left: 50%;
-      transform: translateX(-50%);
-      text-align: center;
+      bottom: -2.6em;
+      font-size: 0.45em;
+      background-color: #fff;
+      padding: 0.2em 0.6em;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      white-space: nowrap;
+      color: #444;
+      display: none;
       font-family: sans-serif;
+      z-index: 5;
     }
-    .number {
-      font-family: sans-serif;
-      font-size: 18px;
-      margin: 0 4px;
-      color: #999;
+
+    .word.active .translation {
+      display: block;
+    }
+
+    .ayah-marker {
+      font-size: 0.5em;
+      color: #666;
+      margin: 0 0.2em;
+    }
+
+    @font-face {
+      font-family: 'QCF_P002';
+      src: url('https://dickymiswardi.github.io/tadabbur/QCF_P002.TTF') format('truetype');
+      font-display: swap;
     }
   </style>
 </head>
 <body>
-  <div id="quran"></div>
+
+  <h2 style="text-align: center;">سورة البقرة ١–٥</h2>
+  <div class="quran-text" id="quran-text">جارٍ التحميل...</div>
 
   <script>
-    const container = document.getElementById("quran");
+    const surah = 2;
+    const from = 1;
+    const to = 5;
+    const container = document.getElementById("quran-text");
+    container.innerHTML = "";
+
+    let activeWord = null;
     let timeoutId = null;
-    let activeDropdown = null;
 
-    const showTranslation = (el, word) => {
-      if (activeDropdown) {
-        activeDropdown.remove();
-        activeDropdown = null;
-        if (el === activeDropdown?.parentNode) return; // if same word, toggle
-      }
+    function createWordEl(word) {
+      const span = document.createElement("span");
+      span.className = "word";
+      span.innerText = word.code_v1 || word.text;
 
-      const dropdown = document.createElement("div");
-      dropdown.className = "dropdown";
+      const trans = document.createElement("div");
+      trans.className = "translation";
+      trans.innerText = word.translation?.text || '-';
+      span.appendChild(trans);
 
-      const t = word.translation?.text || "";
-      if (!/^[\(\[\{]/.test(t)) {
-        dropdown.innerHTML = `<strong>${t}</strong><br>${word.transliteration?.text || '-'}`;
-        el.appendChild(dropdown);
-        activeDropdown = dropdown;
+      span.addEventListener("click", () => {
+        if (activeWord === span) {
+          span.classList.remove("active");
+          activeWord = null;
+          clearTimeout(timeoutId);
+          return;
+        }
 
-        // auto-hide
+        document.querySelectorAll(".word").forEach(w => w.classList.remove("active"));
+        span.classList.add("active");
+        activeWord = span;
+
+        clearTimeout(timeoutId);
         timeoutId = setTimeout(() => {
-          dropdown.remove();
-          activeDropdown = null;
+          span.classList.remove("active");
+          activeWord = null;
         }, 7000);
-      }
-    };
+      });
 
-    const addVerse = (surah, ayah) => {
-      fetch(`https://api.quran.com/api/v4/verses/by_key/${surah}:${ayah}?words=true&language=id&translations=33`)
-        .then(res => res.json())
-        .then(data => {
-          const verse = data.verse.words;
-          verse.forEach((word, i) => {
-            const span = document.createElement("span");
-            span.className = "word";
-            span.innerText = word.code_v1 || word.text;
-            span.onclick = () => {
-              if (timeoutId) clearTimeout(timeoutId);
-              showTranslation(span, word);
-            };
-            container.appendChild(span);
-            container.append(" ");
+      return span;
+    }
+
+    async function loadVerses() {
+      for (let ayah = from; ayah <= to; ayah++) {
+        try {
+          const res = await fetch(`https://api.quran.com/api/v4/verses/by_key/${surah}:${ayah}?words=true&language=id&translations=33`);
+          const data = await res.json();
+
+          data.verse.words.forEach(word => {
+            const wordEl = createWordEl(word);
+            container.appendChild(wordEl);
           });
 
-          // Add ayah number in unicode
-          const ayahNumber = document.createElement("span");
-          ayahNumber.className = "number";
-          ayahNumber.textContent = `(${ayah})`;
-          container.appendChild(ayahNumber);
-          container.append(document.createElement("br"));
-          container.append(document.createElement("br"));
-        });
-    };
+          const marker = document.createElement("span");
+          marker.className = "ayah-marker";
+          marker.innerText = `﴿${ayah}﴾`;
+          container.appendChild(marker);
 
-    for (let i = 1; i <= 5; i++) {
-      addVerse(2, i); // Surah Al-Baqarah: 1 to 5
+        } catch (err) {
+          container.innerHTML += `<p>❌ Gagal memuat ayat ${ayah}</p>`;
+        }
+      }
     }
+
+    loadVerses();
   </script>
+
 </body>
 </html>
