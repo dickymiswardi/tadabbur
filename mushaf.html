@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <title>Terjemah Per Kata (Bahasa Indonesia)</title>
+  <title>Terjemah Otomatis Hilang</title>
   <style>
     body {
       background: #fefcf8;
@@ -62,20 +62,21 @@
 </head>
 <body>
 
-  <h2>Klik Kata untuk Terjemah Bahasa Indonesia</h2>
+  <h2>Klik Kata - Terjemah Hilang Otomatis</h2>
   <div id="ayah-container">جارٍ التحميل...</div>
 
   <script>
     const surah = 2;
     const ayah = 2;
+    let timeoutId = null;
+    let activeWord = null;
 
     fetch(`https://api.quran.com/api/v4/verses/by_key/${surah}:${ayah}?words=true&language=id&translations=33`)
       .then(res => res.json())
       .then(data => {
         const words = data.verse.words;
-
         const container = document.getElementById("ayah-container");
-        container.innerHTML = ""; // Kosongkan loading text
+        container.innerHTML = "";
 
         words.forEach(word => {
           const span = document.createElement("span");
@@ -87,8 +88,29 @@
           trans.innerText = word.translation?.text || "-";
 
           span.appendChild(trans);
+
           span.addEventListener("click", () => {
-            span.classList.toggle("active");
+            // Jika klik ulang kata yang aktif, tutup dan batalkan timer
+            if (span === activeWord) {
+              span.classList.remove("active");
+              clearTimeout(timeoutId);
+              activeWord = null;
+              return;
+            }
+
+            // Tutup semua dulu
+            document.querySelectorAll(".word").forEach(w => w.classList.remove("active"));
+
+            // Aktifkan terjemah kata ini
+            span.classList.add("active");
+            activeWord = span;
+
+            // Timer: auto hide setelah 7 detik
+            clearTimeout(timeoutId);
+            timeoutId = setTimeout(() => {
+              span.classList.remove("active");
+              activeWord = null;
+            }, 7000);
           });
 
           container.appendChild(span);
