@@ -2,30 +2,22 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <title>Ayat Mushaf + Copy Unicode</title>
+  <title>Quran Copy Unicode</title>
   <style>
     body {
-      background: #fefcf8;
-      font-family: sans-serif;
+      background: #fefdf8;
       text-align: center;
       padding: 2em;
       direction: rtl;
-    }
-
-    h1 {
-      font-size: 2em;
-      margin-bottom: 1em;
+      font-family: sans-serif;
     }
 
     #ayah-visual {
       font-family: 'QCF_P002', serif;
       font-size: 3em;
-      line-height: 2;
       user-select: text;
-      -webkit-user-select: text;
     }
 
-    /* Element penyimpan teks unicode */
     #ayah-unicode {
       position: absolute;
       left: -9999px;
@@ -41,41 +33,44 @@
 </head>
 <body>
 
-  <h1>القرآن الكريم - نسخ تلقائي Unicode</h1>
+  <h1>نص القرآن الكريم</h1>
 
-  <div id="ayah-visual">Memuat ayat...</div>
+  <div id="ayah-visual">جارٍ التحميل...</div>
   <div id="ayah-unicode"></div>
 
   <script>
-    let unicodeText = "";
+    const surah = 1, ayah = 1;
 
-    // Ambil teks asli Uthmani dari API
-    fetch("https://api.quran.com/api/v4/quran/verses/uthmani?verse_key=2:2")
-      .then(res => res.json())
-      .then(data => {
-        const textUnicode = data.verse.text_uthmani;
-        unicodeText = textUnicode;
-        document.getElementById("ayah-unicode").innerText = unicodeText;
+    // Load XML lokal
+    fetch("https://dickymiswardi.github.io/tadabbur/quran-uthmani.xml")
+      .then(res => res.text())
+      .then(xmlText => {
+        const parser = new DOMParser();
+        const xml = parser.parseFromString(xmlText, "text/xml");
+
+        // Ambil teks Unicode dari XML
+        const aya = xml.querySelector(`sura[index="${surah}"] > aya[index="${ayah}"]`);
+        const text = aya?.getAttribute("text") || "(Ayat tidak ditemukan)";
+        document.getElementById("ayah-unicode").innerText = text;
+
+        // Tampilkan visual Mushaf pakai API
+        fetch(`https://api.quran.com/api/v4/verses/by_key/${surah}:${ayah}?words=true`)
+          .then(res => res.json())
+          .then(data => {
+            const codeV1 = data.verse.words.map(w => w.code_v1 || w.text).join(' ');
+            document.getElementById("ayah-visual").innerText = codeV1;
+          });
       });
 
-    // Ambil glyph code_v1 untuk visual
-    fetch("https://api.quran.com/api/v4/verses/by_key/2:2?words=true")
-      .then(res => res.json())
-      .then(data => {
-        const words = data.verse.words;
-        const visual = words.map(w => w.code_v1 || w.text).join(' ');
-        document.getElementById("ayah-visual").innerText = visual;
-      });
-
-    // Override copy: saat user menyalin visual, yang dicopy adalah Unicode
-    document.addEventListener('copy', function(e) {
+    // Override copy manual
+    document.addEventListener('copy', function (e) {
       const selection = window.getSelection().toString();
-      const isInsideAyah = document.getElementById("ayah-visual").innerText.includes(selection.trim());
-
-      if (isInsideAyah && unicodeText) {
-        e.clipboardData.setData('text/plain', unicodeText);
+      const visualText = document.getElementById("ayah-visual").innerText;
+      if (visualText.includes(selection.trim())) {
+        const unicode = document.getElementById("ayah-unicode").innerText;
+        e.clipboardData.setData("text/plain", unicode);
         e.preventDefault();
-        console.log("📋 Clipboard diganti dengan Unicode Al-Qur'an");
+        console.log("✅ Teks yang dicopy diganti dengan Unicode dari XML");
       }
     });
   </script>
