@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <title>Ayat Al-Qur’an Rapi + Terjemah Klik</title>
+  <title>Surah Al-Baqarah 1-5 (Klik Terjemah)</title>
   <style>
     body {
       background: #fefcf8;
@@ -12,12 +12,13 @@
       font-family: sans-serif;
     }
 
-    #ayah-container {
+    .ayah-container {
       font-family: 'QCF_P002', serif;
       font-size: 3em;
       line-height: 2;
       user-select: text;
       display: inline-block;
+      margin-bottom: 1em;
     }
 
     .word {
@@ -51,6 +52,12 @@
       display: block;
     }
 
+    .ayah-number {
+      font-size: 0.5em;
+      margin-right: 0.5em;
+      color: #555;
+    }
+
     @font-face {
       font-family: 'QCF_P002';
       src: url('https://dickymiswardi.github.io/tadabbur/QCF_P002.TTF') format('truetype');
@@ -60,59 +67,78 @@
 </head>
 <body>
 
-  <h2>Klik Kata untuk Terjemah (Indonesia)</h2>
-  <div id="ayah-container">جارٍ التحميل...</div>
+  <h2>Surah Al-Baqarah Ayat 1–5</h2>
+  <div id="all-ayahs">جارٍ التحميل...</div>
 
   <script>
     const surah = 2;
-    const ayah = 2;
+    const fromAyah = 1;
+    const toAyah = 5;
     let timeoutId = null;
     let activeWord = null;
 
-    fetch(`https://api.quran.com/api/v4/verses/by_key/${surah}:${ayah}?words=true&language=id&translations=33`)
-      .then(res => res.json())
-      .then(data => {
-        const words = data.verse.words;
-        const container = document.getElementById("ayah-container");
-        container.innerHTML = "";
+    const container = document.getElementById("all-ayahs");
+    container.innerHTML = "";
 
-        words.forEach(word => {
-          const span = document.createElement("span");
-          span.className = "word";
-          span.innerText = word.code_v1 || word.text;
+    function renderWord(word) {
+      const span = document.createElement("span");
+      span.className = "word";
+      span.innerText = word.code_v1 || word.text;
 
-          const trans = document.createElement("div");
-          trans.className = "translation";
-          trans.innerText = word.translation?.text || "-";
+      const trans = document.createElement("div");
+      trans.className = "translation";
+      trans.innerText = word.translation?.text || "-";
 
-          span.appendChild(trans);
+      span.appendChild(trans);
 
-          span.addEventListener("click", () => {
-            if (span === activeWord) {
-              span.classList.remove("active");
-              clearTimeout(timeoutId);
-              activeWord = null;
-              return;
-            }
+      span.addEventListener("click", () => {
+        if (span === activeWord) {
+          span.classList.remove("active");
+          clearTimeout(timeoutId);
+          activeWord = null;
+          return;
+        }
 
-            document.querySelectorAll(".word").forEach(w => w.classList.remove("active"));
-            span.classList.add("active");
-            activeWord = span;
+        document.querySelectorAll(".word").forEach(w => w.classList.remove("active"));
+        span.classList.add("active");
+        activeWord = span;
 
-            clearTimeout(timeoutId);
-            timeoutId = setTimeout(() => {
-              span.classList.remove("active");
-              activeWord = null;
-            }, 7000);
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => {
+          span.classList.remove("active");
+          activeWord = null;
+        }, 7000);
+      });
+
+      return span;
+    }
+
+    for (let ayah = fromAyah; ayah <= toAyah; ayah++) {
+      fetch(`https://api.quran.com/api/v4/verses/by_key/${surah}:${ayah}?words=true&language=id&translations=33`)
+        .then(res => res.json())
+        .then(data => {
+          const ayahDiv = document.createElement("div");
+          ayahDiv.className = "ayah-container";
+
+          data.verse.words.forEach(word => {
+            const wordEl = renderWord(word);
+            ayahDiv.appendChild(wordEl);
           });
 
-          container.appendChild(span);
+          const ayahNum = document.createElement("span");
+          ayahNum.className = "ayah-number";
+          ayahNum.innerText = `﴿${ayah}﴾`;
+          ayahDiv.appendChild(ayahNum);
+
+          container.appendChild(ayahDiv);
+        })
+        .catch(err => {
+          const error = document.createElement("div");
+          error.textContent = `❌ Gagal memuat ayat ${ayah}`;
+          container.appendChild(error);
+          console.error(err);
         });
-      })
-      .catch(err => {
-        document.getElementById("ayah-container").textContent = "❌ Gagal memuat data.";
-        console.error(err);
-      });
+    }
   </script>
 
 </body>
