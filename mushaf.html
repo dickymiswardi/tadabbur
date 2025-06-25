@@ -2,37 +2,55 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <title>Al-Qur'an Per Kata Interaktif</title>
+  <title>Terjemah Per Kata Interaktif</title>
   <style>
     body {
-      background: #fefcf8;
-      font-family: sans-serif;
+      background: #fefdf8;
       text-align: center;
       padding: 2em;
       direction: rtl;
+      font-family: sans-serif;
     }
 
-    #ayah-visual {
+    #ayah-container {
       font-family: 'QCF_P002', serif;
       font-size: 3em;
-      user-select: none;
-      cursor: pointer;
       line-height: 1.8;
-      display: inline-block;
+      user-select: text;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.4em;
     }
 
     .word {
+      position: relative;
+      cursor: pointer;
       display: inline-block;
-      margin: 0 0.2em;
     }
 
-    .translated {
+    .word:hover {
+      background-color: #f7eacb;
+      border-radius: 8px;
+    }
+
+    .translation {
+      position: absolute;
+      bottom: -2.2em;
       font-family: sans-serif;
-      font-size: 1em;
+      font-size: 0.5em;
       color: #444;
+      background-color: #fff;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      padding: 0.3em 0.6em;
+      white-space: nowrap;
+      display: none;
+      z-index: 10;
+    }
+
+    .active .translation {
       display: block;
-      text-align: center;
-      margin-top: 0.2em;
     }
 
     @font-face {
@@ -44,9 +62,8 @@
 </head>
 <body>
 
-  <h1>القرآن الكريم - ترجمة فورية للكلمة</h1>
-
-  <div id="ayah-visual"></div>
+  <h2>Klik Kata untuk Terjemah</h2>
+  <div id="ayah-container">جارٍ التحميل...</div>
 
   <script>
     const surah = 2;
@@ -57,41 +74,24 @@
       .then(data => {
         const words = data.verse.words;
 
-        const container = document.getElementById("ayah-visual");
-        container.innerHTML = ''; // kosongkan
+        const container = document.getElementById("ayah-container");
+        container.innerHTML = ""; // Clear loading text
 
         words.forEach(word => {
-          const span = document.createElement('span');
-          span.className = 'word';
-          span.setAttribute('data-glyph', word.code_v1 || word.text);
-          span.setAttribute('data-translate', word.translation?.text || '');
-          span.setAttribute('data-state', 'glyph');
+          const span = document.createElement("span");
+          span.className = "word";
           span.innerText = word.code_v1 || word.text;
-          container.appendChild(span);
-        });
 
-        // Tambah nomor ayat di akhir
-        const ayahNum = document.createElement('span');
-        ayahNum.innerText = ` ﴿${ayah}﴾`;
-        container.appendChild(ayahNum);
+          const trans = document.createElement("div");
+          trans.className = "translation";
+          trans.innerText = word.translation?.text || "";
 
-        // Toggle saat diklik
-        container.addEventListener('click', () => {
-          const spans = container.querySelectorAll('.word');
-          spans.forEach(span => {
-            const state = span.getAttribute('data-state');
-            if (state === 'glyph') {
-              span.innerText = span.getAttribute('data-translate');
-              span.setAttribute('data-state', 'translate');
-              span.style.fontFamily = 'sans-serif';
-              span.style.fontSize = '1.2em';
-            } else {
-              span.innerText = span.getAttribute('data-glyph');
-              span.setAttribute('data-state', 'glyph');
-              span.style.fontFamily = 'QCF_P002';
-              span.style.fontSize = '';
-            }
+          span.appendChild(trans);
+          span.addEventListener("click", () => {
+            span.classList.toggle("active");
           });
+
+          container.appendChild(span);
         });
       });
   </script>
