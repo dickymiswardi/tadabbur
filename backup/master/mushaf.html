@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>Kata-kata Quran</title>
+  <style>
+    body {
+      background: #fefdf8;
+      font-family: sans-serif;
+      text-align: center;
+      padding: 2em;
+      direction: rtl;
+    }
+
+    h1 {
+      font-size: 2.2em;
+    }
+
+    #words {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      direction: rtl;
+      gap: 1em;
+      margin-top: 2em;
+    }
+
+    .word {
+      display: inline-block;
+      padding: 1em;
+      border: 1px solid #ccc;
+      border-radius: 12px;
+      background: #fff;
+      box-shadow: 0 1px 5px rgba(0,0,0,0.1);
+      font-size: 2.5em;
+      font-family: 'QCF_P002', serif;
+    }
+
+    .trans {
+      font-size: 0.5em;
+      display: block;
+      font-family: sans-serif;
+      direction: ltr;
+      text-align: center;
+    }
+
+    @font-face {
+      font-family: 'QCF_P002';
+      src: url('https://dickymiswardi.github.io/tadabbur/QCF_P002.TTF') format('truetype');
+      font-display: swap;
+    }
+  </style>
+</head>
+<body>
+  <h1>كَـلِـمَـات مِـنَ الـقُـرْآن 🕋</h1>
+  <div id="words"></div>
+
+  <script>
+    fetch("https://api.quran.com/api/v4/verses/by_key/2:2?words=true&language=id&translations=33")
+      .then(res => res.json())
+      .then(data => {
+        const container = document.getElementById("words");
+        data.verse.words.forEach(word => {
+          const div = document.createElement("div");
+          div.className = "word";
+          div.innerHTML = `
+            ${word.code_v1 || word.text}
+            <span class="trans"><strong>${word.translation?.text || '-'}</strong></span>
+            <span class="trans">${word.transliteration?.text || '-'}</span>
+          `;
+          container.appendChild(div);
+        });
+      })
+      .catch(err => {
+        document.getElementById("words").textContent = "Gagal memuat data.";
+        console.error(err);
+      });
+  </script>
+</body>
+</html>
