@@ -1,67 +1,67 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>Kata-kata dari Al-Qur'an</title>
-
-  <!-- Load QCF_P002.TTF dari jsDelivr (pastikan URL benar) -->
+  <title>Per Kata Al-Qur'an</title>
   <style>
-    @font-face {
-      font-family: 'QCF_P002';
-      src: url('https://cdn.jsdelivr.net/gh/dickymiswardi/tadabbur/fonts/QCF_P002.TTF') format('truetype');
-      font-display: swap;
+    body {
+      background: #fefdf8;
+      font-family: sans-serif;
+      text-align: center;
+      padding: 2em;
     }
 
-    body {
-      font-family: 'QCF_P002', 'Amiri', 'Scheherazade', 'Traditional Arabic', serif;
-      font-size: 36px;
-      direction: rtl;
-      text-align: right;
-      padding: 40px;
-      background: #fcfbf7;
-      color: #111;
+    h1 {
+      font-size: 2.5em;
     }
 
     .word {
       display: inline-block;
-      margin: 6px;
-      padding: 6px 10px;
-      border: 1px solid #aaa;
+      margin: 1em;
+      padding: 1em;
+      border: 1px solid #ccc;
       border-radius: 12px;
-      background-color: #fff;
+      background: #fff;
+      box-shadow: 0 1px 5px rgba(0,0,0,0.1);
+      font-size: 2.5em;
+      font-family: 'QCF_P002', serif;
+    }
+
+    .trans {
+      font-size: 0.5em;
+      display: block;
+      font-family: sans-serif;
+    }
+
+    @font-face {
+      font-family: 'QCF_P002';
+      src: url('https://dickymiswardi.github.io/tadabbur/fonts/QCF_P002.TTF') format('truetype');
+      font-display: swap;
     }
   </style>
 </head>
 <body>
-  <h2>📘 Kata-kata dari Al-Qur'an</h2>
-  <div id="words">⏳ Memuat kata...</div>
+  <h1>Kata-kata dari Al-Fatihah 1️⃣</h1>
+  <div id="words"></div>
 
   <script>
-    // Ambil ayat tertentu — misal Al-Fatihah ayat 1
-    const surah = 2;
-    const ayah = 4;
-
-    const url = `https://api.quran.com/api/v4/verses/by_key/${surah}:${ayah}?words=true&fields=words`;
-
-    fetch(url)
+    fetch("https://api.quran.com/api/v4/verses/by_key/2:2?words=true&language=id&translations=33")
       .then(res => res.json())
       .then(data => {
         const container = document.getElementById("words");
-        container.innerHTML = "";
-        const words = data.verse.words;
-
-        words.forEach(word => {
-          if (word.char_type_name === "word") {
-            const span = document.createElement("span");
-            span.className = "word";
-            // gunakan text (teks Arab Unicode biasa)
-            span.textContent = word.text;
-            container.appendChild(span);
-          }
+        data.verse.words.forEach(word => {
+          const div = document.createElement("div");
+          div.className = "word";
+          div.innerHTML = `
+            ${word.code_v1 || word.text}
+            <span class="trans"><strong>${word.translation?.text || '-'}</strong></span>
+            <span class="trans">${word.transliteration?.text || '-'}</span>
+          `;
+          container.appendChild(div);
         });
       })
       .catch(err => {
-        document.getElementById("words").innerHTML = "⚠️ Gagal memuat kata.";
+        document.getElementById("words").textContent = "Gagal memuat data.";
         console.error(err);
       });
   </script>
