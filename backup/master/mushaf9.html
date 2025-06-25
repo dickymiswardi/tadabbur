@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>Al-Baqarah Ayat 1–9</title>
+  <style>
+    body {
+      background: #fefcf8;
+      text-align: center;
+      padding: 2em;
+      direction: rtl;
+      font-family: sans-serif;
+    }
+
+    .page-container {
+      font-size: 3em;
+      line-height: 1.4;
+      user-select: text;
+      text-align: justify;
+      max-width: 1200px;
+      margin: 1em auto;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      display: none;
+    }
+
+    .word {
+      position: relative;
+      cursor: pointer;
+      display: inline-block;
+      margin: 0 0.1em;
+    }
+
+    .word:hover {
+      background-color: #f7eacb;
+      border-radius: 6px;
+    }
+
+    .translation {
+      position: absolute;
+      bottom: -2.4em;
+      font-family: sans-serif;
+      font-size: 0.5em;
+      color: #444;
+      background-color: #fff;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      padding: 0.3em 0.6em;
+      white-space: nowrap;
+      display: none;
+      z-index: 10;
+    }
+
+    .active .translation {
+      display: block;
+    }
+
+    @font-face {
+      font-family: 'QCF_P002';
+      src: url('https://dickymiswardi.github.io/tadabbur/QCF_P002.TTF') format('truetype');
+      font-display: swap;
+    }
+
+    @font-face {
+      font-family: 'QCF_P003';
+      src: url('https://dickymiswardi.github.io/tadabbur/QCF_P003.TTF') format('truetype');
+      font-display: swap;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Surat Al-Baqarah Ayat 1–9</h2>
+  <div id="page-2" class="page-container" style="font-family: 'QCF_P002'">جارٍ التحميل...</div>
+  <div id="page-3" class="page-container" style="font-family: 'QCF_P003'"></div>
+
+  <script>
+    const surah = 2;
+    const ayahRanges = {
+      'page-2': [1, 5],
+      'page-3': [6, 16]
+    };
+
+    let originalUnicode = "";
+    let activeWord = null;
+    let timeoutId = null;
+
+    // Ambil teks unicode dari XML
+    fetch("https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/quran-uthmani.xml")
+      .then(res => res.text())
+      .then(str => (new DOMParser()).parseFromString(str, "text/xml"))
+      .then(xml => {
+        for (const [pageId, [start, end]] of Object.entries(ayahRanges)) {
+          const pageContainer = document.getElementById(pageId);
+          let textContent = "";
+          for (let i = start; i <= end; i++) {
+            const ayaNode = xml.querySelector(`sura[index="${surah}"] > aya[index="${i}"]`);
+            if (ayaNode) {
+              textContent += ayaNode.getAttribute("text") + ` (${i}) `;
+            }
+          }
+
+          // Simpan agar bisa disalin
+          originalUnicode += textContent.trim() + " ";
+        }
+      });
+
+    // Saat font siap
+    document.fonts.ready.then(() => {
+      for (const [pageId, [start, end]] of Object.entries(ayahRanges)) {
+        const pageContainer = document.getElementById(pageId);
+        const fetches = [];
+
+        for (let i = start; i <= end; i++) {
+          const url = `https://api.quran.com/api/v4/verses/by_key/${surah}:${i}?words=true&language=id&translations=33`;
+          fetches.push(fetch(url).then(res => res.json()));
+        }
+
+        Promise.all(fetches).then(results => {
+          pageContainer.innerHTML = "";
+
+          results.forEach(data => {
+            data.verse.words.forEach(word => {
+              const span = document.createElement("span");
+              span.className = "word";
+              span.innerText = word.code_v1 || word.text;
+
+              const trans = document.createElement("div");
+              trans.className = "translation";
+              trans.innerText = word.translation?.text || "-";
+
+              span.appendChild(trans);
+
+              span.addEventListener("click", () => {
+                if (span === activeWord) {
+                  span.classList.remove("active");
+                  clearTimeout(timeoutId);
+                  activeWord = null;
+                  return;
+                }
+
+                document.querySelectorAll(".word").forEach(w => w.classList.remove("active"));
+                span.classList.add("active");
+                activeWord = span;
+
+                clearTimeout(timeoutId);
+                timeoutId = setTimeout(() => {
+                  span.classList.remove("active");
+                  activeWord = null;
+                }, 7000);
+              });
+
+              pageContainer.appendChild(span);
+            });
+          });
+
+          // Setelah ayat dimuat
+          pageContainer.style.display = "block";
+          requestAnimationFrame(() => {
+            pageContainer.style.opacity = "1";
+          });
+        });
+      }
+    });
+
+    // Salin unicode asli saat copy
+    document.addEventListener("copy", function (e) {
+      if (originalUnicode) {
+        e.preventDefault();
+        e.clipboardData.setData("text/plain", originalUnicode.trim());
+        console.log("Copied:", originalUnicode.trim());
+      }
+    });
+  </script>
+
+</body>
+</html>
