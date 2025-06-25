@@ -2,32 +2,38 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <title>Al-Baqarah Ayat 1–9</title>
+  <title>Al-Baqarah Ayat 1–16</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
       background: #fefcf8;
-      text-align: center;
-      padding: 2em;
-      direction: rtl;
+      padding: 1em;
+      margin: 0;
       font-family: sans-serif;
+      direction: rtl;
+    }
+
+    h2 {
+      text-align: center;
     }
 
     .page-container {
-      font-size: 3em;
-      line-height: 1.4;
-      user-select: text;
+      font-size: 2.3em;
+      line-height: 1.6;
       text-align: justify;
+      user-select: text;
       max-width: 1200px;
-      margin: 1em auto;
+      margin: 2em auto;
       opacity: 0;
       transition: opacity 0.3s ease;
       display: none;
+      word-spacing: 0.2em;
     }
 
     .word {
+      display: inline-block;
       position: relative;
       cursor: pointer;
-      display: inline-block;
       margin: 0 0.1em;
     }
 
@@ -40,18 +46,18 @@
       position: absolute;
       bottom: -2.4em;
       font-family: sans-serif;
-      font-size: 0.5em;
+      font-size: 0.45em;
       color: #444;
-      background-color: #fff;
+      background: #fff;
+      padding: 0.3em 0.6em;
       border: 1px solid #ccc;
       border-radius: 4px;
-      padding: 0.3em 0.6em;
       white-space: nowrap;
       display: none;
       z-index: 10;
     }
 
-    .active .translation {
+    .word.active .translation {
       display: block;
     }
 
@@ -66,11 +72,19 @@
       src: url('https://dickymiswardi.github.io/tadabbur/QCF_P003.TTF') format('truetype');
       font-display: swap;
     }
+
+    @media (max-width: 768px) {
+      .page-container {
+        font-size: 1.5em;
+        padding: 1em;
+      }
+    }
   </style>
 </head>
 <body>
 
-  <h2>Surat Al-Baqarah Ayat 1–9</h2>
+  <h2>Surat Al-Baqarah Ayat 1–16</h2>
+
   <div id="page-2" class="page-container" style="font-family: 'QCF_P002'">جارٍ التحميل...</div>
   <div id="page-3" class="page-container" style="font-family: 'QCF_P003'"></div>
 
@@ -85,27 +99,20 @@
     let activeWord = null;
     let timeoutId = null;
 
-    // Ambil teks unicode dari XML
     fetch("https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/quran-uthmani.xml")
       .then(res => res.text())
       .then(str => (new DOMParser()).parseFromString(str, "text/xml"))
       .then(xml => {
         for (const [pageId, [start, end]] of Object.entries(ayahRanges)) {
-          const pageContainer = document.getElementById(pageId);
-          let textContent = "";
           for (let i = start; i <= end; i++) {
             const ayaNode = xml.querySelector(`sura[index="${surah}"] > aya[index="${i}"]`);
             if (ayaNode) {
-              textContent += ayaNode.getAttribute("text") + ` (${i}) `;
+              originalUnicode += ayaNode.getAttribute("text") + ` (${i}) `;
             }
           }
-
-          // Simpan agar bisa disalin
-          originalUnicode += textContent.trim() + " ";
         }
       });
 
-    // Saat font siap
     document.fonts.ready.then(() => {
       for (const [pageId, [start, end]] of Object.entries(ayahRanges)) {
         const pageContainer = document.getElementById(pageId);
@@ -128,7 +135,6 @@
               const trans = document.createElement("div");
               trans.className = "translation";
               trans.innerText = word.translation?.text || "-";
-
               span.appendChild(trans);
 
               span.addEventListener("click", () => {
@@ -154,7 +160,6 @@
             });
           });
 
-          // Setelah ayat dimuat
           pageContainer.style.display = "block";
           requestAnimationFrame(() => {
             pageContainer.style.opacity = "1";
@@ -163,7 +168,6 @@
       }
     });
 
-    // Salin unicode asli saat copy
     document.addEventListener("copy", function (e) {
       if (originalUnicode) {
         e.preventDefault();
