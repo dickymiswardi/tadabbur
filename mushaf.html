@@ -2,10 +2,10 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <title>Terjemah Per Kata Interaktif</title>
+  <title>Terjemah Per Kata (Bahasa Indonesia)</title>
   <style>
     body {
-      background: #fefdf8;
+      background: #fefcf8;
       text-align: center;
       padding: 2em;
       direction: rtl;
@@ -36,7 +36,7 @@
 
     .translation {
       position: absolute;
-      bottom: -2.2em;
+      bottom: -2.4em;
       font-family: sans-serif;
       font-size: 0.5em;
       color: #444;
@@ -62,20 +62,20 @@
 </head>
 <body>
 
-  <h2>Klik Kata untuk Terjemah</h2>
+  <h2>Klik Kata untuk Terjemah Bahasa Indonesia</h2>
   <div id="ayah-container">جارٍ التحميل...</div>
 
   <script>
     const surah = 2;
     const ayah = 2;
 
-    fetch(`https://api.quran.com/api/v4/verses/by_key/${surah}:${ayah}?words=true&translations=33`)
+    fetch(`https://api.quran.com/api/v4/verses/by_key/${surah}:${ayah}?words=true&language=id&translations=33`)
       .then(res => res.json())
       .then(data => {
         const words = data.verse.words;
 
         const container = document.getElementById("ayah-container");
-        container.innerHTML = ""; // Clear loading text
+        container.innerHTML = ""; // Kosongkan loading text
 
         words.forEach(word => {
           const span = document.createElement("span");
@@ -84,7 +84,7 @@
 
           const trans = document.createElement("div");
           trans.className = "translation";
-          trans.innerText = word.translation?.text || "";
+          trans.innerText = word.translation?.text || "-";
 
           span.appendChild(trans);
           span.addEventListener("click", () => {
@@ -93,6 +93,10 @@
 
           container.appendChild(span);
         });
+      })
+      .catch(err => {
+        document.getElementById("ayah-container").textContent = "❌ Gagal memuat data.";
+        console.error(err);
       });
   </script>
 
