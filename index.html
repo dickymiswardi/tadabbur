@@ -2,99 +2,97 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <title>Terjemah Per Kata Interaktif</title>
+  <title>Terjemah Per Kata</title>
   <style>
     body {
       background: #fefdf8;
-      text-align: center;
+      font-family: sans-serif;
       padding: 2em;
       direction: rtl;
-      font-family: sans-serif;
+      text-align: center;
     }
 
     #ayah-container {
       font-family: 'QCF_P002', serif;
       font-size: 3em;
-      line-height: 1.8;
-      user-select: text;
+      line-height: 2em;
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
-      gap: 0.4em;
+      gap: 0.3em;
     }
 
     .word {
       position: relative;
       cursor: pointer;
       display: inline-block;
+      padding: 0.2em;
     }
 
     .word:hover {
-      background-color: #f7eacb;
-      border-radius: 8px;
+      background-color: #eee6d9;
+      border-radius: 6px;
     }
 
     .translation {
+      display: none;
       position: absolute;
       bottom: -2.2em;
-      font-family: sans-serif;
-      font-size: 0.5em;
-      color: #444;
-      background-color: #fff;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      padding: 0.3em 0.6em;
+      font-size: 0.45em;
+      background: #fff9ee;
+      padding: 0.3em 0.5em;
+      border-radius: 5px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
       white-space: nowrap;
-      display: none;
-      z-index: 10;
+      z-index: 99;
+      color: #444;
     }
 
-    .active .translation {
+    .word.active .translation {
       display: block;
     }
 
     @font-face {
       font-family: 'QCF_P002';
       src: url('https://dickymiswardi.github.io/tadabbur/QCF_P002.TTF') format('truetype');
-      font-display: swap;
     }
   </style>
 </head>
 <body>
 
-  <h2>Klik Kata untuk Terjemah</h2>
-  <div id="ayah-container">جارٍ التحميل...</div>
+<h2>Klik kata untuk lihat terjemahannya</h2>
+<div id="ayah-container">Memuat ayat...</div>
 
-  <script>
-    const surah = 2;
-    const ayah = 2;
+<script>
+  const surah = 2;
+  const ayah = 2;
 
-    fetch(`https://api.quran.com/api/v4/verses/by_key/${surah}:${ayah}?words=true&translations=33`)
-      .then(res => res.json())
-      .then(data => {
-        const words = data.verse.words;
+  fetch(`https://api.quran.com/api/v4/verses/by_key/${surah}:${ayah}?words=true&translations=33`)
+    .then(res => res.json())
+    .then(data => {
+      const words = data.verse.words;
+      const container = document.getElementById("ayah-container");
+      container.innerHTML = "";
 
-        const container = document.getElementById("ayah-container");
-        container.innerHTML = ""; // Clear loading text
+      words.forEach((word) => {
+        const span = document.createElement("span");
+        span.className = "word";
+        span.textContent = word.code_v1 || word.text;
 
-        words.forEach(word => {
-          const span = document.createElement("span");
-          span.className = "word";
-          span.innerText = word.code_v1 || word.text;
+        const trans = document.createElement("div");
+        trans.className = "translation";
+        trans.textContent = word.translation?.text || "";
 
-          const trans = document.createElement("div");
-          trans.className = "translation";
-          trans.innerText = word.translation?.text || "";
+        span.appendChild(trans);
 
-          span.appendChild(trans);
-          span.addEventListener("click", () => {
-            span.classList.toggle("active");
-          });
-
-          container.appendChild(span);
+        span.addEventListener("click", () => {
+          span.classList.toggle("active");
         });
+
+        container.appendChild(span);
       });
-  </script>
+    });
+</script>
 
 </body>
 </html>
