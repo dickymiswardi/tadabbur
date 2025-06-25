@@ -2,59 +2,60 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <title>Surah Al-Baqarah 1–5 - Menyambung</title>
+  <title>Surah Al-Baqarah 1-5 (Klik Terjemah)</title>
   <style>
     body {
       background: #fefcf8;
-      text-align: right;
+      text-align: center;
       padding: 2em;
       direction: rtl;
       font-family: sans-serif;
-      line-height: 2.8;
-      font-size: 2.2em;
     }
 
-    .quran-text {
+    .ayah-container {
       font-family: 'QCF_P002', serif;
-      display: inline;
+      font-size: 3em;
+      line-height: 2;
       user-select: text;
+      display: inline-block;
+      margin-bottom: 1em;
     }
 
     .word {
       position: relative;
-      display: inline-block;
       cursor: pointer;
+      display: inline-block;
       margin: 0 0.1em;
     }
 
     .word:hover {
-      background-color: #f3f3f3;
-      border-radius: 4px;
+      background-color: #f7eacb;
+      border-radius: 6px;
     }
 
     .translation {
       position: absolute;
-      bottom: -2.6em;
-      font-size: 0.45em;
+      bottom: -2.4em;
+      font-family: sans-serif;
+      font-size: 0.5em;
+      color: #444;
       background-color: #fff;
-      padding: 0.2em 0.6em;
       border: 1px solid #ccc;
       border-radius: 4px;
+      padding: 0.3em 0.6em;
       white-space: nowrap;
-      color: #444;
       display: none;
-      font-family: sans-serif;
-      z-index: 5;
+      z-index: 10;
     }
 
-    .word.active .translation {
+    .active .translation {
       display: block;
     }
 
-    .ayah-marker {
+    .ayah-number {
       font-size: 0.5em;
-      color: #666;
-      margin: 0 0.2em;
+      margin-right: 0.5em;
+      color: #555;
     }
 
     @font-face {
@@ -66,34 +67,35 @@
 </head>
 <body>
 
-  <h2 style="text-align: center;">سورة البقرة ١–٥</h2>
-  <div class="quran-text" id="quran-text">جارٍ التحميل...</div>
+  <h2>Surah Al-Baqarah Ayat 1–5</h2>
+  <div id="all-ayahs">جارٍ التحميل...</div>
 
   <script>
     const surah = 2;
-    const from = 1;
-    const to = 5;
-    const container = document.getElementById("quran-text");
+    const fromAyah = 1;
+    const toAyah = 5;
+    let timeoutId = null;
+    let activeWord = null;
+
+    const container = document.getElementById("all-ayahs");
     container.innerHTML = "";
 
-    let activeWord = null;
-    let timeoutId = null;
-
-    function createWordEl(word) {
+    function renderWord(word) {
       const span = document.createElement("span");
       span.className = "word";
       span.innerText = word.code_v1 || word.text;
 
       const trans = document.createElement("div");
       trans.className = "translation";
-      trans.innerText = word.translation?.text || '-';
+      trans.innerText = word.translation?.text || "-";
+
       span.appendChild(trans);
 
       span.addEventListener("click", () => {
-        if (activeWord === span) {
+        if (span === activeWord) {
           span.classList.remove("active");
-          activeWord = null;
           clearTimeout(timeoutId);
+          activeWord = null;
           return;
         }
 
@@ -111,29 +113,32 @@
       return span;
     }
 
-    async function loadVerses() {
-      for (let ayah = from; ayah <= to; ayah++) {
-        try {
-          const res = await fetch(`https://api.quran.com/api/v4/verses/by_key/${surah}:${ayah}?words=true&language=id&translations=33`);
-          const data = await res.json();
+    for (let ayah = fromAyah; ayah <= toAyah; ayah++) {
+      fetch(`https://api.quran.com/api/v4/verses/by_key/${surah}:${ayah}?words=true&language=id&translations=33`)
+        .then(res => res.json())
+        .then(data => {
+          const ayahDiv = document.createElement("div");
+          ayahDiv.className = "ayah-container";
 
           data.verse.words.forEach(word => {
-            const wordEl = createWordEl(word);
-            container.appendChild(wordEl);
+            const wordEl = renderWord(word);
+            ayahDiv.appendChild(wordEl);
           });
 
-          const marker = document.createElement("span");
-          marker.className = "ayah-marker";
-          marker.innerText = `﴿${ayah}﴾`;
-          container.appendChild(marker);
+          const ayahNum = document.createElement("span");
+          ayahNum.className = "ayah-number";
+          ayahNum.innerText = `﴿${ayah}﴾`;
+          ayahDiv.appendChild(ayahNum);
 
-        } catch (err) {
-          container.innerHTML += `<p>❌ Gagal memuat ayat ${ayah}</p>`;
-        }
-      }
+          container.appendChild(ayahDiv);
+        })
+        .catch(err => {
+          const error = document.createElement("div");
+          error.textContent = `❌ Gagal memuat ayat ${ayah}`;
+          container.appendChild(error);
+          console.error(err);
+        });
     }
-
-    loadVerses();
   </script>
 
 </body>
