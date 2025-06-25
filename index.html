@@ -7,9 +7,9 @@
     body {
       background: #fefdf8;
       font-family: sans-serif;
+      text-align: center;
       padding: 2em;
       direction: rtl;
-      text-align: center;
     }
 
     #ayah-container {
@@ -19,7 +19,7 @@
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
-      gap: 0.3em;
+      gap: 0.4em;
     }
 
     .word {
@@ -29,23 +29,18 @@
       padding: 0.2em;
     }
 
-    .word:hover {
-      background-color: #eee6d9;
-      border-radius: 6px;
-    }
-
     .translation {
       display: none;
       position: absolute;
       bottom: -2.2em;
-      font-size: 0.45em;
+      font-size: 0.5em;
+      color: #333;
       background: #fff9ee;
-      padding: 0.3em 0.5em;
+      padding: 0.2em 0.5em;
+      border: 1px solid #ccc;
       border-radius: 5px;
-      box-shadow: 0 0 5px rgba(0,0,0,0.1);
       white-space: nowrap;
-      z-index: 99;
-      color: #444;
+      z-index: 10;
     }
 
     .word.active .translation {
@@ -55,35 +50,36 @@
     @font-face {
       font-family: 'QCF_P002';
       src: url('https://dickymiswardi.github.io/tadabbur/QCF_P002.TTF') format('truetype');
+      font-display: swap;
     }
   </style>
 </head>
 <body>
 
-<h2>Klik kata untuk lihat terjemahannya</h2>
+<h2>🔍 Klik Kata Arab untuk Melihat Terjemah</h2>
 <div id="ayah-container">Memuat ayat...</div>
 
 <script>
   const surah = 2;
   const ayah = 2;
 
-  fetch(`https://api.quran.com/api/v4/verses/by_key/${surah}:${ayah}?words=true&translations=33`)
+  fetch(`https://api.quran.com/api/v4/verses/by_key/${surah}:${ayah}?words=true&translations=33&fields=words`)
     .then(res => res.json())
     .then(data => {
       const words = data.verse.words;
       const container = document.getElementById("ayah-container");
       container.innerHTML = "";
 
-      words.forEach((word) => {
+      words.forEach(word => {
         const span = document.createElement("span");
         span.className = "word";
         span.textContent = word.code_v1 || word.text;
 
-        const trans = document.createElement("div");
-        trans.className = "translation";
-        trans.textContent = word.translation?.text || "";
+        const translation = document.createElement("div");
+        translation.className = "translation";
+        translation.textContent = word.translation?.text || "";
 
-        span.appendChild(trans);
+        span.appendChild(translation);
 
         span.addEventListener("click", () => {
           span.classList.toggle("active");
