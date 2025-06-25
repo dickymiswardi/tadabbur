@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <title>Qur’an - 8 Ayat Rapi</title>
+  <title>Al-Baqarah Ayat 1–9</title>
   <style>
     body {
       background: #fefcf8;
@@ -12,17 +12,16 @@
       font-family: sans-serif;
     }
 
-    #ayah-container {
-      font-family: 'QCF_P002', serif;
+    .page-container {
       font-size: 3em;
-      line-height: 1.4; /* Lebih rapat */
+      line-height: 1.4;
       user-select: text;
-      display: none;
+      text-align: justify;
+      max-width: 1200px;
+      margin: 1em auto;
       opacity: 0;
       transition: opacity 0.3s ease;
-      text-align: justify; /* Rata kanan-kiri */
-      max-width: 1200px;
-      margin: 0 auto;
+      display: none;
     }
 
     .word {
@@ -61,98 +60,115 @@
       src: url('https://dickymiswardi.github.io/tadabbur/QCF_P002.TTF') format('truetype');
       font-display: swap;
     }
+
+    @font-face {
+      font-family: 'QCF_P003';
+      src: url('https://dickymiswardi.github.io/tadabbur/QCF_P003.TTF') format('truetype');
+      font-display: swap;
+    }
   </style>
 </head>
 <body>
 
-  <h2>Surat Al-Baqarah Ayat 2–9 (Klik Kata untuk Terjemah)</h2>
-  <div id="ayah-container">جارٍ التحميل...</div>
+  <h2>Surat Al-Baqarah Ayat 1–9</h2>
+  <div id="page-2" class="page-container" style="font-family: 'QCF_P002'">جارٍ التحميل...</div>
+  <div id="page-3" class="page-container" style="font-family: 'QCF_P003'"></div>
 
   <script>
     const surah = 2;
-    const startAyah = 1;
-    const endAyah = 16;
-    let timeoutId = null;
-    let activeWord = null;
+    const ayahRanges = {
+      'page-2': [1, 5],
+      'page-3': [6, 16]
+    };
+
     let originalUnicode = "";
+    let activeWord = null;
+    let timeoutId = null;
 
-    const container = document.getElementById("ayah-container");
-
-    // Ambil unicode asli dari XML
+    // Ambil teks unicode dari XML
     fetch("https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/quran-uthmani.xml")
       .then(res => res.text())
-      .then(str => (new window.DOMParser()).parseFromString(str, "text/xml"))
+      .then(str => (new DOMParser()).parseFromString(str, "text/xml"))
       .then(xml => {
-        let unicodeCombined = "";
-        for (let i = startAyah; i <= endAyah; i++) {
-          const ayaNode = xml.querySelector(`sura[index="${surah}"] > aya[index="${i}"]`);
-          if (ayaNode) {
-            unicodeCombined += ayaNode.getAttribute("text") + ` (${i}) `;
+        for (const [pageId, [start, end]] of Object.entries(ayahRanges)) {
+          const pageContainer = document.getElementById(pageId);
+          let textContent = "";
+          for (let i = start; i <= end; i++) {
+            const ayaNode = xml.querySelector(`sura[index="${surah}"] > aya[index="${i}"]`);
+            if (ayaNode) {
+              textContent += ayaNode.getAttribute("text") + ` (${i}) `;
+            }
           }
+
+          // Simpan agar bisa disalin
+          originalUnicode += textContent.trim() + " ";
         }
-        originalUnicode = unicodeCombined.trim();
       });
 
-    // Tunggu font selesai
+    // Saat font siap
     document.fonts.ready.then(() => {
-      const promises = [];
+      for (const [pageId, [start, end]] of Object.entries(ayahRanges)) {
+        const pageContainer = document.getElementById(pageId);
+        const fetches = [];
 
-      for (let i = startAyah; i <= endAyah; i++) {
-        const url = `https://api.quran.com/api/v4/verses/by_key/${surah}:${i}?words=true&language=id&translations=33`;
-        promises.push(fetch(url).then(res => res.json()));
-      }
+        for (let i = start; i <= end; i++) {
+          const url = `https://api.quran.com/api/v4/verses/by_key/${surah}:${i}?words=true&language=id&translations=33`;
+          fetches.push(fetch(url).then(res => res.json()));
+        }
 
-      Promise.all(promises).then(results => {
-        container.innerHTML = "";
+        Promise.all(fetches).then(results => {
+          pageContainer.innerHTML = "";
 
-        results.forEach(data => {
-          data.verse.words.forEach(word => {
-            const span = document.createElement("span");
-            span.className = "word";
-            span.innerText = word.code_v1 || word.text;
+          results.forEach(data => {
+            data.verse.words.forEach(word => {
+              const span = document.createElement("span");
+              span.className = "word";
+              span.innerText = word.code_v1 || word.text;
 
-            const trans = document.createElement("div");
-            trans.className = "translation";
-            trans.innerText = word.translation?.text || "-";
+              const trans = document.createElement("div");
+              trans.className = "translation";
+              trans.innerText = word.translation?.text || "-";
 
-            span.appendChild(trans);
+              span.appendChild(trans);
 
-            span.addEventListener("click", () => {
-              if (span === activeWord) {
-                span.classList.remove("active");
+              span.addEventListener("click", () => {
+                if (span === activeWord) {
+                  span.classList.remove("active");
+                  clearTimeout(timeoutId);
+                  activeWord = null;
+                  return;
+                }
+
+                document.querySelectorAll(".word").forEach(w => w.classList.remove("active"));
+                span.classList.add("active");
+                activeWord = span;
+
                 clearTimeout(timeoutId);
-                activeWord = null;
-                return;
-              }
+                timeoutId = setTimeout(() => {
+                  span.classList.remove("active");
+                  activeWord = null;
+                }, 7000);
+              });
 
-              document.querySelectorAll(".word").forEach(w => w.classList.remove("active"));
-              span.classList.add("active");
-              activeWord = span;
-
-              clearTimeout(timeoutId);
-              timeoutId = setTimeout(() => {
-                span.classList.remove("active");
-                activeWord = null;
-              }, 7000);
+              pageContainer.appendChild(span);
             });
+          });
 
-            container.appendChild(span);
+          // Setelah ayat dimuat
+          pageContainer.style.display = "block";
+          requestAnimationFrame(() => {
+            pageContainer.style.opacity = "1";
           });
         });
-
-        container.style.display = "block";
-        requestAnimationFrame(() => {
-          container.style.opacity = "1";
-        });
-      });
+      }
     });
 
-    // Salin hasil unicode dari XML
+    // Salin unicode asli saat copy
     document.addEventListener("copy", function (e) {
       if (originalUnicode) {
         e.preventDefault();
-        e.clipboardData.setData("text/plain", originalUnicode);
-        console.log("Copied Unicode:", originalUnicode);
+        e.clipboardData.setData("text/plain", originalUnicode.trim());
+        console.log("Copied:", originalUnicode.trim());
       }
     });
   </script>
