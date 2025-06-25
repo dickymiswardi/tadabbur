@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>Ayat Quran - Gaya Mushaf</title>
+  <style>
+    body {
+      background: #fefdf8;
+      font-family: sans-serif;
+      text-align: center;
+      padding: 2em;
+      direction: rtl;
+    }
+
+    h1 {
+      font-size: 2.2em;
+    }
+
+    #ayah {
+      font-family: 'QCF_P002', serif;
+      font-size: 3em;
+      margin: 2em auto;
+      line-height: 2;
+    }
+
+    @font-face {
+      font-family: 'QCF_P002';
+      src: url('https://dickymiswardi.github.io/tadabbur/QCF_P002.TTF') format('truetype');
+      font-display: swap;
+    }
+  </style>
+</head>
+<body>
+  <h1>نص من القرآن الكريم 🕋</h1>
+  <div id="ayah">Memuat ayat...</div>
+
+  <script>
+    fetch("https://api.quran.com/api/v4/verses/by_key/2:2?words=true&language=id&translations=33")
+      .then(res => res.json())
+      .then(data => {
+        const container = document.getElementById("ayah");
+        const words = data.verse.words;
+        const glyphText = words.map(w => w.code_v1 || w.text).join(' ');
+        container.innerHTML = glyphText;
+      })
+      .catch(err => {
+        document.getElementById("ayah").textContent = "Gagal memuat ayat.";
+        console.error(err);
+      });
+  </script>
+</body>
+</html>
