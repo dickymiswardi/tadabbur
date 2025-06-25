@@ -2,27 +2,28 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <title>Halaman 2 Al-Qur'an</title>
+  <title>Al-Qur'an - Halaman 2 📖</title>
 
-  <!-- Ganti URL ini dengan link font kamu -->
+  <!-- Load font Quran dari jsDelivr (ganti sesuai font kamu) -->
   <style>
     @font-face {
-      font-family: 'QuranUthmani';
-      src: url('https://github.com/dickymiswardi/tadabbur/raw/refs/heads/main/QCF_P002.TTF') format('opentype');
+      font-family: 'QuranFont';
+      src: url('https://cdn.jsdelivr.net/gh/dickymiswardi/tadabbur@raw/refs/heads/main/QCF_P002.TTF') format('truetype');
       font-display: swap;
     }
 
     body {
-      font-family: 'QuranUthmani', 'Amiri', 'Scheherazade', serif;
+      font-family: 'QuranFont', 'Amiri', 'Scheherazade', 'Traditional Arabic', serif;
       font-size: 36px;
       direction: rtl;
       text-align: right;
       padding: 40px;
-      background: #fdfcf9;
+      background: #fefdfb;
+      color: #111;
     }
 
     .ayah {
-      margin-bottom: 20px;
+      margin-bottom: 30px;
     }
 
     .word {
@@ -34,24 +35,28 @@
     }
 
     .verse-key {
-      font-size: 16px;
+      font-size: 18px;
       color: gray;
-      margin-top: 10px;
+      margin-top: 12px;
     }
   </style>
 </head>
 <body>
   <h2>📖 Al-Qur'an - Halaman 2</h2>
-  <div id="page"></div>
+  <div id="page">⏳ Memuat ayat...</div>
 
   <script>
     const page = 2;
     const url = `https://api.quran.com/api/v4/quran/verses?page_number=${page}&words=true&fields=words`;
 
     fetch(url)
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) throw new Error("Gagal ambil data dari API");
+        return res.json();
+      })
       .then(data => {
         const container = document.getElementById("page");
+        container.innerHTML = ""; // kosongkan loader
         const verses = data.verses;
 
         verses.forEach(verse => {
@@ -76,8 +81,8 @@
         });
       })
       .catch(err => {
-        document.getElementById("page").textContent = "Gagal memuat halaman.";
-        console.error(err);
+        document.getElementById("page").innerHTML = "<b style='color:red;'>⚠️ Gagal memuat halaman</b>";
+        console.error("API Error:", err);
       });
   </script>
 </body>
