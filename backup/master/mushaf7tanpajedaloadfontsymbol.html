@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>Qur’an Interaktif - Font Stabil</title>
+  <style>
+    body {
+      background: #fefcf8;
+      text-align: center;
+      padding: 2em;
+      direction: rtl;
+      font-family: sans-serif;
+    }
+
+    #ayah-container {
+      font-family: 'QCF_P002', serif;
+      font-size: 3em;
+      line-height: 2;
+      user-select: text;
+      display: none; /* Disembunyikan dulu */
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .word {
+      position: relative;
+      cursor: pointer;
+      display: inline-block;
+      margin: 0 0.1em;
+    }
+
+    .word:hover {
+      background-color: #f7eacb;
+      border-radius: 6px;
+    }
+
+    .translation {
+      position: absolute;
+      bottom: -2.4em;
+      font-family: sans-serif;
+      font-size: 0.5em;
+      color: #444;
+      background-color: #fff;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      padding: 0.3em 0.6em;
+      white-space: nowrap;
+      display: none;
+      z-index: 10;
+    }
+
+    .active .translation {
+      display: block;
+    }
+
+    @font-face {
+      font-family: 'QCF_P002';
+      src: url('https://dickymiswardi.github.io/tadabbur/QCF_P002.TTF') format('truetype');
+      font-display: swap;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Klik Kata untuk Terjemah — Salin = Unicode Asli</h2>
+  <div id="ayah-container">جارٍ التحميل...</div>
+
+  <script>
+    const surah = 2;
+    const ayah = 2;
+    let timeoutId = null;
+    let activeWord = null;
+    let originalUnicode = "";
+
+    // Siapkan container dan sembunyikan dulu
+    const container = document.getElementById("ayah-container");
+    container.style.display = "none";
+
+    // Step 1: Ambil unicode dari XML
+    fetch("https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/quran-uthmani.xml")
+      .then(res => res.text())
+      .then(str => (new window.DOMParser()).parseFromString(str, "text/xml"))
+      .then(xml => {
+        const ayaNode = xml.querySelector(`sura[index="${surah}"] > aya[index="${ayah}"]`);
+        if (ayaNode) {
+          originalUnicode = ayaNode.getAttribute("text") + ` (${ayah})`;
+        }
+      });
+
+    // Step 2: Pastikan font sudah siap sebelum menampilkan
+    document.fonts.ready.then(() => {
+      // Step 3: Ambil data ayat dari API
+      fetch(`https://api.quran.com/api/v4/verses/by_key/${surah}:${ayah}?words=true&language=id&translations=33`)
+        .then(res => res.json())
+        .then(data => {
+          const words = data.verse.words;
+          container.innerHTML = "";
+
+          words.forEach(word => {
+            const span = document.createElement("span");
+            span.className = "word";
+            span.innerText = word.code_v1 || word.text;
+
+            const trans = document.createElement("div");
+            trans.className = "translation";
+            trans.innerText = word.translation?.text || "-";
+
+            span.appendChild(trans);
+
+            span.addEventListener("click", () => {
+              if (span === activeWord) {
+                span.classList.remove("active");
+                clearTimeout(timeoutId);
+                activeWord = null;
+                return;
+              }
+
+              document.querySelectorAll(".word").forEach(w => w.classList.remove("active"));
+              span.classList.add("active");
+              activeWord = span;
+
+              clearTimeout(timeoutId);
+              timeoutId = setTimeout(() => {
+                span.classList.remove("active");
+                activeWord = null;
+              }, 7000);
+            });
+
+            container.appendChild(span);
+          });
+
+          // Setelah semuanya siap, tampilkan ayat
+          container.style.display = "inline-block";
+          requestAnimationFrame(() => {
+            container.style.opacity = "1";
+          });
+        })
+        .catch(err => {
+          container.textContent = "❌ Gagal memuat data.";
+          container.style.display = "block";
+          console.error(err);
+        });
+    });
+
+    // Copy teks asli dari XML saat disalin
+    document.addEventListener("copy", function (e) {
+      if (originalUnicode) {
+        e.preventDefault();
+        e.clipboardData.setData("text/plain", originalUnicode);
+        console.log("Copied:", originalUnicode);
+      }
+    });
+  </script>
+
+</body>
+</html>
