@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <title>Qur’an Dua Ayat Menyambung</title>
+  <title>Qur’an - 8 Ayat Rapi</title>
   <style>
     body {
       background: #fefcf8;
@@ -15,11 +15,14 @@
     #ayah-container {
       font-family: 'QCF_P002', serif;
       font-size: 3em;
-      line-height: 2;
+      line-height: 1.4; /* Lebih rapat */
       user-select: text;
       display: none;
       opacity: 0;
       transition: opacity 0.3s ease;
+      text-align: justify; /* Rata kanan-kiri */
+      max-width: 1200px;
+      margin: 0 auto;
     }
 
     .word {
@@ -62,20 +65,20 @@
 </head>
 <body>
 
-  <h2>Klik Kata untuk Terjemah — Salin Unicode 2 Ayat</h2>
+  <h2>Surat Al-Baqarah Ayat 2–9 (Klik Kata untuk Terjemah)</h2>
   <div id="ayah-container">جارٍ التحميل...</div>
 
   <script>
     const surah = 2;
     const startAyah = 2;
-    const endAyah = 3;
+    const endAyah = 9;
     let timeoutId = null;
     let activeWord = null;
     let originalUnicode = "";
 
     const container = document.getElementById("ayah-container");
 
-    // Step 1: Ambil unicode asli dari XML
+    // Ambil unicode asli dari XML
     fetch("https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/quran-uthmani.xml")
       .then(res => res.text())
       .then(str => (new window.DOMParser()).parseFromString(str, "text/xml"))
@@ -90,7 +93,7 @@
         originalUnicode = unicodeCombined.trim();
       });
 
-    // Step 2: Pastikan font sudah siap
+    // Tunggu font selesai
     document.fonts.ready.then(() => {
       const promises = [];
 
@@ -137,14 +140,14 @@
           });
         });
 
-        container.style.display = "inline-block";
+        container.style.display = "block";
         requestAnimationFrame(() => {
           container.style.opacity = "1";
         });
       });
     });
 
-    // Step 3: Saat user copy
+    // Salin hasil unicode dari XML
     document.addEventListener("copy", function (e) {
       if (originalUnicode) {
         e.preventDefault();
