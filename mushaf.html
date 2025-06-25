@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <title>Kata-kata Quran</title>
+  <title>Ayat Quran - Gaya Mushaf</title>
   <style>
     body {
       background: #fefdf8;
@@ -16,32 +16,11 @@
       font-size: 2.2em;
     }
 
-    #words {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: flex-end;
-      direction: rtl;
-      gap: 1em;
-      margin-top: 2em;
-    }
-
-    .word {
-      display: inline-block;
-      padding: 1em;
-      border: 1px solid #ccc;
-      border-radius: 12px;
-      background: #fff;
-      box-shadow: 0 1px 5px rgba(0,0,0,0.1);
-      font-size: 2.5em;
+    #ayah {
       font-family: 'QCF_P002', serif;
-    }
-
-    .trans {
-      font-size: 0.5em;
-      display: block;
-      font-family: sans-serif;
-      direction: ltr;
-      text-align: center;
+      font-size: 3em;
+      margin: 2em auto;
+      line-height: 2;
     }
 
     @font-face {
@@ -52,27 +31,20 @@
   </style>
 </head>
 <body>
-  <h1>كَـلِـمَـات مِـنَ الـقُـرْآن 🕋</h1>
-  <div id="words"></div>
+  <h1>نص من القرآن الكريم 🕋</h1>
+  <div id="ayah">Memuat ayat...</div>
 
   <script>
     fetch("https://api.quran.com/api/v4/verses/by_key/2:2?words=true&language=id&translations=33")
       .then(res => res.json())
       .then(data => {
-        const container = document.getElementById("words");
-        data.verse.words.forEach(word => {
-          const div = document.createElement("div");
-          div.className = "word";
-          div.innerHTML = `
-            ${word.code_v1 || word.text}
-            <span class="trans"><strong>${word.translation?.text || '-'}</strong></span>
-            <span class="trans">${word.transliteration?.text || '-'}</span>
-          `;
-          container.appendChild(div);
-        });
+        const container = document.getElementById("ayah");
+        const words = data.verse.words;
+        const glyphText = words.map(w => w.code_v1 || w.text).join(' ');
+        container.innerHTML = glyphText;
       })
       .catch(err => {
-        document.getElementById("words").textContent = "Gagal memuat data.";
+        document.getElementById("ayah").textContent = "Gagal memuat ayat.";
         console.error(err);
       });
   </script>
