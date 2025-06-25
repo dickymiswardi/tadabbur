@@ -2,51 +2,53 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <title>Terjemah Per Kata Interaktif</title>
+  <title>Terjemah Per Kata Al-Qur'an</title>
   <style>
     body {
-      background: #fefcf8;
-      text-align: center;
+      background: #fffef8;
       font-family: sans-serif;
-      direction: rtl;
+      text-align: center;
       padding: 2em;
+      direction: rtl;
     }
 
-    #ayah-visual {
-      font-family: 'QCF_P002', serif;
-      font-size: 3em;
+    #ayah-container {
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
-      gap: 0.4em;
+      gap: 1em;
+      font-size: 2.2em;
       cursor: pointer;
+      user-select: none;
+      margin-top: 2em;
     }
 
-    .word-wrapper {
+    .word-box {
       display: flex;
       flex-direction: column;
       align-items: center;
-      transition: all 0.2s ease-in-out;
     }
 
-    .arabic-word {
+    .glyph {
       font-family: 'QCF_P002', serif;
-      font-size: 1.4em;
-      line-height: 1.2;
+      font-size: 1em;
+      transition: all 0.2s;
     }
 
-    .translation-word {
-      font-size: 0.6em;
-      color: #555;
+    .translation {
       display: none;
+      font-size: 0.4em;
+      color: #555;
+      margin-top: 0.2em;
+      transition: all 0.2s;
     }
 
-    #ayah-visual.active .translation-word {
+    .active .translation {
       display: block;
     }
 
-    #ayah-visual.active .arabic-word {
-      font-size: 1em;
+    .active .glyph {
+      font-size: 0.9em;
     }
 
     @font-face {
@@ -57,52 +59,49 @@
 </head>
 <body>
 
-  <h1>النص القرآني مع الترجمة الفورية</h1>
+<h2>القرآن الكريم - الترجمة الفورية للكلمات</h2>
 
-  <div id="ayah-visual">جارٍ التحميل...</div>
+<div id="ayah-container">Memuat ayat...</div>
 
-  <script>
-    const surah = 2;
-    const ayah = 2;
+<script>
+  const surah = 2;
+  const ayah = 2;
 
-    fetch(`https://api.quran.com/api/v4/verses/by_key/${surah}:${ayah}?words=true&translations=33`)
-      .then(res => res.json())
-      .then(data => {
-        const container = document.getElementById("ayah-visual");
-        container.innerHTML = '';
-        container.classList.remove('active');
+  fetch(`https://api.quran.com/api/v4/verses/by_key/${surah}:${ayah}?words=true&translations=33`)
+    .then(res => res.json())
+    .then(data => {
+      const container = document.getElementById("ayah-container");
+      container.innerHTML = "";
 
-        const words = data.verse.words;
+      data.verse.words.forEach(word => {
+        const box = document.createElement("div");
+        box.className = "word-box";
 
-        words.forEach(word => {
-          const wrapper = document.createElement('div');
-          wrapper.className = 'word-wrapper';
+        const glyph = document.createElement("div");
+        glyph.className = "glyph";
+        glyph.textContent = word.code_v1 || word.text;
 
-          const arabic = document.createElement('div');
-          arabic.className = 'arabic-word';
-          arabic.innerText = word.code_v1 || word.text;
+        const trans = document.createElement("div");
+        trans.className = "translation";
+        trans.textContent = word.translation?.text || "";
 
-          const trans = document.createElement('div');
-          trans.className = 'translation-word';
-          trans.innerText = word.translation?.text || '';
-
-          wrapper.appendChild(arabic);
-          wrapper.appendChild(trans);
-          container.appendChild(wrapper);
-        });
-
-        // Tambahkan nomor ayat di akhir
-        const number = document.createElement('div');
-        number.innerText = `﴿${ayah}﴾`;
-        number.className = 'arabic-word';
-        container.appendChild(number);
-
-        // Klik untuk toggle
-        container.addEventListener('click', () => {
-          container.classList.toggle('active');
-        });
+        box.appendChild(glyph);
+        box.appendChild(trans);
+        container.appendChild(box);
       });
-  </script>
+
+      // Tambahkan nomor ayat
+      const end = document.createElement("div");
+      end.className = "glyph";
+      end.textContent = `﴿${ayah}﴾`;
+      container.appendChild(end);
+
+      // Toggle terjemah saat klik
+      container.addEventListener("click", () => {
+        container.classList.toggle("active");
+      });
+    });
+</script>
 
 </body>
 </html>
