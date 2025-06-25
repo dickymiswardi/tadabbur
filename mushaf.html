@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <title>Terjemah Otomatis Hilang</title>
+  <title>Ayat Al-Qur’an Rapi + Terjemah Klik</title>
   <style>
     body {
       background: #fefcf8;
@@ -15,23 +15,21 @@
     #ayah-container {
       font-family: 'QCF_P002', serif;
       font-size: 3em;
-      line-height: 1.8;
+      line-height: 2;
       user-select: text;
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 0.4em;
+      display: inline-block;
     }
 
     .word {
       position: relative;
       cursor: pointer;
       display: inline-block;
+      margin: 0 0.1em;
     }
 
     .word:hover {
       background-color: #f7eacb;
-      border-radius: 8px;
+      border-radius: 6px;
     }
 
     .translation {
@@ -62,7 +60,7 @@
 </head>
 <body>
 
-  <h2>Klik Kata - Terjemah Hilang Otomatis</h2>
+  <h2>Klik Kata untuk Terjemah (Indonesia)</h2>
   <div id="ayah-container">جارٍ التحميل...</div>
 
   <script>
@@ -90,7 +88,6 @@
           span.appendChild(trans);
 
           span.addEventListener("click", () => {
-            // Jika klik ulang kata yang aktif, tutup dan batalkan timer
             if (span === activeWord) {
               span.classList.remove("active");
               clearTimeout(timeoutId);
@@ -98,14 +95,10 @@
               return;
             }
 
-            // Tutup semua dulu
             document.querySelectorAll(".word").forEach(w => w.classList.remove("active"));
-
-            // Aktifkan terjemah kata ini
             span.classList.add("active");
             activeWord = span;
 
-            // Timer: auto hide setelah 7 detik
             clearTimeout(timeoutId);
             timeoutId = setTimeout(() => {
               span.classList.remove("active");
