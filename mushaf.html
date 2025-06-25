@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <title>Qur'an Interaktif - Copy Unicode</title>
+  <title>Qur’an Interaktif - Font Stabil</title>
   <style>
     body {
       background: #fefcf8;
@@ -17,7 +17,9 @@
       font-size: 3em;
       line-height: 2;
       user-select: text;
-      display: inline-block;
+      display: none; /* Disembunyikan dulu */
+      opacity: 0;
+      transition: opacity 0.3s ease;
     }
 
     .word {
@@ -68,9 +70,13 @@
     const ayah = 2;
     let timeoutId = null;
     let activeWord = null;
-    let originalUnicode = ""; // untuk salin unicode dari XML
+    let originalUnicode = "";
 
-    // Load ayat dari XML
+    // Siapkan container dan sembunyikan dulu
+    const container = document.getElementById("ayah-container");
+    container.style.display = "none";
+
+    // Step 1: Ambil unicode dari XML
     fetch("https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/quran-uthmani.xml")
       .then(res => res.text())
       .then(str => (new window.DOMParser()).parseFromString(str, "text/xml"))
@@ -81,53 +87,62 @@
         }
       });
 
-    // Tampilkan Mushaf dari code_v1
-    fetch(`https://api.quran.com/api/v4/verses/by_key/${surah}:${ayah}?words=true&language=id&translations=33`)
-      .then(res => res.json())
-      .then(data => {
-        const words = data.verse.words;
-        const container = document.getElementById("ayah-container");
-        container.innerHTML = "";
+    // Step 2: Pastikan font sudah siap sebelum menampilkan
+    document.fonts.ready.then(() => {
+      // Step 3: Ambil data ayat dari API
+      fetch(`https://api.quran.com/api/v4/verses/by_key/${surah}:${ayah}?words=true&language=id&translations=33`)
+        .then(res => res.json())
+        .then(data => {
+          const words = data.verse.words;
+          container.innerHTML = "";
 
-        words.forEach(word => {
-          const span = document.createElement("span");
-          span.className = "word";
-          span.innerText = word.code_v1 || word.text;
+          words.forEach(word => {
+            const span = document.createElement("span");
+            span.className = "word";
+            span.innerText = word.code_v1 || word.text;
 
-          const trans = document.createElement("div");
-          trans.className = "translation";
-          trans.innerText = word.translation?.text || "-";
+            const trans = document.createElement("div");
+            trans.className = "translation";
+            trans.innerText = word.translation?.text || "-";
 
-          span.appendChild(trans);
+            span.appendChild(trans);
 
-          span.addEventListener("click", () => {
-            if (span === activeWord) {
-              span.classList.remove("active");
+            span.addEventListener("click", () => {
+              if (span === activeWord) {
+                span.classList.remove("active");
+                clearTimeout(timeoutId);
+                activeWord = null;
+                return;
+              }
+
+              document.querySelectorAll(".word").forEach(w => w.classList.remove("active"));
+              span.classList.add("active");
+              activeWord = span;
+
               clearTimeout(timeoutId);
-              activeWord = null;
-              return;
-            }
+              timeoutId = setTimeout(() => {
+                span.classList.remove("active");
+                activeWord = null;
+              }, 7000);
+            });
 
-            document.querySelectorAll(".word").forEach(w => w.classList.remove("active"));
-            span.classList.add("active");
-            activeWord = span;
-
-            clearTimeout(timeoutId);
-            timeoutId = setTimeout(() => {
-              span.classList.remove("active");
-              activeWord = null;
-            }, 7000);
+            container.appendChild(span);
           });
 
-          container.appendChild(span);
+          // Setelah semuanya siap, tampilkan ayat
+          container.style.display = "inline-block";
+          requestAnimationFrame(() => {
+            container.style.opacity = "1";
+          });
+        })
+        .catch(err => {
+          container.textContent = "❌ Gagal memuat data.";
+          container.style.display = "block";
+          console.error(err);
         });
-      })
-      .catch(err => {
-        document.getElementById("ayah-container").textContent = "❌ Gagal memuat data.";
-        console.error(err);
-      });
+    });
 
-    // Tangkap event copy
+    // Copy teks asli dari XML saat disalin
     document.addEventListener("copy", function (e) {
       if (originalUnicode) {
         e.preventDefault();
