@@ -2,148 +2,176 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
+  <title>Al-Qur'an Dinamis</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mushaf Otomatis</title>
   <style>
     body {
       background: #fefcf8;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      justify-content: center;
-      font-family: sans-serif;
-    }
-
-    .mushaf {
-      width: 100%;
-      max-width: 700px;
-      aspect-ratio: 2 / 3;
-      background: white;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
       padding: 1em;
-      display: grid;
-      grid-template-rows: repeat(15, 1fr);
-      box-sizing: border-box;
+      margin: 0;
+      font-family: sans-serif;
+      direction: rtl;
     }
-
-    .line {
+    h2 { text-align: center; }
+    .page-container {
+      font-size: 2.3em;
+      line-height: 1.6;
       text-align: justify;
-      font-size: 2em;
-      line-height: 1.5;
-      font-family: 'QCF_AUTO';
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
+      user-select: text;
+      max-width: 1200px;
+      margin: 2em auto;
+      word-spacing: 0.2em;
+      display: none;
+      opacity: 0;
+      transition: opacity 0.3s ease;
     }
-
     .word {
+      display: inline-block;
       position: relative;
       cursor: pointer;
       margin: 0 0.1em;
     }
-
+    .word:hover {
+      background-color: #f7eacb;
+      border-radius: 6px;
+    }
     .translation {
       position: absolute;
-      bottom: -2.2em;
+      bottom: -2.4em;
+      font-size: 0.45em;
+      font-family: sans-serif;
+      color: #444;
       background: #fff;
+      padding: 0.3em 0.6em;
       border: 1px solid #ccc;
-      font-size: 0.5em;
-      padding: 0.2em 0.4em;
       border-radius: 4px;
+      white-space: nowrap;
       display: none;
+      z-index: 10;
     }
-
     .word.active .translation {
       display: block;
     }
+    @media (max-width: 768px) {
+      .page-container { font-size: 1.5em; padding: 1em; }
+    }
   </style>
-  <script>
-    const ayat = ['2:6', '2:7', '2:8', '2:9', '2:10', '2:11', '2:12', '2:13', '2:14', '2:15', '2:16'];
-    let originalText = "";
-
-    function loadAyat() {
-      fetch('https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/ayah_page_map.json')
-        .then(res => res.json())
-        .then(map => {
-          const pages = ayat.map(key => map[key]);
-          const uniquePages = [...new Set(pages)];
-          if (uniquePages.length === 1) {
-            const pageNumber = uniquePages[0].toString().padStart(3, '0');
-            const fontUrl = `https://github.com/dickymiswardi/quran/raw/refs/heads/main/fonts/QCF_P${pageNumber}.TTF`;
-            const fontFace = new FontFace('QCF_AUTO', `url(${fontUrl})`);
-            document.fonts.add(fontFace);
-            fontFace.load().then(() => {
-              document.body.style.visibility = 'visible';
-              renderAyat();
-            });
-          } else {
-            document.body.innerHTML = '<p style="text-align:center;margin-top:2em;">❌ Ayat tidak dalam 1 halaman Mushaf.</p>';
-          }
-        });
-    }
-
-    function renderAyat() {
-      const container = document.querySelector(".mushaf");
-
-      Promise.all(
-        ayat.map(key => fetch(`https://api.quran.com/api/v4/verses/by_key/${key}?words=true&language=id&translations=33`).then(res => res.json()))
-      ).then(results => {
-        results.forEach(data => {
-          const line = document.createElement("div");
-          line.className = "line";
-
-          data.verse.words.forEach(word => {
-            const span = document.createElement("span");
-            span.className = "word";
-            span.textContent = word.code_v1;
-
-            const trans = document.createElement("div");
-            trans.className = "translation";
-            trans.textContent = word.translation?.text || '-';
-            span.appendChild(trans);
-
-            span.onclick = () => {
-              if (span.classList.contains("active")) {
-                span.classList.remove("active");
-              } else {
-                document.querySelectorAll(".word").forEach(w => w.classList.remove("active"));
-                span.classList.add("active");
-                setTimeout(() => span.classList.remove("active"), 7000);
-              }
-            };
-
-            line.appendChild(span);
-            line.appendChild(document.createTextNode(" "));
-          });
-
-          container.appendChild(line);
-        });
-      });
-    }
-
-    document.addEventListener("DOMContentLoaded", () => {
-      document.body.style.visibility = "hidden";
-      loadAyat();
-    });
-
-    document.addEventListener("copy", function (e) {
-      fetch("https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/quran-uthmani.xml")
-        .then(res => res.text())
-        .then(str => (new DOMParser()).parseFromString(str, "text/xml"))
-        .then(xml => {
-          let text = "";
-          ayat.forEach(key => {
-            const [surah, ayah] = key.split(":");
-            const aya = xml.querySelector(`sura[index='${surah}'] > aya[index='${ayah}']`);
-            if (aya) text += aya.getAttribute("text") + ` (${ayah}) `;
-          });
-          e.clipboardData.setData("text/plain", text.trim());
-          e.preventDefault();
-        });
-    });
-  </script>
 </head>
 <body>
-  <div class="mushaf"></div>
+
+  <h2 id="judul">Memuat...</h2>
+  <div id="pages"></div>
+
+  <script>
+    const surah = 2;
+    const fromAyah = 1;
+    const toAyah = 16;
+    const ayahKeys = [];
+    for (let i = fromAyah; i <= toAyah; i++) {
+      ayahKeys.push(`${surah}:${i}`);
+    }
+
+    let originalUnicode = "";
+    let activeWord = null;
+    let timeoutId = null;
+
+    fetch("https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/ayah_page_map.json")
+      .then(res => res.json())
+      .then(pageMap => {
+        const pageGroups = {};
+        for (const key of ayahKeys) {
+          const pageNum = pageMap[key];
+          if (!pageGroups[pageNum]) pageGroups[pageNum] = [];
+          pageGroups[pageNum].push(key);
+        }
+
+        Object.entries(pageGroups).forEach(([pageNum, keys]) => {
+          const pageId = `page-${pageNum}`;
+          const fontName = `QCF_P${String(pageNum).padStart(3, '0')}`;
+          const fontUrl = `https://github.com/dickymiswardi/quran/raw/refs/heads/main/fonts/${fontName}.TTF`;
+
+          const style = document.createElement('style');
+          style.innerHTML = `
+            @font-face {
+              font-family: '${fontName}';
+              src: url('${fontUrl}') format('truetype');
+              font-display: swap;
+            }`;
+          document.head.appendChild(style);
+
+          const container = document.createElement("div");
+          container.id = pageId;
+          container.className = "page-container";
+          container.style.fontFamily = fontName;
+          document.getElementById("pages").appendChild(container);
+
+          Promise.all(keys.map(key =>
+            fetch(`https://api.quran.com/api/v4/verses/by_key/${key}?words=true&language=id&translations=33`)
+              .then(res => res.json())
+          )).then(results => {
+            results.forEach(data => {
+              const line = document.createElement("div");
+              data.verse.words.forEach(word => {
+                const span = document.createElement("span");
+                span.className = "word";
+                span.innerText = word.code_v1 || word.text;
+
+                const trans = document.createElement("div");
+                trans.className = "translation";
+                trans.innerText = word.translation?.text || "-";
+                span.appendChild(trans);
+
+                span.addEventListener("click", () => {
+                  if (span === activeWord) {
+                    span.classList.remove("active");
+                    clearTimeout(timeoutId);
+                    activeWord = null;
+                    return;
+                  }
+                  document.querySelectorAll(".word").forEach(w => w.classList.remove("active"));
+                  span.classList.add("active");
+                  activeWord = span;
+                  clearTimeout(timeoutId);
+                  timeoutId = setTimeout(() => {
+                    span.classList.remove("active");
+                    activeWord = null;
+                  }, 7000);
+                });
+
+                line.appendChild(span);
+                line.appendChild(document.createTextNode(" "));
+              });
+              container.appendChild(line);
+            });
+
+            container.style.display = "block";
+            requestAnimationFrame(() => {
+              container.style.opacity = "1";
+            });
+          });
+        });
+
+        // ambil teks unicode untuk fitur copy
+        fetch("https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/quran-uthmani.xml")
+          .then(res => res.text())
+          .then(str => (new DOMParser()).parseFromString(str, "text/xml"))
+          .then(xml => {
+            const sura = xml.querySelector(`sura[index="${surah}"]`);
+            for (let i = fromAyah; i <= toAyah; i++) {
+              const aya = sura.querySelector(`aya[index="${i}"]`);
+              if (aya) originalUnicode += aya.getAttribute("text") + ` (${i}) `;
+            }
+            document.getElementById("judul").innerText = sura.getAttribute("name");
+          });
+      });
+
+    document.addEventListener("copy", function (e) {
+      if (originalUnicode) {
+        e.preventDefault();
+        e.clipboardData.setData("text/plain", originalUnicode.trim());
+      }
+    });
+  </script>
+
 </body>
 </html>
