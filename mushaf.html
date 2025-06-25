@@ -1,181 +1,204 @@
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <title>Al-Baqarah Ayat 1–16</title>
+  <title>Al-Qur'an Dinamis Multi-Surah</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
       background: #fefcf8;
-      text-align: center;
-      padding: 2em;
-      direction: rtl;
+      padding: 1em;
+      margin: 0;
       font-family: sans-serif;
+      direction: rtl;
     }
-
+    h2 { text-align: center; }
     .page-container {
-      font-size: 3em;
-      line-height: 1.4;
-      user-select: text;
+      font-size: 2.3em;
+      line-height: 1.6;
       text-align: justify;
+      user-select: text;
       max-width: 1200px;
-      margin: 1em auto;
+      margin: 2em auto;
+      word-spacing: 0.2em;
+      display: none;
       opacity: 0;
       transition: opacity 0.3s ease;
-      display: none;
     }
-
     .word {
+      display: inline-block;
       position: relative;
       cursor: pointer;
-      display: inline-block;
       margin: 0 0.1em;
     }
-
     .word:hover {
       background-color: #f7eacb;
       border-radius: 6px;
     }
-
     .translation {
       position: absolute;
       bottom: -2.4em;
+      font-size: 0.45em;
       font-family: sans-serif;
-      font-size: 0.5em;
       color: #444;
-      background-color: #fff;
+      background: #fff;
+      padding: 0.3em 0.6em;
       border: 1px solid #ccc;
       border-radius: 4px;
-      padding: 0.3em 0.6em;
       white-space: nowrap;
       display: none;
       z-index: 10;
     }
-
-    .active .translation {
+    .word.active .translation {
       display: block;
     }
-
-    @font-face {
-      font-family: 'QCF_P002';
-      src: url('https://dickymiswardi.github.io/tadabbur/QCF_P002.TTF') format('truetype');
-      font-display: swap;
-    }
-
-    @font-face {
-      font-family: 'QCF_P003';
-      src: url('https://dickymiswardi.github.io/tadabbur/QCF_P003.TTF') format('truetype');
-      font-display: swap;
+    @media (max-width: 768px) {
+      .page-container { font-size: 1.5em; padding: 1em; }
     }
   </style>
 </head>
 <body>
 
-  <h2>Surat Al-Baqarah Ayat 1–16</h2>
-  <div id="page-2" class="page-container" style="font-family: 'QCF_P002'">جارٍ التحميل...</div>
-  <div id="page-3" class="page-container" style="font-family: 'QCF_P003'">جارٍ التحميل...</div>
+  <h2 id="judul">Memuat...</h2>
+  <div id="pages"></div>
 
   <script>
-    const surah = 2;
-    const ayahRanges = {
-      'page-2': [1, 5],
-      'page-3': [6, 16]
+    const lastAyahOfSurah = {
+      1: 7, 2: 286, 3: 200, 4: 176, 5: 120, 6: 165, 7: 206, 8: 75, 9: 129,
+      10: 109, 11: 123, 12: 111, 13: 43, 14: 52, 15: 99, 16: 128, 17: 111,
+      18: 110, 19: 98, 20: 135, 21: 112, 22: 78, 23: 118, 24: 64, 25: 77,
+      26: 227, 27: 93, 28: 88, 29: 69, 30: 60, 31: 34, 32: 30, 33: 73,
+      34: 54, 35: 45, 36: 83, 37: 182, 38: 88, 39: 75, 40: 85, 41: 54,
+      42: 53, 43: 89, 44: 59, 45: 37, 46: 35, 47: 38, 48: 29, 49: 18,
+      50: 45, 51: 60, 52: 49, 53: 62, 54: 55, 55: 78, 56: 96, 57: 29,
+      58: 22, 59: 24, 60: 13, 61: 14, 62: 11, 63: 11, 64: 18, 65: 12,
+      66: 12, 67: 30, 68: 52, 69: 52, 70: 44, 71: 28, 72: 28, 73: 20,
+      74: 56, 75: 40, 76: 31, 77: 50, 78: 40, 79: 46, 80: 42, 81: 29,
+      82: 19, 83: 36, 84: 25, 85: 22, 86: 17, 87: 19, 88: 26, 89: 30,
+      90: 20, 91: 15, 92: 21, 93: 11, 94: 8, 95: 8, 96: 19, 97: 5,
+      98: 8, 99: 8, 100: 11, 101: 11, 102: 8, 103: 3, 104: 9, 105: 5,
+      106: 4, 107: 7, 108: 3, 109: 6, 110: 3, 111: 5, 112: 4, 113: 5, 114: 6
     };
 
-    const fontMap = {
-      'page-2': 'QCF_P002',
-      'page-3': 'QCF_P003'
-    };
+    const fromSurah = 1, fromAyah = 6, toSurah = 2, toAyah = 16;
 
+    function generateAyahKeys(fromSurah, fromAyah, toSurah, toAyah) {
+      const result = [];
+      for (let s = fromSurah; s <= toSurah; s++) {
+        let start = (s === fromSurah) ? fromAyah : 1;
+        let end = (s === toSurah) ? toAyah : lastAyahOfSurah[s];
+        for (let i = start; i <= end; i++) {
+          result.push(`${s}:${i}`);
+        }
+      }
+      return result;
+    }
+
+    const ayahKeys = generateAyahKeys(fromSurah, fromAyah, toSurah, toAyah);
     let originalUnicode = "";
     let activeWord = null;
     let timeoutId = null;
 
-    // Ambil teks unicode dari XML
-    fetch("https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/quran-uthmani.xml")
-      .then(res => res.text())
-      .then(str => (new DOMParser()).parseFromString(str, "text/xml"))
-      .then(xml => {
-        for (const [pageId, [start, end]] of Object.entries(ayahRanges)) {
-          const pageContainer = document.getElementById(pageId);
-          let textContent = "";
-          for (let i = start; i <= end; i++) {
-            const ayaNode = xml.querySelector(`sura[index="${surah}"] > aya[index="${i}"]`);
-            if (ayaNode) {
-              textContent += ayaNode.getAttribute("text") + ` (${i}) `;
-            }
-          }
-
-          // Simpan agar bisa disalin
-          originalUnicode += textContent.trim() + " ";
-        }
-      });
-
-    // Tampilkan per halaman setelah font-nya siap
-    for (const [pageId, [start, end]] of Object.entries(ayahRanges)) {
-      const pageContainer = document.getElementById(pageId);
-      const fontName = fontMap[pageId];
-
-      document.fonts.load(`1em '${fontName}'`).then(() => {
-        const fetches = [];
-
-        for (let i = start; i <= end; i++) {
-          const url = `https://api.quran.com/api/v4/verses/by_key/${surah}:${i}?words=true&language=id&translations=33`;
-          fetches.push(fetch(url).then(res => res.json()));
+    fetch("https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/ayah_page_map.json")
+      .then(res => res.json())
+      .then(pageMap => {
+        const pageGroups = {};
+        for (const key of ayahKeys) {
+          const pageNum = pageMap[key];
+          if (!pageGroups[pageNum]) pageGroups[pageNum] = [];
+          pageGroups[pageNum].push(key);
         }
 
-        Promise.all(fetches).then(results => {
-          pageContainer.innerHTML = "";
+        Object.entries(pageGroups).forEach(([pageNum, keys]) => {
+          const pageId = `page-${pageNum}`;
+          const fontName = `QCF_P${String(pageNum).padStart(3, '0')}`;
+          const fontUrl = `https://github.com/dickymiswardi/quran/raw/refs/heads/main/fonts/${fontName}.TTF`;
 
-          results.forEach(data => {
-            data.verse.words.forEach(word => {
-              const span = document.createElement("span");
-              span.className = "word";
-              span.innerText = word.code_v1 || word.text;
+          const style = document.createElement('style');
+          style.innerHTML = `
+            @font-face {
+              font-family: '${fontName}';
+              src: url('${fontUrl}') format('truetype');
+              font-display: swap;
+            }`;
+          document.head.appendChild(style);
+document.fonts.load(`1em '${fontName}'`).then(() => {
 
-              const trans = document.createElement("div");
-              trans.className = "translation";
-              trans.innerText = word.translation?.text || "-";
+          const container = document.createElement("div");
+          container.id = pageId;
+          container.className = "page-container";
+          container.style.fontFamily = fontName;
+          document.getElementById("pages").appendChild(container);
 
-              span.appendChild(trans);
+          Promise.all(keys.map(key =>
+            fetch(`https://api.quran.com/api/v4/verses/by_key/${key}?words=true&language=id&translations=33`)
+              .then(res => res.json())
+          )).then(results => {
+            results.forEach(data => {
+              const line = document.createElement("div");
+              data.verse.words.forEach(word => {
+                const span = document.createElement("span");
+                span.className = "word";
+                span.innerText = word.code_v1 || word.text;
 
-              span.addEventListener("click", () => {
-                if (span === activeWord) {
-                  span.classList.remove("active");
+                const trans = document.createElement("div");
+                trans.className = "translation";
+                trans.innerText = word.translation?.text || "-";
+                span.appendChild(trans);
+
+                span.addEventListener("click", () => {
+                  if (span === activeWord) {
+                    span.classList.remove("active");
+                    clearTimeout(timeoutId);
+                    activeWord = null;
+                    return;
+                  }
+                  document.querySelectorAll(".word").forEach(w => w.classList.remove("active"));
+                  span.classList.add("active");
+                  activeWord = span;
                   clearTimeout(timeoutId);
-                  activeWord = null;
-                  return;
-                }
+                  timeoutId = setTimeout(() => {
+                    span.classList.remove("active");
+                    activeWord = null;
+                  }, 7000);
+                });
 
-                document.querySelectorAll(".word").forEach(w => w.classList.remove("active"));
-                span.classList.add("active");
-                activeWord = span;
-
-                clearTimeout(timeoutId);
-                timeoutId = setTimeout(() => {
-                  span.classList.remove("active");
-                  activeWord = null;
-                }, 7000);
+                line.appendChild(span);
+                line.appendChild(document.createTextNode(" "));
               });
+              container.appendChild(line);
+            });
 
-              pageContainer.appendChild(span);
+            container.style.display = "block";
+            requestAnimationFrame(() => {
+              container.style.opacity = "1";
+});
             });
           });
-
-          // Tampilkan setelah selesai render
-          pageContainer.style.display = "block";
-          requestAnimationFrame(() => {
-            pageContainer.style.opacity = "1";
-          });
         });
-      });
-    }
 
-    // Fitur copy unicode
+        fetch("https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/quran-uthmani.xml")
+          .then(res => res.text())
+          .then(str => (new DOMParser()).parseFromString(str, "text/xml"))
+          .then(xml => {
+            let combined = "";
+            for (let s = fromSurah; s <= toSurah; s++) {
+              const sura = xml.querySelector(`sura[index="${s}"]`);
+              for (let i = (s === fromSurah ? fromAyah : 1); i <= (s === toSurah ? toAyah : lastAyahOfSurah[s]); i++) {
+                const aya = sura.querySelector(`aya[index="${i}"]`);
+                if (aya) combined += aya.getAttribute("text") + ` (${i}) `;
+              }
+              if (s === fromSurah) document.getElementById("judul").innerText = sura.getAttribute("name");
+            }
+            originalUnicode = combined;
+          });
+      });
+
     document.addEventListener("copy", function (e) {
       if (originalUnicode) {
         e.preventDefault();
         e.clipboardData.setData("text/plain", originalUnicode.trim());
-        console.log("Copied:", originalUnicode.trim());
       }
     });
   </script>
