@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <title>Ayat Al-Qur’an Rapi + Terjemah Klik</title>
+  <title>Qur'an Interaktif - Copy Unicode</title>
   <style>
     body {
       background: #fefcf8;
@@ -60,7 +60,7 @@
 </head>
 <body>
 
-  <h2>Klik Kata untuk Terjemah (Indonesia)</h2>
+  <h2>Klik Kata untuk Terjemah — Salin = Unicode Asli</h2>
   <div id="ayah-container">جارٍ التحميل...</div>
 
   <script>
@@ -68,7 +68,20 @@
     const ayah = 2;
     let timeoutId = null;
     let activeWord = null;
+    let originalUnicode = ""; // untuk salin unicode dari XML
 
+    // Load ayat dari XML
+    fetch("https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/quran-uthmani.xml")
+      .then(res => res.text())
+      .then(str => (new window.DOMParser()).parseFromString(str, "text/xml"))
+      .then(xml => {
+        const ayaNode = xml.querySelector(`sura[index="${surah}"] > aya[index="${ayah}"]`);
+        if (ayaNode) {
+          originalUnicode = ayaNode.getAttribute("text") + ` (${ayah})`;
+        }
+      });
+
+    // Tampilkan Mushaf dari code_v1
     fetch(`https://api.quran.com/api/v4/verses/by_key/${surah}:${ayah}?words=true&language=id&translations=33`)
       .then(res => res.json())
       .then(data => {
@@ -113,6 +126,15 @@
         document.getElementById("ayah-container").textContent = "❌ Gagal memuat data.";
         console.error(err);
       });
+
+    // Tangkap event copy
+    document.addEventListener("copy", function (e) {
+      if (originalUnicode) {
+        e.preventDefault();
+        e.clipboardData.setData("text/plain", originalUnicode);
+        console.log("Copied:", originalUnicode);
+      }
+    });
   </script>
 
 </body>
