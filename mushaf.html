@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <title>Quran Copy Unicode + Nomor Ayat</title>
+  <title>Qur'an Ayat dengan Unicode Copy</title>
   <style>
     body {
       background: #fefdf8;
@@ -33,7 +33,7 @@
 </head>
 <body>
 
-  <h1>نص القرآن مع رقم الآية</h1>
+  <h1>نص الآية بالمصحف ونسخ Unicode</h1>
 
   <div id="ayah-visual">جارٍ التحميل...</div>
   <div id="ayah-unicode"></div>
@@ -41,7 +41,7 @@
   <script>
     const surah = 2, ayah = 2;
 
-    // Ambil teks asli dari XML
+    // Ambil teks Unicode dari XML lokal (Uthmani)
     fetch("https://dickymiswardi.github.io/tadabbur/quran-uthmani.xml")
       .then(res => res.text())
       .then(xmlText => {
@@ -52,19 +52,21 @@
         const text = aya?.getAttribute("text") || "(Ayat tidak ditemukan)";
         document.getElementById("ayah-unicode").innerText = text;
 
-        // Ambil visual code_v1 dari API
+        // Ambil visual Mushaf-style (code_v1)
         fetch(`https://api.quran.com/api/v4/verses/by_key/${surah}:${ayah}?words=true`)
           .then(res => res.json())
           .then(data => {
             const words = data.verse.words;
 
-            // Ambil code_v1 dari semua kata + token penutup (char_type_name: 'end')
+            // Kumpulkan semua glyph (code_v1)
             const visuals = words.map(w => w.code_v1 || w.text);
+
+            // Tambahkan glyph penutup ayat (jika ada)
             const endWord = words.find(w => w.char_type_name === "end");
-            if (endWord) {
+            if (endWord && endWord.code_v1) {
               visuals.push(endWord.code_v1);
             } else {
-              // fallback: angka Unicode di lingkaran (contoh: ayah 2 = ٢)
+              // Fallback manual: simbol nomor ayat (contoh: ﴾٢﴿)
               visuals.push(`﴾${ayah}﴿`);
             }
 
@@ -72,7 +74,7 @@
           });
       });
 
-    // Override copy: ganti dengan teks Unicode dari XML
+    // Saat user copy teks visual → ganti dengan Unicode dari XML
     document.addEventListener('copy', function (e) {
       const selection = window.getSelection().toString();
       const visualText = document.getElementById("ayah-visual").innerText;
@@ -80,6 +82,7 @@
         const unicode = document.getElementById("ayah-unicode").innerText;
         e.clipboardData.setData("text/plain", unicode);
         e.preventDefault();
+        console.log("📋 Salinan diganti dengan Unicode dari XML");
       }
     });
   </script>
