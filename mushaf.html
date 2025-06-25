@@ -1,53 +1,42 @@
-
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mushaf Halaman</title>
+  <title>Mushaf Otomatis</title>
   <style>
     body {
+      background: #fefcf8;
       margin: 0;
       padding: 0;
-      background: #fefcf8;
-      font-family: sans-serif;
       display: flex;
       justify-content: center;
+      font-family: sans-serif;
     }
 
-    .mushaf-page {
+    .mushaf {
       width: 100%;
       max-width: 700px;
       aspect-ratio: 2 / 3;
-      background: linear-gradient(to bottom, #fffdf7, #fefcf8);
+      background: white;
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      display: grid;
-      grid-template-rows: 1.2fr repeat(13, 1fr) 0.8fr 0.5fr;
       padding: 1em;
+      display: grid;
+      grid-template-rows: repeat(15, 1fr);
       box-sizing: border-box;
-    }
-
-    .surah-title {
-      text-align: center;
-      font-size: 1.4em;
-      font-weight: bold;
-      padding-top: 0.5em;
-      font-family: serif;
     }
 
     .line {
       text-align: justify;
       font-size: 2em;
       line-height: 1.5;
-      font-family: 'QCF_P003', serif;
+      font-family: 'QCF_AUTO';
       display: flex;
       flex-wrap: wrap;
       align-items: center;
-      justify-content: space-between;
     }
 
     .word {
-      display: inline-block;
       position: relative;
       cursor: pointer;
       margin: 0 0.1em;
@@ -55,120 +44,106 @@
 
     .translation {
       position: absolute;
-      bottom: -2.4em;
+      bottom: -2.2em;
       background: #fff;
       border: 1px solid #ccc;
+      font-size: 0.5em;
+      padding: 0.2em 0.4em;
       border-radius: 4px;
-      font-size: 0.45em;
-      padding: 0.3em 0.6em;
-      white-space: nowrap;
       display: none;
-      z-index: 10;
     }
 
     .word.active .translation {
       display: block;
     }
-
-    .page-number {
-      text-align: center;
-      font-size: 0.9em;
-      color: #555;
-    }
-
-    @font-face {
-      font-family: 'QCF_P003';
-      src: url('https://dickymiswardi.github.io/tadabbur/QCF_P003.TTF') format('truetype');
-      font-display: swap;
-    }
   </style>
-</head>
-<body>
+  <script>
+    const ayat = ['2:6', '2:7', '2:8', '2:9', '2:10', '2:11', '2:12', '2:13', '2:14', '2:15', '2:16'];
+    let originalText = "";
 
-  <div class="mushaf-page" id="mushaf">
-    <div class="surah-title" id="surah-title">سورة آل عمران</div>
-    
-    <!-- 13 baris ayat akan dimasukkan oleh JS di sini -->
-    
-    <div class="line" id="last-line"></div>
-    <div class="page-number">50</div>
-  </div>
-
-<script>
-const surah = 3;
-const startAyah = 1;
-const endAyah = 9;
-let originalUnicode = "";
-let activeWord = null;
-let timeoutId = null;
-
-const mushaf = document.getElementById("mushaf");
-const surahTitle = document.getElementById("surah-title");
-
-fetch("https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/quran-uthmani.xml")
-  .then(res => res.text())
-  .then(str => (new DOMParser()).parseFromString(str, "text/xml"))
-  .then(xml => {
-    for (let i = startAyah; i <= endAyah; i++) {
-      const aya = xml.querySelector(`sura[index='${surah}'] > aya[index='${i}']`);
-      if (aya) {
-        originalUnicode += aya.getAttribute("text") + ` (${i}) `;
-      }
-    }
-  });
-
-document.fonts.ready.then(() => {
-  const fetches = [];
-  for (let i = startAyah; i <= endAyah; i++) {
-    fetches.push(fetch(`https://api.quran.com/api/v4/verses/by_key/${surah}:${i}?words=true&language=id&translations=33`).then(r => r.json()));
-  }
-
-  Promise.all(fetches).then(results => {
-    results.forEach((data, index) => {
-      const line = document.createElement("div");
-      line.className = "line";
-      data.verse.words.forEach(word => {
-        const span = document.createElement("span");
-        span.className = "word";
-        span.textContent = word.code_v1 || word.text;
-
-        const trans = document.createElement("div");
-        trans.className = "translation";
-        trans.textContent = word.translation?.text || "-";
-        span.appendChild(trans);
-
-        span.addEventListener("click", () => {
-          if (span === activeWord) {
-            span.classList.remove("active");
-            clearTimeout(timeoutId);
-            activeWord = null;
+    function loadAyat() {
+      fetch('https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/ayah_page_map.json')
+        .then(res => res.json())
+        .then(map => {
+          const pages = ayat.map(key => map[key]);
+          const uniquePages = [...new Set(pages)];
+          if (uniquePages.length === 1) {
+            const pageNumber = uniquePages[0].toString().padStart(3, '0');
+            const fontUrl = `https://github.com/dickymiswardi/quran/raw/refs/heads/main/fonts/QCF_P${pageNumber}.TTF`;
+            const fontFace = new FontFace('QCF_AUTO', `url(${fontUrl})`);
+            document.fonts.add(fontFace);
+            fontFace.load().then(() => {
+              document.body.style.visibility = 'visible';
+              renderAyat();
+            });
           } else {
-            document.querySelectorAll(".word").forEach(w => w.classList.remove("active"));
-            span.classList.add("active");
-            activeWord = span;
-            clearTimeout(timeoutId);
-            timeoutId = setTimeout(() => {
-              span.classList.remove("active");
-              activeWord = null;
-            }, 7000);
+            document.body.innerHTML = '<p style="text-align:center;margin-top:2em;">❌ Ayat tidak dalam 1 halaman Mushaf.</p>';
           }
         });
+    }
 
-        line.appendChild(span);
-        line.appendChild(document.createTextNode(" "));
+    function renderAyat() {
+      const container = document.querySelector(".mushaf");
+
+      Promise.all(
+        ayat.map(key => fetch(`https://api.quran.com/api/v4/verses/by_key/${key}?words=true&language=id&translations=33`).then(res => res.json()))
+      ).then(results => {
+        results.forEach(data => {
+          const line = document.createElement("div");
+          line.className = "line";
+
+          data.verse.words.forEach(word => {
+            const span = document.createElement("span");
+            span.className = "word";
+            span.textContent = word.code_v1;
+
+            const trans = document.createElement("div");
+            trans.className = "translation";
+            trans.textContent = word.translation?.text || '-';
+            span.appendChild(trans);
+
+            span.onclick = () => {
+              if (span.classList.contains("active")) {
+                span.classList.remove("active");
+              } else {
+                document.querySelectorAll(".word").forEach(w => w.classList.remove("active"));
+                span.classList.add("active");
+                setTimeout(() => span.classList.remove("active"), 7000);
+              }
+            };
+
+            line.appendChild(span);
+            line.appendChild(document.createTextNode(" "));
+          });
+
+          container.appendChild(line);
+        });
       });
-      mushaf.insertBefore(line, document.getElementById("last-line"));
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      document.body.style.visibility = "hidden";
+      loadAyat();
     });
-  });
-});
 
-document.addEventListener("copy", function (e) {
-  if (originalUnicode) {
-    e.preventDefault();
-    e.clipboardData.setData("text/plain", originalUnicode.trim());
-  }
-});
-</script>
-
+    document.addEventListener("copy", function (e) {
+      fetch("https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/quran-uthmani.xml")
+        .then(res => res.text())
+        .then(str => (new DOMParser()).parseFromString(str, "text/xml"))
+        .then(xml => {
+          let text = "";
+          ayat.forEach(key => {
+            const [surah, ayah] = key.split(":");
+            const aya = xml.querySelector(`sura[index='${surah}'] > aya[index='${ayah}']`);
+            if (aya) text += aya.getAttribute("text") + ` (${ayah}) `;
+          });
+          e.clipboardData.setData("text/plain", text.trim());
+          e.preventDefault();
+        });
+    });
+  </script>
+</head>
+<body>
+  <div class="mushaf"></div>
 </body>
 </html>
