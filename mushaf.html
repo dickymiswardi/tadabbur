@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <title>Qur’an Interaktif - Font Stabil</title>
+  <title>Qur’an Dua Ayat Menyambung</title>
   <style>
     body {
       background: #fefcf8;
@@ -17,7 +17,7 @@
       font-size: 3em;
       line-height: 2;
       user-select: text;
-      display: none; /* Disembunyikan dulu */
+      display: none;
       opacity: 0;
       transition: opacity 0.3s ease;
     }
@@ -62,41 +62,48 @@
 </head>
 <body>
 
-  <h2>Klik Kata untuk Terjemah — Salin = Unicode Asli</h2>
+  <h2>Klik Kata untuk Terjemah — Salin Unicode 2 Ayat</h2>
   <div id="ayah-container">جارٍ التحميل...</div>
 
   <script>
     const surah = 2;
-    const ayah = 2;
+    const startAyah = 2;
+    const endAyah = 3;
     let timeoutId = null;
     let activeWord = null;
     let originalUnicode = "";
 
-    // Siapkan container dan sembunyikan dulu
     const container = document.getElementById("ayah-container");
-    container.style.display = "none";
 
-    // Step 1: Ambil unicode dari XML
+    // Step 1: Ambil unicode asli dari XML
     fetch("https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/quran-uthmani.xml")
       .then(res => res.text())
       .then(str => (new window.DOMParser()).parseFromString(str, "text/xml"))
       .then(xml => {
-        const ayaNode = xml.querySelector(`sura[index="${surah}"] > aya[index="${ayah}"]`);
-        if (ayaNode) {
-          originalUnicode = ayaNode.getAttribute("text") + ` (${ayah})`;
+        let unicodeCombined = "";
+        for (let i = startAyah; i <= endAyah; i++) {
+          const ayaNode = xml.querySelector(`sura[index="${surah}"] > aya[index="${i}"]`);
+          if (ayaNode) {
+            unicodeCombined += ayaNode.getAttribute("text") + ` (${i}) `;
+          }
         }
+        originalUnicode = unicodeCombined.trim();
       });
 
-    // Step 2: Pastikan font sudah siap sebelum menampilkan
+    // Step 2: Pastikan font sudah siap
     document.fonts.ready.then(() => {
-      // Step 3: Ambil data ayat dari API
-      fetch(`https://api.quran.com/api/v4/verses/by_key/${surah}:${ayah}?words=true&language=id&translations=33`)
-        .then(res => res.json())
-        .then(data => {
-          const words = data.verse.words;
-          container.innerHTML = "";
+      const promises = [];
 
-          words.forEach(word => {
+      for (let i = startAyah; i <= endAyah; i++) {
+        const url = `https://api.quran.com/api/v4/verses/by_key/${surah}:${i}?words=true&language=id&translations=33`;
+        promises.push(fetch(url).then(res => res.json()));
+      }
+
+      Promise.all(promises).then(results => {
+        container.innerHTML = "";
+
+        results.forEach(data => {
+          data.verse.words.forEach(word => {
             const span = document.createElement("span");
             span.className = "word";
             span.innerText = word.code_v1 || word.text;
@@ -128,26 +135,21 @@
 
             container.appendChild(span);
           });
-
-          // Setelah semuanya siap, tampilkan ayat
-          container.style.display = "inline-block";
-          requestAnimationFrame(() => {
-            container.style.opacity = "1";
-          });
-        })
-        .catch(err => {
-          container.textContent = "❌ Gagal memuat data.";
-          container.style.display = "block";
-          console.error(err);
         });
+
+        container.style.display = "inline-block";
+        requestAnimationFrame(() => {
+          container.style.opacity = "1";
+        });
+      });
     });
 
-    // Copy teks asli dari XML saat disalin
+    // Step 3: Saat user copy
     document.addEventListener("copy", function (e) {
       if (originalUnicode) {
         e.preventDefault();
         e.clipboardData.setData("text/plain", originalUnicode);
-        console.log("Copied:", originalUnicode);
+        console.log("Copied Unicode:", originalUnicode);
       }
     });
   </script>
