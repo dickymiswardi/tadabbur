@@ -1,29 +1,38 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <title>Kata-kata Quran code_v1</title>
+  <title>Kata-kata Quran</title>
   <style>
     body {
-      background: #fefcf8;
+      background: #fefdf8;
       font-family: sans-serif;
       text-align: center;
       padding: 2em;
+      direction: rtl;
     }
 
     h1 {
       font-size: 2.2em;
     }
 
+    #words {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      direction: rtl;
+      gap: 1em;
+      margin-top: 2em;
+    }
+
     .word {
       display: inline-block;
-      margin: 1em;
       padding: 1em;
       border: 1px solid #ccc;
       border-radius: 12px;
       background: #fff;
       box-shadow: 0 1px 5px rgba(0,0,0,0.1);
-      font-size: 2.8em;
+      font-size: 2.5em;
       font-family: 'QCF_P002', serif;
     }
 
@@ -31,6 +40,8 @@
       font-size: 0.5em;
       display: block;
       font-family: sans-serif;
+      direction: ltr;
+      text-align: center;
     }
 
     @font-face {
@@ -41,7 +52,7 @@
   </style>
 </head>
 <body>
-  <h1>Kata-kata dari Al-Fatihah 🧩</h1>
+  <h1>كَـلِـمَـات مِـنَ الـقُـرْآن 🕋</h1>
   <div id="words"></div>
 
   <script>
