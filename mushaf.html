@@ -1,209 +1,179 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8" />
-  <title>Al-Qur’an Dinamis Berdasarkan Halaman Mushaf</title>
+  <meta charset="UTF-8">
+  <title>Al-Qur’an Dinamis per Halaman</title>
   <style>
     body {
-      font-size: 36px;
-      background: #fffdf8;
-      text-align: justify;
-      line-height: 1.8;
-      padding: 40px;
+      background: #fefcf8;
+      padding: 2em;
+      direction: rtl;
       font-family: sans-serif;
-    }
-
-    h1 {
       text-align: center;
-      font-family: sans-serif;
     }
 
     .page-container {
-      margin-bottom: 40px;
-      display: none;
+      font-size: 3em;
+      line-height: 1.4;
+      user-select: text;
+      text-align: justify;
+      margin: 2em auto;
+      max-width: 1200px;
       opacity: 0;
-      transition: opacity 0.6s ease-in-out;
+      transition: opacity 0.3s ease;
+      display: none;
     }
 
     .word {
+      position: relative;
       cursor: pointer;
       display: inline-block;
-      position: relative;
-      margin: 0 0.15em;
-    }
-
-    .word .translation {
-      display: none;
-      position: absolute;
-      background: #f5f5f5;
-      color: #000;
-      font-size: 14px;
-      white-space: nowrap;
-      bottom: -2.5em;
-      right: 0;
-      padding: 4px 6px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      z-index: 10;
-      font-family: sans-serif;
-    }
-
-    .word.active .translation {
-      display: block;
+      margin: 0 0.1em;
     }
 
     .word:hover {
-      color: #008080;
+      background-color: #f7eacb;
+      border-radius: 6px;
     }
 
-    .ayah-number {
-      font-size: 22px;
-      vertical-align: middle;
-      margin: 0 0.25em;
-      font-family: sans-serif;
-    }
-
-    .hidden-copy {
+    .translation {
       position: absolute;
-      opacity: 0;
-      pointer-events: none;
-      user-select: text;
-      white-space: pre-wrap;
+      bottom: -2.4em;
+      font-family: sans-serif;
+      font-size: 0.5em;
+      color: #444;
+      background-color: #fff;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      padding: 0.3em 0.6em;
+      white-space: nowrap;
+      display: none;
+      z-index: 10;
     }
+
+    .active .translation {
+      display: block;
+    }
+
+    @font-face {
+      font-family: 'QCF_P002';
+      src: url('https://dickymiswardi.github.io/tadabbur/QCF_P002.TTF') format('truetype');
+    }
+
+    @font-face {
+      font-family: 'QCF_P003';
+      src: url('https://dickymiswardi.github.io/tadabbur/QCF_P003.TTF') format('truetype');
+    }
+    /* Tambahkan @font-face lainnya jika font tambahan tersedia nanti */
   </style>
 </head>
 <body>
-  <h1>Al-Qur’an Dinamis Berdasarkan Halaman Mushaf</h1>
 
-  <div id="container"></div>
-  <div id="copy-text" class="hidden-copy"></div>
+  <h2>Al-Qur’an Dinamis Berdasarkan Halaman</h2>
+  <div id="main"></div>
 
   <script>
-    const ayahs = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]; // al-Baqarah ayat 2–16
     const surah = 2;
-    const container = document.getElementById("container");
-    const copyText = document.getElementById("copy-text");
-    let activeWord = null;
+    const startAyah = 2;
+    const endAyah = 9;
+    let originalUnicode = "";
     let timeoutId = null;
+    let activeWord = null;
+
+    const container = document.getElementById("main");
 
     // Ambil teks asli dari XML
-    const uthmaniMap = {};
-
     fetch("https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/quran-uthmani.xml")
       .then(res => res.text())
-      .then(str => {
-        const parser = new DOMParser();
-        const xml = parser.parseFromString(str, "application/xml");
-        const sura = xml.querySelector(`sura[index="${surah}"]`);
-        if (sura) {
-          [...sura.querySelectorAll("aya")].forEach(aya => {
-            const i = parseInt(aya.getAttribute("index"));
-            uthmaniMap[i] = aya.getAttribute("text");
-          });
+      .then(str => (new window.DOMParser()).parseFromString(str, "text/xml"))
+      .then(xml => {
+        let combined = "";
+        for (let i = startAyah; i <= endAyah; i++) {
+          const ayaNode = xml.querySelector(`sura[index="${surah}"] > aya[index="${i}"]`);
+          if (ayaNode) {
+            combined += ayaNode.getAttribute("text") + ` (${i}) `;
+          }
         }
+        originalUnicode = combined.trim();
       });
 
-    function loadQuranFont(pageNumber) {
-      const fontName = `QCF_P${String(pageNumber).padStart(3, "0")}`;
-      const fontUrl = `https://dickymiswardi.github.io/tadabbur/${fontName}.TTF`;
-
-      if (!document.getElementById(fontName)) {
-        const style = document.createElement("style");
-        style.id = fontName;
-        style.textContent = `
-          @font-face {
-            font-family: '${fontName}';
-            src: url('${fontUrl}') format('truetype');
-          }
-        `;
-        document.head.appendChild(style);
-      }
-
-      return Promise.resolve(fontName);
-    }
-
-    function showWords(data, fontName, pageDiv, ayahNum) {
-      const words = data.verse.words;
-      words.forEach(word => {
-        const span = document.createElement("span");
-        span.className = "word";
-        span.innerText = word.code_v1 || word.text;
-
-        const trans = document.createElement("div");
-        trans.className = "translation";
-        trans.innerText = word.translation?.text || "-";
-        span.appendChild(trans);
-
-        span.addEventListener("click", () => {
-          if (span === activeWord) {
-            span.classList.remove("active");
-            clearTimeout(timeoutId);
-            activeWord = null;
-            return;
-          }
-
-          document.querySelectorAll(".word").forEach(w => w.classList.remove("active"));
-          span.classList.add("active");
-          activeWord = span;
-
-          clearTimeout(timeoutId);
-          timeoutId = setTimeout(() => {
-            span.classList.remove("active");
-            activeWord = null;
-          }, 7000);
-        });
-
-        pageDiv.appendChild(span);
-      });
-
-      const num = document.createElement("span");
-      num.className = "ayah-number";
-      num.textContent = `(${ayahNum})`;
-      pageDiv.appendChild(num);
-
-      // Copy block
-      const realAyah = uthmaniMap[ayahNum];
-      if (realAyah) {
-        copyText.innerText += realAyah + ` (${ayahNum})\n`;
-      }
-    }
-
+    // Ambil semua ayat
     document.fonts.ready.then(() => {
-      const promises = ayahs.map(ayah =>
-        fetch(`https://api.quran.com/api/v4/verses/by_key/${surah}:${ayah}?words=true&language=id&translations=33`)
-          .then(res => res.json())
-      );
+      const promises = [];
+      for (let i = startAyah; i <= endAyah; i++) {
+        const url = `https://api.quran.com/api/v4/verses/by_key/${surah}:${i}?words=true&language=id&translations=33`;
+        promises.push(fetch(url).then(res => res.json()));
+      }
 
       Promise.all(promises).then(results => {
-        const grouped = {};
+        const pageGroups = {};
 
-        results.forEach(res => {
-          const p = res.verse.v1_page;
-          if (!grouped[p]) grouped[p] = [];
-          grouped[p].push(res);
+        // Kelompokkan ayat berdasarkan halaman (v1_page)
+        results.forEach(data => {
+          const page = data.verse.v1_page;
+          if (!pageGroups[page]) pageGroups[page] = [];
+          pageGroups[page].push(data.verse.words);
         });
 
-        Object.entries(grouped).forEach(([page, verses]) => {
-          loadQuranFont(page).then(fontName => {
-            document.fonts.load(`1em '${fontName}'`).then(() => {
-              const pageDiv = document.createElement("div");
-              pageDiv.className = "page-container";
-              pageDiv.style.fontFamily = fontName;
+        // Tampilkan per halaman
+        Object.entries(pageGroups).forEach(([page, group]) => {
+          const pageDiv = document.createElement("div");
+          pageDiv.className = "page-container";
+          pageDiv.style.fontFamily = `QCF_P0${page.padStart(2, '0')}`;
 
-              verses.forEach(v => {
-                showWords(v, fontName, pageDiv, parseInt(v.verse.verse_number));
+          group.forEach(words => {
+            words.forEach(word => {
+              const span = document.createElement("span");
+              span.className = "word";
+              span.innerText = word.code_v1 || word.text;
+
+              const trans = document.createElement("div");
+              trans.className = "translation";
+              trans.innerText = word.translation?.text || "-";
+
+              span.appendChild(trans);
+
+              span.addEventListener("click", () => {
+                if (span === activeWord) {
+                  span.classList.remove("active");
+                  clearTimeout(timeoutId);
+                  activeWord = null;
+                  return;
+                }
+
+                document.querySelectorAll(".word").forEach(w => w.classList.remove("active"));
+                span.classList.add("active");
+                activeWord = span;
+
+                clearTimeout(timeoutId);
+                timeoutId = setTimeout(() => {
+                  span.classList.remove("active");
+                  activeWord = null;
+                }, 7000);
               });
 
-              container.appendChild(pageDiv);
-              pageDiv.style.display = "block";
-              requestAnimationFrame(() => {
-                pageDiv.style.opacity = "1";
-              });
+              pageDiv.appendChild(span);
             });
+          });
+
+          container.appendChild(pageDiv);
+          pageDiv.style.display = "block";
+          requestAnimationFrame(() => {
+            pageDiv.style.opacity = "1";
           });
         });
       });
     });
+
+    // Blok copy hasil Unicode asli
+    document.addEventListener("copy", function (e) {
+      if (originalUnicode) {
+        e.preventDefault();
+        e.clipboardData.setData("text/plain", originalUnicode);
+        console.log("Copied Unicode:", originalUnicode);
+      }
+    });
   </script>
+
 </body>
 </html>
