@@ -2,13 +2,11 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <title>Al-Qur'an - Halaman 2 📖</title>
-
-  <!-- Load font Quran dari jsDelivr (ganti sesuai font kamu) -->
+  <title>Quran Per Kata</title>
   <style>
     @font-face {
       font-family: 'QuranFont';
-      src: url('https://cdn.jsdelivr.net/gh/dickymiswardi/tadabbur@raw/refs/heads/main/QCF_P002.TTF') format('truetype');
+      src: url('https://cdn.jsdelivr.net/gh/dickymiswardi/tadabbur/fonts/QCF_P002.TTF') format('truetype');
       font-display: swap;
     }
 
@@ -18,71 +16,49 @@
       direction: rtl;
       text-align: right;
       padding: 40px;
-      background: #fefdfb;
-      color: #111;
-    }
-
-    .ayah {
-      margin-bottom: 30px;
+      background: #fcfbf8;
     }
 
     .word {
       display: inline-block;
-      margin: 4px;
-      padding: 4px 8px;
-      border: 1px solid #ccc;
-      border-radius: 10px;
-    }
-
-    .verse-key {
-      font-size: 18px;
-      color: gray;
-      margin-top: 12px;
+      margin: 6px;
+      padding: 6px 10px;
+      border: 1px solid #aaa;
+      border-radius: 12px;
+      background-color: #f9f9f9;
     }
   </style>
 </head>
 <body>
-  <h2>📖 Al-Qur'an - Halaman 2</h2>
-  <div id="page">⏳ Memuat ayat...</div>
+  <h2>📘 Kata-kata dari Al-Qur'an</h2>
+  <div id="words">⏳ Memuat...</div>
 
   <script>
-    const page = 2;
-    const url = `https://api.quran.com/api/v4/quran/verses?page_number=${page}&words=true&fields=words`;
+    // Contoh: ambil 1 ayat — bisa diganti ke ayat manapun
+    const surah = 1;
+    const ayah = 1;
+
+    const url = `https://api.quran.com/api/v4/verses/by_key/${surah}:${ayah}?words=true&fields=words`;
 
     fetch(url)
-      .then(res => {
-        if (!res.ok) throw new Error("Gagal ambil data dari API");
-        return res.json();
-      })
+      .then(res => res.json())
       .then(data => {
-        const container = document.getElementById("page");
-        container.innerHTML = ""; // kosongkan loader
-        const verses = data.verses;
+        const container = document.getElementById("words");
+        container.innerHTML = "";
+        const words = data.verse.words;
 
-        verses.forEach(verse => {
-          const ayahDiv = document.createElement("div");
-          ayahDiv.className = "ayah";
-
-          verse.words.forEach(word => {
-            if (word.char_type_name === "word") {
-              const span = document.createElement("span");
-              span.className = "word";
-              span.textContent = word.code_v1 || word.text;
-              ayahDiv.appendChild(span);
-            }
-          });
-
-          const key = document.createElement("div");
-          key.className = "verse-key";
-          key.textContent = `(${verse.verse_key})`;
-          ayahDiv.appendChild(key);
-
-          container.appendChild(ayahDiv);
+        words.forEach(word => {
+          if (word.char_type_name === "word") {
+            const span = document.createElement("span");
+            span.className = "word";
+            span.textContent = word.code_v1 || word.text;
+            container.appendChild(span);
+          }
         });
       })
       .catch(err => {
-        document.getElementById("page").innerHTML = "<b style='color:red;'>⚠️ Gagal memuat halaman</b>";
-        console.error("API Error:", err);
+        document.getElementById("words").innerHTML = "⚠️ Gagal memuat kata.";
+        console.error(err);
       });
   </script>
 </body>
