@@ -123,6 +123,7 @@
               font-display: swap;
             }`;
           document.head.appendChild(style);
+document.fonts.load(`1em '${fontName}'`).then(() => {
 
           const container = document.createElement("div");
           container.id = pageId;
@@ -172,6 +173,7 @@
             container.style.display = "block";
             requestAnimationFrame(() => {
               container.style.opacity = "1";
+});
             });
           });
         });
