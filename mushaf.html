@@ -66,7 +66,7 @@
 </head>
 <body>
 
-<h2 id="title">Al-Qur'an Otomatis</h2>
+<h2 id="title">Al-Qur'an Dinamis</h2>
 <div id="pages"></div>
 
 <script>
@@ -116,7 +116,7 @@ fetch("https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/
 
     Object.entries(pages).forEach(([page, keys]) => {
       const fontName = `QCF_P${String(page).padStart(3, '0')}`;
-      const fontUrl = `https://github.com/dickymiswardi/quran/raw/refs/heads/main/fonts/${fontName}.TTF`;
+      const fontUrl = `https://raw.githubusercontent.com/dickymiswardi/quran/refs/heads/main/fonts/${fontName}.TTF`;
 
       const style = document.createElement("style");
       style.innerText = `@font-face {
@@ -177,7 +177,7 @@ fetch("https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/
       });
     });
 
-    // Salin unicode dari XML
+    // Ambil teks unicode dari XML
     fetch("https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/quran-uthmani.xml")
       .then(res => res.text())
       .then(xml => {
