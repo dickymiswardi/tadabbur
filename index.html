@@ -1401,7 +1401,7 @@ navDiv.appendChild(playAudioBtn);
       function playAudioForAyah(qariId) {
   const surahStr = String(surah).padStart(3, '0');
 const ayahStr = String(ayat).padStart(3, '0');
-const url = `https://github.com/dickymiswardi/tadabbur/raw/refs/heads/main/audio/${qariId}/${surahStr}${ayahStr}.mp3`;
+const url = `https://github.com/dickymiswardi/tadabbur/raw/refs/heads/main/audio/${qariId}/${surahStr}/${surahStr}${ayahStr}.mp3`;
 
   const container = document.getElementById("audio-player-container");
   container.style.display = "block";
