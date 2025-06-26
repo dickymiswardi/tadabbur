@@ -1,63 +1,30 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Pemutar Audio dari Google Drive</title>
+  <meta charset="UTF-8">
+  <title>Audio Google Drive via Iframe</title>
   <style>
     body {
       font-family: sans-serif;
-      padding: 2em;
-      max-width: 600px;
-      margin: auto;
-      background-color: #f9f9f9;
-      color: #333;
       text-align: center;
+      margin-top: 3em;
     }
-    h1 {
-      font-size: 1.4em;
-      margin-bottom: 1em;
-    }
-    audio {
+    iframe {
+      border: none;
       width: 100%;
-      margin-top: 1em;
-    }
-    .loading {
-      font-style: italic;
-      color: #888;
+      max-width: 640px;
+      height: 80px;
     }
   </style>
 </head>
 <body>
 
-  <h1>🎧 Pemutar Audio Qur'an dari Google Drive</h1>
-  <p class="loading" id="status">Memuat audio...</p>
+  <h2>🎧 Putar Audio dari Google Drive (via Iframe)</h2>
 
-  <audio id="gdrive-player" controls></audio>
-
-  <script>
-    // Masukkan ID file Google Drive MP3 Anda di sini
-    const fileId = "1Ckt-Fo9ZSjp66Ihg9PF0ZSJjPLbB--jN";
-    const audio = document.getElementById("gdrive-player");
-    const status = document.getElementById("status");
-
-    // Fetch file dari Google Drive sebagai blob dan mainkan
-    fetch(`https://docs.google.com/uc?export=download&id=${fileId}`)
-      .then(response => {
-        if (!response.ok) throw new Error("Gagal mengunduh audio");
-        return response.blob();
-      })
-      .then(blob => {
-        const objectUrl = URL.createObjectURL(blob);
-        audio.src = objectUrl;
-        audio.play().catch(err => console.warn("Autoplay dicegah oleh browser:", err));
-        status.textContent = "Diputar otomatis";
-      })
-      .catch(err => {
-        console.error("Gagal memuat audio:", err);
-        status.textContent = "Gagal memuat audio.";
-      });
-  </script>
+  <iframe 
+    src="https://drive.google.com/file/d/1Ckt-Fo9ZSjp66Ihg9PF0ZSJjPLbB--jN/preview"
+    allow="autoplay">
+  </iframe>
 
 </body>
 </html>
