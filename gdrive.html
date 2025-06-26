@@ -2,29 +2,27 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>Audio Google Drive via Iframe</title>
+  <title>Audio Google Drive (usercontent)</title>
   <style>
     body {
       font-family: sans-serif;
       text-align: center;
       margin-top: 3em;
     }
-    iframe {
-      border: none;
+    audio {
       width: 100%;
-      max-width: 640px;
-      height: 80px;
+      max-width: 600px;
     }
   </style>
 </head>
 <body>
 
-  <h2>🎧 Putar Audio dari Google Drive (via Iframe)</h2>
+  <h2>🎧 Pemutar Audio dari Google Drive (usercontent)</h2>
 
-  <iframe 
-    src="https://drive.google.com/file/d/1Ckt-Fo9ZSjp66Ihg9PF0ZSJjPLbB--jN/preview"
-    allow="autoplay">
-  </iframe>
+  <audio controls autoplay>
+    <source src="https://drive.usercontent.google.com/download?id=1Ckt-Fo9ZSjp66Ihg9PF0ZSJjPLbB--jN&export=view" type="audio/mpeg">
+    Browser Anda tidak mendukung pemutar audio.
+  </audio>
 
 </body>
 </html>
