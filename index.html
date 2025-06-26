@@ -1330,6 +1330,7 @@ navDiv.appendChild(playAudioBtn);
   const select = document.createElement("select");
   const qaris = [
     { name: "Al-Husary", id: "Husary_64kbps" },
+    { name: "Abdul Basith", id: "Abdul_Basit" },
     { name: "Al-Husary Mujawwad", id: "Husary_Mujawwad_64kbps" },
     { name: "Ali Jaber", id: "Ali_Jaber_64kbps" },
     { name: "Abdurrahman As-Sudais", id: "Abdurrahmaan_As-Sudais_64kbps" },
@@ -1341,7 +1342,6 @@ navDiv.appendChild(playAudioBtn);
     { name: "Abu Bakar Ash-Shaatree", id: "Abu_Bakr_Ash-Shaatree_64kbps" },
     { name: "Misyari Alafasy", id: "Alafasy_64kbps" },
     { name: "Mostafa Ismail", id: "Mostafa_Ismail_128kbps" },
-    { name: "Abdul Basith", id: "AbdulSamad_64kbps" },
     { name: "Muhammad Ayyoub", id: "Muhammad_Ayyoub_64kbps" },
     { name: "Al-Tablaway", id: "Mohammad_al_Tablaway_64kbps" },
     { name: "Khaleefa AtTunaiji", id: "tunaiji_64kbps" },
@@ -1401,7 +1401,7 @@ navDiv.appendChild(playAudioBtn);
       function playAudioForAyah(qariId) {
   const surahStr = String(surah).padStart(3, '0');
 const ayahStr = String(ayat).padStart(3, '0');
-const url = `https://quran.ksu.edu.sa/ayat/mp3/${qariId}/${surahStr}${ayahStr}.mp3`;
+const url = `https://github.com/dickymiswardi/tadabbur/raw/refs/heads/main/audio/${qariId}/${surahStr}${ayahStr}.mp3`;
 
   const container = document.getElementById("audio-player-container");
   container.style.display = "block";
