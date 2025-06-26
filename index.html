@@ -1328,7 +1328,8 @@ navDiv.appendChild(playAudioBtn);
   overlay.className = "audio-qari-overlay";
 
   const select = document.createElement("select");
-  const qaris = [
+
+const qaris = [
   { name: "Al-Minshawy (Google Drive)", id: "Minshawy_Murattal_128kbps" },
   { name: "Al-Husary", id: "Husary_64kbps" },
   { name: "Misyari Alafasy", id: "Alafasy_64kbps" },
@@ -1336,41 +1337,41 @@ navDiv.appendChild(playAudioBtn);
   { name: "Maher Al-Muaiqly", id: "Maher_AlMuaiqly_64kbps" }
 ];
 
-  const savedQari = localStorage.getItem("lastQari") || "";
-  qaris.forEach(qari => {
-    const opt = document.createElement("option");
-    opt.value = qari.id;
-    opt.textContent = qari.name;
-    if (qari.id === savedQari) opt.selected = true;
-    select.appendChild(opt);
-  });
+const savedQari = localStorage.getItem("lastQari") || "";
+qaris.forEach(qari => {
+  const opt = document.createElement("option");
+  opt.value = qari.id;
+  opt.textContent = qari.name;
+  if (qari.id === savedQari) opt.selected = true;
+  select.appendChild(opt);
+});
 
-  const confirmBtn = document.createElement("button");
-  confirmBtn.textContent = "Dengarkan Qari Ini";
-  confirmBtn.onclick = () => {
-    const qariId = select.value;
-    localStorage.setItem("lastQari", qariId);
-    playAudioForAyah(qariId);
-    overlay.remove();
-    backdrop.remove();
-  };
+const confirmBtn = document.createElement("button");
+confirmBtn.textContent = "Dengarkan Qari Ini";
+confirmBtn.onclick = () => {
+  const qariId = select.value;
+  localStorage.setItem("lastQari", qariId);
+  playAudioForAyah(qariId);
+  overlay.remove();
+  backdrop.remove();
+};
 
-  overlay.innerHTML = `<h3>Pilih Qari</h3>`;
-  overlay.appendChild(select);
-  overlay.appendChild(confirmBtn);
+overlay.innerHTML = `<h3>Pilih Qari</h3>`;
+overlay.appendChild(select);
+overlay.appendChild(confirmBtn);
 
-  document.body.appendChild(backdrop);
-  document.body.appendChild(overlay);
+document.body.appendChild(backdrop);
+document.body.appendChild(overlay);
 }
 
-      async function playAudioForAyah(qariId) {
+// 🟩 FUNGSI UTAMA: Play Audio
+async function playAudioForAyah(qariId) {
   const surahStr = String(surah).padStart(3, '0');
   const ayahStr = String(ayat).padStart(3, '0');
   const key = `${surahStr}${ayahStr}`;
   let url = "";
 
   if (qariId === "Minshawy_Murattal_128kbps") {
-    // Ambil dari audio_map.json (Google Drive)
     const res = await fetch("audio_map.json");
     const map = await res.json();
     const fileId = map[key];
@@ -1382,7 +1383,6 @@ navDiv.appendChild(playAudioBtn);
 
     url = `https://drive.google.com/uc?export=download&id=${fileId}`;
   } else {
-    // Endpoint lama
     url = `https://quran.ksu.edu.sa/ayat/mp3/${qariId}/${surahStr}${ayahStr}.mp3`;
   }
 
@@ -1397,6 +1397,11 @@ navDiv.appendChild(playAudioBtn);
   audio.controls = true;
   audio.src = url;
   audio.autoplay = true;
+
+  audioWrapper.appendChild(audio);
+  container.appendChild(audioWrapper);
+}
+
         // Paksa play ulang otomatis jika repeat > 1
 const repeat = parseInt(localStorage.getItem("repeatCount") || "1");
 if (repeat > 1) {
