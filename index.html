@@ -63,7 +63,7 @@
           const map = await res.json();
           const fileId = map[key];
           if (!fileId) throw new Error("Audio tidak tersedia");
-          const blobRes = await fetch(`https://drive.google.com/uc?export=download&id=${fileId}`);
+          const blobRes = await fetch(`https://drive.google.com/uc?id=${fileId}&authuser=0&export=download`);
           if (!blobRes.ok) throw new Error("Gagal fetch Google Drive");
           const blob = await blobRes.blob();
           audio.src = URL.createObjectURL(blob);
