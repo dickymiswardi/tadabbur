@@ -3,30 +3,61 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Test Audio Google Drive</title>
+  <title>Pemutar Audio dari Google Drive</title>
   <style>
     body {
       font-family: sans-serif;
       padding: 2em;
-      background-color: #fefefe;
+      max-width: 600px;
+      margin: auto;
+      background-color: #f9f9f9;
       color: #333;
       text-align: center;
     }
+    h1 {
+      font-size: 1.4em;
+      margin-bottom: 1em;
+    }
     audio {
       width: 100%;
-      max-width: 500px;
-      margin-top: 2em;
+      margin-top: 1em;
+    }
+    .loading {
+      font-style: italic;
+      color: #888;
     }
   </style>
 </head>
 <body>
 
-  <h2>🎧 Tes Audio dari Google Drive</h2>
+  <h1>🎧 Pemutar Audio Qur'an dari Google Drive</h1>
+  <p class="loading" id="status">Memuat audio...</p>
 
-  <audio controls autoplay>
-    <source src="https://docs.google.com/uc?export=download&id=1Ckt-Fo9ZSjp66Ihg9PF0ZSJjPLbB--jN" type="audio/mpeg">
-    Browser Anda tidak mendukung pemutar audio.
-  </audio>
+  <audio id="gdrive-player" controls></audio>
+
+  <script>
+    // Masukkan ID file Google Drive MP3 Anda di sini
+    const fileId = "1Ckt-Fo9ZSjp66Ihg9PF0ZSJjPLbB--jN";
+    const audio = document.getElementById("gdrive-player");
+    const status = document.getElementById("status");
+
+    // Fetch file dari Google Drive sebagai blob dan mainkan
+    fetch(`https://docs.google.com/uc?export=download&id=${fileId}`)
+      .then(response => {
+        if (!response.ok) throw new Error("Gagal mengunduh audio");
+        return response.blob();
+      })
+      .then(blob => {
+        const objectUrl = URL.createObjectURL(blob);
+        audio.src = objectUrl;
+        audio.play().catch(err => console.warn("Autoplay dicegah oleh browser:", err));
+        status.textContent = "Diputar otomatis";
+      })
+      .catch(err => {
+        console.error("Gagal memuat audio:", err);
+        status.textContent = "Gagal memuat audio.";
+      });
+  </script>
 
 </body>
 </html>
