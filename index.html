@@ -1382,7 +1382,7 @@ navDiv.appendChild(playAudioBtn);
         return;
       }
 
-      const blobRes = await fetch(`https://drive.google.com/uc?export=download&id=${fileId}`);
+      const blobRes = await fetch(`https://docs.google.com/uc?export=download&id=${fileId}`);
       const blob = await blobRes.blob();
       url = URL.createObjectURL(blob);
 
