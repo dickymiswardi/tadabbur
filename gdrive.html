@@ -1,58 +1,32 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <title>Putar Audio dari Google Drive</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Test Audio Google Drive</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
+      font-family: sans-serif;
       padding: 2em;
-      background-color: #f4f4f4;
+      background-color: #fefefe;
+      color: #333;
       text-align: center;
     }
-    button {
-      padding: 10px 20px;
-      background-color: #017b8b;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      font-size: 1em;
-      cursor: pointer;
-    }
-    button:hover {
-      background-color: #025d6a;
-    }
-    .audio-wrapper {
+    audio {
+      width: 100%;
+      max-width: 500px;
       margin-top: 2em;
     }
   </style>
 </head>
 <body>
 
-<audio class="player" controls preload="none">
-    <source src="https://docs.google.com/uc?export=open&id=1nNWtJ0WbvdZUId_G6RnxTDMQAW-NNeCB" type="audio/mp3">
-</audio>
-  <h1>Putar Audio dari Google Drive</h1>
+  <h2>🎧 Tes Audio dari Google Drive</h2>
 
-  <!-- Ganti dengan ID file Google Drive kamu -->
-  <button onclick="playGoogleDriveAudio('1nNWtJ0WbvdZUId_G6RnxTDMQAW-NNeCB')">▶️ Putar Audio</button>
-
-  <div id="audio-player-container" class="audio-wrapper"></div>
-
-  <script>
-    function playGoogleDriveAudio(fileId) {
-      const url = `https://docs.google.com/uc?export=download&id=${fileId}`;
-      const container = document.getElementById("audio-player-container");
-      container.innerHTML = ''; // kosongkan sebelum menambahkan audio baru
-
-      const audio = document.createElement("audio");
-      audio.controls = true;
-      audio.src = url;
-      audio.autoplay = true;
-
-      container.appendChild(audio);
-    }
-  </script>
+  <audio controls autoplay>
+    <source src="https://docs.google.com/uc?export=download&id=1Ckt-Fo9ZSjp66Ihg9PF0ZSJjPLbB--jN" type="audio/mpeg">
+    Browser Anda tidak mendukung pemutar audio.
+  </audio>
 
 </body>
 </html>
