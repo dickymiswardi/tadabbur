@@ -1368,6 +1368,10 @@ navDiv.appendChild(playAudioBtn);
   const key = `${surahStr}${ayahStr}`;
   let url = "";
 
+  const container = document.getElementById("audio-player-container");
+  container.style.display = "block";
+  container.innerHTML = '';
+
   if (qariId === "Minshawy_Murattal_128kbps") {
     try {
       const res = await fetch("https://raw.githubusercontent.com/dickymiswardi/tadabbur/refs/heads/main/audio_map.json");
@@ -1377,16 +1381,20 @@ navDiv.appendChild(playAudioBtn);
         alert("Audio tidak tersedia untuk ayat ini.");
         return;
       }
+
       const blobRes = await fetch(`https://drive.google.com/uc?export=download&id=${fileId}`);
-const blob = await blobRes.blob();
-url = URL.createObjectURL(blob);
+      const blob = await blobRes.blob();
+      url = URL.createObjectURL(blob);
+
     } catch (e) {
-      alert("Gagal memuat audio_map.json.");
+      alert("Gagal memuat audio dari Google Drive.");
+      console.error(e);
       return;
     }
   } else {
     url = `https://quran.ksu.edu.sa/ayat/mp3/${qariId}/${surahStr}${ayahStr}.mp3`;
   }
+
 
 
   const container = document.getElementById("audio-player-container");
@@ -1400,6 +1408,9 @@ url = URL.createObjectURL(blob);
   audio.controls = true;
   audio.src = url;
   audio.autoplay = true;
+audioWrapper.appendChild(audio);
+container.appendChild(audioWrapper);
+        
         // Paksa play ulang otomatis jika repeat > 1
 const repeat = parseInt(localStorage.getItem("repeatCount") || "1");
 if (repeat > 1) {
@@ -1492,7 +1503,6 @@ audio.onended = () => {
 };
 
 
-  audioWrapper.appendChild(audio);
 
 // === Checkbox "Aktifkan player selalu" ===
 const keepPlayerWrap = document.createElement("label");
@@ -1512,7 +1522,6 @@ audioWrapper.appendChild(keepPlayerWrap);
 
   audioWrapper.appendChild(repeatLabel);  
   audioWrapper.appendChild(toggleWrap);
-  container.appendChild(audioWrapper);
 }
 
 
