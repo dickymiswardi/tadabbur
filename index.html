@@ -1377,7 +1377,9 @@ navDiv.appendChild(playAudioBtn);
         alert("Audio tidak tersedia untuk ayat ini.");
         return;
       }
-      url = `https://drive.google.com/uc?export=preview&id=${fileId}`;
+      const blobRes = await fetch(`https://drive.google.com/uc?export=download&id=${fileId}`);
+const blob = await blobRes.blob();
+url = URL.createObjectURL(blob);
     } catch (e) {
       alert("Gagal memuat audio_map.json.");
       return;
