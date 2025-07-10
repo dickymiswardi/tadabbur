@@ -28,6 +28,37 @@
       color: #111;
     }
 
+    .clickable-word {
+  display: inline-block;
+  position: relative;
+  margin: 0 0.15em;
+  cursor: pointer;
+}
+
+.clickable-word:hover {
+  background-color: #f7eacb;
+  border-radius: 6px;
+}
+
+.word-translation {
+  position: absolute;
+  bottom: -2.4em;
+  font-size: 0.45em;
+  background: #fff;
+  border: 2px solid #ccc;
+  border-radius: 4px;
+  padding: 0.3em 0.6em;
+  white-space: nowrap;
+  display: none;
+  z-index: 10;
+  color: #444;
+}
+
+.clickable-word.active .word-translation {
+  display: block;
+}
+
+
      #install-notif {
     position: fixed;
     top: 50%;
@@ -856,37 +887,68 @@ const lastAyat = urlParams.get("ayat") || localStorage.getItem("lastAyat");
       return { surah: surah - 1, ayah: surahAyahCount[surah - 1] };
     }
 
-    const apiURL = `quran.json`; // ganti dari versi API lama
+    // const apiURL = `quran.json`; // ganti dari versi API lama
 
     Promise.all([
-  fetch("quran.json").then(res => res.json()),
-  fetch("indonesian_complex_v1.0.xml").then(res => res.text())
+  fetch("quran_uthmani_quran_com.json").then(res => res.json()),
+  fetch("indonesian_complex_v1.0.xml").then(res => res.text()),
+  fetch("terjemah_wbw_77429.json").then(res => res.json())
 ])
-.then(([quranData, xmlText]) => {
-  let arabicText = "(Teks Arab tidak ditemukan)";
+.then(([quranData, xmlText, wbwData]) => {
+// Loop ke seluruh entri quranData
+  const ayahKey = `${surah}:${ayat}`;
+const arabicText = quranData[ayahKey] || "(Teks Arab tidak ditemukan)";
+const wbw = (wbwData[ayahKey] || "").split("|").map(w => w.trim());
+const blocked = ['۞','ۛ','ۖ','ۚ','ۗ','ۙ','ۘ','ۜ','ۢ','ۭ','ۢ'];
 
-  // Loop ke seluruh entri quranData
-  for (const entry of quranData) {
-    for (const key in entry) {
-      const surahObj = entry[key];
-      if (parseInt(surahObj.chapterNumber) === surah) {
-        const verseObj = surahObj.text.find(v => parseInt(v.verseNumber) === ayat);
-        if (verseObj) {
-          arabicText = verseObj.text;
-        }
-      }
-    }
+const arabicWords = arabicText.split("|").map(w => w.trim());
+let arabicHTML = '';
+let wordIndex = 0;
+
+arabicWords.forEach(word => {
+  if (blocked.includes(word) || word === '') {
+    arabicHTML += ` <sup class="rasm-symbol">${word}</sup> `;
+  } else {
+    const translation = wbw[wordIndex] || "(?)";
+    arabicHTML += `<span class="clickable-word" data-translate="${translation}" data-word-index="${wordIndex + 1}">${word}<div class="word-translation">${translation}</div></span> `;
+    wordIndex++;
   }
+});
 
-      // Tambahkan simbol ayat
-  arabicText += ` \u06dd${toArabicNumber(ayat)}`;
-  arabicText = wrapRasmSymbols(arabicText);
+arabicHTML += ` <sup class="rasm-symbol">\u06dd${toArabicNumber(ayat)}</sup>`;
 
-      const arabDiv = document.createElement('div');
-      arabDiv.className = 'arabic';
-      arabDiv.innerHTML = arabicText;
-      document.getElementById("result").innerHTML = '';
-      document.getElementById("result").appendChild(arabDiv);
+const arabDiv = document.createElement('div');
+arabDiv.className = 'arabic';
+arabDiv.innerHTML = arabicHTML;
+document.getElementById("result").innerHTML = '';
+document.getElementById("result").appendChild(arabDiv);
+
+// Tambahkan event klik tooltip terjemah
+const audio = new Audio();
+
+document.querySelectorAll(".clickable-word").forEach(span => {
+  span.addEventListener("click", () => {
+    document.querySelectorAll(".clickable-word").forEach(w => w.classList.remove("active"));
+    span.classList.add("active");
+
+    // 🔊 Putar audio
+    const wordIndex = span.dataset.wordIndex;
+    const surahStr = String(surah).padStart(3, "0");
+    const ayatStr = String(ayat).padStart(3, "0");
+    const wordStr = String(wordIndex).padStart(3, "0");
+    const audioUrl = `https://verses.quran.com/wbw/${surahStr}_${ayatStr}_${wordStr}.mp3`;
+
+    audio.src = audioUrl;
+    audio.play().catch(e => console.warn("Audio gagal diputar:", e));
+
+    clearTimeout(window.ttTimeout);
+    window.ttTimeout = setTimeout(() => {
+      span.classList.remove("active");
+    }, 5000);
+  });
+});
+
+
 
       const parser = new DOMParser();
       const xmlDoc = parser.parseFromString(xmlText, "text/xml");
@@ -2193,8 +2255,8 @@ document.addEventListener('touchend', e => {
 <script>
 const allowedPrefixes = ['أ', 'ب', 'س', 'ف', 'ل', 'و'];
 const currentHost = location.hostname.includes("netlify")
-  ? "https://tadabbur.netlify.app"
-  : "https://dickymiswardi.github.io/tadabbur";
+  ? "https://tafsir.netlify.app"
+  : "https://netlify.github.io/quran";
 
 function isArabic(text) {
   return /[\u0600-\u06FF]/.test(text);
